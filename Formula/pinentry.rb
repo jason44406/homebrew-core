@@ -1,24 +1,34 @@
 class Pinentry < Formula
   desc "Passphrase entry dialog utilizing the Assuan protocol"
   homepage "https://www.gnupg.org/related_software/pinentry/"
-  url "https://www.gnupg.org/ftp/gcrypt/pinentry/pinentry-1.1.0.tar.bz2"
-  mirror "https://www.mirrorservice.org/sites/ftp.gnupg.org/gcrypt/pinentry/pinentry-1.1.0.tar.bz2"
-  sha256 "68076686fa724a290ea49cdf0d1c0c1500907d1b759a3bcbfbec0293e8f56570"
-  license "GPL-2.0"
-  revision 1
+  url "https://www.gnupg.org/ftp/gcrypt/pinentry/pinentry-1.2.1.tar.bz2"
+  mirror "https://www.mirrorservice.org/sites/ftp.gnupg.org/gcrypt/pinentry/pinentry-1.2.1.tar.bz2"
+  sha256 "457a185e5a85238fb945a955dc6352ab962dc8b48720b62fc9fa48c7540a4067"
+  license "GPL-2.0-only"
+
+  livecheck do
+    url "https://gnupg.org/ftp/gcrypt/pinentry/"
+    regex(/href=.*?pinentry[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "58dbcd3dc641fe0e14829d2d72be6bc5cadc9a5c26bf50678906866101d2589a" => :catalina
-    sha256 "206708ea13875bc8197f7d066bc0cb36893bd95b9ecc7ba6102c2f33b0fbd6c4" => :mojave
-    sha256 "a1a0e526f622d7dc4e2b3e0dcde061dbb383050b8efbe424d916bf983ae66c74" => :high_sierra
-    sha256 "fd93c11a28d38ba1b78c7fe646f027f98ce29c08ba02c7a0e14e69f355614e35" => :sierra
-    sha256 "e8c6180d9d86f008d0d9cdf0bc9638f2c119bb426504955ecbd16ef6b108d01d" => :el_capitan
+    sha256 cellar: :any,                 arm64_ventura:  "bf9663328a2b2d04479530fd7aa6053a3bf83c2f33ba1258d8eaafb94bb84060"
+    sha256 cellar: :any,                 arm64_monterey: "5a929b4926da533a676b19d3cb1225b796a4046e08fd922a9784422b67dff29d"
+    sha256 cellar: :any,                 arm64_big_sur:  "6648d2c2231940d6d1543f934045c6d172a68cbec3653ff70ca63c4281f047ae"
+    sha256 cellar: :any,                 ventura:        "b2f9200f41078da0b832121d708367b3c42116c11bf306851580f16541cc145f"
+    sha256 cellar: :any,                 monterey:       "14dd6cb2c084a534214607f68d0876035f8e8aaeb452c374aa41adbe0231511a"
+    sha256 cellar: :any,                 big_sur:        "51144f3f5a2eacd6c13e34d44975d025981c38c1815dc4d7cbd062ddbe23e12a"
+    sha256 cellar: :any,                 catalina:       "df23306e11505b962ab871fd30f1cd6e1694440ede2a9692a68e4ae2da1569c0"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "d75a7ffda7ba40c207144f82620c9bbfef7b52bad50d9b3bf4addc3235783978"
   end
 
   depends_on "pkg-config" => :build
   depends_on "libassuan"
   depends_on "libgpg-error"
+
+  on_linux do
+    depends_on "libsecret"
+  end
 
   def install
     args = %W[

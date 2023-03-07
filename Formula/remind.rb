@@ -1,25 +1,29 @@
 class Remind < Formula
   desc "Sophisticated calendar and alarm"
   homepage "https://dianne.skoll.ca/projects/remind/"
-  url "https://dianne.skoll.ca/projects/remind/download/remind-03.03.01.tar.gz"
-  sha256 "d1a164d1c2d1e963d5f1f251457a8065cae12f36e3914cac1e54275180499478"
+  url "https://dianne.skoll.ca/projects/remind/download/remind-04.02.03.tar.gz"
+  sha256 "d2163f79edfe12ba8f36e703d59722b0aed66f34fb76657ff6f40abacfec3a00"
+  license "GPL-2.0-only"
+  head "https://git.skoll.ca/Skollsoft-Public/Remind.git", branch: "master"
+
+  livecheck do
+    url :homepage
+    regex(%r{href=.*?/download/remind-(\d+(?:[._]\d+)+)\.t}i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "cb1470b7207336fee89f03b6a7d540ff21720ec27f3a18abb0c938a815efca05" => :catalina
-    sha256 "09c627b85760732ba5a9e52e184458e1ea6be7b69d35cad34fe1c0e2d6189d4c" => :mojave
-    sha256 "2c99a0b697e0b93cd8d43c39fd81f4c220c280ee2c260e573c39ff2f749e01b6" => :high_sierra
+    sha256 arm64_ventura:  "14769c09e8b30e9a4e69dd02b8d7af31d5bfcf7deb32913647bc3a819534e00b"
+    sha256 arm64_monterey: "9c4ce4112a17ec25f12dc738518cce6f34cfe1ef7689365c4301496f564e29dc"
+    sha256 arm64_big_sur:  "8266a5df851bb910684a18b90c0f4d2f7ba0a9f6bb890c7f2db8da132474ed19"
+    sha256 ventura:        "c768d5cfc2bf8d1af12d1cfe7cd8a834f7192f969243e8745841fd86c004e0df"
+    sha256 monterey:       "7240cd78b6a374d7590e3701b5cd8214ef75c713d3e995dc42a07bde0e2a1a36"
+    sha256 big_sur:        "ab01fc7fc16dcc92885b840c5937bcb944da1f31728c42a05aba224cc9cc70d8"
+    sha256 x86_64_linux:   "9dfa15591599c5c544252c930c3ae89b0d0204b824ecd91338aa1fd7e9947cb1"
   end
 
   conflicts_with "rem", because: "both install `rem` binaries"
 
   def install
-    # Remove unnecessary sleeps when running on Apple
-    inreplace "configure", "sleep 1", "true"
-    inreplace "src/init.c" do |s|
-      s.gsub! "sleep(5);", ""
-      s.gsub! /rkrphgvba\(.\);/, ""
-    end
     system "./configure", "--prefix=#{prefix}"
     system "make", "install"
   end

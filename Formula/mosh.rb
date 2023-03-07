@@ -1,46 +1,47 @@
 class Mosh < Formula
   desc "Remote terminal application"
   homepage "https://mosh.org"
-  license "GPL-3.0"
-  revision 12
-
-  stable do
-    url "https://mosh.org/mosh-1.3.2.tar.gz"
-    sha256 "da600573dfa827d88ce114e0fed30210689381bbdcff543c931e4d6a2e851216"
-
-    # Fix mojave build.
-    patch do
-      url "https://github.com/mobile-shell/mosh/commit/e5f8a826ef9ff5da4cfce3bb8151f9526ec19db0.patch?full_index=1"
-      sha256 "022bf82de1179b2ceb7dc6ae7b922961dfacd52fbccc30472c527cb7c87c96f0"
-    end
-  end
+  url "https://github.com/mobile-shell/mosh/releases/download/mosh-1.4.0/mosh-1.4.0.tar.gz"
+  sha256 "872e4b134e5df29c8933dff12350785054d2fd2839b5ae6b5587b14db1465ddd"
+  license "GPL-3.0-or-later"
 
   bottle do
-    cellar :any
-    sha256 "80aa0652a09eacf7e786012d1db2382d7423d476b44c536c1a7a3312b4a5e45a" => :catalina
-    sha256 "6d1567ab1ff2159a5bd346ed8b51bca5fd82506279b930bb10079dc1ea79f860" => :mojave
-    sha256 "e82a65883dc605e100b159ccd55ffee43c14eb65086a02b8cceba67f1b524066" => :high_sierra
+    rebuild 2
+    sha256 cellar: :any,                 arm64_ventura:  "1e37122ddf9eec43006108b5ebda33cbaacdf1806cb9e36f55a51e9d63127ab9"
+    sha256 cellar: :any,                 arm64_monterey: "d1ee93489325ff25e04fb13721dbb9e1b6c00fee6bcd60d29bccf03175222e4b"
+    sha256 cellar: :any,                 arm64_big_sur:  "570b3ac2282ed39584f61c70029d7613360e3b91f985282ccb3fc75b4a0af61b"
+    sha256 cellar: :any,                 ventura:        "ab239b2556be43b941fd4e78db5fabf44531df964c0cb079351bb0e85a0a5f3e"
+    sha256 cellar: :any,                 monterey:       "3cb8d2d82216e9e9c5c2f41586ccaa7d8c576031741b443213dbce184db65f79"
+    sha256 cellar: :any,                 big_sur:        "ef136ae9e3ee88e154e4907753d5f3ad6d5cf2ec6102f5a13e195d4445b089e4"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "dbae285ac8d5c5a52d2e3ef4be2ed7277e64bff69b48d37778e7401c6e930c7c"
   end
 
   head do
-    url "https://github.com/mobile-shell/mosh.git", shallow: false
+    url "https://github.com/mobile-shell/mosh.git", branch: "master"
 
     depends_on "autoconf" => :build
     depends_on "automake" => :build
   end
 
   depends_on "pkg-config" => :build
-  depends_on "tmux" => :build
   depends_on "protobuf"
 
   uses_from_macos "ncurses"
+  uses_from_macos "zlib"
+
+  on_linux do
+    depends_on "openssl@3" # Uses CommonCrypto on macOS
+  end
 
   def install
     ENV.cxx11
 
+    # https://github.com/protocolbuffers/protobuf/issues/9947
+    ENV.append_to_cflags "-DNDEBUG"
+
     # teach mosh to locate mosh-client without referring
     # PATH to support launching outside shell e.g. via launcher
-    inreplace "scripts/mosh.pl", "'mosh-client", "\'#{bin}/mosh-client"
+    inreplace "scripts/mosh.pl", "'mosh-client", "'#{bin}/mosh-client"
 
     system "./autogen.sh" if build.head?
     system "./configure", "--prefix=#{prefix}", "--enable-completion"

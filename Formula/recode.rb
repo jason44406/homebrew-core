@@ -1,38 +1,27 @@
 class Recode < Formula
   desc "Convert character set (charsets)"
-  homepage "https://github.com/pinard/Recode"
-  url "https://github.com/pinard/Recode/archive/v3.7-beta2.tar.gz"
-  sha256 "72c3c0abcfe2887b83a8f27853a9df75d7e94a9ebacb152892cc4f25108e2144"
-  license "GPL-2.0"
-  revision 1
+  homepage "https://github.com/rrthomas/recode"
+  url "https://github.com/rrthomas/recode/releases/download/v3.7.14/recode-3.7.14.tar.gz"
+  sha256 "786aafd544851a2b13b0a377eac1500f820ce62615ccc2e630b501e7743b9f33"
+  license "GPL-3.0-or-later"
 
   bottle do
-    sha256 "104914c7dd2db1afbafe61a025ebe41da5a88ed89ac8079c8e7d9150bb7a2e2d" => :catalina
-    sha256 "541408c872b2c16e999cb6f74fc94e8c340dfb1e2eb3a89aa21d3f118554219d" => :mojave
-    sha256 "65d9921e28f36fe7a0755d1cab44e4c2d2e5752ab25ed6c35cc7ee9e9072aee3" => :high_sierra
-    sha256 "d8d1838e5484c1bbdde1a1f4f57907a601ee32b6577c3c9364dde06e095a5605" => :sierra
+    sha256 cellar: :any,                 arm64_ventura:  "43e1f1c1e34ea2a6ce0e794aa99378dcc282b88e75abd5b64407544f79b18f5e"
+    sha256 cellar: :any,                 arm64_monterey: "a350ff1d98007511a123cc29e8d338164d36ad97126e1cbf6f706d70d4a55238"
+    sha256 cellar: :any,                 arm64_big_sur:  "30c322a156a08ef567279ebafbe6766be1d65306e1ed0529554effd1ec682167"
+    sha256 cellar: :any,                 ventura:        "e994c456daa78b8e6c324ca5802b6b6ebf27207585280430102090299841ba1b"
+    sha256 cellar: :any,                 monterey:       "37660b18533ce9c469a27dce18f577947f4f5a7dbbb26b19e50a88d9ee9e2eb7"
+    sha256 cellar: :any,                 big_sur:        "249ce4061a2202c4a0435c913e34856a5f91ffe761a31a1ce43a55509dc19599"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "ebf5fa37f30212152b21e78386294f7c25217ab049414d840bcbc87738bfe110"
   end
 
+  depends_on "help2man" => :build
   depends_on "libtool" => :build
+  depends_on "python@3.11" => :build
   depends_on "gettext"
 
   def install
-    # Missing symbol errors without these.
-    ENV.append "LDFLAGS", "-liconv"
-    ENV.append "LDFLAGS", "-lintl"
-
-    # Fixed upstream in 2008 but no releases since. Patched by Debian also.
-    # https://github.com/pinard/Recode/commit/a34dfd2257f412dff59f2ad7f714.
-    inreplace "src/recodext.h", "bool ignore : 2;", "bool ignore : 1;"
-
-    cp Dir["#{Formula["libtool"].opt_pkgshare}/*/config.{guess,sub}"], buildpath
-
-    system "./configure", "--disable-debug",
-                          "--disable-dependency-tracking",
-                          "--without-included-gettext",
-                          "--prefix=#{prefix}",
-                          "--infodir=#{info}",
-                          "--mandir=#{man}"
+    system "./configure", *std_configure_args
     system "make", "install"
   end
 

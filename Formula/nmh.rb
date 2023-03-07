@@ -1,15 +1,24 @@
 class Nmh < Formula
-  desc "The new version of the MH mail handler"
+  desc "New version of the MH mail handler"
   homepage "https://www.nongnu.org/nmh/"
-  url "https://download.savannah.gnu.org/releases/nmh/nmh-1.7.1.tar.gz"
-  sha256 "f1fb94bbf7d95fcd43277c7cfda55633a047187f57afc6c1bb9321852bd07c11"
-  revision 1
+  url "https://download.savannah.gnu.org/releases/nmh/nmh-1.8.tar.gz"
+  mirror "https://download-mirror.savannah.gnu.org/releases/nmh/nmh-1.8.tar.gz"
+  sha256 "366ce0ce3f9447302f5567009269c8bb3882d808f33eefac85ba367e875c8615"
+  license "BSD-3-Clause"
+
+  livecheck do
+    url "https://download.savannah.gnu.org/releases/nmh/"
+    regex(/href=.*?nmh[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    sha256 "5ed10257c9024848ec26fc4c80e1ddbbba3cca6199b83cf62fbbdc9a1970e404" => :catalina
-    sha256 "9c53df993c2f8f0dd45dea112d082d7cfc67efd34e58be2f62d95bfb44d3c9b7" => :mojave
-    sha256 "f46c5ca5a87081a9a8f7f454e0cb36de543dff666ac0ba8e1bcb867a2f7e7763" => :high_sierra
-    sha256 "8b70320e7046fc756ba490a44d5f7923a0e45db4f645dc02f80c19823eefa823" => :sierra
+    sha256 arm64_ventura:  "b19ca14a98f0e0d57410ab8657327d8bacb06fdf298c43f629dce4e2a7dc8e48"
+    sha256 arm64_monterey: "d80d7dcbe30bbbf4caab0171bfab9699e4617302b03f965ea4bfe400ec9a88e7"
+    sha256 arm64_big_sur:  "f9b055924ae29046bce486620efd1fee6ce619538da3ed0c2abd7eaf159e250d"
+    sha256 ventura:        "b46e2faf510ed02b0bf422ef23c05cfcf47ec1365cc3f4e54cf2ff17f7548ac7"
+    sha256 monterey:       "6a5e9dd3ea5b6afac624973fcbbb71e0affceffe69fa05c96c400cc99268f11a"
+    sha256 big_sur:        "6143ca12870b982d30f5603af14e9f1ab6c00ff2f29e0cb2cc93833aee319941"
+    sha256 x86_64_linux:   "803dd671f3de823a42b001242a1239280b828b5714018662774e320f7bfa61cd"
   end
 
   head do
@@ -22,6 +31,12 @@ class Nmh < Formula
   depends_on "openssl@1.1"
   depends_on "w3m"
 
+  uses_from_macos "cyrus-sasl"
+
+  on_linux do
+    depends_on "gdbm"
+  end
+
   def install
     system "./autogen.sh" if build.head?
     system "./configure", "--disable-dependency-tracking",
@@ -30,6 +45,9 @@ class Nmh < Formula
                           "--with-cyrus-sasl",
                           "--with-tls"
     system "make", "install"
+
+    # Remove shim references
+    inreplace prefix/"etc/nmh/mhn.defaults", Superenv.shims_path/"curl", "curl"
   end
 
   test do

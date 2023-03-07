@@ -1,36 +1,39 @@
 class Ibex < Formula
   desc "C++ library for constraint processing over real numbers"
   homepage "https://web.archive.org/web/20190826220512/www.ibex-lib.org/"
-  url "https://github.com/ibex-team/ibex-lib/archive/ibex-2.8.7.tar.gz"
-  sha256 "b80da9f6edecaf93edc00c7e7c630ae6cf934ce9ce061debb630f027e69b5c97"
-  license "LGPL-3.0"
-  head "https://github.com/ibex-team/ibex-lib.git"
+  url "https://github.com/ibex-team/ibex-lib/archive/ibex-2.8.9.tar.gz"
+  sha256 "fee448b3fa3929a50d36231ff2f14e5480a0b82506594861536e3905801a6571"
+  license "LGPL-3.0-only"
+  head "https://github.com/ibex-team/ibex-lib.git", branch: "master"
+
+  livecheck do
+    url :stable
+    regex(/^ibex[._-]v?(\d+(?:\.\d+)+)$/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "0de9cd95f329d455905ef0d562c4bf116b7a634adc70296830da39259b21130f" => :catalina
-    sha256 "ffebafe7aec3708cf61e3f248c891cca974d904c0e987294e45cbf0bf612d13b" => :mojave
-    sha256 "91500e1cd76da6db5afa6e5c0ac70ccf09b2ce3036d4544b2abd21a4ec3beb78" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, ventura:      "eea592d2c1c13bde0a000ca8705cabce4e11aeabb76a30dc8baf09931b9a22dd"
+    sha256 cellar: :any_skip_relocation, monterey:     "5fe0810e9f6ef9b72c7d1e9ceba7b6b9c37410dd93f9801ac37e9738ec245005"
+    sha256 cellar: :any_skip_relocation, big_sur:      "dbe9f4d68e4a406bd4926d6c821887e32af2d323f1d7ecd9a729ee0957c3e120"
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "1b64c5e784e7585d8a70179625a1a10a9b1c6926bd224c3d165abaed3db66c78"
   end
 
   depends_on "bison" => :build
+  depends_on "cmake" => :build
   depends_on "flex" => :build
   depends_on "pkg-config" => [:build, :test]
-  depends_on :macos # Due to Python 2
 
   uses_from_macos "zlib"
 
   def install
     ENV.cxx11
 
-    # Reported 9 Oct 2017 https://github.com/ibex-team/ibex-lib/issues/286
-    ENV.deparallelize
-
-    system "./waf", "configure", "--prefix=#{prefix}",
-                                 "--enable-shared",
-                                 "--lp-lib=soplex",
-                                 "--with-optim"
-    system "./waf", "install"
+    mkdir "build" do
+      system "cmake", "..", *std_cmake_args.reject { |s| s["CMAKE_INSTALL_LIBDIR"] }
+      system "make", "SHARED=true"
+      system "make", "install"
+    end
 
     pkgshare.install %w[examples benchs/solver]
     (pkgshare/"examples/symb01.txt").write <<~EOS
@@ -44,14 +47,6 @@ class Ibex < Formula
     ENV.cxx11
 
     cp_r (pkgshare/"examples").children, testpath
-
-    # so that pkg-config can remain a build-time only dependency
-    inreplace %w[makefile slam/makefile] do |s|
-      s.gsub!(/CXXFLAGS.*pkg-config --cflags ibex./,
-              "CXXFLAGS := -I#{include} -I#{include}/ibex "\
-                          "-I#{include}/ibex/3rd")
-      s.gsub!(/LIBS.*pkg-config --libs  ibex./, "LIBS := -L#{lib} -libex")
-    end
 
     (1..8).each do |n|
       system "make", "lab#{n}"

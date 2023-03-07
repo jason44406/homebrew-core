@@ -3,29 +3,37 @@ class Fdroidserver < Formula
 
   desc "Create and manage Android app repositories for F-Droid"
   homepage "https://f-droid.org"
-  url "https://files.pythonhosted.org/packages/63/a9/327d10e876b7c5750564035151bae9f65268e3b6aa6163cd519f43b48bf3/fdroidserver-1.1.9.tar.gz"
-  sha256 "420904baf24c8a5b8485898f3a3d1f6c2c52b4599ef4df443ebc901fd2710754"
-  license "AGPL-3.0"
+  url "https://files.pythonhosted.org/packages/31/e0/8068b4def4b69bb5ab9e71374b97358ec23562a7f0c62d542858b0796068/fdroidserver-2.2.0.tar.gz"
+  sha256 "18af655cf4a8d7b9cf621968f02196dda8931ed776186b0797b137900b59bd18"
+  license "AGPL-3.0-or-later"
 
   bottle do
-    cellar :any
-    sha256 "b6c78f576d5efc31e4094e61c13fb2ad8d374aa76a458e1bd309040f197c0526" => :catalina
-    sha256 "b662c1a4d1eeba40e43243e91b499605ab1e1758321beab10f9a3848e50c9d40" => :mojave
-    sha256 "7202bafc628326f0b4951ec1d13c3803dc3385abc2b9683fcf45db4248b87f9b" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "65c083f35537cfaa95d0c890506c44fa9022ee07a27cf534556edfec07b7c5b7"
+    sha256 cellar: :any,                 arm64_monterey: "d65197e45610d275fead2f02cf519bb617588fbb8154011f150c6b4cacb5c75a"
+    sha256 cellar: :any,                 arm64_big_sur:  "22af3327d4d43ac49108d8e60a015959e43ececf1f0fb0fbe838622e997969d7"
+    sha256 cellar: :any,                 ventura:        "4043063d7d8dae6665279286311886b8f74771e4cfa941625765bda3d635ecbb"
+    sha256 cellar: :any,                 monterey:       "cf13c51bba206b22b100bb39f96e194dd7cb2c81036156759fa17bfa36b2a29d"
+    sha256 cellar: :any,                 big_sur:        "c5c6f00c85a5b252ae32429ee5c1bd6fe24097a23fb7b77f0a9a4336e209f0cf"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "e8db2ff92ba31e3edfd79fddfde015f8fd93be73374e99e89173ac410e180648"
   end
 
   depends_on "pkg-config" => :build
-  depends_on "freetype"
-  depends_on "jpeg"
-  depends_on "libtiff"
+  depends_on "rust" => :build
+  depends_on "fonttools"
+  depends_on "ipython"
+  depends_on "numpy"
   depends_on "openssl@1.1"
-  depends_on "python@3.8"
+  depends_on "pillow"
+  depends_on "pygments"
+  depends_on "python@3.11"
+  depends_on "pyyaml"
   depends_on "s3cmd"
-  depends_on "webp"
+  depends_on "six"
+  depends_on "yamllint"
 
+  uses_from_macos "libffi", since: :catalina
   uses_from_macos "libxml2"
   uses_from_macos "libxslt"
-  uses_from_macos "zlib"
 
   resource "androguard" do
     url "https://files.pythonhosted.org/packages/83/78/0f44e8f0fd10493b3118d79d60599c93e5a2cd378d83054014600a620cba/androguard-3.3.5.tar.gz"
@@ -33,13 +41,8 @@ class Fdroidserver < Formula
   end
 
   resource "apache-libcloud" do
-    url "https://files.pythonhosted.org/packages/ae/dd/a505a95ef51f097125cbd277280601e92c26a9ad18986b2846d306f73aca/apache-libcloud-3.1.0.tar.gz"
-    sha256 "bbb858e045ba5e06d61632c08b9828625766aae30ff4fe727f2bee598c9048ac"
-  end
-
-  resource "appnope" do
-    url "https://files.pythonhosted.org/packages/26/34/0f3a5efac31f27fabce64645f8c609de9d925fe2915304d1a40f544cff0e/appnope-0.1.0.tar.gz"
-    sha256 "8b995ffe925347a2138d7ac0fe77155e4311a0ea6d6da4f5128fe4b3cbe5ed71"
+    url "https://files.pythonhosted.org/packages/ee/33/1cc39b29f392154765c9c86446892066275363c6f3cea6a5b1834d9c4301/apache-libcloud-3.7.0.tar.gz"
+    sha256 "148a9e50069654432a7d34997954e91434dd38ebf68832eb9c75d442b3e62fad"
   end
 
   resource "args" do
@@ -48,38 +51,33 @@ class Fdroidserver < Formula
   end
 
   resource "asn1crypto" do
-    url "https://files.pythonhosted.org/packages/9f/3d/8beae739ed8c1c8f00ceac0ab6b0e97299b42da869e24cf82851b27a9123/asn1crypto-1.3.0.tar.gz"
-    sha256 "5a215cb8dc12f892244e3a113fe05397ee23c5c4ca7a69cd6e69811755efc42d"
-  end
-
-  resource "backcall" do
-    url "https://files.pythonhosted.org/packages/a2/40/764a663805d84deee23043e1426a9175567db89c8b3287b5c2ad9f71aa93/backcall-0.2.0.tar.gz"
-    sha256 "5cbdbf27be5e7cfadb448baf0aa95508f91f2bbc6c6437cd9cd06e2a4c215e1e"
+    url "https://files.pythonhosted.org/packages/de/cf/d547feed25b5244fcb9392e288ff9fdc3280b10260362fc45d37a798a6ee/asn1crypto-1.5.1.tar.gz"
+    sha256 "13ae38502be632115abf8a24cbe5f4da52e3b5231990aff31123c805306ccb9c"
   end
 
   resource "bcrypt" do
-    url "https://files.pythonhosted.org/packages/fa/aa/025a3ab62469b5167bc397837c9ffc486c42a97ef12ceaa6699d8f5a5416/bcrypt-3.1.7.tar.gz"
-    sha256 "0b0069c752ec14172c5f78208f1863d7ad6755a6fae6fe76ec2c80d13be41e42"
+    url "https://files.pythonhosted.org/packages/8c/ae/3af7d006aacf513975fd1948a6b4d6f8b4a307f8a244e1a3d3774b297aad/bcrypt-4.0.1.tar.gz"
+    sha256 "27d375903ac8261cfe4047f6709d16f7d18d39b1ec92aaf72af989552a650ebd"
   end
 
   resource "certifi" do
-    url "https://files.pythonhosted.org/packages/40/a7/ded59fa294b85ca206082306bba75469a38ea1c7d44ea7e1d64f5443d67a/certifi-2020.6.20.tar.gz"
-    sha256 "5930595817496dd21bb8dc35dad090f1c2cd0adfaf21204bf6732ca5d8ee34d3"
+    url "https://files.pythonhosted.org/packages/37/f7/2b1b0ec44fdc30a3d31dfebe52226be9ddc40cd6c0f34ffc8923ba423b69/certifi-2022.12.7.tar.gz"
+    sha256 "35824b4c3a97115964b408844d64aa14db1cc518f6562e8d7261699d1350a9e3"
   end
 
   resource "cffi" do
-    url "https://files.pythonhosted.org/packages/05/54/3324b0c46340c31b909fcec598696aaec7ddc8c18a63f2db352562d3354c/cffi-1.14.0.tar.gz"
-    sha256 "2d384f4a127a15ba701207f7639d94106693b6cd64173d6c8988e2c25f3ac2b6"
+    url "https://files.pythonhosted.org/packages/2b/a8/050ab4f0c3d4c1b8aaa805f70e26e84d0e27004907c5b8ecc1d31815f92a/cffi-1.15.1.tar.gz"
+    sha256 "d400bfb9a37b1351253cb402671cea7e89bdecc294e8016a707f6d1d8ac934f9"
   end
 
-  resource "chardet" do
-    url "https://files.pythonhosted.org/packages/fc/bb/a5768c230f9ddb03acc9ef3f0d4a3cf93462473795d18e9535498c8f929d/chardet-3.0.4.tar.gz"
-    sha256 "84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae"
+  resource "charset-normalizer" do
+    url "https://files.pythonhosted.org/packages/96/d7/1675d9089a1f4677df5eb29c3f8b064aa1e70c1251a0a8a127803158942d/charset-normalizer-3.0.1.tar.gz"
+    sha256 "ebea339af930f8ca5d7a699b921106c6e29c617fe9606fa7baa043c1cdae326f"
   end
 
   resource "click" do
-    url "https://files.pythonhosted.org/packages/27/6f/be940c8b1f1d69daceeb0032fee6c34d7bd70e3e649ccac0951500b4720e/click-7.1.2.tar.gz"
-    sha256 "d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a"
+    url "https://files.pythonhosted.org/packages/59/87/84326af34517fca8c58418d148f2403df25303e02736832403587318e9e8/click-8.1.3.tar.gz"
+    sha256 "7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e"
   end
 
   resource "clint" do
@@ -88,138 +86,73 @@ class Fdroidserver < Formula
   end
 
   resource "colorama" do
-    url "https://files.pythonhosted.org/packages/82/75/f2a4c0c94c85e2693c229142eb448840fba0f9230111faa889d1f541d12d/colorama-0.4.3.tar.gz"
-    sha256 "e96da0d330793e2cb9485e9ddfd918d456036c7149416295932478192f4436a1"
+    url "https://files.pythonhosted.org/packages/d8/53/6f443c9a4a8358a93a6792e2acffb9d9d5cb0a5cfd8802644b7b1c9a02e4/colorama-0.4.6.tar.gz"
+    sha256 "08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"
+  end
+
+  resource "contourpy" do
+    url "https://files.pythonhosted.org/packages/b4/9b/6edb9d3e334a70a212f66a844188fcb57ddbd528cbc3b1fe7abfc317ddd7/contourpy-1.0.7.tar.gz"
+    sha256 "d8165a088d31798b59e91117d1f5fc3df8168d8b48c4acc10fc0df0d0bdbcc5e"
   end
 
   resource "cryptography" do
-    url "https://files.pythonhosted.org/packages/56/3b/78c6816918fdf2405d62c98e48589112669f36711e50158a0c15d804c30d/cryptography-2.9.2.tar.gz"
-    sha256 "a0c30272fb4ddda5f5ffc1089d7405b7a71b0b0f51993cb4e5dbb4590b2fc229"
+    url "https://files.pythonhosted.org/packages/6a/f5/a729774d087e50fffd1438b3877a91e9281294f985bda0fd15bf99016c78/cryptography-39.0.1.tar.gz"
+    sha256 "d1f6198ee6d9148405e49887803907fe8962a23e6c6f83ea7d98f1c0de375695"
   end
 
-  resource "Cycler" do
-    url "https://files.pythonhosted.org/packages/c2/4b/137dea450d6e1e3d474e1d873cd1d4f7d3beed7e0dc973b06e8e10d32488/cycler-0.10.0.tar.gz"
-    sha256 "cd7b2d1018258d7247a71425e9f26463dfb444d411c39569972f4ce586b0c9d8"
-  end
-
-  resource "decorator" do
-    url "https://files.pythonhosted.org/packages/da/93/84fa12f2dc341f8cf5f022ee09e109961055749df2d0c75c5f98746cfe6c/decorator-4.4.2.tar.gz"
-    sha256 "e3a62f0520172440ca0dcc823749319382e377f37f140a0b99ef45fecb84bfe7"
+  resource "cycler" do
+    url "https://files.pythonhosted.org/packages/34/45/a7caaacbfc2fa60bee42effc4bcc7d7c6dbe9c349500e04f65a861c15eb9/cycler-0.11.0.tar.gz"
+    sha256 "9c87405839a19696e837b3b818fed3f5f69f16f1eec1a1ad77e043dcea9c772f"
   end
 
   resource "defusedxml" do
-    url "https://files.pythonhosted.org/packages/a4/5f/f8aa58ca0cf01cbcee728abc9d88bfeb74e95e6cb4334cfd5bed5673ea77/defusedxml-0.6.0.tar.gz"
-    sha256 "f684034d135af4c6cbb949b8a4d2ed61634515257a67299e5f940fbaa34377f5"
-  end
-
-  resource "docker-py" do
-    url "https://files.pythonhosted.org/packages/fa/2d/906afc44a833901fc6fed1a89c228e5c88fbfc6bd2f3d2f0497fdfb9c525/docker-py-1.10.6.tar.gz"
-    sha256 "4c2a75875764d38d67f87bc7d03f7443a3895704efc57962bdf6500b8d4bc415"
-  end
-
-  resource "docker-pycreds" do
-    url "https://files.pythonhosted.org/packages/c5/e6/d1f6c00b7221e2d7c4b470132c931325c8b22c51ca62417e300f5ce16009/docker-pycreds-0.4.0.tar.gz"
-    sha256 "6ce3270bcaf404cc4c3e27e4b6c70d3521deae82fb508767870fdbf772d584d4"
+    url "https://files.pythonhosted.org/packages/0f/d5/c66da9b79e5bdb124974bfe172b4daf3c984ebd9c2a06e2b8a4dc7331c72/defusedxml-0.7.1.tar.gz"
+    sha256 "1bb3032db185915b62d7c6209c5a8792be6a32ab2fedacc84e01b52c51aa3e69"
   end
 
   resource "gitdb" do
-    url "https://files.pythonhosted.org/packages/d1/05/eaf2ac564344030d8b3ce870b116d7bb559020163e80d9aa4a3d75f3e820/gitdb-4.0.5.tar.gz"
-    sha256 "c9e1f2d0db7ddb9a704c2a0217be31214e91a4fe1dea1efad19ae42ba0c285c9"
+    url "https://files.pythonhosted.org/packages/4b/47/dc98f3d5d48aa815770e31490893b92c5f1cd6c6cf28dd3a8ae0efffac14/gitdb-4.0.10.tar.gz"
+    sha256 "6eb990b69df4e15bad899ea868dc46572c3f75339735663b81de79b06f17eb9a"
   end
 
   resource "GitPython" do
-    url "https://files.pythonhosted.org/packages/5b/ef/96dd6b06400821bbad3f7e275f4a4f88af324124c5c04958e2f2c14ce2c8/GitPython-3.1.3.tar.gz"
-    sha256 "e107af4d873daed64648b4f4beb89f89f0cfbe3ef558fc7821ed2331c2f8da1a"
+    url "https://files.pythonhosted.org/packages/5f/11/2b0f60686dbda49028cec8c66bd18a5e82c96d92eef4bc34961e35bb3762/GitPython-3.1.31.tar.gz"
+    sha256 "8ce3bcf69adfdf7c7d503e78fd3b1c492af782d58893b650adb2ac8912ddd573"
   end
 
   resource "idna" do
-    url "https://files.pythonhosted.org/packages/cb/19/57503b5de719ee45e83472f339f617b0c01ad75cba44aba1e4c97c2b0abd/idna-2.9.tar.gz"
-    sha256 "7588d1c14ae4c77d74036e8c22ff447b26d0fde8f007354fd48a7814db15b7cb"
-  end
-
-  resource "ipython" do
-    url "https://files.pythonhosted.org/packages/22/2b/49a79bcd466b50aa0ea12411fa752e74984935363bb93ed5931fd0449309/ipython-7.15.0.tar.gz"
-    sha256 "0ef1433879816a960cd3ae1ae1dc82c64732ca75cec8dab5a4e29783fb571d0e"
-  end
-
-  resource "ipython_genutils" do
-    url "https://files.pythonhosted.org/packages/e8/69/fbeffffc05236398ebfcfb512b6d2511c622871dca1746361006da310399/ipython_genutils-0.2.0.tar.gz"
-    sha256 "eb2e116e75ecef9d4d228fdc66af54269afa26ab4463042e33785b887c628ba8"
-  end
-
-  resource "jedi" do
-    url "https://files.pythonhosted.org/packages/2e/86/3ea824e61de521b2abd9ada9a080375c01721e66266ccc8ba8b3576ad88a/jedi-0.17.1.tar.gz"
-    sha256 "807d5d4f96711a2bcfdd5dfa3b1ae6d09aa53832b182090b222b5efb81f52f63"
+    url "https://files.pythonhosted.org/packages/8b/e1/43beb3d38dba6cb420cefa297822eac205a277ab43e5ba5d5c46faf96438/idna-3.4.tar.gz"
+    sha256 "814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4"
   end
 
   resource "kiwisolver" do
-    url "https://files.pythonhosted.org/packages/62/b8/db619d97819afb52a3ff5ff6ad3f7de408cc83a8ec2dfb31a1731c0a97c2/kiwisolver-1.2.0.tar.gz"
-    sha256 "247800260cd38160c362d211dcaf4ed0f7816afb5efe56544748b21d6ad6d17f"
+    url "https://files.pythonhosted.org/packages/5f/5c/272a7dd49a1914f35cd8d6d9f386defa8b047f6fbd06badd6b77b3ba24e7/kiwisolver-1.4.4.tar.gz"
+    sha256 "d41997519fcba4a1e46eb4a2fe31bc12f0ff957b2b81bac28db24744f333e955"
   end
 
   resource "lxml" do
-    url "https://files.pythonhosted.org/packages/03/a8/73d795778143be51d8b86750b371b3efcd7139987f71618ad9f4b8b65543/lxml-4.5.1.tar.gz"
-    sha256 "27ee0faf8077c7c1a589573b1450743011117f1aa1a91d5ae776bbc5ca6070f2"
+    url "https://files.pythonhosted.org/packages/06/5a/e11cad7b79f2cf3dd2ff8f81fa8ca667e7591d3d8451768589996b65dec1/lxml-4.9.2.tar.gz"
+    sha256 "2455cfaeb7ac70338b3257f41e21f0724f4b5b0c0e7702da67ee6c3640835b67"
   end
 
   resource "matplotlib" do
-    url "https://files.pythonhosted.org/packages/9c/4b/06f4aa9bef6b5e4f177881b4dedd94faa6e7cb3d95dfaeaa8a1a8b541095/matplotlib-3.2.2.tar.gz"
-    sha256 "3d77a6630d093d74cbbfebaa0571d00790966be1ed204e4a8239f5cbd6835c5d"
-  end
-
-  resource "mwclient" do
-    url "https://files.pythonhosted.org/packages/97/b4/5fc70ad3286a8d8ec4b9ac01acad0f6b00c5a48d4a16b9d3be6519b7eb21/mwclient-0.10.1.tar.gz"
-    sha256 "79363dd8d12f5e3b91b92b63152bf9dfef27da786c076a244e1f148c8dd67139"
+    url "https://files.pythonhosted.org/packages/65/c2/34158ff731a12802228434e8d17d2ebb5097394ab9d065205cc262cf2a6f/matplotlib-3.7.0.tar.gz"
+    sha256 "8f6efd313430d7ef70a38a3276281cb2e8646b3a22b3b21eb227da20e15e6813"
   end
 
   resource "networkx" do
-    url "https://files.pythonhosted.org/packages/bf/63/7b579dd3b1c49ce6b7fd8f6f864038f255201410905dd183cf7f4a3845cf/networkx-2.4.tar.gz"
-    sha256 "f8f4ff0b6f96e4f9b16af6b84622597b5334bf9cae8cf9b2e42e7985d5c95c64"
+    url "https://files.pythonhosted.org/packages/99/f9/d45c9ecf50a6b67a200e0bbd324201b5cd777dfc0e6c8f6d1620ce5a7ada/networkx-3.0.tar.gz"
+    sha256 "9a9992345353618ae98339c2b63d8201c381c2944f38a2ab49cb45a4c667e412"
   end
 
-  resource "numpy" do
-    url "https://files.pythonhosted.org/packages/f1/2c/717bdd12404c73ec0c8c734c81a0bad7048866bc36a88a1b69fd52b01c07/numpy-1.19.0.zip"
-    sha256 "76766cc80d6128750075378d3bb7812cf146415bd29b588616f72c943c00d598"
-  end
-
-  resource "oauthlib" do
-    url "https://files.pythonhosted.org/packages/fc/c7/829c73c64d3749da7811c06319458e47f3461944da9d98bb4df1cb1598c2/oauthlib-3.1.0.tar.gz"
-    sha256 "bee41cc35fcca6e988463cacc3bcb8a96224f470ca547e697b604cc697b2f889"
+  resource "packaging" do
+    url "https://files.pythonhosted.org/packages/47/d5/aca8ff6f49aa5565df1c826e7bf5e85a6df852ee063600c1efa5b932968c/packaging-23.0.tar.gz"
+    sha256 "b6ad297f8907de0fa2fe1ccbd26fdaf387f5f47c7275fedf8cce89f99446cf97"
   end
 
   resource "paramiko" do
-    url "https://files.pythonhosted.org/packages/ac/15/4351003352e11300b9f44a13576bff52dcdc6e4a911129c07447bda0a358/paramiko-2.7.1.tar.gz"
-    sha256 "920492895db8013f6cc0179293147f830b8c7b21fdfc839b6bad760c27459d9f"
-  end
-
-  resource "parso" do
-    url "https://files.pythonhosted.org/packages/fe/24/c30eb4be8a24b965cfd6e2e6b41180131789b44042112a16f9eb10c80f6e/parso-0.7.0.tar.gz"
-    sha256 "908e9fae2144a076d72ae4e25539143d40b8e3eafbaeae03c1bfe226f4cdf12c"
-  end
-
-  resource "pexpect" do
-    url "https://files.pythonhosted.org/packages/e5/9b/ff402e0e930e70467a7178abb7c128709a30dfb22d8777c043e501bc1b10/pexpect-4.8.0.tar.gz"
-    sha256 "fc65a43959d153d0114afe13997d439c22823a27cefceb5ff35c2178c6784c0c"
-  end
-
-  resource "pickleshare" do
-    url "https://files.pythonhosted.org/packages/d8/b6/df3c1c9b616e9c0edbc4fbab6ddd09df9535849c64ba51fcb6531c32d4d8/pickleshare-0.7.5.tar.gz"
-    sha256 "87683d47965c1da65cdacaf31c8441d12b8044cdec9aca500cd78fc2c683afca"
-  end
-
-  resource "Pillow" do
-    url "https://files.pythonhosted.org/packages/ce/ef/e793f6ffe245c960c42492d0bb50f8d14e2ba223f1922a5c3c81569cec44/Pillow-7.1.2.tar.gz"
-    sha256 "a0b49960110bc6ff5fead46013bcb8825d101026d466f3a4de3476defe0fb0dd"
-  end
-
-  resource "prompt-toolkit" do
-    url "https://files.pythonhosted.org/packages/69/19/3aa4bf17e1cbbdfe934eb3d5b394ae9a0a7fb23594a2ff27e0fdaf8b4c59/prompt_toolkit-3.0.5.tar.gz"
-    sha256 "563d1a4140b63ff9dd587bda9557cffb2fe73650205ab6f4383092fb882e7dc8"
-  end
-
-  resource "ptyprocess" do
-    url "https://files.pythonhosted.org/packages/7d/2d/e4b8733cf79b7309d84c9081a4ab558c89d8c89da5961bf4ddb050ca1ce0/ptyprocess-0.6.0.tar.gz"
-    sha256 "923f299cc5ad920c68f2bc0bc98b75b9f838b93b599941a6b63ddbc2476394c0"
+    url "https://files.pythonhosted.org/packages/3b/6b/554c00e5e68cd573bda345322a4e895e22686e94c7fa51848cd0e0442a71/paramiko-3.0.0.tar.gz"
+    sha256 "fedc9b1dd43bc1d45f67f1ceca10bc336605427a46dcdf8dec6bfea3edf57965"
   end
 
   resource "pyasn1" do
@@ -228,154 +161,102 @@ class Fdroidserver < Formula
   end
 
   resource "pyasn1-modules" do
-    url "https://files.pythonhosted.org/packages/ab/76/36ab0e099e6bd27ed95b70c2c86c326d3affa59b9b535c63a2f892ac9f45/pyasn1-modules-0.2.1.tar.gz"
-    sha256 "af00ea8f2022b6287dc375b2c70f31ab5af83989fc6fe9eacd4976ce26cd7ccc"
+    url "https://files.pythonhosted.org/packages/88/87/72eb9ccf8a58021c542de2588a867dbefc7556e14b2866d1e40e9e2b587e/pyasn1-modules-0.2.8.tar.gz"
+    sha256 "905f84c712230b2c592c19470d3ca8d552de726050d1d1716282a1f6146be65e"
   end
 
   resource "pycparser" do
-    url "https://files.pythonhosted.org/packages/0f/86/e19659527668d70be91d0369aeaa055b4eb396b0f387a4f92293a20035bd/pycparser-2.20.tar.gz"
-    sha256 "2d475327684562c3a96cc71adf7dc8c4f0565175cf86b6d7a404ff4c771f15f0"
+    url "https://files.pythonhosted.org/packages/5e/0b/95d387f5f4433cb0f53ff7ad859bd2c6051051cebbb564f139a999ab46de/pycparser-2.21.tar.gz"
+    sha256 "e644fdec12f7872f86c58ff790da456218b10f863970249516d60a5eaca77206"
   end
 
   resource "pydot" do
-    url "https://files.pythonhosted.org/packages/5f/e2/23e053ccf5648153959ea15d77fb90adb2b1f9c9360f832f39d6d6c024e2/pydot-1.4.1.tar.gz"
-    sha256 "d49c9d4dd1913beec2a997f831543c8cbd53e535b1a739e921642fe416235f01"
-  end
-
-  resource "Pygments" do
-    url "https://files.pythonhosted.org/packages/6e/4d/4d2fe93a35dfba417311a4ff627489a947b01dc0cc377a3673c00cf7e4b2/Pygments-2.6.1.tar.gz"
-    sha256 "647344a061c249a3b74e230c739f434d7ea4d8b1d5f3721bc0f3558049b38f44"
+    url "https://files.pythonhosted.org/packages/13/6e/916cdf94f9b38ae0777b254c75c3bdddee49a54cc4014aac1460a7a172b3/pydot-1.4.2.tar.gz"
+    sha256 "248081a39bcb56784deb018977e428605c1c758f10897a339fce1dd728ff007d"
   end
 
   resource "PyNaCl" do
-    url "https://files.pythonhosted.org/packages/cf/5a/25aeb636baeceab15c8e57e66b8aa930c011ec1c035f284170cacb05025e/PyNaCl-1.4.0.tar.gz"
-    sha256 "54e9a2c849c742006516ad56a88f5c74bf2ce92c9f67435187c3c5953b346505"
+    url "https://files.pythonhosted.org/packages/a7/22/27582568be639dfe22ddb3902225f91f2f17ceff88ce80e4db396c8986da/PyNaCl-1.5.0.tar.gz"
+    sha256 "8ac7448f09ab85811607bdd21ec2464495ac8b7c66d146bf545b0f08fb9220ba"
   end
 
   resource "pyparsing" do
-    url "https://files.pythonhosted.org/packages/c1/47/dfc9c342c9842bbe0036c7f763d2d6686bcf5eb1808ba3e170afdb282210/pyparsing-2.4.7.tar.gz"
-    sha256 "c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1"
+    url "https://files.pythonhosted.org/packages/71/22/207523d16464c40a0310d2d4d8926daffa00ac1f5b1576170a32db749636/pyparsing-3.0.9.tar.gz"
+    sha256 "2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb"
+  end
+
+  resource "pypng" do
+    url "https://files.pythonhosted.org/packages/93/cd/112f092ec27cca83e0516de0a3368dbd9128c187fb6b52aaaa7cde39c96d/pypng-0.20220715.0.tar.gz"
+    sha256 "739c433ba96f078315de54c0db975aee537cbc3e1d0ae4ed9aab0ca1e427e2c1"
   end
 
   resource "python-dateutil" do
-    url "https://files.pythonhosted.org/packages/be/ed/5bbc91f03fa4c839c4c7360375da77f9659af5f7086b7a7bdda65771c8e0/python-dateutil-2.8.1.tar.gz"
-    sha256 "73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"
+    url "https://files.pythonhosted.org/packages/4c/c4/13b4776ea2d76c115c1d1b84579f3764ee6d57204f6be27119f13a61d0a9/python-dateutil-2.8.2.tar.gz"
+    sha256 "0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"
   end
 
   resource "python-vagrant" do
-    url "https://files.pythonhosted.org/packages/bb/c6/0a6d22ae1782f261fc4274ea9385b85bf792129d7126575ec2a71d8aea18/python-vagrant-0.5.15.tar.gz"
-    sha256 "af9a8a9802d382d45dbea96aa3cfbe77c6e6ad65b3fe7b7c799d41ab988179c6"
-  end
-
-  resource "PyYAML" do
-    url "https://files.pythonhosted.org/packages/64/c2/b80047c7ac2478f9501676c988a5411ed5572f35d1beff9cae07d321512c/PyYAML-5.3.1.tar.gz"
-    sha256 "b8eac752c5e14d3eca0e6dd9199cd627518cb5ec06add0de9d32baeee6fe645d"
+    url "https://files.pythonhosted.org/packages/2b/3f/2e42a44c9705d72d9925fe8daf00f31bcf82e8b84ec5a752a8a1357c3ef8/python-vagrant-1.0.0.tar.gz"
+    sha256 "a8fe93ccf2ff37ecc95ec2f49ea74a91a6ce73a4db4a16a98dd26d397cfd09e5"
   end
 
   resource "qrcode" do
-    url "https://files.pythonhosted.org/packages/19/d5/6c7d4e103d94364d067636417a77a6024219c58cd6e9f428ece9b5061ef9/qrcode-6.1.tar.gz"
-    sha256 "505253854f607f2abf4d16092c61d4e9d511a3b4392e60bff957a68592b04369"
+    url "https://files.pythonhosted.org/packages/30/35/ad6d4c5a547fe9a5baf85a9edbafff93fc6394b014fab30595877305fa59/qrcode-7.4.2.tar.gz"
+    sha256 "9dd969454827e127dbd93696b20747239e6d540e082937c90f14ac95b30f5845"
   end
 
   resource "requests" do
-    url "https://files.pythonhosted.org/packages/da/67/672b422d9daf07365259958912ba533a0ecab839d4084c487a5fe9a5405f/requests-2.24.0.tar.gz"
-    sha256 "b3559a131db72c33ee969480840fff4bb6dd111de7dd27c8ee1f820f4f00231b"
-  end
-
-  resource "requests-oauthlib" do
-    url "https://files.pythonhosted.org/packages/23/eb/68fc8fa86e0f5789832f275c8289257d8dc44dbe93fce7ff819112b9df8f/requests-oauthlib-1.3.0.tar.gz"
-    sha256 "b4261601a71fd721a8bd6d7aa1cc1d6a8a93b4a9f5e96626f8e4d91e8beeaa6a"
+    url "https://files.pythonhosted.org/packages/9d/ee/391076f5937f0a8cdf5e53b701ffc91753e87b07d66bae4a09aa671897bf/requests-2.28.2.tar.gz"
+    sha256 "98b1b2782e3c6c4904938b84c0eb932721069dfdb9134313beff7c83c2df24bf"
   end
 
   resource "ruamel.yaml" do
-    url "https://files.pythonhosted.org/packages/16/8b/54a26c1031595e5edd0e616028b922d78d8ffba8bc775f0a4faeada846cc/ruamel.yaml-0.16.10.tar.gz"
-    sha256 "099c644a778bf72ffa00524f78dd0b6476bca94a1da344130f4bf3381ce5b954"
-  end
-
-  resource "ruamel.yaml.clib" do
-    url "https://files.pythonhosted.org/packages/92/28/612085de3fae9f82d62d80255d9f4cf05b1b341db1e180adcf28c1bf748d/ruamel.yaml.clib-0.2.0.tar.gz"
-    sha256 "b66832ea8077d9b3f6e311c4a53d06273db5dc2db6e8a908550f3c14d67e718c"
-  end
-
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/6b/34/415834bfdafca3c5f451532e8a8d9ba89a21c9743a0c59fbd0205c7f9426/six-1.15.0.tar.gz"
-    sha256 "30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"
+    url "https://files.pythonhosted.org/packages/46/a9/6ed24832095b692a8cecc323230ce2ec3480015fbfa4b79941bd41b23a3c/ruamel.yaml-0.17.21.tar.gz"
+    sha256 "8b7ce697a2f212752a35c1ac414471dc16c424c9573be4926b56ff3f5d23b7af"
   end
 
   resource "smmap" do
-    url "https://files.pythonhosted.org/packages/75/fb/2f594e5364f9c986b2c89eb662fc6067292cb3df2b88ae31c939b9138bb9/smmap-3.0.4.tar.gz"
-    sha256 "9c98bbd1f9786d22f14b3d4126894d56befb835ec90cef151af566c7e19b5d24"
+    url "https://files.pythonhosted.org/packages/21/2d/39c6c57032f786f1965022563eec60623bb3e1409ade6ad834ff703724f3/smmap-5.0.0.tar.gz"
+    sha256 "c840e62059cd3be204b0c9c9f74be2c09d5648eddd4580d9314c3ecde0b30936"
   end
 
-  resource "traitlets" do
-    url "https://files.pythonhosted.org/packages/75/b0/43deb021bc943f18f07cbe3dac1d681626a48997b7ffa1e7fb14ef922b21/traitlets-4.3.3.tar.gz"
-    sha256 "d023ee369ddd2763310e4c3eae1ff649689440d4ae59d7485eb4cfbbe3e359f7"
+  resource "typing-extensions" do
+    url "https://files.pythonhosted.org/packages/d3/20/06270dac7316220643c32ae61694e451c98f8caf4c8eab3aa80a2bedf0df/typing_extensions-4.5.0.tar.gz"
+    sha256 "5cb5f4a79139d699607b3ef622a1dedafa84e115ab0024e0d9c044a9479ca7cb"
   end
 
   resource "urllib3" do
-    url "https://files.pythonhosted.org/packages/05/8c/40cd6949373e23081b3ea20d5594ae523e681b6f472e600fbc95ed046a36/urllib3-1.25.9.tar.gz"
-    sha256 "3018294ebefce6572a474f0604c2021e33b3fd8006ecd11d62107a5d2a963527"
+    url "https://files.pythonhosted.org/packages/c5/52/fe421fb7364aa738b3506a2d99e4f3a56e079c0a798e9f4fa5e14c60922f/urllib3-1.26.14.tar.gz"
+    sha256 "076907bf8fd355cde77728471316625a4d2f7e713c125f51953bb5b3eecf4f72"
   end
 
-  resource "wcwidth" do
-    url "https://files.pythonhosted.org/packages/89/38/459b727c381504f361832b9e5ace19966de1a235d73cdbdea91c771a1155/wcwidth-0.2.5.tar.gz"
-    sha256 "c4d647b99872929fdb7bdcaa4fbe7f01413ed3d98077df798530e5b04f116c83"
-  end
-
-  resource "websocket_client" do
-    url "https://files.pythonhosted.org/packages/8b/0f/52de51b9b450ed52694208ab952d5af6ebbcbce7f166a48784095d930d8c/websocket_client-0.57.0.tar.gz"
-    sha256 "d735b91d6d1692a6a181f2a8c9e0238e5f6373356f561bb9dc4c7af36f452010"
+  resource "wheel" do
+    url "https://files.pythonhosted.org/packages/a2/b8/6a06ff0f13a00fc3c3e7d222a995526cbca26c1ad107691b6b1badbbabf1/wheel-0.38.4.tar.gz"
+    sha256 "965f5259b566725405b05e7cf774052044b1ed30119b5d586b2703aafe8719ac"
   end
 
   def install
-    bash_completion.install "completion/bash-completion" => "fdroid"
-    venv = virtualenv_create(libexec, "python3")
+    venv = virtualenv_create(libexec, "python3.11")
 
-    resource("Pillow").stage do
-      inreplace "setup.py" do |s|
-        sdkprefix = MacOS.sdk_path_if_needed ? MacOS.sdk_path : ""
-        s.gsub! "openjpeg.h", "probably_not_a_header_called_this_eh.h"
-        s.gsub! "xcb.h", "probably_not_a_header_called_this_eh.h"
-        s.gsub! "ZLIB_ROOT = None",
-                "ZLIB_ROOT = ('#{sdkprefix}/usr/lib', '#{sdkprefix}/usr/include')"
-        s.gsub! "JPEG_ROOT = None",
-                "JPEG_ROOT = ('#{Formula["jpeg"].opt_prefix}/lib', '#{Formula["jpeg"].opt_prefix}/include')"
-        s.gsub! "FREETYPE_ROOT = None",
-                "FREETYPE_ROOT = ('#{Formula["freetype"].opt_prefix}/lib', " \
-                                 "'#{Formula["freetype"].opt_prefix}/include')"
-      end
-
-      # avoid triggering "helpful" distutils code that doesn't recognize Xcode 7 .tbd stubs
-      ENV.delete "SDKROOT"
-      unless MacOS::CLT.installed?
-        ENV.append "CFLAGS", "-I#{MacOS.sdk_path}/System/Library/Frameworks/Tk.framework/Versions/8.5/Headers"
-      end
-      venv.pip_install Pathname.pwd
-    end
-
-    # Fix "ld: file not found: /usr/lib/system/libsystem_darwin.dylib" for lxml
-    ENV["SDKROOT"] = MacOS.sdk_path if MacOS.version == :sierra
     venv.pip_install resource("lxml")
-    ENV.delete "SDKROOT" # avoid matplotlib build failure on 10.12
-
-    resource("ptyprocess").stage do
-      # Without removing this file, `pip` will ignore the `setup.py` file and
-      # attempt to download the [`flit`](https://github.com/takluyver/flit)
-      # build system.
-      rm_f "pyproject.toml"
-      venv.pip_install Pathname.pwd
-    end
-
     venv.pip_install resource("cffi") # or bcrypt fails to build
+    venv.pip_install resource("wheel") # or kiwisolver fails to build
 
-    res = resources.map(&:name).to_set - %w[cffi lxml Pillow ptyprocess]
+    res = resources.map(&:name).to_set - %w[cffi lxml ptyprocess wheel]
 
     res.each do |r|
       venv.pip_install resource(r)
     end
 
     venv.pip_install_and_link buildpath
+    bash_completion.install "completion/bash-completion" => "fdroid"
     doc.install "examples"
+
+    site_packages = Language::Python.site_packages("python3.11")
+    %w[fonttools ipython pygments yamllint].each do |package_name|
+      package = Formula[package_name].opt_libexec
+      (libexec/site_packages/"homebrew-#{package_name}.pth").write package/site_packages
+    end
   end
 
   def caveats
@@ -398,23 +279,23 @@ class Fdroidserver < Formula
       mkdir "repo"
       mkdir "metadata"
 
-      open("config.py", "w") do |f|
-        f << "gradle = 'gradle'"
-      end
+      (testpath/"fdroid/config.py").write "gradle = 'gradle'"
+      (testpath/"fdroid/metadata/fake.yml").write <<~EOS
+        Categories:
+          - Internet
+        License: GPL-3.0-or-later
 
-      open("metadata/fake.txt", "w") do |f|
-        f << "License:GPL-3.0-or-later\n"
-        f << "Summary:Yup still fake\n"
-        f << "Categories:Internet\n"
-        f << "Description:\n"
-        f << "this is fake\n"
-        f << ".\n"
-      end
+        Summary: Yup still fake
+        Description: this is fake
 
-      system "#{bin}/fdroid", "checkupdates", "--verbose", "--allow-dirty"
-      system "#{bin}/fdroid", "lint", "--verbose"
-      system "#{bin}/fdroid", "rewritemeta", "fake", "--verbose"
-      system "#{bin}/fdroid", "scanner", "--verbose"
+        AutoUpdateMode: None
+        UpdateCheckMode: None
+      EOS
+
+      system bin/"fdroid", "checkupdates", "--verbose", "--allow-dirty"
+      system bin/"fdroid", "lint", "--verbose"
+      system bin/"fdroid", "rewritemeta", "fake", "--verbose"
+      system bin/"fdroid", "scanner", "--verbose"
     end
   end
 end

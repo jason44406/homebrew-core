@@ -1,23 +1,30 @@
 class SpiceProtocol < Formula
   desc "Headers for SPICE protocol"
   homepage "https://www.spice-space.org/"
-  url "https://www.spice-space.org/download/releases/spice-protocol-0.14.2.tar.xz"
-  sha256 "8f3a63c8b68300dffe36f2e75eac57afa1e76d5d80af760fd138a0b3f44cf1e9"
+  url "https://www.spice-space.org/download/releases/spice-protocol-0.14.4.tar.xz"
+  sha256 "04ffba610d9fd441cfc47dfaa135d70096e60b1046d2119d8db2f8ea0d17d912"
   license "BSD-3-Clause"
 
+  livecheck do
+    url "https://www.spice-space.org/download/releases/"
+    regex(/href=.*?spice-protocol[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
+
   bottle do
-    cellar :any_skip_relocation
-    sha256 "e1ade135b57cc78000d754e20b86ac2ce39f3a6bb466095995cc1dd1b57f7e96" => :catalina
-    sha256 "e1ade135b57cc78000d754e20b86ac2ce39f3a6bb466095995cc1dd1b57f7e96" => :mojave
-    sha256 "e1ade135b57cc78000d754e20b86ac2ce39f3a6bb466095995cc1dd1b57f7e96" => :high_sierra
+    sha256 cellar: :any_skip_relocation, all: "c95213126a4de3d3ab508fbfc7f23f11ece2f0011d3a6d251d7f79034376066e"
   end
 
   depends_on "meson" => :build
   depends_on "ninja" => :build
 
+  on_linux do
+    # Test fails on gcc-5: spice/macros.h:68:32: error: expected '}' before '__attribute__'
+    depends_on "gcc" => :test
+  end
+
   def install
     mkdir "build" do
-      system "meson", *std_meson_args, "-Dwith-docs=false", ".."
+      system "meson", *std_meson_args, ".."
       system "ninja", "-v"
       system "ninja", "install", "-v"
     end
@@ -30,9 +37,14 @@ class SpiceProtocol < Formula
         return (SPICE_LINK_ERR_OK == 0) ? 0 : 1;
       }
     EOS
-    system ENV.cc, "test.cpp",
-                   "-I#{include}/spice-1",
-                   "-o", "test"
+
+    cc = if OS.mac?
+      ENV.cc
+    else
+      Formula["gcc"].opt_bin/"gcc-#{Formula["gcc"].any_installed_version.major}"
+    end
+
+    system cc, "test.cpp", "-I#{include}/spice-1", "-o", "test"
     system "./test"
   end
 end

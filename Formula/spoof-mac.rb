@@ -6,17 +6,26 @@ class SpoofMac < Formula
   url "https://files.pythonhosted.org/packages/9c/59/cc52a4c5d97b01fac7ff048353f8dc96f217eadc79022f78455e85144028/SpoofMAC-2.1.1.tar.gz"
   sha256 "48426efe033a148534e1d4dc224c4f1b1d22299c286df963c0b56ade4c7dc297"
   license "MIT"
-  revision 2
-  head "https://github.com/feross/SpoofMAC.git"
+  revision 4
+  head "https://github.com/feross/SpoofMAC.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "2b2a5048aef69d8e5535d78f619297d7290e34c209100ebe748ac040e1a9f130" => :catalina
-    sha256 "f5b08954f87cd1625179a4f608e221462eb39cbf05099b82590835e0aa2e6774" => :mojave
-    sha256 "96a6e3e0ea4b2eb07521dc4dfa887dd9fd9b4d1583da8ea3cddf503ca6113322" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "35b87b120597b9e19bc14586ef66fde370b95ab1f175c1cb355b8dd5d5a1a900"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "35b87b120597b9e19bc14586ef66fde370b95ab1f175c1cb355b8dd5d5a1a900"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "35b87b120597b9e19bc14586ef66fde370b95ab1f175c1cb355b8dd5d5a1a900"
+    sha256 cellar: :any_skip_relocation, ventura:        "f6d24e9dda3720a583e5dc6d65ce64f8b0497a6c8eccf292c38e642b405868b5"
+    sha256 cellar: :any_skip_relocation, monterey:       "f6d24e9dda3720a583e5dc6d65ce64f8b0497a6c8eccf292c38e642b405868b5"
+    sha256 cellar: :any_skip_relocation, big_sur:        "f6d24e9dda3720a583e5dc6d65ce64f8b0497a6c8eccf292c38e642b405868b5"
+    sha256 cellar: :any_skip_relocation, catalina:       "f6d24e9dda3720a583e5dc6d65ce64f8b0497a6c8eccf292c38e642b405868b5"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "bd9e7adf1d19f3476bb1ac66ee70ef913837b2f719bf076a4cf4ae98ee14c8a7"
   end
 
-  depends_on "python@3.8"
+  depends_on "python@3.11"
+
+  on_linux do
+    depends_on "net-tools"
+  end
 
   resource "docopt" do
     url "https://files.pythonhosted.org/packages/a2/55/8f8cab2afd404cf578136ef2cc5dfb50baa1761b68c9da1fb1e4eed343c9/docopt-0.6.2.tar.gz"
@@ -42,31 +51,11 @@ class SpoofMac < Formula
     EOS
   end
 
-  plist_options startup: true, manual: "spoof-mac"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{opt_bin}/spoof-mac</string>
-            <string>randomize</string>
-            <string>en0</string>
-          </array>
-          <key>RunAtLoad</key>
-          <true/>
-          <key>StandardErrorPath</key>
-          <string>/dev/null</string>
-          <key>StandardOutPath</key>
-          <string>/dev/null</string>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"spoof-mac", "randomize", "en0"]
+    require_root true
+    log_path "/dev/null"
+    error_log_path "/dev/null"
   end
 
   test do

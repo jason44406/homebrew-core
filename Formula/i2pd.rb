@@ -1,24 +1,36 @@
 class I2pd < Formula
   desc "Full-featured C++ implementation of I2P client"
   homepage "https://i2pd.website/"
-  url "https://github.com/PurpleI2P/i2pd/archive/2.32.1.tar.gz"
-  sha256 "64229101411a9dda3237dc27939aa13ec90d4900aae499e59931063c36e8556b"
+  url "https://github.com/PurpleI2P/i2pd/archive/2.46.1.tar.gz"
+  sha256 "76b41d02a41a03d627fcd7fe695cad7f521b66e99a04ec9678f132a1eb052bb8"
   license "BSD-3-Clause"
 
   bottle do
-    cellar :any
-    sha256 "90162e02f622061a681bdd19fbc1e4a1e652bfb34f77ece9dc1f657ea3440cf5" => :catalina
-    sha256 "d5cac221a162fec22a8bdbc8ae57a9c97e9baeb9d7fe5e27bcbc468747643f63" => :mojave
-    sha256 "30c5bfeba103e53e7652ad7207f26a67a587c479aebb6707d548a7611ed76992" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "aea0a9cf171befb1f9d115cd77e8b6e8a32e99c91743b58bbea9c96129f33578"
+    sha256 cellar: :any,                 arm64_monterey: "35a429b86c613e1381bc858846d7738922f029ba97e9b312d63a14dfab16a4d2"
+    sha256 cellar: :any,                 arm64_big_sur:  "843fb1398b4292d392a0324cf8d26062e32498700632245846191f1ed369bba3"
+    sha256 cellar: :any,                 ventura:        "61ba19b6ffb89d39fe01dfe4b3b8a368d0cc297405e8a54073da862db4315810"
+    sha256 cellar: :any,                 monterey:       "b61b04827b109d42cae634627b30943e792a1275988ccbfeb4cf1c5cc495aae9"
+    sha256 cellar: :any,                 big_sur:        "cae86090b95998bba5e881915bccdb21406fef73efdb95d164d41efb0f2b1a81"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "8fbbb08c51c3ff20a5c2ddac331bb7f929d68a272ecf14662e2924aae7e231bd"
   end
 
   depends_on "boost"
   depends_on "miniupnpc"
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
 
   def install
-    system "make", "install", "DEBUG=no", "HOMEBREW=1", "USE_UPNP=yes",
-                              "USE_AENSI=no", "USE_AVX=no", "PREFIX=#{prefix}"
+    args = %W[
+      DEBUG=no
+      HOMEBREW=1
+      USE_UPNP=yes
+      PREFIX=#{prefix}
+      BREWROOT=#{HOMEBREW_PREFIX}
+      SSLROOT=#{Formula["openssl@3"].opt_prefix}
+    ]
+    args << "USE_AESNI=no" if Hardware::CPU.arm?
+
+    system "make", "install", *args
 
     # preinstall to prevent overwriting changed by user configs
     confdir = etc/"i2pd"
@@ -44,39 +56,18 @@ class I2pd < Formula
     (var/"log/i2pd").mkpath
   end
 
-  plist_options manual: "i2pd"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-      <dict>
-        <key>Label</key>
-        <string>#{plist_name}</string>
-        <key>RunAtLoad</key>
-        <true/>
-        <key>ProgramArguments</key>
-        <array>
-          <string>#{opt_bin}/i2pd</string>
-          <string>--datadir=#{var}/lib/i2pd</string>
-          <string>--conf=#{etc}/i2pd/i2pd.conf</string>
-          <string>--tunconf=#{etc}/i2pd/tunnels.conf</string>
-          <string>--log=file</string>
-          <string>--logfile=#{var}/log/i2pd/i2pd.log</string>
-          <string>--pidfile=#{var}/run/i2pd.pid</string>
-        </array>
-      </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"i2pd", "--datadir=#{var}/lib/i2pd", "--conf=#{etc}/i2pd/i2pd.conf",
+         "--tunconf=#{etc}/i2pd/tunnels.conf", "--log=file", "--logfile=#{var}/log/i2pd/i2pd.log",
+         "--pidfile=#{var}/run/i2pd.pid"]
   end
 
   test do
-    pid = fork do
-      exec "#{bin}/i2pd", "--datadir=#{testpath}", "--daemon"
-    end
+    pidfile = testpath/"i2pd.pid"
+    system bin/"i2pd", "--datadir=#{testpath}", "--pidfile=#{pidfile}", "--daemon"
     sleep 5
-    Process.kill "TERM", pid
     assert_predicate testpath/"router.keys", :exist?, "Failed to start i2pd"
+    pid = pidfile.read.chomp.to_i
+    Process.kill "TERM", pid
   end
 end

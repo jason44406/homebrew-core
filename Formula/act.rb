@@ -1,15 +1,19 @@
 class Act < Formula
   desc "Run your GitHub Actions locally 🚀"
   homepage "https://github.com/nektos/act"
-  url "https://github.com/nektos/act/archive/v0.2.10.tar.gz"
-  sha256 "1e4d371cfa6aec7e350927e55c3ac8413dbf6e23edbb811ebe2d587dbf136928"
+  url "https://github.com/nektos/act/archive/v0.2.43.tar.gz"
+  sha256 "0565d6f72161d01ce61e3389e69186209e8971fa4fc9b9ed58814546be8fdadb"
   license "MIT"
+  head "https://github.com/nektos/act.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "056167aa7eec2e5229a0f50b43d3bcd4845fadef990cd29d65a13b316449dc06" => :catalina
-    sha256 "1e6ab1ae827952962a92b1bcd82643b950edd446b87f6f991bcd6ad333de0852" => :mojave
-    sha256 "c8ac56be5db0a72aa5eac9c8f8937c5c52386e45d0f364ad9c63a7cba04db39d" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "5f6da4b21da958545268c77bbf6d4ccb4cce89e75f50486e015eedb9af8db673"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "485c6c5216ed07370111dd7adff93ac9015bd285763bb75222f48eda93fbc18f"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "e0523a488332666e7cd28c6624ff9662d82f2fa4a44dd1535c71232cdc0eee25"
+    sha256 cellar: :any_skip_relocation, ventura:        "f4149e4b362cfe8240a80d1d9456eb62dc88ec8af8773c5936b780a24d780410"
+    sha256 cellar: :any_skip_relocation, monterey:       "7c6d06644959cd87d2a54d995878b2e7fb53abcb4974798acd617b495a11a069"
+    sha256 cellar: :any_skip_relocation, big_sur:        "78287a077db810177d9f8f2bb7b3b4848df0f7037783d1422b2802f89f02fcb2"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "b5311b2f6de703b16d74ddce41b36bf389b0f30b7440d37c15967adc1dbd8360"
   end
 
   depends_on "go" => :build
@@ -20,7 +24,15 @@ class Act < Formula
   end
 
   test do
+    (testpath/".actrc").write <<~EOS
+      -P ubuntu-latest=node:12.6-buster-slim
+      -P ubuntu-12.04=node:12.6-buster-slim
+      -P ubuntu-18.04=node:12.6-buster-slim
+      -P ubuntu-16.04=node:12.6-stretch-slim
+    EOS
+
     system "git", "clone", "https://github.com/stefanzweifel/laravel-github-actions-demo.git"
+
     cd "laravel-github-actions-demo" do
       system "git", "checkout", "v2.0"
 

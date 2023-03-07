@@ -1,108 +1,120 @@
 class Datasette < Formula
   include Language::Python::Virtualenv
   desc "Open source multi-tool for exploring and publishing data"
-  homepage "https://datasette.readthedocs.io/"
-  url "https://files.pythonhosted.org/packages/01/70/11734b4cb005a556f20e65e7f04df1c22a85f5ef731d86c9a63c2476ada3/datasette-0.48.tar.gz"
-  sha256 "40f9b8b29d9b0962d33f657177484f6d3d5b51cc58588c508b57ce24e78d5e3b"
+  homepage "https://docs.datasette.io/en/stable/"
+  url "https://files.pythonhosted.org/packages/bf/fb/0d1e106b08f5bdf3ab936c404b5d7998cf2144b50d77765af873e847b16a/datasette-0.64.1.tar.gz"
+  sha256 "ca30c37e515400b3ba1b07dfe51093238e33baca75ccf3d163645cf5b3c80fd5"
   license "Apache-2.0"
+  head "https://github.com/simonw/datasette.git", branch: "main"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "cee3c858dc117818bd4a42e8ce8bd16ac3936a89042c813a3b37bab95f4986cf" => :catalina
-    sha256 "10348d0aeeb7440d9d4b0bee2e9fc9fa9e2fe11607e132d46f719ac3e568630d" => :mojave
-    sha256 "ed707180ff9941e48a74175118f5fed013d72b52a800cf67a20bf8feaa4d3474" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "5da02493d09cd8bfff6e9ad207b640bde3b04e974c758c0789f2a893658fe2f8"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "fc2e2f31cb0e8c841261740d3e69d5ba0e309edc3c8fffd71479e92323149a3e"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "90236ea43cfb1b336b759b3136e7ec6c885da0d5f75c869f67bb07ae1c897859"
+    sha256 cellar: :any_skip_relocation, ventura:        "99aeb8590c215d302af7e15880f8b15bd0768dd558782f64a2ace327fe2c0c0d"
+    sha256 cellar: :any_skip_relocation, monterey:       "58fc7233bfe382c4a7017746b08b8dc2ee0a2dcf1b4370c1964804971db9d0ac"
+    sha256 cellar: :any_skip_relocation, big_sur:        "ff2a6ea2bad36d332fe4ac974e3c53fd94e7decf477ddb80fb50a9fab1c9c2c7"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "05cd6e7d14f9e3a8951e37b4f30adc20b72793d1ebac593a81cca891135d5439"
   end
 
-  depends_on "python@3.8"
+  depends_on "python-typing-extensions"
+  depends_on "python@3.11"
+  depends_on "pyyaml"
+  depends_on "six"
 
   resource "aiofiles" do
-    url "https://files.pythonhosted.org/packages/2b/64/437053d6a4ba3b3eea1044131a25b458489320cb9609e19ac17261e4dc9b/aiofiles-0.5.0.tar.gz"
-    sha256 "98e6bcfd1b50f97db4980e182ddd509b7cc35909e903a8fe50d8849e02d815af"
+    url "https://files.pythonhosted.org/packages/86/26/6e5060a159a6131c430e8a01ec8327405a19a449a506224b394e36f2ebc9/aiofiles-22.1.0.tar.gz"
+    sha256 "9107f1ca0b2a5553987a94a3c9959fe5b491fdf731389aa5b7b1bd0733e32de6"
+  end
+
+  resource "anyio" do
+    url "https://files.pythonhosted.org/packages/8b/94/6928d4345f2bc1beecbff03325cad43d320717f51ab74ab5a571324f4f5a/anyio-3.6.2.tar.gz"
+    sha256 "25ea0d673ae30af41a0c442f81cf3b38c7e79fdc7b60335a4c14e05eb0947421"
   end
 
   resource "asgi-csrf" do
-    url "https://files.pythonhosted.org/packages/e1/64/7ed484baad9fa6139260fe27ece6905e4746b59e9d2b70c7e2c48a4f1cf9/asgi-csrf-0.7.tar.gz"
-    sha256 "6cccf20390bb0990691f6a796c782cfb00d0d04485bd39fc988d14e8e6aea9d0"
+    url "https://files.pythonhosted.org/packages/29/9c/13d880d7ebe13956c037864eb7ac9dbcd0260d4c47844786f07ccca897e1/asgi-csrf-0.9.tar.gz"
+    sha256 "6e9d3bddaeac1a8fd33b188fe2abc8271f9085ab7be6e1a7f4d3c9df5d7f741a"
   end
 
   resource "asgiref" do
-    url "https://files.pythonhosted.org/packages/6d/6e/6e0ff19e7054491be7390fec2b711f838b31282fd3afe28057314d72f11b/asgiref-3.2.10.tar.gz"
-    sha256 "7e51911ee147dd685c3c8b805c0ad0cb58d360987b56953878f8c06d2d1c6f1a"
+    url "https://files.pythonhosted.org/packages/78/2d/797c0537426266d6c9377a2ed6a4ac61e50c2d5b1ab4da101a4b9bfe26e2/asgiref-3.6.0.tar.gz"
+    sha256 "9567dfe7bd8d3c8c892227827c41cce860b368104c3431da67a0c5a65a949506"
+  end
+
+  resource "certifi" do
+    url "https://files.pythonhosted.org/packages/37/f7/2b1b0ec44fdc30a3d31dfebe52226be9ddc40cd6c0f34ffc8923ba423b69/certifi-2022.12.7.tar.gz"
+    sha256 "35824b4c3a97115964b408844d64aa14db1cc518f6562e8d7261699d1350a9e3"
   end
 
   resource "click" do
-    url "https://files.pythonhosted.org/packages/27/6f/be940c8b1f1d69daceeb0032fee6c34d7bd70e3e649ccac0951500b4720e/click-7.1.2.tar.gz"
-    sha256 "d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a"
+    url "https://files.pythonhosted.org/packages/59/87/84326af34517fca8c58418d148f2403df25303e02736832403587318e9e8/click-8.1.3.tar.gz"
+    sha256 "7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e"
   end
 
-  resource "click-default-group" do
-    url "https://files.pythonhosted.org/packages/22/3a/e9feb3435bd4b002d183fcb9ee08fb369a7e570831ab1407bc73f079948f/click-default-group-1.2.2.tar.gz"
-    sha256 "d9560e8e8dfa44b3562fbc9425042a0fd6d21956fcc2db0077f63f34253ab904"
+  resource "click-default-group-wheel" do
+    url "https://files.pythonhosted.org/packages/3d/da/f3bbf30f7e71d881585d598f67f4424b2cc4c68f39849542e81183218017/click-default-group-wheel-1.2.2.tar.gz"
+    sha256 "e90da42d92c03e88a12ed0c0b69c8a29afb5d36e3dc8d29c423ba4219e6d7747"
   end
 
   resource "h11" do
-    url "https://files.pythonhosted.org/packages/34/5a/abaa557d20b210117d8c3e6b0b817ce9b329b2e81f87612e60102a924323/h11-0.9.0.tar.gz"
-    sha256 "33d4bca7be0fa039f4e84d50ab00531047e53d6ee8ffbc83501ea602c169cae1"
+    url "https://files.pythonhosted.org/packages/f5/38/3af3d3633a34a3316095b39c8e8fb4853a28a536e55d347bd8d8e9a14b03/h11-0.14.0.tar.gz"
+    sha256 "8f19fbbe99e72420ff35c00b27a34cb9937e902a8b810e2c88300c6f0a3b699d"
   end
 
-  resource "httptools" do
-    url "https://files.pythonhosted.org/packages/d9/6f/aad92c3f090e2f74dd728d58d3bba4c832d35199814af99673ee7300b582/httptools-0.1.1.tar.gz"
-    sha256 "41b573cf33f64a8f8f3400d0a7faf48e1888582b6f6e02b82b9bd4f0bf7497ce"
+  resource "httpcore" do
+    url "https://files.pythonhosted.org/packages/61/42/5c456b02816845d163fab0f32936b6a5b649f3f915beff6f819f4f6c90b2/httpcore-0.16.3.tar.gz"
+    sha256 "c5d6f04e2fc530f39e0c077e6a30caa53f1451096120f1f38b954afd0b17c0cb"
+  end
+
+  resource "httpx" do
+    url "https://files.pythonhosted.org/packages/f5/50/04d5e8ee398a10c767a341a25f59ff8711ae3adf0143c7f8b45fc560d72d/httpx-0.23.3.tar.gz"
+    sha256 "9818458eb565bb54898ccb9b8b251a28785dd4a55afbc23d0eb410754fe7d0f9"
   end
 
   resource "hupper" do
-    url "https://files.pythonhosted.org/packages/41/24/ea90fef04706e54bd1635c05c50dc9cf87cda543c59303a03e7aa7dda0ce/hupper-1.10.2.tar.gz"
-    sha256 "3818f53dabc24da66f65cf4878c1c7a9b5df0c46b813e014abdd7c569eb9a02a"
+    url "https://files.pythonhosted.org/packages/61/c0/11cb2e672162c3ea8b2ed227299fff22ff1ca08dd3f78c9bc6f1d44a162a/hupper-1.11.tar.gz"
+    sha256 "15c11bd775d8f98095b745b4e658a17c25c86e3b73275cae896ac1c8d533cb18"
+  end
+
+  resource "idna" do
+    url "https://files.pythonhosted.org/packages/8b/e1/43beb3d38dba6cb420cefa297822eac205a277ab43e5ba5d5c46faf96438/idna-3.4.tar.gz"
+    sha256 "814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4"
   end
 
   resource "itsdangerous" do
-    url "https://files.pythonhosted.org/packages/68/1a/f27de07a8a304ad5fa817bbe383d1238ac4396da447fa11ed937039fa04b/itsdangerous-1.1.0.tar.gz"
-    sha256 "321b033d07f2a4136d3ec762eac9f16a10ccd60f53c0c91af90217ace7ba1f19"
+    url "https://files.pythonhosted.org/packages/7f/a1/d3fb83e7a61fa0c0d3d08ad0a94ddbeff3731c05212617dff3a94e097f08/itsdangerous-2.1.2.tar.gz"
+    sha256 "5dbbc68b317e5e42f327f9021763545dc3fc3bfe22e6deb96aaf1fc38874156a"
   end
 
   resource "janus" do
-    url "https://files.pythonhosted.org/packages/9a/76/fbb89aa5d3cb5f3fec6ce74d34cf980ccd475b015d1a59cb5a14fe4cd2c5/janus-0.5.0.tar.gz"
-    sha256 "0700f5537d076521851d19b7625545c5e76f6d5792ab17984f28230adcc3b34c"
+    url "https://files.pythonhosted.org/packages/b8/a8/facab7275d7d3d2032f375843fe46fad1cfa604a108b5a238638d4615bdc/janus-1.0.0.tar.gz"
+    sha256 "df976f2cdcfb034b147a2d51edfc34ff6bfb12d4e2643d3ad0e10de058cb1612"
   end
 
   resource "Jinja2" do
-    url "https://files.pythonhosted.org/packages/64/a7/45e11eebf2f15bf987c3bc11d37dcc838d9dc81250e67e4c5968f6008b6c/Jinja2-2.11.2.tar.gz"
-    sha256 "89aab215427ef59c34ad58735269eb58b1a5808103067f7bb9d5836c651b3bb0"
+    url "https://files.pythonhosted.org/packages/7a/ff/75c28576a1d900e87eb6335b063fab47a8ef3c8b4d88524c4bf78f670cce/Jinja2-3.1.2.tar.gz"
+    sha256 "31351a702a408a9e7595a8fc6150fc3f43bb6bf7e319770cbc0db9df9437e852"
   end
 
   resource "MarkupSafe" do
-    url "https://files.pythonhosted.org/packages/b9/2e/64db92e53b86efccfaea71321f597fa2e1b2bd3853d8ce658568f7a13094/MarkupSafe-1.1.1.tar.gz"
-    sha256 "29872e92839765e546828bb7754a68c418d927cd064fd4708fab9fe9c8bb116b"
+    url "https://files.pythonhosted.org/packages/1d/97/2288fe498044284f39ab8950703e88abbac2abbdf65524d576157af70556/MarkupSafe-2.1.1.tar.gz"
+    sha256 "7f91197cc9e48f989d12e4e6fbc46495c446636dfc81b9ccf50bb0ec74b91d4b"
   end
 
   resource "mergedeep" do
-    url "https://files.pythonhosted.org/packages/50/ff/6c0b3817037c21fc46cb0eabd97152da6bb5bb33b1bfeaba1e7cc865a8d2/mergedeep-1.3.0.tar.gz"
-    sha256 "19a91123e71ae27cb22335f4d03aec040026c89d4ff6df42595f7e7223a83dfb"
-  end
-
-  resource "packaging" do
-    url "https://files.pythonhosted.org/packages/55/fd/fc1aca9cf51ed2f2c11748fa797370027babd82f87829c7a8e6dbe720145/packaging-20.4.tar.gz"
-    sha256 "4357f74f47b9c12db93624a82154e9b120fa8293699949152b22065d556079f8"
+    url "https://files.pythonhosted.org/packages/3a/41/580bb4006e3ed0361b8151a01d324fb03f420815446c7def45d02f74c270/mergedeep-1.3.4.tar.gz"
+    sha256 "0096d52e9dad9939c3d975a774666af186eda617e6ca84df4c94dec30004f2a8"
   end
 
   resource "Pint" do
-    url "https://files.pythonhosted.org/packages/8c/97/122b87ce55c3ba7b75b3b5e9b12a55b86d72aae4cb56d1d11c93a1ff0002/Pint-0.14.tar.gz"
-    sha256 "9aa450ebb9d722ed03fa9a450104cfd16c479b49f862d547c6f77320de597f72"
+    url "https://files.pythonhosted.org/packages/f3/d1/56923579866231eb4e61f86f4728ccd84fc2add7ad111ee25e4b64df47ec/Pint-0.20.1.tar.gz"
+    sha256 "387cf04078dc7dfe4a708033baad54ab61d82ab06c4ee3d4922b1e45d5626067"
   end
 
   resource "pluggy" do
-    url "https://files.pythonhosted.org/packages/f8/04/7a8542bed4b16a65c2714bf76cf5a0b026157da7f75e87cc88774aa10b14/pluggy-0.13.1.tar.gz"
-    sha256 "15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0"
-  end
-
-  resource "pyparsing" do
-    url "https://files.pythonhosted.org/packages/c1/47/dfc9c342c9842bbe0036c7f763d2d6686bcf5eb1808ba3e170afdb282210/pyparsing-2.4.7.tar.gz"
-    sha256 "c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1"
-  end
-
-  resource "python-baseconv" do
-    url "https://files.pythonhosted.org/packages/33/d0/9297d7d8dd74767b4d5560d834b30b2fff17d39987c23ed8656f476e0d9b/python-baseconv-1.2.2.tar.gz"
-    sha256 "0539f8bd0464013b05ad62e0a1673f0ac9086c76b43ebf9f833053527cd9931b"
+    url "https://files.pythonhosted.org/packages/a1/16/db2d7de3474b6e37cbb9c008965ee63835bba517e22cdb8c35b5116b5ce1/pluggy-1.0.0.tar.gz"
+    sha256 "4224373bacce55f955a878bf9cfa763c1e360858e330072059e10bad68531159"
   end
 
   resource "python-multipart" do
@@ -110,29 +122,19 @@ class Datasette < Formula
     sha256 "f7bb5f611fc600d15fa47b3974c8aa16e93724513b49b5f95c81e6624c83fa43"
   end
 
-  resource "PyYAML" do
-    url "https://files.pythonhosted.org/packages/64/c2/b80047c7ac2478f9501676c988a5411ed5572f35d1beff9cae07d321512c/PyYAML-5.3.1.tar.gz"
-    sha256 "b8eac752c5e14d3eca0e6dd9199cd627518cb5ec06add0de9d32baeee6fe645d"
+  resource "rfc3986" do
+    url "https://files.pythonhosted.org/packages/79/30/5b1b6c28c105629cc12b33bdcbb0b11b5bb1880c6cfbd955f9e792921aa8/rfc3986-1.5.0.tar.gz"
+    sha256 "270aaf10d87d0d4e095063c65bf3ddbc6ee3d0b226328ce21e036f946e421835"
   end
 
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/6b/34/415834bfdafca3c5f451532e8a8d9ba89a21c9743a0c59fbd0205c7f9426/six-1.15.0.tar.gz"
-    sha256 "30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"
+  resource "sniffio" do
+    url "https://files.pythonhosted.org/packages/cd/50/d49c388cae4ec10e8109b1b833fd265511840706808576df3ada99ecb0ac/sniffio-1.3.0.tar.gz"
+    sha256 "e60305c5e5d314f5389259b7f22aaa33d8f7dee49763119234af3755c55b9101"
   end
 
   resource "uvicorn" do
-    url "https://files.pythonhosted.org/packages/fb/07/7620525be7468b6c82b10f40d39e5fc6200cfab6c7f4012f1756b1e6d6d6/uvicorn-0.11.8.tar.gz"
-    sha256 "46a83e371f37ea7ff29577d00015f02c942410288fb57def6440f2653fff1d26"
-  end
-
-  resource "uvloop" do
-    url "https://files.pythonhosted.org/packages/84/2e/462e7a25b787d2b40cf6c9864a9e702f358349fc9cfb77e83c38acb73048/uvloop-0.14.0.tar.gz"
-    sha256 "123ac9c0c7dd71464f58f1b4ee0bbd81285d96cdda8bc3519281b8973e3a461e"
-  end
-
-  resource "websockets" do
-    url "https://files.pythonhosted.org/packages/e9/2b/cf738670bb96eb25cb2caf5294e38a9dc3891a6bcd8e3a51770dbc517c65/websockets-8.1.tar.gz"
-    sha256 "5c65d2da8c6bce0fca2528f69f44b2f977e06954c8512a952222cea50dad430f"
+    url "https://files.pythonhosted.org/packages/95/3c/9f4650ff609370456f796bb96a355dcddef1ded67e05d1b4eb3481088329/uvicorn-0.20.0.tar.gz"
+    sha256 "a4e12017b940247f836bc90b72e725d7dfd0c8ed1c51eb365f5ba30d9f5127d8"
   end
 
   def install
@@ -140,7 +142,7 @@ class Datasette < Formula
   end
 
   test do
-    assert_match "15", shell_output("#{bin}/datasette --get '/:memory:.csv?sql=select+3*5'")
+    assert_match "15", shell_output("#{bin}/datasette --get '/_memory.json?sql=select+3*5'")
     assert_match "<title>Datasette:", shell_output("#{bin}/datasette --get '/'")
   end
 end

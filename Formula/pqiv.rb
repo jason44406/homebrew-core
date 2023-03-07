@@ -1,17 +1,21 @@
 class Pqiv < Formula
   desc "Powerful image viewer with minimal UI"
   homepage "https://github.com/phillipberndt/pqiv"
-  url "https://github.com/phillipberndt/pqiv/archive/2.11.tar.gz"
-  sha256 "ea1f8b6bcb58dee19e2d8168ef4efd01e222c653eabbd3109aad57a870cc8c9b"
+  url "https://github.com/phillipberndt/pqiv/archive/2.12.tar.gz"
+  sha256 "1538128c88a70bbad2b83fbde327d83e4df9512a2fb560eaf5eaf1d8df99dbe5"
   license "GPL-3.0"
   revision 4
-  head "https://github.com/phillipberndt/pqiv.git"
+  head "https://github.com/phillipberndt/pqiv.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "406bf15556cbc6f3d23f20784f7f8de5c7338675e48ce7237fb9759ad348ebd5" => :catalina
-    sha256 "c7f56c5b90ce529d8da4e09f7a8d502c49fb3bf15ca7a7a3fe824001f0a4236e" => :mojave
-    sha256 "b2b084b475294c9ad63da9c073aceaaaaa26d6f1bb6f8a0cd37898b670a9703d" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "ea25aebb4644c982eb777eb2458da0eb686ad996a2be1f5a9de62e5f929f8eb8"
+    sha256 cellar: :any,                 arm64_monterey: "8782a71f1737e6809e0bf8e03c1dbacd3822de5bb2b19857ca03c6df7d8a5c1a"
+    sha256 cellar: :any,                 arm64_big_sur:  "0c81274c8d13c19d95d69fdad59ed8fd94e3860f90b0eb2ca83a45435b214769"
+    sha256 cellar: :any,                 ventura:        "ae097f09c899852bd6926dd99c45d73a738b62074e71a4a56ec4b2044600c133"
+    sha256 cellar: :any,                 monterey:       "dba41e09a3ead21456f9d727eb6bede873098b7d0499629264900b618e7eace2"
+    sha256 cellar: :any,                 big_sur:        "6ef9f48897bb6fe32ed7cc51666c35415e7d1c77a1e5d10701c64a69402cdd84"
+    sha256 cellar: :any,                 catalina:       "9983a52d1c8b71c44f2bd435f4336a69c98aa1adf029b0fe72aebc6da23d10b8"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "33a23ff2a31d049557d533c50c1a30ab1e8c28d4ff28627e7ddb4ad08dcaeda8"
   end
 
   depends_on "pkg-config" => :build
@@ -21,6 +25,10 @@ class Pqiv < Formula
   depends_on "libspectre"
   depends_on "poppler"
   depends_on "webp"
+
+  on_linux do
+    depends_on "libtiff"
+  end
 
   def install
     system "./configure", "--prefix=#{prefix}"

@@ -3,15 +3,12 @@ require "language/node"
 class Svgo < Formula
   desc "Nodejs-based tool for optimizing SVG vector graphics files"
   homepage "https://github.com/svg/svgo"
-  url "https://github.com/svg/svgo/archive/v1.3.2.tar.gz"
-  sha256 "b1e65808957d5eaa07173f1729a9fe04d985a3a50da01fa2cc85583f7b27df59"
+  url "https://github.com/svg/svgo/archive/v3.0.2.tar.gz"
+  sha256 "fe0a790407c9055025607bf3d717d545f737f98ecb8af1cc21636020adc2c7e5"
   license "MIT"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "48a66950681297bed8bf89dbcfeab2c34147784bccdd5ac92f5664b73f530457" => :catalina
-    sha256 "631a5e5bf726f9f3a2c53ddfc7fd5061953bf905208972091c77ea7a10e41599" => :mojave
-    sha256 "5fe6407fa998ce2431d435e24bd565332d939b680fb624ddbfd5ad2316799305" => :high_sierra
+    sha256 cellar: :any_skip_relocation, all: "684741c0ba97f3a8b5976b43eb874a8189742b48580d970ba80c3a10ee0dc863"
   end
 
   depends_on "node"
@@ -24,6 +21,6 @@ class Svgo < Formula
   test do
     cp test_fixtures("test.svg"), testpath
     system bin/"svgo", "test.svg", "-o", "test.min.svg"
-    assert_match /^<svg /, (testpath/"test.min.svg").read
+    assert_match(/^<svg /, (testpath/"test.min.svg").read)
   end
 end

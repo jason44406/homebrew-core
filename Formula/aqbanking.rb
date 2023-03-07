@@ -1,21 +1,23 @@
 class Aqbanking < Formula
   desc "Generic online banking interface"
-  homepage "https://www.aquamaniac.de/sites/aqbanking/"
-  url "https://www.aquamaniac.de/rdm/attachments/download/334/aqbanking-6.2.2.tar.gz"
-  sha256 "b14c2ec8069854226f8ced273c91948b8722b0e52e83c88b99df541fef2f40fd"
+  homepage "https://www.aquamaniac.de/rdm/projects/aqbanking"
+  url "https://www.aquamaniac.de/rdm/attachments/download/499/aqbanking-6.5.4.tar.gz"
+  sha256 "0d16ceae76f0718e466638f4547a8b14927f1d8d98322079cd6481adde30ac99"
+  license "GPL-2.0-or-later"
 
-  bottle do
-    sha256 "957a2955f2cae1257863b5ec837f34d5ee2fb2be46db0c498159182e26e9358f" => :catalina
-    sha256 "20110cbda1de863ddc72ef8b5d6d5b0d5c3fb59f24280851383f61f063f30d41" => :mojave
-    sha256 "e348e6783b24c081c0357dd1c4f30fd74a4ee15303f5951b968cb9bea81b5b1d" => :high_sierra
+  livecheck do
+    url "https://www.aquamaniac.de/rdm/projects/aqbanking/files"
+    regex(/href=.*?aqbanking[._-](\d+(?:\.\d+)+)\.t/i)
   end
 
-  head do
-    url "https://git.aquamaniac.de/git/aqbanking.git"
-
-    depends_on "autoconf" => :build
-    depends_on "automake" => :build
-    depends_on "libtool" => :build
+  bottle do
+    sha256 arm64_ventura:  "86a10700be19457e9de426d1a517fff81d88f0c968edbb4422c4999b645d2db7"
+    sha256 arm64_monterey: "c03595358b762a435f0e23e4302de71da6f2a4d8444ef81b83723da5626bbbd5"
+    sha256 arm64_big_sur:  "5dd8f7f35e641a3b84243698b5d52e858e4c3c9bf6157386607ffc0b0d9a0ddd"
+    sha256 ventura:        "135b86a8abe352be9781d0e47d34bb7daafca2dc15e2050e454a7e672cbe6308"
+    sha256 monterey:       "edbeea160afd61148e15cf3d66729c6a79c5ca371fca10713112e50d7e0520ba"
+    sha256 big_sur:        "970f57f5314f055f7f9b8fc72ac37bbc74d62128912da29f3428cc76c5c27082"
+    sha256 x86_64_linux:   "601804c5ff8f4966834f1e1d9c8cabea7fe3a9e73081e0779b6ae26f59ad3bdd"
   end
 
   depends_on "gettext"
@@ -24,17 +26,18 @@ class Aqbanking < Formula
   depends_on "ktoblzcheck"
   depends_on "libxml2"
   depends_on "libxmlsec1"
-  depends_on "libxslt"
+  depends_on "libxslt" # Our libxslt links with libgcrypt
   depends_on "pkg-config" # aqbanking-config needs pkg-config for execution
 
   def install
     ENV.deparallelize
     inreplace "aqbanking-config.in.in", "@PKG_CONFIG@", "pkg-config"
-    system "autoreconf", "-fiv" if build.head?
     system "./configure", "--disable-debug",
                           "--disable-dependency-tracking",
                           "--prefix=#{prefix}",
                           "--enable-cli"
+    # This is banking software, so let's run the test suite.
+    system "make", "check"
     system "make", "install"
   end
 
@@ -62,8 +65,8 @@ class Aqbanking < Formula
     EOS
 
     match = "110000000 000123456789 12.12.2022 -110.96 US44110000000000123456789 BYLADEM1001"
-    out = shell_output("#{bin}/aqbanking-cli -D .aqbanking listbal "\
-                       "-T '$(bankcode) $(accountnumber) $(dateAsString) "\
+    out = shell_output("#{bin}/aqbanking-cli -D .aqbanking listbal " \
+                       "-T '$(bankcode) $(accountnumber) $(dateAsString) " \
                        "$(valueAsString) $(iban) $(bic)' < #{context}")
     assert_match match, out.gsub(/\s+/, " ")
   end

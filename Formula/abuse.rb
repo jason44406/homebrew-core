@@ -3,25 +3,42 @@ class Abuse < Formula
   homepage "http://abuse.zoy.org/"
   url "http://abuse.zoy.org/raw-attachment/wiki/download/abuse-0.8.tar.gz"
   sha256 "0104db5fd2695c9518583783f7aaa7e5c0355e27c5a803840a05aef97f9d3488"
+  license all_of: [:public_domain, "GPL-2.0-or-later", "WTFPL"]
+  revision 1
   head "svn://svn.zoy.org/abuse/abuse/trunk"
 
-  bottle do
-    cellar :any
-    sha256 "669679d60bb64b08d940f9f7c4b29faf340ff081d62b66f1764087db466fffe2" => :catalina
-    sha256 "e2dd02d540aabb2943823051e4bf80ea1fbb80da1725462fb314f53a0c6800b2" => :mojave
-    sha256 "3fdc2ccd00bf320b994747d982b5cbde4b73c45c094c9a0f89acf13aea3eb847" => :high_sierra
-    sha256 "6971b6eebf4c00eaaed72a1104a49be63861eabc95d679a0c84040398e320059" => :sierra
-    sha256 "456dfbfb6e7486d0c5a50ac01423efabf5243b08d3235c83477681090a42c652" => :el_capitan
-    sha256 "3ca083d0d99c00ad26f306c026ef35ee565a24f0171b94457deb64d5e170edf9" => :yosemite
+  livecheck do
+    url "http://abuse.zoy.org/wiki/download"
+    regex(/href=.*?abuse[._-]v?(\d+(?:\.\d+)+)\.t/i)
   end
+
+  bottle do
+    sha256 cellar: :any, arm64_ventura:  "4439cf6dd233b641848c36576ca622700de8c1efeb0a966e862c0e4dfc925b90"
+    sha256 cellar: :any, arm64_monterey: "f9c0ad01bf244402da95d81a483a46d8bcc45fdaa50dde524711db05f5051438"
+    sha256 cellar: :any, arm64_big_sur:  "487a8f37d5f3b9313d0d83a7e7349ce3c5111b1dc21b4d75c36b8a1e14a7aec3"
+    sha256 cellar: :any, ventura:        "aac3e824b3bc85336d0d2658a7ae1a0f2095d589b8f42ef3ea8e77e85d6871f3"
+    sha256 cellar: :any, monterey:       "1902270b9c53512d7d4770c5c8f1b40f7670539befd7e6e4f95b67b3248c1782"
+    sha256 cellar: :any, big_sur:        "3a30d73be5603120665da70ffc53bf27c92196b582aa53bc62e40296a3a625d0"
+    sha256 cellar: :any, catalina:       "39183111fb8c61401824df809e46d09857f1d37e49703e993cc221406d0cc7ae"
+    sha256               x86_64_linux:   "99bb1d87aef39b46eb39d0b6d9483afa3052bb0e616a16bbea90798545f1db37"
+  end
+
+  # Uses deprecated `sdl_mixer`. HEAD does have support for SDL 2 but wasn't released.
+  # Last release on 2011-05-09 and last SVN revision on 2014-07-21
+  deprecate! date: "2023-02-05", because: :unmaintained
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
   depends_on "libtool" => :build
   depends_on "pkg-config" => :build
   depends_on "libvorbis"
-  depends_on "sdl"
+  depends_on "sdl12-compat"
   depends_on "sdl_mixer"
+
+  on_linux do
+    depends_on "mesa"
+    depends_on "mesa-glu"
+  end
 
   def startup_script
     <<~EOS
@@ -57,11 +74,13 @@ class Abuse < Formula
                           "--prefix=#{prefix}",
                           "--disable-sdltest",
                           "--with-assetdir=#{pkgshare}",
-                          "--with-sdl-prefix=#{Formula["sdl"].opt_prefix}"
+                          "--with-sdl-prefix=#{Formula["sdl12-compat"].opt_prefix}"
 
-    # Use Framework OpenGL, not libGl
-    %w[. src src/imlib src/lisp src/net src/sdlport].each do |p|
-      inreplace "#{p}/Makefile", "-lGL", "-framework OpenGL"
+    if OS.mac?
+      # Use Framework OpenGL, not libGl
+      %w[. src src/imlib src/lisp src/net src/sdlport].each do |p|
+        inreplace "#{p}/Makefile", "-lGL", "-framework OpenGL"
+      end
     end
 
     system "make"
@@ -80,6 +99,9 @@ class Abuse < Formula
   end
 
   test do
+    # Fails in Linux CI with "Unable to initialise SDL : No available video device"
+    return if OS.linux? && ENV["HOMEBREW_GITHUB_ACTIONS"]
+
     system "#{bin}/abuse", "--help"
   end
 end

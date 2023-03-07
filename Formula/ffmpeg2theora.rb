@@ -3,19 +3,30 @@ class Ffmpeg2theora < Formula
   homepage "https://v2v.cc/~j/ffmpeg2theora/"
   url "https://v2v.cc/~j/ffmpeg2theora/downloads/ffmpeg2theora-0.30.tar.bz2"
   sha256 "4f6464b444acab5d778e0a3359d836e0867a3dcec4ad8f1cdcf87cb711ccc6df"
-  revision 6
-  head "https://gitlab.xiph.org/xiph/ffmpeg2theora.git"
+  license "GPL-2.0-or-later"
+  revision 10
+  head "https://gitlab.xiph.org/xiph/ffmpeg2theora.git", branch: "master"
+
+  livecheck do
+    url "http://v2v.cc/~j/ffmpeg2theora/download.html"
+    regex(/href=.*?ffmpeg2theora[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "8c9c5de4f7abb7aff89f0d29a5234e549dc9a3ab8a58f7dbc79ef84e290cf3c9" => :catalina
-    sha256 "955b11ab8815ad86a02fdd7f7454880108a191d8b406c499b5d5314f4498656c" => :mojave
-    sha256 "f91d9c881ea674c6b6b02f83a6ef53c6e30554c7b2828a9e706eb38cce33220f" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "ed8a59898f63352760fda9707681ac0f4ef597ffbb5ec145a01649845d5e28b7"
+    sha256 cellar: :any,                 arm64_monterey: "4e5863d4eeb81f57e4a2517beba074e4a9bb560ad14965e5e2b3a1f9f71048e9"
+    sha256 cellar: :any,                 arm64_big_sur:  "cf6ce000803f27ce6e818c8636f1252407ed32cd5ca0e5767a156db20414a07d"
+    sha256 cellar: :any,                 ventura:        "1093fbdcd773268b0b558c9d8a2e2d5e269aa2cb701c1f9f7402df0fb974492f"
+    sha256 cellar: :any,                 monterey:       "1151e536437a26d846bd7abd608dd60ee80f81bcbbeca84afd1d6739c5d1373c"
+    sha256 cellar: :any,                 big_sur:        "6ae499a21d16ad1de2cc39c39180bd6fe0c96864227147480c1bec7c218201f9"
+    sha256 cellar: :any,                 catalina:       "f07b22467dc83816cf815408371d7d78f73f3bcaeef43c0c6bf50339d3c94c4a"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "f3ef3694734992a098accb3e46e9f5c4222b16733af0ec708a8ac2a6dac48360"
   end
 
   depends_on "pkg-config" => :build
   depends_on "scons" => :build
-  depends_on "ffmpeg"
+  depends_on "ffmpeg@4"
   depends_on "libkate"
   depends_on "libogg"
   depends_on "libvorbis"
@@ -27,6 +38,12 @@ class Ffmpeg2theora < Formula
     sha256 "8cf333e691cf19494962b51748b8246502432867d9feb3d7919d329cb3696e97"
   end
 
+  # Fix missing linker flags
+  patch do
+    url "https://salsa.debian.org/multimedia-team/ffmpeg2theora/-/raw/debian/0.30-2/debian/patches/link-libm.patch"
+    sha256 "1cf00c93617ecc4833e9d2267d68b70eeb6aa6183f0c939f7caf0af5ce8460b5"
+  end
+
   def install
     # Fix unrecognized "PRId64" format specifier
     inreplace "src/theorautils.c", "#include <limits.h>", "#include <limits.h>\n#include <inttypes.h>"
@@ -34,8 +51,14 @@ class Ffmpeg2theora < Formula
     args = [
       "prefix=#{prefix}",
       "mandir=PREFIX/share/man",
-      "APPEND_LINKFLAGS=-headerpad_max_install_names",
     ]
+    if OS.mac?
+      args << "APPEND_LINKFLAGS=-headerpad_max_install_names"
+    else
+      gcc_version = Formula["gcc"].version.major
+      rpaths = "-Wl,-rpath,#{HOMEBREW_PREFIX}/lib -Wl,-rpath,#{Formula["ffmpeg@4"].opt_lib}"
+      args << "APPEND_LINKFLAGS=-L#{Formula["gcc"].opt_lib}/gcc/#{gcc_version} -lstdc++ #{rpaths}"
+    end
     system "scons", "install", *args
   end
 

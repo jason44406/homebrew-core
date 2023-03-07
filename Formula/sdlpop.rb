@@ -1,21 +1,23 @@
 class Sdlpop < Formula
   desc "Open-source port of Prince of Persia"
   homepage "https://github.com/NagyD/SDLPoP"
-  url "https://github.com/NagyD/SDLPoP/archive/v1.20.tar.gz"
-  sha256 "dbb75398dee2224bcee648602ad23e469b936a2b7ea962a8a01b091b989f25b6"
-  license "GPL-3.0"
+  url "https://github.com/NagyD/SDLPoP/archive/v1.23.tar.gz"
+  sha256 "41a9aa64b4e8d0a9d7a84ffced48f74f9528d81adbffc08593ecf84776c5d77a"
+  license "GPL-3.0-or-later"
 
   bottle do
-    cellar :any
-    sha256 "54fd6bcb8f351a98cd38017bb3c2a6df7a607dbd13b32cbd2162ab168a2a7759" => :catalina
-    sha256 "136ad2e3a3dfb37fa6e998ebcada2b35f1a41b8b31b4ac404038388bd2d6902b" => :mojave
-    sha256 "40e3329a4043ea4da4e71ccfbea3c9f710e9fed5d61e1d91a5390f7505f6c5f5" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "07ea2286bb9e2e5aefd579d7125882d5d744f3e3f7f5bbe1d67ce23242d8463f"
+    sha256 cellar: :any,                 arm64_monterey: "5678d9cd2ecb1de029c137d281034b891215f98ee9a2cc47c4597dd7d3467c92"
+    sha256 cellar: :any,                 arm64_big_sur:  "985ca9d07147b53562d0402685ab3e7db04803b18fbcaab180d8edacd64f40b8"
+    sha256 cellar: :any,                 ventura:        "21793456afcbac882492103a1f0f3b5d2a4b88c26df8df93be46c7ace3d96251"
+    sha256 cellar: :any,                 monterey:       "30ac230fb6c1f6fdd28d539c779428b5249e98f3984f4a8aba4ea4eba1038b61"
+    sha256 cellar: :any,                 big_sur:        "82fc8922689771f58c21f1fd08f1fc2b39c4cd32aee875c21152178ce5ef448a"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "8ef6448ced32c9d812689e9103bce4cf3df4eba04d34325898b205438fd73bc8"
   end
 
   depends_on "pkg-config" => :build
   depends_on "sdl2"
   depends_on "sdl2_image"
-  depends_on "sdl2_mixer"
 
   def install
     system "make", "-C", "src"
@@ -38,5 +40,9 @@ class Sdlpop < Formula
       Save and replay files are stored in the following directory:
         #{var}/sdlpop
     EOS
+  end
+
+  test do
+    assert_equal "See README.md", shell_output("#{bin}/prince --help").chomp
   end
 end

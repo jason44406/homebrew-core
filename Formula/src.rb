@@ -1,22 +1,25 @@
 class Src < Formula
   desc "Simple revision control: RCS reloaded with a modern UI"
   homepage "http://www.catb.org/~esr/src/"
-  url "http://www.catb.org/~esr/src/src-1.28.tar.gz"
-  sha256 "ee448f17e0de07eed749188bf2b977211fc609314b079ebe6c23485ac72f79ba"
+  url "http://www.catb.org/~esr/src/src-1.31.tar.gz"
+  sha256 "9b4d021bdeb0e68973c62b71cd313644b0109e2526d61847a4599269582f0edd"
   license "BSD-2-Clause"
 
+  livecheck do
+    url :homepage
+    regex(/href=.*?src[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
+
   bottle do
-    cellar :any_skip_relocation
-    sha256 "312d165d1840e28a6c33df33248a7236dc2c524ee792b575b2774afe5597e446" => :catalina
-    sha256 "312d165d1840e28a6c33df33248a7236dc2c524ee792b575b2774afe5597e446" => :mojave
-    sha256 "312d165d1840e28a6c33df33248a7236dc2c524ee792b575b2774afe5597e446" => :high_sierra
+    sha256 cellar: :any_skip_relocation, all: "b5f93380d42472047491e3c310effeb87a6f938489fce0875f1bd2ab8c2ee669"
   end
 
   head do
-    url "https://gitlab.com/esr/src.git"
+    url "https://gitlab.com/esr/src.git", branch: "master"
     depends_on "asciidoc" => :build
   end
 
+  depends_on "python@3.11"
   depends_on "rcs"
 
   def install
@@ -29,7 +32,13 @@ class Src < Formula
     require "pty"
     (testpath/"test.txt").write "foo"
     PTY.spawn("sh", "-c", "#{bin}/src commit -m hello test.txt; #{bin}/src status test.txt") do |r, _w, _pid|
-      assert_match /^=\s*test.txt/, r.read
+      output = ""
+      begin
+        r.each_line { |line| output += line }
+      rescue Errno::EIO
+        # GNU/Linux raises EIO when read is done on closed pty
+      end
+      assert_match(/^=\s*test.txt/, output)
     end
   end
 end

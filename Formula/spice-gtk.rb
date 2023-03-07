@@ -1,23 +1,35 @@
 class SpiceGtk < Formula
+  include Language::Python::Virtualenv
+
   desc "GTK client/libraries for SPICE"
   homepage "https://www.spice-space.org"
-  url "https://www.spice-space.org/download/gtk/spice-gtk-0.37.tar.bz2"
-  sha256 "1f28b706472ad391cda79a93fd7b4c7a03e84b88fc46ddb35dddbe323c923bb7"
-  revision 4
+  url "https://www.spice-space.org/download/gtk/spice-gtk-0.42.tar.xz"
+  sha256 "9380117f1811ad1faa1812cb6602479b6290d4a0d8cc442d44427f7f6c0e7a58"
+  license all_of: ["GPL-2.0-or-later", "LGPL-2.1-or-later", "BSD-3-Clause"]
 
-  bottle do
-    sha256 "0e79a73e33dd941c0011d5dab31fd330bd7fe7833d4a16f3d66ebf0fa431a2c3" => :catalina
-    sha256 "429a96412033c4c47ce892cbac6a43b7e9ad8523438f6d0ad532d8c8d3ee53ce" => :mojave
-    sha256 "32a55dcaa4902143f4fda24ca035ee3f1be41267d862e46bc3f7ba7a7181d026" => :high_sierra
+  livecheck do
+    url "https://www.spice-space.org/download/gtk/"
+    regex(/href=.*?spice-gtk[._-]v?(\d+(?:\.\d+)+)\.t/i)
   end
 
-  depends_on "autoconf" => :build
-  depends_on "autogen" => :build
-  depends_on "automake" => :build
+  bottle do
+    sha256 arm64_ventura:  "1befb75e482902215839cf6148532a51e52e1abeb5031e3cb6336682aa33b35b"
+    sha256 arm64_monterey: "052d4242b3edbc13681bd49397cfb60ec52f57d04ed60cb636926f32fa16b88e"
+    sha256 arm64_big_sur:  "fcbbd7bbfc075d5addf210451858fe672b6fd33c055e3237bf7f7b3a64d40373"
+    sha256 ventura:        "bd9a3a48b7dd8b7e922f88ae0b304dedd155f2fbc9fcd46e75a5eb30e148a1cd"
+    sha256 monterey:       "93cb5b7f2b910a204ea3bdb57b7b6bae8709471516776972405a0f77600f6032"
+    sha256 big_sur:        "e2bdf4ad322cc650d11d7fcfd1d2de66fc0a5535f41c6c4f7c9b960932028992"
+    sha256 x86_64_linux:   "512b1f3cb245fc4ce907455c4d3b7ad266afce8a08b96209c6db29c40b7e0cb9"
+  end
+
   depends_on "gobject-introspection" => :build
   depends_on "intltool" => :build
   depends_on "libtool" => :build
+  depends_on "meson" => :build
+  depends_on "ninja" => :build
   depends_on "pkg-config" => :build
+  depends_on "python@3.11" => :build
+  depends_on "six" => :build
   depends_on "vala" => :build
 
   depends_on "atk"
@@ -32,7 +44,7 @@ class SpiceGtk < Formula
   depends_on "gst-plugins-ugly"
   depends_on "gstreamer"
   depends_on "gtk+3"
-  depends_on "jpeg"
+  depends_on "jpeg-turbo"
   depends_on "json-glib"
   depends_on "libusb"
   depends_on "lz4"
@@ -43,29 +55,22 @@ class SpiceGtk < Formula
   depends_on "spice-protocol"
   depends_on "usbredir"
 
-  # Upstream patch: https://gitlab.freedesktop.org/spice/spice-gtk/issues/88
-  patch do
-    url "https://gitlab.freedesktop.org/spice/spice-gtk/commit/3c9b37bfc7c88969dfe16b8bfd874745e0fceb8a.diff"
-    sha256 "c2bb9c6dc0d07f333d10077987386680818296f1deb3b796ea7e35453aba7d91"
+  resource "pyparsing" do
+    url "https://files.pythonhosted.org/packages/71/22/207523d16464c40a0310d2d4d8926daffa00ac1f5b1576170a32db749636/pyparsing-3.0.9.tar.gz"
+    sha256 "2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb"
   end
 
+  # https://gitlab.com/keycodemap/keycodemapdb/-/merge_requests/18
+  patch :DATA
+
   def install
-    args = %W[
-      --disable-dependency-tracking
-      --disable-silent-rules
-      --enable-introspection
-      --enable-gstvideo
-      --enable-gstaudio
-      --enable-gstreamer=1.0
-      --enable-vala
-      --with-coroutine=gthread
-      --with-gtk=3.0
-      --with-lz4
-      --prefix=#{prefix}
-    ]
-    system "autoreconf"
-    system "./configure", *args
-    system "make", "install"
+    venv = virtualenv_create(buildpath/"venv", "python3.11")
+    venv.pip_install resources
+    ENV.prepend_path "PATH", buildpath/"venv/bin"
+
+    system "meson", "build", *std_meson_args
+    system "meson", "compile", "-C", "build"
+    system "meson", "install", "-C", "build"
   end
 
   test do
@@ -95,3 +100,14 @@ class SpiceGtk < Formula
     system "./test"
   end
 end
+__END__
+diff --git a/subprojects/keycodemapdb/tools/keymap-gen b/subprojects/keycodemapdb/tools/keymap-gen
+index b6cc95b..d05e945 100755
+--- a/subprojects/keycodemapdb/tools/keymap-gen
++++ b/subprojects/keycodemapdb/tools/keymap-gen
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python3
++#!/usr/bin/env python3
+ # -*- python -*-
+ #
+ # Keycode Map Generator

@@ -2,23 +2,40 @@ class Dfmt < Formula
   desc "Formatter for D source code"
   homepage "https://github.com/dlang-community/dfmt"
   url "https://github.com/dlang-community/dfmt.git",
-      tag:      "v0.13.0",
-      revision: "b5dbb0e031d411bb94c8784f52eebbe474583755"
+      tag:      "v0.14.2",
+      revision: "6a24f0dc7c490f4cb06cdc9d21b841bee84615f4"
   license "BSL-1.0"
-  head "https://github.com/dlang-community/dfmt.git", branch: "v0.x.x", shallow: false
+  head "https://github.com/dlang-community/dfmt.git", branch: "v0.x.x"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "70a01e51339a8bbc3d72c4927a3016227b8aea5fbe9238e1f8c9240b7c3effbf" => :catalina
-    sha256 "97a07085db537c652c1b3afe994eae61e3df931a184a72e1515feae1ea2988b7" => :mojave
-    sha256 "3e5fb65962d1e76dc734123b14de06001498b416f8dfb1c765994d18d68da285" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "cf94fcdfd61ff2b0e7678629fa9b04123e3bdae96e1b7fdb060956c6f5b8fce6"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "b861f187e5713461de50d3772babf2a56558e21e288ab7eb7084c2cf4f23931c"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "15bf7ef49901279546ee339c834722a87b3a940761fa534cf72f3dd2b4462430"
+    sha256 cellar: :any_skip_relocation, ventura:        "2eba7a65251b0239b9615e188ec481ab27032a114317caba4de5ee2d718f85a4"
+    sha256 cellar: :any_skip_relocation, monterey:       "7b8838d064641d0d691fbf839cf384c16410012b679fdda9d32796ffa57734a3"
+    sha256 cellar: :any_skip_relocation, big_sur:        "9854d6df204f9c15fcb6cbe9020f36b3b7132c90e32b9b11cdcda642800ae545"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "47f366c2db536367f33a3c6236ad83be77e7a101db900e7d7ca6d5967fbe23dd"
   end
 
-  depends_on "dmd" => :build
+  on_arm do
+    depends_on "ldc" => :build
+  end
+
+  on_intel do
+    depends_on "dmd" => :build
+  end
 
   def install
-    system "make"
+    target = if Hardware::CPU.arm?
+      "ldc"
+    else
+      ENV.append "DFLAGS", "-fPIC" if OS.linux?
+      "dmd"
+    end
+    system "make", target
     bin.install "bin/dfmt"
+    bash_completion.install "bash-completion/completions/dfmt"
   end
 
   test do

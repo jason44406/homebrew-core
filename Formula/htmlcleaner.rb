@@ -1,16 +1,19 @@
 class Htmlcleaner < Formula
   desc "HTML parser written in Java"
   homepage "https://htmlcleaner.sourceforge.io"
-  url "https://downloads.sourceforge.net/project/htmlcleaner/htmlcleaner/htmlcleaner%20v2.24/htmlcleaner-2.24-src.zip"
-  sha256 "ee476c1f31eabcbd56c174ec482910e1b19907ad3e57dff9a4d0a2f456c9cd42"
+  url "https://downloads.sourceforge.net/project/htmlcleaner/htmlcleaner/htmlcleaner%20v2.26/htmlcleaner-2.26-src.zip"
+  sha256 "617ddb866530f512c2c6f6f89b40a9ac6e46bf515960c49f47d8d037adaf0e2c"
   license "BSD-3-Clause"
-  revision 1
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "d32d3ccb0c576385b2fcbd5111f0e896097e2053be0a3abf4b76a2b5abbec890" => :catalina
-    sha256 "7162a51e9f957229cc7a8bb0e2248167dedb252047c11e5790183738b4d1e694" => :mojave
-    sha256 "a7274303c16fa42855699269a96e6fc3466371b68a8198c218d689a0ca39c1b8" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "2288e8a67ed3a00db0d493dc003b2705ae3c56f2e3eda4f6a25413a061b39a56"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "b6a287a43392e2a9ea253172a5000ff7da6f898dffda7c3052eda4ecdb91a961"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "9db87bc977615b9bb0250f0dc9f735dcd3d20a0799700640afe80c9bb011dd29"
+    sha256 cellar: :any_skip_relocation, ventura:        "137d96ed021338de07f8ea4b98724eef247f557a7cc4397a87be7fe03c19849f"
+    sha256 cellar: :any_skip_relocation, monterey:       "6dd5433406edc84f3e175426793cc788d1edc8cae11bfacfbaf4431f39c631a9"
+    sha256 cellar: :any_skip_relocation, big_sur:        "573b152655d4c622581d6dc5f73229271cfd4307b3dd4d63967d41b2c3da5ae9"
+    sha256 cellar: :any_skip_relocation, catalina:       "03d164b2210190deecac6180af860948b1d4e09a318dce0bbe631b7e98f0d0a0"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "bc3f63cf7c8a4d264c34fe39dfc265422a15564e04ce5495ab9bc08c91838dbf"
   end
 
   depends_on "maven" => :build
@@ -19,10 +22,12 @@ class Htmlcleaner < Formula
   def install
     ENV["JAVA_HOME"] = Formula["openjdk"].opt_prefix
 
-    # Homebrew's OpenJDK no longer accepts Java 5 source
     inreplace "pom.xml" do |s|
+      # Homebrew's OpenJDK no longer accepts Java 5 source
       s.gsub! "<source>1.5</source>", "<source>1.7</source>"
       s.gsub! "<target>1.5</target>", "<target>1.7</target>"
+      # OpenJDK >14 doesn't support older maven-javadoc-plugin versions
+      s.gsub! "<version>2.9</version>", "<version>3.2.0</version>"
     end
 
     system "mvn", "clean", "package", "-DskipTests=true", "-Dmaven.javadoc.skip=true"

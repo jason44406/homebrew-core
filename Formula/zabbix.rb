@@ -1,40 +1,43 @@
 class Zabbix < Formula
   desc "Availability and monitoring solution"
   homepage "https://www.zabbix.com/"
-  url "https://cdn.zabbix.com/zabbix/sources/stable/5.0/zabbix-5.0.2.tar.gz"
-  sha256 "dc908703fa560e94bfdaf1d585234ef09795513b9aedc5c6b4ea44dce3d1d6b2"
-  license "GPL-2.0"
+  url "https://cdn.zabbix.com/zabbix/sources/stable/6.4/zabbix-6.4.0.tar.gz"
+  sha256 "b1c771da8799bf2802e176adcc1f00ee8083834bf8b8b2cc0323a437fe2c62ce"
+  license "GPL-2.0-or-later" => { with: "openvpn-openssl-exception" }
+  head "https://github.com/zabbix/zabbix.git", branch: "master"
+
+  livecheck do
+    url "https://www.zabbix.com/download_sources"
+    regex(/href=.*?zabbix[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    sha256 "c315986435d2fc16410f756c9cadbf4b40d50d9592729bca4b11a33ac8d9eae7" => :catalina
-    sha256 "f27b66332b604c902f6a42ce53b0e8c0b72c47a10e580cc65f9b3fb1fb32da4e" => :mojave
-    sha256 "c6138330823cf52a44a4b8367d8fd318ae4e2f82d97d644c9228539bda73e1c3" => :high_sierra
+    sha256 arm64_ventura:  "4380e86b0730765ee38030efe029341d6bd0168ce34e986c38914f4db642c899"
+    sha256 arm64_monterey: "0b3046ba19b0f69350fe71399e1154b6396947f0fd4b95a3dd6de9c000c4fee3"
+    sha256 arm64_big_sur:  "99e4ec75154c986c6e0081283e79f61d00baa17d6af4c7f0f74edd7194e48ad6"
+    sha256 ventura:        "62d3cff9cfef3977eed5ff1eec6571816a106e5cb3d733305c1a4c1a141781b9"
+    sha256 monterey:       "39fe0d8a8dc9fecb84ab2df20fde6596cabdb5e75bbe7d34d8b2bebad0b545e3"
+    sha256 big_sur:        "42b3fbf3384025c010825aeec65426e8dc7046844f2b859a80adaa1c91641787"
+    sha256 x86_64_linux:   "a3d370aeeb7349719fa3da99afda5beba968dbff87b8ec6bb4dcc16c1300607c"
   end
 
-  depends_on "openssl@1.1"
-  depends_on "pcre"
-
-  def brewed_or_shipped(db_config)
-    brewed_db_config = "#{HOMEBREW_PREFIX}/bin/#{db_config}"
-    (File.exist?(brewed_db_config) && brewed_db_config) || which(db_config)
-  end
+  depends_on "pkg-config" => :build
+  depends_on "openssl@3"
+  depends_on "pcre2"
 
   def install
-    sdk = MacOS::CLT.installed? ? "" : MacOS.sdk_path
-
     args = %W[
       --disable-dependency-tracking
       --prefix=#{prefix}
       --sysconfdir=#{etc}/zabbix
       --enable-agent
-      --with-iconv=#{sdk}/usr
-      --with-libpcre=#{Formula["pcre"].opt_prefix}
-      --with-openssl=#{Formula["openssl@1.1"].opt_prefix}
+      --with-libpcre2
+      --with-openssl=#{Formula["openssl@3"].opt_prefix}
     ]
 
-    if MacOS.version == :el_capitan && MacOS::Xcode.version >= "8.0"
-      inreplace "configure", "clock_gettime(CLOCK_REALTIME, &tp);",
-                             "undefinedgibberish(CLOCK_REALTIME, &tp);"
+    if OS.mac?
+      sdk = MacOS::CLT.installed? ? "" : MacOS.sdk_path
+      args << "--with-iconv=#{sdk}/usr"
     end
 
     system "./configure", *args

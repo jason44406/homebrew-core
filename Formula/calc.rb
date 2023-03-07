@@ -1,18 +1,25 @@
 class Calc < Formula
   desc "Arbitrary precision calculator"
   homepage "http://www.isthe.com/chongo/tech/comp/calc/"
-  url "https://downloads.sourceforge.net/project/calc/calc/2.12.7.1/calc-2.12.7.1.tar.bz2"
-  sha256 "eb1dc5dd680019e30264109167e20539fe9ac869049d8b1639781a51d1dea84c"
-  revision 1
+  url "https://downloads.sourceforge.net/project/calc/calc/2.14.1.3/calc-2.14.1.3.tar.bz2"
+  sha256 "e5a02f6338c09292d919ff5413e4dad7c228f44c0fefaf726255729221f8a9dd"
+  license "LGPL-2.1-or-later"
 
   bottle do
-    sha256 "d78863a41409a2e3eaee0b8e4c5eb21a84ee28f1c3f8a27545d6e1f3fe3ae213" => :catalina
-    sha256 "1b4e5456d4965f8b74c120590070f74896c1fca85c8aa30354ffe519c1755600" => :mojave
-    sha256 "7614247fc707caf03a96e302ab2e1324f6a3609cfd1cdd7c6389bca77511ff18" => :high_sierra
-    sha256 "c31e4ac4a08ff6f1803cfcbe2d90a2634737ed69f4c38538f7ba77fc6a3e6728" => :sierra
+    sha256 arm64_ventura:  "7f9663cd01ef3633137a33922b5d3879ab34ed277b0aac645617648fefb2806c"
+    sha256 arm64_monterey: "4873fc4a3b988058ad6446ab3aaf4a761922efc4f5563f43e093239537b25806"
+    sha256 arm64_big_sur:  "471c751b5f7f5929b65c66237c8de855c3d8f9f7e876362ffd3e035657653211"
+    sha256 ventura:        "645261841ef3ca551dfbbfc730cead75d624e8c21114e5c89ddfbb73207e1d02"
+    sha256 monterey:       "5444842f370cc516688cae97b699eff39e5baa33e3b6409ee34e3e2a43575aab"
+    sha256 big_sur:        "3746be5e8f2e0b14e94ecee1e7b05d345d72639bf90790f78db9ead7956d768c"
+    sha256 x86_64_linux:   "ca10329b580fc9d1e8dc2982ec460cfbdfa53c732a3bf9b05f91634d12785060"
   end
 
   depends_on "readline"
+
+  on_linux do
+    depends_on "util-linux" # for `col`
+  end
 
   def install
     ENV.deparallelize
@@ -20,17 +27,19 @@ class Calc < Formula
     ENV["EXTRA_CFLAGS"] = ENV.cflags
     ENV["EXTRA_LDFLAGS"] = ENV.ldflags
 
-    readline = Formula["readline"]
+    args = [
+      "BINDIR=#{bin}",
+      "LIBDIR=#{lib}",
+      "MANDIR=#{man1}",
+      "CALC_INCDIR=#{include}/calc",
+      "CALC_SHAREDIR=#{pkgshare}",
+      "USE_READLINE=-DUSE_READLINE",
+      "READLINE_LIB=-L#{Formula["readline"].opt_lib} -lreadline",
+      "READLINE_EXTRAS=-lhistory -lncurses",
+    ]
+    args << "INCDIR=#{MacOS.sdk_path}/usr/include" if OS.mac?
+    system "make", "install", *args
 
-    system "make", "install", "INCDIR=#{MacOS.sdk_path}/usr/include",
-                              "BINDIR=#{bin}",
-                              "LIBDIR=#{lib}",
-                              "MANDIR=#{man1}",
-                              "CALC_INCDIR=#{include}/calc",
-                              "CALC_SHAREDIR=#{pkgshare}",
-                              "USE_READLINE=-DUSE_READLINE",
-                              "READLINE_LIB=-L#{readline.opt_lib} -lreadline",
-                              "READLINE_EXTRAS=-lhistory -lncurses"
     libexec.install "#{bin}/cscript"
   end
 

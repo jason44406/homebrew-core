@@ -6,20 +6,29 @@ class Md5sha1sum < Formula
   sha256 "2fe6b4846cb3e343ed4e361d1fd98fdca6e6bf88e0bba5b767b0fdc5b299f37b"
   revision 1
 
-  bottle do
-    cellar :any
-    sha256 "d498b282ccd1e70d8676184b3eda51eea4e99baacb92e6d69df2fd05a98d511f" => :catalina
-    sha256 "b1dc1ded1df513c24b7eab764707b088f42661c2cf53395e42ee4e03c245ac5d" => :mojave
-    sha256 "7ed564b5da0f1adf33c0242bffcd4e456d4e46540b578d3cdb810a9f6a28474b" => :high_sierra
-    sha256 "66ff4c578f7eff04b561192dd7789e013714caed61dac322df99f5652790abc7" => :sierra
+  livecheck do
+    url :homepage
+    regex(/href=.*?md5sha1sum[._-]v?(\d+(?:\.\d+)+)\.t/i)
   end
 
-  depends_on "openssl@1.1"
+  bottle do
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "1055a4e7c14927621a28916d8847a9d07cd7c2fa3a0b7c5b9a087aa67350fbfb"
+    sha256 cellar: :any,                 arm64_monterey: "6c1df5b7a603f00daa2d138d4e71d2f4e61316fb3e5de9f1dd7181a5d197feab"
+    sha256 cellar: :any,                 arm64_big_sur:  "8a6b0641375cbc512918fd3b0b79257f542668b5237e2a360a4abecde564bc95"
+    sha256 cellar: :any,                 ventura:        "68dfdf06eb4a9a543477a812deb0cc666688ee28a30e799233501f0855cd1944"
+    sha256 cellar: :any,                 monterey:       "db59823c590542e30656a7cc7f2379826352efd07a75e3919f359d33ffed2dd8"
+    sha256 cellar: :any,                 big_sur:        "924a214bdfed9ed8f7d9d581bb5717ec6cfe523e0a7f145b3e63075eba244bd6"
+    sha256 cellar: :any,                 catalina:       "61cea3dd8aa7dc270e3f5265316dcc73ccafa4ab7caf59b48b8fa5e9208d0d9a"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "0055fc19d2c8072e2e576b7df8de777126f2b5ab2c1269ff224476f8aaf9d65b"
+  end
+
+  depends_on "openssl@3"
 
   conflicts_with "coreutils", because: "both install `md5sum` and `sha1sum` binaries"
 
   def install
-    openssl = Formula["openssl@1.1"]
+    openssl = Formula["openssl@3"]
     ENV["SSLINCPATH"] = openssl.opt_include
     ENV["SSLLIBPATH"] = openssl.opt_lib
 

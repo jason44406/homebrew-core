@@ -1,31 +1,43 @@
+require "language/node"
+
 class CodeServer < Formula
   desc "Access VS Code through the browser"
-  homepage "https://github.com/cdr/code-server"
-  url "https://registry.npmjs.org/code-server/-/code-server-3.4.1.tgz"
-  sha256 "38f14f7e9307e4fea7eeeaabdcbd7ff414c41136337a04530692207263101a2a"
+  homepage "https://github.com/coder/code-server"
+  url "https://registry.npmjs.org/code-server/-/code-server-4.10.1.tgz"
+  sha256 "68825be6f1e5dc3319963f75cc0e2834bb169d63b353f1b3653c1fc46e64197b"
   license "MIT"
-  revision 1
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "e60052993a7053e4814d3ea9aa1b516b5ab7131c71dc524e2edd7abdf1fa7aee" => :catalina
-    sha256 "eda0ef4457730392ec9fbd0354ef3c25e67d6c658563876837c16cc994200b02" => :mojave
-    sha256 "f795b83b4a1333b0da1ef805257473937783aefecc0bb93c6e6ef36d83df07e9" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "8f212f825249b384339566adb3fa369d850debf3ecd8bfbd1d330844b37223f7"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "bbee41082cc46b824361f22e3a5ce85f37b991d178a9726ad67ba9f1b84c0b0b"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "f7c95911a9ff779dd474dfcfdc566ec07ee8afbd2dd2f4d7a7d32470507b32fd"
+    sha256 cellar: :any_skip_relocation, ventura:        "a5b483a5201d666d283849c94120bc52b75d3cd6f367acb52dabe9bffd7ec976"
+    sha256 cellar: :any_skip_relocation, monterey:       "7c961766e78ce941510c40f39af236d966fd4cee70de97b7bdc3785d20bffe1d"
+    sha256 cellar: :any_skip_relocation, big_sur:        "97d1b691c3a7285b012f591656930a3690087ddf9760ae1f9ef5d1f12138ccd5"
   end
 
-  depends_on "python@3.8" => :build
+  depends_on "bash" => :build
+  depends_on "python@3.11" => :build
   depends_on "yarn" => :build
-  depends_on "node"
+  depends_on "node@16"
 
   on_linux do
     depends_on "pkg-config" => :build
     depends_on "libsecret"
+    depends_on "libx11"
+    depends_on "libxkbfile"
   end
 
   def install
-    system "yarn", "--production", "--frozen-lockfile"
+    node = Formula["node@16"]
+    system "npm", "install", *Language::Node.local_npm_install_args, "--unsafe-perm", "--omit", "dev"
+    # @parcel/watcher bundles all binaries for other platforms & architectures
+    # This deletes the non-matching architecture otherwise brew audit will complain.
+    prebuilds = buildpath/"lib/vscode/node_modules/@parcel/watcher/prebuilds"
+    (prebuilds/"darwin-x64").rmtree if Hardware::CPU.arm?
+    (prebuilds/"darwin-arm64").rmtree if Hardware::CPU.intel?
     libexec.install Dir["*"]
-    env = { PATH: "#{HOMEBREW_PREFIX}/opt/node/bin:$PATH" }
+    env = { PATH: "#{node.opt_bin}:$PATH" }
     (bin/"code-server").write_env_script "#{libexec}/out/node/entry.js", env
   end
 
@@ -35,38 +47,18 @@ class CodeServer < Formula
     EOS
   end
 
-  plist_options manual: "code-server"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-      <dict>
-        <key>KeepAlive</key>
-        <true/>
-        <key>Label</key>
-        <string>#{plist_name}</string>
-        <key>ProgramArguments</key>
-        <array>
-          <string>#{HOMEBREW_PREFIX}/bin/code-server</string>
-        </array>
-        <key>RunAtLoad</key>
-        <true/>
-        <key>WorkingDirectory</key>
-        <string>#{ENV["HOME"]}</string>
-        <key>StandardOutPath</key>
-        <string>#{var}/log/code-server.log</string>
-        <key>StandardErrorPath</key>
-        <string>#{var}/log/code-server.log</string>
-      </dict>
-      </plist>
-    EOS
+  service do
+    run opt_bin/"code-server"
+    keep_alive true
+    error_log_path var/"log/code-server.log"
+    log_path var/"log/code-server.log"
+    working_dir Dir.home
   end
 
   test do
-    system bin/"code-server", "--extensions-dir=.", "--install-extension", "ms-python.python"
-    assert_equal "info  Using config file ~/.config/code-server/config.yaml\nms-python.python\n",
-      shell_output("#{bin/"code-server"} --extensions-dir=. --list-extensions")
+    # See https://github.com/cdr/code-server/blob/main/ci/build/test-standalone-release.sh
+    system bin/"code-server", "--extensions-dir=.", "--install-extension", "wesbos.theme-cobalt2"
+    assert_match "wesbos.theme-cobalt2",
+      shell_output("#{bin}/code-server --extensions-dir=. --list-extensions")
   end
 end

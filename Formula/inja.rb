@@ -1,23 +1,23 @@
 class Inja < Formula
   desc "Template engine for modern C++"
   homepage "https://pantor.github.io/inja/"
-  url "https://github.com/pantor/inja/archive/v3.0.0.tar.gz"
-  sha256 "99cdb0d90ab1adff9ec63b40a867ec14e1b217fe2d7ac07a6124de201de4ffd0"
+  url "https://github.com/pantor/inja/archive/v3.4.0.tar.gz"
+  sha256 "7155f944553ca6064b26e88e6cae8b71f8be764832c9c7c6d5998e0d5fd60c55"
   license "MIT"
-  head "https://github.com/pantor/inja.git"
+  head "https://github.com/pantor/inja.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "2d2e56f3daecf8306ebb2df948024c6ce7115e26cc160496538ca05900c6d8a5" => :catalina
-    sha256 "22ea5918d1033829ab77202e877ce6f79d0bcb965feee60081004654a3ea60b4" => :mojave
-    sha256 "9a67ee6245a22e809dd4c7fc29227b42bbc443f58bb24fdc7258929a99c7d0f3" => :high_sierra
+    sha256 cellar: :any_skip_relocation, all: "5af855be623e2ed9baf2182e6b645efc7ec85b13e6a3485237dd35cc661ce7ef"
   end
 
   depends_on "cmake" => :build
   depends_on "nlohmann-json"
 
   def install
-    system "cmake", ".", "-DBUILD_TESTING=OFF", "-DBUILD_BENCHMARK=OFF", *std_cmake_args
+    system "cmake", ".", "-DBUILD_TESTING=OFF",
+                         "-DBUILD_BENCHMARK=OFF",
+                         "-DINJA_USE_EMBEDDED_JSON=OFF",
+                         *std_cmake_args
     system "make", "install"
   end
 
@@ -32,7 +32,7 @@ class Inja < Formula
           inja::render_to(std::cout, "Hello {{ name }}!\\n", data);
       }
     EOS
-    system ENV.cxx, "-std=c++11", "test.cpp", "-o", "test",
+    system ENV.cxx, "-std=c++17", "test.cpp", "-o", "test",
            "-I#{include}", "-I#{Formula["nlohmann-json"].opt_include}"
     assert_equal "Hello world!\n", shell_output("./test")
   end

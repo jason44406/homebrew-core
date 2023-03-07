@@ -2,18 +2,28 @@ class Dbus < Formula
   # releases: even (1.12.x) = stable, odd (1.13.x) = development
   desc "Message bus system, providing inter-application communication"
   homepage "https://wiki.freedesktop.org/www/Software/dbus"
-  url "https://dbus.freedesktop.org/releases/dbus/dbus-1.12.20.tar.gz"
-  mirror "https://deb.debian.org/debian/pool/main/d/dbus/dbus_1.12.20.orig.tar.gz"
-  sha256 "f77620140ecb4cdc67f37fb444f8a6bea70b5b6461f12f1cbe2cec60fa7de5fe"
+  url "https://dbus.freedesktop.org/releases/dbus/dbus-1.14.6.tar.xz"
+  mirror "https://deb.debian.org/debian/pool/main/d/dbus/dbus_1.14.6.orig.tar.xz"
+  sha256 "fd2bdf1bb89dc365a46531bff631536f22b0d1c6d5ce2c5c5e59b55265b3d66b"
+  license any_of: ["AFL-2.1", "GPL-2.0-or-later"]
+
+  livecheck do
+    url "https://dbus.freedesktop.org/releases/dbus/"
+    regex(/href=.*?dbus[._-]v?(\d+\.\d*?[02468](?:\.\d+)*)\.t/i)
+  end
 
   bottle do
-    sha256 "23513ea5d75203fe4374ab37cc4226f23f34ec604449ef572fd6a2b48a612ff3" => :catalina
-    sha256 "912da7c3211a981762dc45e4f67fbedd1afd379459a40244340c83caa4134382" => :mojave
-    sha256 "6c98efff3cb8fdbba552351a2953f85953f053e12a8af891461118d37affdb73" => :high_sierra
+    sha256 arm64_ventura:  "ec0d9980cd5e80731bcf807a35719afb88b6178acbcd0c8ca04fc7bc430ca13b"
+    sha256 arm64_monterey: "aaadcaa68cbb6cc782692ef476562302da02318c80395b1aaf8207a0dc5ccafa"
+    sha256 arm64_big_sur:  "392325157689cb7e867e0eb1960207a1743bc8e07fafc53788abd85d6f3ca11c"
+    sha256 ventura:        "3b543b7dd34df33bcd4d1bf169663e2a44e5d564ae44aa301887257ad05c6faf"
+    sha256 monterey:       "33c126b61e16c4c26af8db9cf01e8e8e9a0f0b7d8abed530204f65192cfe1bbd"
+    sha256 big_sur:        "d17fb587941944b04a8ed8f1974bf2848f977ae2edef69b9f3ea76bfa4842259"
+    sha256 x86_64_linux:   "f63b8565981e3c11b67f8801daf0f56eec357bc7bafabd481e29042f9c3cae93"
   end
 
   head do
-    url "https://anongit.freedesktop.org/git/dbus/dbus.git"
+    url "https://gitlab.freedesktop.org/dbus/dbus.git", branch: "master"
 
     depends_on "autoconf" => :build
     depends_on "autoconf-archive" => :build
@@ -21,42 +31,44 @@ class Dbus < Formula
     depends_on "libtool" => :build
   end
 
+  depends_on "pkg-config" => :build
   depends_on "xmlto" => :build
 
   uses_from_macos "expat"
 
-  on_linux do
-    depends_on "pkg-config" => :build
-  end
-
   # Patch applies the config templating fixed in https://bugs.freedesktop.org/show_bug.cgi?id=94494
   # Homebrew pr/issue: 50219
   patch do
-    url "https://raw.githubusercontent.com/Homebrew/formula-patches/0a8a55872e/d-bus/org.freedesktop.dbus-session.plist.osx.diff"
-    sha256 "a8aa6fe3f2d8f873ad3f683013491f5362d551bf5d4c3b469f1efbc5459a20dc"
+    on_macos do
+      url "https://raw.githubusercontent.com/Homebrew/formula-patches/0a8a55872e/d-bus/org.freedesktop.dbus-session.plist.osx.diff"
+      sha256 "a8aa6fe3f2d8f873ad3f683013491f5362d551bf5d4c3b469f1efbc5459a20dc"
+    end
   end
 
   def install
     # Fix the TMPDIR to one D-Bus doesn't reject due to odd symbols
     ENV["TMPDIR"] = "/tmp"
-
-    # macOS doesn't include a pkg-config file for expat
-    ENV["EXPAT_CFLAGS"] = "-I#{MacOS.sdk_path}/usr/include"
-    ENV["EXPAT_LIBS"] = "-lexpat"
-
     ENV["XML_CATALOG_FILES"] = "#{etc}/xml/catalog"
 
     system "./autogen.sh", "--no-configure" if build.head?
-    system "./configure", "--disable-dependency-tracking",
-                          "--prefix=#{prefix}",
-                          "--localstatedir=#{var}",
-                          "--sysconfdir=#{etc}",
-                          "--enable-xml-docs",
-                          "--disable-doxygen-docs",
-                          "--enable-launchd",
-                          "--with-launchd-agent-dir=#{prefix}",
-                          "--without-x",
-                          "--disable-tests"
+
+    args = [
+      "--disable-dependency-tracking",
+      "--prefix=#{prefix}",
+      "--localstatedir=#{var}",
+      "--sysconfdir=#{etc}",
+      "--enable-xml-docs",
+      "--disable-doxygen-docs",
+      "--without-x",
+      "--disable-tests",
+    ]
+
+    if OS.mac?
+      args << "--enable-launchd"
+      args << "--with-launchd-agent-dir=#{prefix}"
+    end
+
+    system "./configure", *args
     system "make", "install"
   end
 

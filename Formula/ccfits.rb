@@ -1,24 +1,39 @@
 class Ccfits < Formula
   desc "Object oriented interface to the cfitsio library"
   homepage "https://heasarc.gsfc.nasa.gov/fitsio/CCfits/"
-  url "https://heasarc.gsfc.nasa.gov/fitsio/CCfits/CCfits-2.5.tar.gz"
-  sha256 "938ecd25239e65f519b8d2b50702416edc723de5f0a5387cceea8c4004a44740"
-  revision 2
+  url "https://heasarc.gsfc.nasa.gov/fitsio/CCfits/CCfits-2.6.tar.gz"
+  sha256 "2bb439db67e537d0671166ad4d522290859e8e56c2f495c76faa97bc91b28612"
+  revision 1
+
+  livecheck do
+    url :homepage
+    regex(/href=.*?CCfits[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "bcf673522fe7245b6ca8c93139793acf10c0fb3e351de96cfd634e296a5be813" => :catalina
-    sha256 "22aa452875d79f09825a87f9f3e384552e7fd92e5d954cd361a1b92cd9e52513" => :mojave
-    sha256 "b527e857acac1d749786f44a06af0cfa5f19f34c568c5f21c65675fa04b97f26" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "8f1e70f55129b991cc5bb8035c8e0eb92901225984af325857cf7124180a2b02"
+    sha256 cellar: :any,                 arm64_monterey: "5c222b5a44e8de98ffb844eaf585b718979f8e7a0f9f8ec0b3e34a74045310c1"
+    sha256 cellar: :any,                 arm64_big_sur:  "17a553e7d2b1bd6ac44e54ab8a6cbb101a212d8732aeb785068d7fca13f6d431"
+    sha256 cellar: :any,                 ventura:        "11c18cd3d891784215ce49c01335e936c4c7dad470b9354260b2a6cf0021750d"
+    sha256 cellar: :any,                 monterey:       "9f88ac9b101bdb715eb5c17714a49850550485a74d4bd152c46b4085420c4da9"
+    sha256 cellar: :any,                 big_sur:        "5567fdf74dea208531b63f0014da6f9b528beeaf58eeda3251f90f5b0fd4cba3"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "a4e46548887f6794b6a28674f506071ed6070bc368c616086bb423b30301495e"
   end
 
   depends_on "cfitsio"
 
   def install
-    system "./configure", "--disable-debug",
-                          "--disable-dependency-tracking",
-                          "--disable-silent-rules",
-                          "--prefix=#{prefix}"
+    args = %W[
+      --disable-debug
+      --disable-dependency-tracking
+      --disable-silent-rules
+      --prefix=#{prefix}
+    ]
+
+    # Remove references to brew's shims
+    args << "pfk_cxx_lib_path=/usr/bin/g++" if OS.linux?
+
+    system "./configure", *args
     system "make"
     system "make", "install"
   end
@@ -34,6 +49,6 @@ class Ccfits < Formula
     EOS
     system ENV.cxx, "-std=c++11", "test.cpp", "-o", "test", "-I#{include}",
                     "-L#{lib}", "-lCCfits"
-    assert_match /the answer is -11/, shell_output("./test")
+    assert_match "the answer is -11", shell_output("./test")
   end
 end

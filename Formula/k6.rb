@@ -1,32 +1,26 @@
 class K6 < Formula
   desc "Modern load testing tool, using Go and JavaScript"
   homepage "https://k6.io"
-  url "https://github.com/loadimpact/k6.git",
-    tag:      "v0.27.1",
-    revision: "4ee1ca9624bdd9fa68a0d534be11ac22328f1821"
-  license "AGPL-3.0"
+  url "https://github.com/grafana/k6/archive/v0.43.1.tar.gz"
+  sha256 "fa1c8257046ee22fe7896079b393b27e55af767e44a4489f8977a7755acf7c53"
+  license "AGPL-3.0-or-later"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "afa071cb66ffb37e6718ee52be4b58b707b935765f6527415da7dc15c2297658" => :catalina
-    sha256 "78bad35beeaa7d16a8f55aa2f9980b74c07fdec191c7ca52085ff0a2f8aa476c" => :mojave
-    sha256 "8f66f1625d3e95c011ead1d2fdfc3aed6102d9f9a475f9ec093cb50fa40503c4" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "de964bfa3c8cdc676305d0295a28fdefce413796f012adea10a0629c5c7d58cf"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "de964bfa3c8cdc676305d0295a28fdefce413796f012adea10a0629c5c7d58cf"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "de964bfa3c8cdc676305d0295a28fdefce413796f012adea10a0629c5c7d58cf"
+    sha256 cellar: :any_skip_relocation, ventura:        "bbfa5e18d23a7f84a051c9573f05e4b602929c5dd759a1151f8ab14082f39f14"
+    sha256 cellar: :any_skip_relocation, monterey:       "bbfa5e18d23a7f84a051c9573f05e4b602929c5dd759a1151f8ab14082f39f14"
+    sha256 cellar: :any_skip_relocation, big_sur:        "bbfa5e18d23a7f84a051c9573f05e4b602929c5dd759a1151f8ab14082f39f14"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "b0fe7a61b527ad7a4037b87749ddb223da141e73757d4266ac64148c4f411edb"
   end
 
-  depends_on "dep" => :build
   depends_on "go" => :build
 
   def install
-    ENV["GOPATH"] = buildpath
+    system "go", "build", *std_go_args(ldflags: "-s -w")
 
-    dir = buildpath/"src/github.com/loadimpact/k6"
-    dir.install buildpath.children
-
-    cd dir do
-      system "dep", "ensure", "-vendor-only"
-      system "go", "build", "-o", bin/"k6"
-      prefix.install_metafiles
-    end
+    generate_completions_from_executable(bin/"k6", "completion")
   end
 
   test do

@@ -1,16 +1,27 @@
 class Perltidy < Formula
   desc "Indents and reformats Perl scripts to make them easier to read"
   homepage "https://perltidy.sourceforge.io/"
-  url "https://downloads.sourceforge.net/project/perltidy/20200822/Perl-Tidy-20200822.tar.gz"
-  sha256 "757ac07bec59707845995aaafbb44b664120f57850ce932bc31f2d95e0c5df36"
+  url "https://downloads.sourceforge.net/project/perltidy/20221112/Perl-Tidy-20221112.tar.gz"
+  sha256 "8e3fffbaadb5612ff2c66742641838cf403ff1ed11091f5f5d72a8eb61c4bfa8"
   license "GPL-2.0-or-later"
 
-  bottle do
-    cellar :any_skip_relocation
-    sha256 "83b5f90746f0da498b17d0fb86ac46e56699431e0e901477a7dc6a3f07e6d43c" => :catalina
-    sha256 "4f2b608d8526fbce59ecfea6852183e51eec83a30ac68d7b56b2605cfc243146" => :mojave
-    sha256 "bc835bc37de6b359948b3e2d65bbb2e36c1758e5145860b928d519d591ae4b25" => :high_sierra
+  livecheck do
+    url :stable
+    regex(%r{url=.*?/Perl-Tidy[._-]v?(\d+(?:\.\d+)*)\.t}i)
   end
+
+  bottle do
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "a07c1045d4dc2e1549d6db6ccd72ce5335326b37f1376383aba1d2bea39c9a93"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "a07c1045d4dc2e1549d6db6ccd72ce5335326b37f1376383aba1d2bea39c9a93"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "2d733b21133f91f6d68b25fd2c64f057137b502a39082e100b22e2e4b36fd6d4"
+    sha256 cellar: :any_skip_relocation, ventura:        "347568f54b469a91379d2e4ebbc206f53cf2e059ecc1e4820d44a9f7d709603e"
+    sha256 cellar: :any_skip_relocation, monterey:       "347568f54b469a91379d2e4ebbc206f53cf2e059ecc1e4820d44a9f7d709603e"
+    sha256 cellar: :any_skip_relocation, big_sur:        "b91d4ccbceec326c54583426acbfc71500754009ccbdc5e03f9ea4e17bfcba03"
+    sha256 cellar: :any_skip_relocation, catalina:       "770c2d57739f78c6ab6f215a633cbeff3f4ffcc5c81f90aebdff96d7e0b0011b"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "adf90332e05e74930267a0a4b348d1a1809698c7917ba3ae58991940ace57180"
+  end
+
+  uses_from_macos "perl"
 
   def install
     ENV.prepend_create_path "PERL5LIB", libexec/"lib/perl5"

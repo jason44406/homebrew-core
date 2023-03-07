@@ -1,85 +1,102 @@
 class Travis < Formula
   desc "Command-line client for Travis CI"
   homepage "https://github.com/travis-ci/travis.rb/"
-  url "https://github.com/travis-ci/travis.rb/archive/v1.9.1.tar.gz"
-  sha256 "efe64321ba52e1ce62e46209a70c27d7909129bd0dd7c6166657e871b149a692"
+  url "https://github.com/travis-ci/travis.rb/archive/v1.11.1.tar.gz"
+  sha256 "438b30362b54ed5c8668abf4212f239ac9081ab3aeb7cb9a24a9bf4b044495c3"
   license "MIT"
+  revision 2
 
   bottle do
-    cellar :any
-    sha256 "e73ded3bc90d895c4210b55d99589fd5b440e0c9fe655b9aeb923b79c061af56" => :catalina
-    sha256 "322f16ef370e8130d009d09da3538a779fcc9c96e642b9baf5dc65970f61a95b" => :mojave
-    sha256 "201f7ddbd12e090edcabc22264b0029d3063cd423301d7b82a7aeceb0107ccd0" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "e9e8e09727abc98e24bdaf545d9ef09360fd81cb127846092b50b43d2c3e1b3a"
+    sha256 cellar: :any,                 arm64_monterey: "b7d1ee73323d634a7f225b3cc9b933aee4422b8443a131726da6d716e4f2b2a9"
+    sha256 cellar: :any,                 arm64_big_sur:  "8d2540127e9a316a2e567293bc9cfeaeb63275f022dd0eb4dec07321dda25b01"
+    sha256 cellar: :any,                 ventura:        "7aeace183f49a6013abc90794b05ce3085ef895a04b9610ba09eb950c77277be"
+    sha256 cellar: :any,                 monterey:       "642811990a08cc4e35765e2433f8f14b45b0f84fc46cd8e2470d76d92d78a605"
+    sha256 cellar: :any,                 big_sur:        "9738d5d44d319450e07e59d8ac47e50e60c45076bab8a873e9e1b6447b99471e"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "f522e0528bfe365b56f461472f766ddc861c360e858a915ed670570a41150704"
   end
 
   depends_on "pkg-config" => :build
   depends_on "ruby"
 
-  if MacOS.version < :catalina
-    depends_on "libffi"
-  else
-    uses_from_macos "libffi"
-  end
-
   resource "activesupport" do
-    url "https://rubygems.org/gems/activesupport-5.2.4.2.gem"
-    sha256 "8c3ae3df5b08b49b6b5d9c5028da1a1e582f1243b7362dbb9736f65ede492378"
-  end
-
-  resource "concurrent-ruby" do
-    url "https://rubygems.org/gems/concurrent-ruby-1.1.6.gem"
-    sha256 "14da21d5cfe9ccb02e9359b01cb7291e0167ded0ec805d4f3a4b2b4ffa418324"
-  end
-
-  resource "i18n" do
-    url "https://rubygems.org/gems/i18n-1.8.2.gem"
-    sha256 "95cf147081cc6f1dbfb32a8f29a03afe8b0f4da6a300d37d34e0f74a6868994b"
-  end
-
-  resource "minitest" do
-    url "https://rubygems.org/gems/minitest-5.14.0.gem"
-    sha256 "dfe35170edd195c3f32b43c2326a776e687f9efb330f185e43f0ca0a8be9e33c"
-  end
-
-  resource "tzinfo" do
-    url "https://rubygems.org/gems/tzinfo-1.2.7.gem"
-    sha256 "3945d8a57c62a59e691d527ae4daaf562d6e07a3c0d032876c6b066e108072c4"
+    url "https://rubygems.org/gems/activesupport-5.2.8.1.gem"
+    sha256 "f0498c616e1b243c7b56d67920c389f959c186ad7031569e80335b42e1d22564"
   end
 
   resource "addressable" do
-    url "https://rubygems.org/gems/addressable-2.7.0.gem"
-    sha256 "5e9b62fe1239091ea9b2893cd00ffe1bcbdd9371f4e1d35fac595c98c5856cbb"
+    url "https://rubygems.org/gems/addressable-2.8.0.gem"
+    sha256 "f76d29d2d1f54b6c6a49aec58f9583b08d97e088c227a3fcba92f6c6531d5908"
   end
 
-  resource "public_suffix" do
-    url "https://rubygems.org/gems/public_suffix-4.0.4.gem"
-    sha256 "3ff2a10253583b2780b6fb0ea643a2e877ae3bf719bd987fe5f16b550ec733d0"
-  end
-
-  resource "ethon" do
-    url "https://rubygems.org/gems/ethon-0.12.0.gem"
-    sha256 "e99d3095e89f82c5a7e63d9261ddf4a21f28ae5d12a9d3abaa6920cce6cbef3d"
+  resource "concurrent-ruby" do
+    url "https://rubygems.org/gems/concurrent-ruby-1.1.10.gem"
+    sha256 "244cb1ca0d91ec2c15ca2209507c39fb163336994428e16fbd3f465c87bd8e68"
   end
 
   resource "faraday" do
-    url "https://rubygems.org/gems/faraday-1.0.1.gem"
-    sha256 "381aee04fcc9effbe5fa7cc703d8f5f20293722f987ded4f958f77514cd29373"
+    url "https://rubygems.org/gems/faraday-1.10.1.gem"
+    sha256 "38e5d43359ad0e8579af549fcc6083c03ffbeb0dd6fd78dee359263fde2cfc0c"
+  end
+
+  resource "faraday-em_http" do
+    url "https://rubygems.org/gems/faraday-em_http-1.0.0.gem"
+    sha256 "7a3d4c7079789121054f57e08cd4ef7e40ad1549b63101f38c7093a9d6c59689"
+  end
+
+  resource "faraday-em_synchrony" do
+    url "https://rubygems.org/gems/faraday-em_synchrony-1.0.0.gem"
+    sha256 "460dad1c30cc692d6e77d4c391ccadb4eca4854b315632cd7e560f74275cf9ed"
+  end
+
+  resource "faraday-excon" do
+    url "https://rubygems.org/gems/faraday-excon-1.1.0.gem"
+    sha256 "b055c842376734d7f74350fe8611542ae2000c5387348d9ba9708109d6e40940"
+  end
+
+  resource "faraday-httpclient" do
+    url "https://rubygems.org/gems/faraday-httpclient-1.0.1.gem"
+    sha256 "4c8ff1f0973ff835be8d043ef16aaf54f47f25b7578f6d916deee8399a04d33b"
+  end
+
+  resource "faraday-multipart" do
+    url "https://rubygems.org/gems/faraday-multipart-1.0.4.gem"
+    sha256 "9012021ab57790f7d712f590b48d5f948b19b43cfa11ca83e6459f06090b0725"
+  end
+
+  resource "faraday-net_http" do
+    url "https://rubygems.org/gems/faraday-net_http-1.0.1.gem"
+    sha256 "3245ce406ebb77b40e17a77bfa66191dda04be2fd4e13a78d8a4305854d328ba"
+  end
+
+  resource "faraday-net_http_persistent" do
+    url "https://rubygems.org/gems/faraday-net_http_persistent-1.2.0.gem"
+    sha256 "0b0cbc8f03dab943c3e1cc58d8b7beb142d9df068b39c718cd83e39260348335"
+  end
+
+  resource "faraday-patron" do
+    url "https://rubygems.org/gems/faraday-patron-1.0.0.gem"
+    sha256 "dc2cd7b340bb3cc8e36bcb9e6e7eff43d134b6d526d5f3429c7a7680ddd38fa7"
+  end
+
+  resource "faraday-rack" do
+    url "https://rubygems.org/gems/faraday-rack-1.0.0.gem"
+    sha256 "ef60ec969a2bb95b8dbf24400155aee64a00fc8ba6c6a4d3968562bcc92328c0"
+  end
+
+  resource "faraday-retry" do
+    url "https://rubygems.org/gems/faraday-retry-1.0.3.gem"
+    sha256 "add154f4f399243cbe070806ed41b96906942e7f5259bb1fe6daf2ec8f497194"
   end
 
   resource "faraday_middleware" do
-    url "https://rubygems.org/gems/faraday_middleware-1.0.0.gem"
-    sha256 "19e808539681bbf2e65df30dfbe27bb402bde916a1dceb4c7496dbe8de14334a"
-  end
-
-  # required by typhoeus
-  resource "ffi" do
-    url "https://rubygems.org/gems/ffi-1.12.2.gem"
-    sha256 "048ad01d5369f67075f943c16f1058f10663af2a66eedb87d921316ba1828e82"
+    url "https://rubygems.org/gems/faraday_middleware-1.2.0.gem"
+    sha256 "ded15d574d50e92bd04448d5566913af5cb1a01b2fa311ceecc2464fa0ab88af"
   end
 
   resource "gh" do
-    url "https://rubygems.org/gems/gh-0.17.0.gem"
-    sha256 "7219a131780f2f21b7495e60e94dd5170e5ab6dc9a219f4623ca4175456d42da"
+    url "https://rubygems.org/gems/gh-0.18.0.gem"
+    sha256 "eb93f18a88db3ba92eb888610fc53fae731d9dacfe55922b58cc3f3aca776a47"
   end
 
   resource "highline" do
@@ -87,25 +104,39 @@ class Travis < Formula
     sha256 "2ddd5c127d4692721486f91737307236fe005352d12a4202e26c48614f719479"
   end
 
-  resource "json" do
-    url "https://rubygems.org/gems/json-2.3.0.gem"
-    sha256 "b61691fd2087ac37141b75ff4287ce2c3f17251c713e97ef73b43b4bb2e0355b"
+  resource "i18n" do
+    url "https://rubygems.org/gems/i18n-1.12.0.gem"
+    sha256 "91e3cc1b97616d308707eedee413d82ee021d751c918661fb82152793e64aced"
   end
 
-  # launchy v2.5.0 requires ruby > 2.4.0
+  resource "json" do
+    url "https://rubygems.org/gems/json-2.6.2.gem"
+    sha256 "940dc787e33d7e846898724331c9463fd89b54602ff5ed6561f3eaed4168657a"
+  end
+
+  resource "json_pure" do
+    url "https://rubygems.org/gems/json_pure-2.6.2.gem"
+    sha256 "ccf59aeb76249a17d894f0a974073d1264645528f0799a59c52b01560da3a811"
+  end
+
   resource "launchy" do
     url "https://rubygems.org/gems/launchy-2.4.3.gem"
     sha256 "42f52ce12c6fe079bac8a804c66522a0eefe176b845a62df829defe0e37214a4"
   end
 
+  resource "minitest" do
+    url "https://rubygems.org/gems/minitest-5.16.2.gem"
+    sha256 "c1be0c6b57fab451faa08e74ffa71e7d6a259b90f4bacb881c7f4808ec8b4991"
+  end
+
   resource "multi_json" do
-    url "https://rubygems.org/gems/multi_json-1.13.1.gem"
-    sha256 "db8613c039b9501e6b2fb85efe4feabb02f55c3365bae52bba35381b89c780e6"
+    url "https://rubygems.org/gems/multi_json-1.15.0.gem"
+    sha256 "1fd04138b6e4a90017e8d1b804c039031399866ff3fbabb7822aea367c78615d"
   end
 
   resource "multipart-post" do
-    url "https://rubygems.org/gems/multipart-post-2.1.1.gem"
-    sha256 "d2dd7aa957650e0d99e0513cd388401b069f09528441b87d884609c8e94ffcfd"
+    url "https://rubygems.org/gems/multipart-post-2.2.3.gem"
+    sha256 "462979de2971b8df33c2ee797fd497731617241f9dcd93960cc3caccb2dd13d8"
   end
 
   resource "net-http-persistent" do
@@ -118,9 +149,19 @@ class Travis < Formula
     sha256 "6923ce2f28bfde589a9f385e999395eead48ccfe4376d4a85d9a77e8c7f0b22f"
   end
 
+  resource "public_suffix" do
+    url "https://rubygems.org/gems/public_suffix-4.0.7.gem"
+    sha256 "8be161e2421f8d45b0098c042c06486789731ea93dc3a896d30554ee38b573b8"
+  end
+
   resource "pusher-client" do
     url "https://rubygems.org/gems/pusher-client-0.6.2.gem"
     sha256 "c405c931090e126c056d99f6b69a01b1bcb6cbfdde02389c93e7d547c6efd5a3"
+  end
+
+  resource "ruby2_keywords" do
+    url "https://rubygems.org/gems/ruby2_keywords-0.0.5.gem"
+    sha256 "ffd13740c573b7301cf7a2e61fc857b2a8e3d3aff32545d6f8300d8bae10e3ef"
   end
 
   resource "thread_safe" do
@@ -128,14 +169,14 @@ class Travis < Formula
     sha256 "9ed7072821b51c57e8d6b7011a8e282e25aeea3a4065eab326e43f66f063b05a"
   end
 
-  resource "typhoeus" do
-    url "https://rubygems.org/gems/typhoeus-0.8.0.gem"
-    sha256 "28b7cf3c7d915a06d412bddab445df94ab725252009aa409f5ea41ab6577a30f"
+  resource "tzinfo" do
+    url "https://rubygems.org/gems/tzinfo-1.2.10.gem"
+    sha256 "c6d3fa6e6de19744171536dc1bd1142442f3f265efabe8d9f28c03f9874f8867"
   end
 
   resource "websocket" do
-    url "https://rubygems.org/gems/websocket-1.2.8.gem"
-    sha256 "1d8155c1cdaab8e8e72587a60e08423c9dd84ee44e4e827358ce3d4c2ccb2138"
+    url "https://rubygems.org/gems/websocket-1.2.9.gem"
+    sha256 "884b12dee993217795bb5f58acc89c0121c88bdc99df4d1636c0505dca352b36"
   end
 
   def install
@@ -151,6 +192,7 @@ class Travis < Formula
     system "gem", "build", "travis.gemspec"
     system "gem", "install", "--ignore-dependencies", "travis-#{version}.gem"
     bin.install libexec/"bin/travis"
+    (libexec/"gems/travis-#{version}/assets/notifications/Travis CI.app").rmtree
     bin.env_script_all_files(libexec/"bin", GEM_HOME: ENV["GEM_HOME"])
   end
 

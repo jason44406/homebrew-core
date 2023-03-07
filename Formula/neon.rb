@@ -1,27 +1,37 @@
 class Neon < Formula
   desc "HTTP and WebDAV client library with a C interface"
   homepage "https://notroj.github.io/neon/"
-  url "https://notroj.github.io/neon/neon-0.31.2.tar.gz"
-  mirror "https://fossies.org/linux/www/neon-0.31.2.tar.gz"
-  sha256 "cf1ee3ac27a215814a9c80803fcee4f0ede8466ebead40267a9bd115e16a8678"
+  url "https://notroj.github.io/neon/neon-0.32.5.tar.gz"
+  mirror "https://fossies.org/linux/www/neon-0.32.5.tar.gz"
+  sha256 "4872e12f802572dedd4b02f870065814b2d5141f7dbdaf708eedab826b51a58a"
+  license "LGPL-2.0-or-later"
+
+  livecheck do
+    url :homepage
+    regex(/href=.*?neon[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "4cb9cac535f8d40ca71c0bb04fe2baa24f929685d06caf71311d285933ac0828" => :catalina
-    sha256 "3aef45d339688bda9dd7dc6682bebb97f8c0eb349a0ebb9a92d92e01635a5f75" => :mojave
-    sha256 "e1a66cf7af9daade4ce304c14b11b797610f448f194306e996ffacab04c2af5d" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "917c81b362e5302ac4e01ee49ecc0eb2fdc3cce6e31dcff7cbdaaba941b11153"
+    sha256 cellar: :any,                 arm64_monterey: "027ba3480af2d28fd16cff3ee115b47342e35ff6c6fe04c9d7f1c4b468314659"
+    sha256 cellar: :any,                 arm64_big_sur:  "c74061ffaf150d29cff6bfb67d5f22c217e5a0b590be3883c98e4dbfea454920"
+    sha256 cellar: :any,                 ventura:        "8235113576b3be4c86963ee69125ad9a8aed3128f4150ce2a1a1174992c2d6af"
+    sha256 cellar: :any,                 monterey:       "76f1b4ccacd4c9bea1d4019872389e9797510fab82b5d37baf5e7f4d3cc92b73"
+    sha256 cellar: :any,                 big_sur:        "ed1ed921e26e050aa439b491c1a95a0052ce1de21043c1908c820c77bce2aae2"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "7889bddb775368d35458c31a88c135a279894fd73a194edf492fe0f3965dbec9"
   end
 
   depends_on "pkg-config" => :build
+  depends_on "xmlto" => :build
   depends_on "openssl@1.1"
 
-  # Configure switch unconditionally adds the -no-cpp-precomp switch
-  # to CPPFLAGS, which is an obsolete Apple-only switch that breaks
-  # builds under non-Apple compilers and which may or may not do anything
-  # anymore.
-  patch :DATA
+  uses_from_macos "libxml2"
 
   def install
+    # Work around configure issues with Xcode 12
+    ENV.append "CFLAGS", "-Wno-implicit-function-declaration"
+    ENV["XML_CATALOG_FILES"] = etc/"xml/catalog"
+
     system "./configure", "--disable-debug",
                           "--prefix=#{prefix}",
                           "--enable-shared",
@@ -32,17 +42,3 @@ class Neon < Formula
     system "make", "install"
   end
 end
-
-__END__
-diff --git a/configure b/configure
-index d7702d2..5c3b5a3 100755
---- a/configure
-+++ b/configure
-@@ -4224,7 +4224,6 @@ fi
- $as_echo "$ne_cv_os_uname" >&6; }
-
- if test "$ne_cv_os_uname" = "Darwin"; then
--  CPPFLAGS="$CPPFLAGS -no-cpp-precomp"
-   LDFLAGS="$LDFLAGS -flat_namespace"
-   # poll has various issues in various Darwin releases
-   if test x${ac_cv_func_poll+set} != xset; then

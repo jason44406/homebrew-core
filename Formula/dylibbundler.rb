@@ -1,17 +1,19 @@
 class Dylibbundler < Formula
   desc "Utility to bundle libraries into executables for macOS"
   homepage "https://github.com/auriamg/macdylibbundler"
-  url "https://github.com/auriamg/macdylibbundler/archive/0.4.5-release.tar.gz"
-  sha256 "cd41e45115371721e0aa94e70c457134acf49f6d5f6d359b5bae060fd876d887"
+  url "https://github.com/auriamg/macdylibbundler/archive/1.0.5.tar.gz"
+  sha256 "13384ebe7ca841ec392ac49dc5e50b1470190466623fa0e5cd30f1c634858530"
   license "MIT"
-  head "https://github.com/auriamg/macdylibbundler.git"
+  head "https://github.com/auriamg/macdylibbundler.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "0794eea61309318e5aa8686a5781cbd5c534b1f9b481d38502a7343007cfe77e" => :catalina
-    sha256 "f2554553b0c00165394e41ade50712f490331d7bf084792abc2cb4f12ae1164e" => :mojave
-    sha256 "60b4e47bfbb3450f6901e6c104d37530940e9cc22abacaacbe37eb4539b820c6" => :high_sierra
-    sha256 "c8f470a6e3c0c5eaf632dd384f5098f0e59f60ab2c873482424f7c6729a4fe07" => :sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "8749638bc5670b6a9c6f6fba7f609b2d72352639cf14cf10b9bc59c3f9ca3972"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "daba4f32451618f8bde33249c02d2e07a2a33080d4ce4e3f6b1085109e996a1a"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "0f72a1ddbced1016b9804320c8affd47919efa48bc8c3ec9beb2975e66ebcc6f"
+    sha256 cellar: :any_skip_relocation, ventura:        "c564cf5d48edcaab9c2940d0820bc420b5c99621d359a2b681c7b3e68e413843"
+    sha256 cellar: :any_skip_relocation, monterey:       "fec981eff597fa04d969914104bc997bebe8858f2bfaf5ec532910295ca43167"
+    sha256 cellar: :any_skip_relocation, big_sur:        "7562a49bdaa12d85af55aa8843379179dbfd78d9d8d44f14b481ca22760d4df6"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "b8c2ea435fa7ee838cc3fa07684b4f1b68ac5f65a224c7b5860b5bf06d254f50"
   end
 
   def install

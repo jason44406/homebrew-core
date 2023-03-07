@@ -4,20 +4,27 @@ class Libicns < Formula
   url "https://downloads.sourceforge.net/project/icns/libicns-0.8.1.tar.gz"
   mirror "https://deb.debian.org/debian/pool/main/libi/libicns/libicns_0.8.1.orig.tar.gz"
   sha256 "335f10782fc79855cf02beac4926c4bf9f800a742445afbbf7729dab384555c2"
-  revision 3
+  license any_of: ["LGPL-2.0-or-later", "LGPL-2.1-or-later"]
+  revision 5
 
   bottle do
-    cellar :any
-    sha256 "33e4b9bf7de81d160ba9f8802c24e89c90903e6be9a3103c7e296536b1fe1511" => :catalina
-    sha256 "fe7c57605e6f9b5626f5c2048aacd121c2c8973d24113f03275ed0659392a9fb" => :mojave
-    sha256 "a2c03e94df9a8291b73c544d188d9e796161f49e0f14b8c88f94da40d3cfa04f" => :high_sierra
-    sha256 "8fb5848fa2a111b3fc66aaea73c60a0795da6468e2ace92d2de57c9c8a5a3cde" => :sierra
-    sha256 "12579e9f34ef57d3979b5a01206b543a67bf313cdb056d6c3e20e0b8cf0842b6" => :el_capitan
-    sha256 "aed1a7df05a8f98ea64dcdd8c4a406207239b7b187629fc03ae799308a142a4d" => :yosemite
+    sha256 cellar: :any,                 arm64_ventura:  "144537e569ff40707cbb02a4d5d14592bc001cc7eff0e21f102dfd6c36908689"
+    sha256 cellar: :any,                 arm64_monterey: "b9e9bde24513deaf1b8b09089b691c3108f0d3e456f6cdaf29851f138a9b75f7"
+    sha256 cellar: :any,                 arm64_big_sur:  "163ac60e31105b323182e807195977f27bf0e7870b151d9744a1bbbd2a37b78e"
+    sha256 cellar: :any,                 ventura:        "0b9b72d44a2d0737fe8f9c0fcca4250436b618cb437a6fb9715b2817220c180a"
+    sha256 cellar: :any,                 monterey:       "53d553054ef00243c22ae45d5b4937b11c2427064b083420b95090f96855ec94"
+    sha256 cellar: :any,                 big_sur:        "43f30bf4451dbc02f68bb4befc43ed730dc2d5757306111b62d37005ab45bb74"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "6738c70d5d8f9025be9ba3cd49b1e2b2510b6c05b6a27b7605e39d60e27566df"
   end
 
   depends_on "jasper"
   depends_on "libpng"
+
+  # Fix -flat_namespace being used on Big Sur and later.
+  patch do
+    url "https://raw.githubusercontent.com/Homebrew/formula-patches/03cf8088210822aa2c1ab544ed58ea04c897d9c4/libtool/configure-pre-0.4.2.418-big_sur.diff"
+    sha256 "83af02f2aa2b746bb7225872cab29a253264be49db0ecebb12f841562d9a2923"
+  end
 
   def install
     # Fix for libpng 1.5

@@ -1,14 +1,18 @@
 class Gmime < Formula
   desc "MIME mail utilities"
-  homepage "https://spruce.sourceforge.io/gmime/"
-  url "https://download.gnome.org/sources/gmime/3.2/gmime-3.2.7.tar.xz"
-  sha256 "2aea96647a468ba2160a64e17c6dc6afe674ed9ac86070624a3f584c10737d44"
-  license "LGPL-2.1"
+  homepage "https://github.com/jstedfast/gmime"
+  url "https://github.com/jstedfast/gmime/releases/download/3.2.13/gmime-3.2.13.tar.xz"
+  sha256 "2e10a54d4821daf8b16c019ad5d567e0fb8e766f8ffe5fec3d4c6a37373d6406"
+  license "LGPL-2.1-or-later"
 
   bottle do
-    sha256 "877f2024cc0d97bc94f559ad992f87bdf6fdc23f9a1acc7b5bb13f0711b734c3" => :catalina
-    sha256 "7a0bda5bca906bc62e3ab24fc39752e2858fce861ba759040fc864928ab18d96" => :mojave
-    sha256 "0bb48841eae316695037bcd793673d518d0f2be20968a115a81c92824fb77ac0" => :high_sierra
+    sha256                               arm64_ventura:  "35dc9d92ec33ec3d84b118fe2bbc0ec55d639fc0c26ca1f288db2041b8cc66f5"
+    sha256                               arm64_monterey: "f27bc95fba280b579a93fda869ecb738e84593cf02e4fb689f668ef3b8668b40"
+    sha256                               arm64_big_sur:  "616305d3cdeb697de0139126e9f85138bed8beab38b79f6aa982b7b846be23cb"
+    sha256                               ventura:        "b3543eda3347b28808d6881d6b175d25192484563ffc5877a4ba5f82a26046da"
+    sha256                               monterey:       "9a2055499bf7a18b01bfa67d3637ca0a376a0353a52a984a1864ff0890280a27"
+    sha256                               big_sur:        "26ba4775f26d0549b57240711b9d446dacd825b52a11b0e1ff1c77410f2fe36c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "343edd8abff04d84cba81782ee2c447da2be52b2187581d25e989fe107c65b26"
   end
 
   depends_on "gobject-introspection" => :build
@@ -17,9 +21,7 @@ class Gmime < Formula
   depends_on "gpgme"
 
   def install
-    args = %W[
-      --disable-dependency-tracking
-      --prefix=#{prefix}
+    args = %w[
       --enable-largefile
       --disable-vala
       --disable-glibtest
@@ -27,7 +29,7 @@ class Gmime < Formula
       --enable-introspection
     ]
 
-    system "./configure", *args
+    system "./configure", *std_configure_args, *args
     system "make", "install"
   end
 
@@ -63,8 +65,8 @@ class Gmime < Formula
       -lglib-2.0
       -lgmime-3.0
       -lgobject-2.0
-      -lintl
     ]
+    flags << "-lintl" if OS.mac?
     system ENV.cc, "-o", "test", "test.c", *flags
     system "./test"
   end

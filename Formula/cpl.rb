@@ -1,15 +1,23 @@
 class Cpl < Formula
   desc "ISO-C libraries for developing astronomical data-reduction tasks"
-  homepage "https://www.eso.org/sci/software/cpl/index.html"
-  url "ftp://ftp.eso.org/pub/dfs/pipelines/libraries/cpl/cpl-7.1.2.tar.gz"
-  sha256 "b6d20752420e2333e86d9a08c24a08057351a9fef97c32f5894e63fbfece463a"
-  revision 6
+  homepage "https://www.eso.org/sci/software/cpl/"
+  url "ftp://ftp.eso.org/pub/dfs/pipelines/libraries/cpl/cpl-7.3.1.tar.gz"
+  sha256 "54546d763e7f75cb679f711c62bc962211328a35064edb6b9455e306458ebe15"
+  license "GPL-2.0-or-later"
+
+  livecheck do
+    url "https://ftp.eso.org/pub/dfs/pipelines/libraries/cpl/"
+    regex(/href=.*?cpl[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "4585413a3561eea4a3443b1214dd1759e82853ca5273929e202a2c38ad526add" => :catalina
-    sha256 "d9410e5fc7b4e1466f88233e8e5e925133257d3f33953a8ce91aee780d53db33" => :mojave
-    sha256 "7a810f03ee554b573832fd30285a2fad70be6b9ad6b0e9936300130396f151cd" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "cdfe3609dc92d5182e9b326200c82a3114e4f367d9177d57b5b3c1b3e98c0688"
+    sha256 cellar: :any,                 arm64_monterey: "5fd426dfc5de6c429cd02e062cd1bf6b94e6c5f24c8e72e7deef3c65bc745792"
+    sha256 cellar: :any,                 arm64_big_sur:  "d9757db02ceb67dd9f70a3d1db0de863678d44ef9acb58c42d4b343e5d9d1a40"
+    sha256 cellar: :any,                 ventura:        "1e386174aa9fdc9ac4e03e7cd28843b6bb0c908d8b6d87867fa1a1f0992850b5"
+    sha256 cellar: :any,                 monterey:       "88cb133f3f1233c18abf8505a9f68720763800078a2bd2ac5d91d66022ea82fa"
+    sha256 cellar: :any,                 big_sur:        "61e749dcdde769f33f1eacbdfa67afd952184bffde2be756ef45cb60d4058671"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "7e1dd5f8e9ae578b52831a6b18f29498e0479dd8f260e6c7dc7e888d2e9e3909"
   end
 
   depends_on "cfitsio"

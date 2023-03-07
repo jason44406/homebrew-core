@@ -1,16 +1,20 @@
 class Hyperfine < Formula
   desc "Command-line benchmarking tool"
   homepage "https://github.com/sharkdp/hyperfine"
-  url "https://github.com/sharkdp/hyperfine/archive/v1.10.0.tar.gz"
-  sha256 "b949d6c1a78e9c1c5a7bb6c241fcd51d6faf00bba5719cc312f57b5b301cc854"
-  license "Apache-2.0"
-  revision 1
+  url "https://github.com/sharkdp/hyperfine/archive/v1.15.0.tar.gz"
+  sha256 "b1a7a11a1352cdb549cc098dd9caa6c231947cc4dd9cd91ec25072d6d2978172"
+  license any_of: ["Apache-2.0", "MIT"]
+  head "https://github.com/sharkdp/hyperfine.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "09e341141f121b5b0caf0b4a9552b79a0777f8076910b1c91a65c29483102b36" => :catalina
-    sha256 "29051b59797e70714593561f09901ef02e9c79bc9b9b4b6ae226c53ca021f4ca" => :mojave
-    sha256 "49ea032f8c1403e6ab23e0f451e9bdf2e16f6e581cbd84f94743243ced62910d" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "c157190162c9057b25849321a82a93de6629132a578bbb1f1b9db7eb2f092a72"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "b85f7faffc4336eb2e77507f157ef6afa1e24f4190507a02b513030d3168e2e7"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "3a2ac9446129307b5a7a5a1a5597c663dd3a18224ee857a31a05397ed335526e"
+    sha256 cellar: :any_skip_relocation, ventura:        "001a44956d996c1982076020a741dfe3738be52ab27630eba34fb230b8923132"
+    sha256 cellar: :any_skip_relocation, monterey:       "d5a6dd6a109b445b3f7ebb40680ecc49b9d650cd5d3aec34ae02ccf87ee70ed2"
+    sha256 cellar: :any_skip_relocation, big_sur:        "64699ce6a189734b72360f454983f871ea49452b018eaa1a513f6cde10a4d95d"
+    sha256 cellar: :any_skip_relocation, catalina:       "20b88d7b97fef140a74964be9472b56a4f911f68ac2ffd6ce21008cd7af4db37"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "ad705ad54d62b7283a12db3f6a6a29547b4f2fc0334be54614dff31c986b4356"
   end
 
   depends_on "rust" => :build
@@ -26,6 +30,6 @@ class Hyperfine < Formula
 
   test do
     output = shell_output("#{bin}/hyperfine 'sleep 0.3'")
-    assert_match "Benchmark #1: sleep", output
+    assert_match "Benchmark 1: sleep", output
   end
 end

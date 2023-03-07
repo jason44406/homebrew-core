@@ -1,32 +1,45 @@
-require "language/haskell"
-
 class GhcAT86 < Formula
-  include Language::Haskell::Cabal
-
   desc "Glorious Glasgow Haskell Compilation System"
   homepage "https://haskell.org/ghc/"
   url "https://downloads.haskell.org/~ghc/8.6.5/ghc-8.6.5-src.tar.xz"
   sha256 "4d4aa1e96f4001b934ac6193ab09af5d6172f41f5a5d39d8e43393b9aafee361"
-  license "BSD-3-Clause"
-  revision 1
+  # We bundle a static GMP so GHC inherits GMP's license
+  license all_of: [
+    "BSD-3-Clause",
+    any_of: ["LGPL-3.0-or-later", "GPL-2.0-or-later"],
+  ]
+  revision 2
 
   bottle do
     rebuild 1
-    sha256 "3c2e2f8d8e4661dd7e53ad5af08489e926bec111e0d16a12397bb22a73b12997" => :catalina
-    sha256 "831a6537953f467724c4c3c45b16cc3e5ff944aa02f1e9b3b77e9bdbfcdfb9d2" => :mojave
-    sha256 "945069d9d94b4fb657e6d9c3a2d516ec551aea7535824b029c8c0632329f40cf" => :high_sierra
+    sha256                               ventura:      "5b70e3709e04b715d5e9d1948d14b77d0417290dac3c9c99897cf6b36807c612"
+    sha256                               monterey:     "5449cd08c2d622390a65332c3c817e6866c2a9f4fab45d56c5159231ba99a4df"
+    sha256                               big_sur:      "ff771fbe5b187198b2a49df9db019468b77b01205b6fd26a275fb04bba9ea30b"
+    sha256                               catalina:     "d3ddfea33754da6f983910a29b93e59c2419e2fef672fe3b850faf88d1da279e"
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "b4088be267fc4a0f8470cad02ec6b17384784ca3db973879523e4a6c54e7adc3"
   end
 
   keg_only :versioned_formula
 
-  depends_on "python@3.8" => :build
-  depends_on "sphinx-doc" => :build
+  deprecate! date: "2022-12-10", because: :unmaintained
+
+  depends_on "python@3.10" => :build
+  depends_on arch: :x86_64
+
+  uses_from_macos "m4" => :build
+  uses_from_macos "ncurses"
+
+  on_linux do
+    depends_on "gmp" => :build
+  end
 
   resource "gmp" do
-    url "https://ftp.gnu.org/gnu/gmp/gmp-6.1.2.tar.xz"
-    mirror "https://gmplib.org/download/gmp/gmp-6.1.2.tar.xz"
-    mirror "https://ftpmirror.gnu.org/gmp/gmp-6.1.2.tar.xz"
-    sha256 "87b565e89a9a684fe4ebeeddb8399dce2599f9c9049854ca8c0dfbdea0e21912"
+    on_macos do
+      url "https://ftp.gnu.org/gnu/gmp/gmp-6.1.2.tar.xz"
+      mirror "https://gmplib.org/download/gmp/gmp-6.1.2.tar.xz"
+      mirror "https://ftpmirror.gnu.org/gmp/gmp-6.1.2.tar.xz"
+      sha256 "87b565e89a9a684fe4ebeeddb8399dce2599f9c9049854ca8c0dfbdea0e21912"
+    end
   end
 
   # https://www.haskell.org/ghc/download_ghc_8_6_5#macosx_x86_64
@@ -38,8 +51,8 @@ class GhcAT86 < Formula
     end
 
     on_linux do
-      url "https://downloads.haskell.org/~ghc/8.6.5/ghc-8.6.5-x86_64-deb8-linux.tar.xz"
-      sha256 "c419fd0aa9065fe4d2eb9a248e323860c696ddf3859749ca96a84938aee49107"
+      url "https://downloads.haskell.org/~ghc/8.6.5/ghc-8.6.5-x86_64-fedora27-linux.tar.xz"
+      sha256 "cf78b53eaf336083e7a05f4a3000afbae4abe5bbc77ef80cc40e09d04ac5b4a1"
     end
   end
 
@@ -49,63 +62,47 @@ class GhcAT86 < Formula
   def install
     ENV["CC"] = ENV.cc
     ENV["LD"] = "ld"
-    ENV["PYTHON"] = Formula["python@3.8"].opt_bin/"python3"
+    ENV["PYTHON"] = which("python3.10")
 
-    # Build a static gmp rather than in-tree gmp, otherwise all ghc-compiled
-    # executables link to Homebrew's GMP.
-    gmp = libexec/"integer-gmp"
+    args = %w[--enable-numa=no]
+    if OS.mac?
+      # Build a static gmp rather than in-tree gmp, otherwise all ghc-compiled
+      # executables link to Homebrew's GMP.
+      gmp = libexec/"integer-gmp"
 
-    # GMP *does not* use PIC by default without shared libs so --with-pic
-    # is mandatory or else you'll get "illegal text relocs" errors.
-    resource("gmp").stage do
-      system "./configure", "--prefix=#{gmp}", "--with-pic", "--disable-shared",
-                            "--build=#{Hardware.oldest_cpu}-apple-darwin#{`uname -r`.to_i}"
-      system "make"
-      system "make", "install"
-    end
+      # GMP *does not* use PIC by default without shared libs so --with-pic
+      # is mandatory or else you'll get "illegal text relocs" errors.
+      resource("gmp").stage do
+        system "./configure", "--prefix=#{gmp}", "--with-pic", "--disable-shared",
+                              "--build=#{Hardware.oldest_cpu}-apple-darwin#{OS.kernel_version.major}"
+        system "make"
+        system "make", "install"
+      end
 
-    args = ["--with-gmp-includes=#{gmp}/include",
-            "--with-gmp-libraries=#{gmp}/lib"]
-
-    # As of Xcode 7.3 (and the corresponding CLT) `nm` is a symlink to `llvm-nm`
-    # and the old `nm` is renamed `nm-classic`. Building with the new `nm`, a
-    # segfault occurs with the following error:
-    #   make[1]: * [compiler/stage2/dll-split.stamp] Segmentation fault: 11
-    # Upstream is aware of the issue and is recommending the use of nm-classic
-    # until Apple restores POSIX compliance:
-    # https://ghc.haskell.org/trac/ghc/ticket/11744
-    # https://ghc.haskell.org/trac/ghc/ticket/11823
-    # https://mail.haskell.org/pipermail/ghc-devs/2016-April/011862.html
-    # LLVM itself has already fixed the bug: llvm-mirror/llvm@ae7cf585
-    # rdar://25311883 and rdar://25299678
-    if DevelopmentTools.clang_build_version >= 703 && DevelopmentTools.clang_build_version < 800
-      args << "--with-nm=#{`xcrun --find nm-classic`.chomp}"
+      args = ["--with-gmp-includes=#{gmp}/include",
+              "--with-gmp-libraries=#{gmp}/lib"]
     end
 
     resource("binary").stage do
       binary = buildpath/"binary"
 
-      system "./configure", "--prefix=#{binary}", *args
+      binary_args = args
+      if OS.linux?
+        binary_args << "--with-gmp-includes=#{Formula["gmp"].opt_include}"
+        binary_args << "--with-gmp-libraries=#{Formula["gmp"].opt_lib}"
+      end
+
+      system "./configure", "--prefix=#{binary}", *binary_args
       ENV.deparallelize { system "make", "install" }
 
       ENV.prepend_path "PATH", binary/"bin"
     end
 
-    if build.head?
-      resource("cabal").stage do
-        system "sh", "bootstrap.sh", "--sandbox"
-        (buildpath/"bootstrap-tools/bin").install ".cabal-sandbox/bin/cabal"
-      end
-
-      ENV.prepend_path "PATH", buildpath/"bootstrap-tools/bin"
-
-      cabal_sandbox do
-        cabal_install "--only-dependencies", "happy", "alex"
-        cabal_install "--prefix=#{buildpath}/bootstrap-tools", "happy", "alex"
-      end
-
-      system "./boot"
-    end
+    # Disable PDF document generation (fails with newest sphinx)
+    (buildpath/"mk/build.mk").write <<-EOS
+      BUILD_SPHINX_PDF = NO
+      libraries/integer-gmp_CONFIGURE_OPTS += --configure-option=--with-intree-gmp
+    EOS
 
     system "./configure", "--prefix=#{prefix}", *args
     system "make"

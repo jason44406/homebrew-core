@@ -3,26 +3,42 @@ class Gtksourceview3 < Formula
   homepage "https://projects.gnome.org/gtksourceview/"
   url "https://download.gnome.org/sources/gtksourceview/3.24/gtksourceview-3.24.11.tar.xz"
   sha256 "691b074a37b2a307f7f48edc5b8c7afa7301709be56378ccf9cc9735909077fd"
+  license "LGPL-2.1-or-later"
   revision 3
 
-  bottle do
-    sha256 "b34db76dca1649cd3ecb7a0e62904c093381902199b427d444e5974f3017c8ed" => :catalina
-    sha256 "fdd26532623b2ab2f6333c51ea0bb2addca737ab79b74c18ea4e5d49d687ce89" => :mojave
-    sha256 "310d80ce58f5e77fa2b3ca1867e081a1c03c2da31d7560faf8e0f218378e5a17" => :high_sierra
+  livecheck do
+    url :stable
+    regex(/gtksourceview[._-]v?(3\.([0-8]\d*?)?[02468](?:\.\d+)*?)\.t/i)
   end
 
-  depends_on "autoconf" => :build
-  depends_on "automake" => :build
+  bottle do
+    rebuild 1
+    sha256 arm64_ventura:  "846bfed76c27fea9b7e441542ab1934d0c2e102958061c151b8a1896a692f70d"
+    sha256 arm64_monterey: "3bffd877e4f14e8ddfc09a213f14be337e4a2efc3f230bdeb25a5ed915b3f75d"
+    sha256 arm64_big_sur:  "920ee02f85863c74d7c151cde00f0a8dbd18c66e825a50c7d8f36f3af9da06b6"
+    sha256 ventura:        "71b20ca2f56e1509a261ae1191837de36f2a78bb8852d7ad2164553b3429b44d"
+    sha256 monterey:       "bce68f417d64947e6bbf996bd0682be7a5d3e7e413c25bb77c0686f9e47036bd"
+    sha256 big_sur:        "2dc6c71c803b006967ee4154912c7f6e050c5c8c8f68a113335e66f48fe32277"
+    sha256 catalina:       "e82371b46c1d8206c5aedf9966835e27ffb3bd011ad936bffa0e26cfe3c2808c"
+    sha256 mojave:         "f9f3856ad743d604e084f77e68d2edd53d99093ce06dc23b9f0cdbdc5e70c5d0"
+    sha256 high_sierra:    "d67cdf5db8996c90d56ad6468c830fcb8e28b26753ab7d332b3a4c990c17e84b"
+    sha256 x86_64_linux:   "db335b9e4164c8aaf7d03badd31dad42ee3810c49427263d5883d36b213204dc"
+  end
+
   depends_on "gobject-introspection" => :build
-  depends_on "intltool" => :build
-  depends_on "libtool" => :build
   depends_on "pkg-config" => :build
   depends_on "vala" => :build
   depends_on "gettext"
   depends_on "gtk+3"
 
+  on_macos do
+    depends_on "autoconf@2.69" => :build # avoid `gtk-doc` dependency
+    depends_on "automake" => :build
+    depends_on "libtool" => :build
+  end
+
   def install
-    system "autoreconf", "-fi"
+    system "autoreconf", "--verbose", "--install", "--force" if OS.mac?
     system "./configure", "--disable-dependency-tracking",
                           "--enable-vala=yes",
                           "--enable-introspection=yes",
@@ -32,7 +48,7 @@ class Gtksourceview3 < Formula
 
   test do
     (testpath/"test.c").write <<~EOS
-      #include <gtksourceview/gtksourceview.h>
+      #include <gtksourceview/gtksource.h>
 
       int main(int argc, char *argv[]) {
         gchar *text = gtk_source_utils_unescape_search_text("hello world");
@@ -89,10 +105,10 @@ class Gtksourceview3 < Formula
       -lgobject-2.0
       -lgtk-3
       -lgtksourceview-3.0
-      -lintl
       -lpango-1.0
       -lpangocairo-1.0
     ]
+    flags << "-lintl" if OS.mac?
     system ENV.cc, "test.c", "-o", "test", *flags
     system "./test"
   end

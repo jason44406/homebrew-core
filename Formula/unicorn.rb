@@ -1,34 +1,32 @@
 class Unicorn < Formula
   desc "Lightweight multi-architecture CPU emulation framework"
   homepage "https://www.unicorn-engine.org/"
-  url "https://github.com/unicorn-engine/unicorn/archive/1.0.1.tar.gz"
-  sha256 "3a6a4f2b8c405ab009040ca43af8e4aa10ebe44d9c8b336aa36dc35df955017c"
-  head "https://github.com/unicorn-engine/unicorn.git"
+  url "https://github.com/unicorn-engine/unicorn/archive/2.0.1.post1.tar.gz"
+  version "2.0.1.post1"
+  sha256 "6b276c857c69ee5ec3e292c3401c8c972bae292e0e4cb306bb9e5466c0f14737"
+  license all_of: [
+    "GPL-2.0-only",
+    "GPL-2.0-or-later", # glib, qemu
+  ]
+  head "https://github.com/unicorn-engine/unicorn.git", branch: "master"
 
   bottle do
-    cellar :any
-    rebuild 1
-    sha256 "3804516889997cf2eceb92e6baf8667396ec83f7a66c1c362925e0a11f9004cc" => :catalina
-    sha256 "78a5143347e18c673a63dc4b171f610499eb728836f20626bd77bc886374b853" => :mojave
-    sha256 "c44cbb02b8073ca0e70f13cf16272964ab52a8b19a20da07dcfd76c6f15585dd" => :high_sierra
-    sha256 "8c134f4b88d63da3908d419dd29118d6ada4489091cd53e81cc9a72f28a9760b" => :sierra
+    sha256 cellar: :any,                 arm64_ventura:  "4c9ea5656b2834aaa6a4fecd8bfc55ebc0b5fdd9f8ae360dca4ada9d25d7a484"
+    sha256 cellar: :any,                 arm64_monterey: "fc3a7ffad1c200b9dbb4eeb843d06eb9b6edf8313d42b38c9ca58f23e70810cc"
+    sha256 cellar: :any,                 arm64_big_sur:  "3ca1e960e66e83079c74b602e268db6f634cbd9c44ea52f18da8e71c29f67a43"
+    sha256 cellar: :any,                 ventura:        "475d61a10d43ec74d07defb155d2ae5c53422d2fd4f9c3dd09f7fbaef3b6b4c5"
+    sha256 cellar: :any,                 monterey:       "37bdc2d1067fe898c5455cdb0c0d2a2b94b5f8190d41352ebf661716352d5ae4"
+    sha256 cellar: :any,                 big_sur:        "cfd01c643cfc2283b4e973ba0208bbed3ee081408796c7a95059ed98f758900d"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "f45a8a230a4a63c46fc1d9a63e4d3a8ea33e6448051200bb202c23081efc96f2"
   end
 
+  depends_on "cmake" => :build
   depends_on "pkg-config" => :build
-  depends_on :macos # Due to Python 2 (Might work with Python 3 with next release (1.0.2)
-  # See https://github.com/Homebrew/linuxbrew-core/pull/19728
 
   def install
-    ENV["PREFIX"] = prefix
-    ENV["UNICORN_ARCHS"] = "x86 x86_64 arm mips aarch64 m64k ppc sparc"
-    ENV["UNICORN_SHARED"] = "yes"
-    ENV["UNICORN_DEBUG"] = "no"
-    system "make"
-    system "make", "install"
-
-    cd "bindings/python" do
-      system "python", *Language::Python.setup_install_args(prefix)
-    end
+    system "cmake", "-S", ".", "-B", "build", *std_cmake_args, "-DUNICORN_SHARE=yes"
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
   end
 
   test do
@@ -76,9 +74,7 @@ class Unicorn < Formula
       }
     EOS
     system ENV.cc, "-o", testpath/"test1", testpath/"test1.c",
-      "-lpthread", "-lm", "-L#{lib}", "-lunicorn"
+                   "-pthread", "-lpthread", "-lm", "-L#{lib}", "-lunicorn"
     system testpath/"test1"
-
-    system "python", "-c", "import unicorn; print(unicorn.__version__)"
   end
 end

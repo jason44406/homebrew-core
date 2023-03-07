@@ -1,16 +1,26 @@
 class Ripgrep < Formula
   desc "Search tool like grep and The Silver Searcher"
   homepage "https://github.com/BurntSushi/ripgrep"
-  url "https://github.com/BurntSushi/ripgrep/archive/12.1.1.tar.gz"
-  sha256 "2513338d61a5c12c8fea18a0387b3e0651079ef9b31f306050b1f0aaa926271e"
+  url "https://github.com/BurntSushi/ripgrep/archive/13.0.0.tar.gz"
+  sha256 "0fb17aaf285b3eee8ddab17b833af1e190d73de317ff9648751ab0660d763ed2"
   license "Unlicense"
-  head "https://github.com/BurntSushi/ripgrep.git"
+  head "https://github.com/BurntSushi/ripgrep.git", branch: "master"
+
+  livecheck do
+    url :stable
+    strategy :github_latest
+  end
 
   bottle do
-    cellar :any
-    sha256 "60460d422253113af3ed60332104f309638942821c655332211a6bc2213c472c" => :catalina
-    sha256 "de4b18789f5d9bc4aaa4d906501200ae4ece7a1971dd1b86e2b2d0a2c8e0d764" => :mojave
-    sha256 "cfea5335bf4eccfb7cd1d93bec234d96bd49dce8d593ea966687f777909ba291" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "ca37acadebbf8a719b4f985c484ffd381e0cbeccc73d73673ec116692bf5450a"
+    sha256 cellar: :any,                 arm64_monterey: "d21429f4b0a97e94f87cf7588958f53b57bf067876377d6a2e7a30259fa94394"
+    sha256 cellar: :any,                 arm64_big_sur:  "977038e704a31a1e362cb737e465324659061857c2fe5a0a7babe8d5d59673c8"
+    sha256 cellar: :any,                 ventura:        "045b7757f7894aa1091ce0aaf41e58117901b5d6f4893195dd02d2abe5927787"
+    sha256 cellar: :any,                 monterey:       "a24a4ab187a9dac94b62c9a4271e6ba434d531a460f886212696bb2e1b5917eb"
+    sha256 cellar: :any,                 big_sur:        "f3a112620b217412149aef8d12e54508ce18f96c3f05f2376673f385ca5a0e3a"
+    sha256 cellar: :any,                 catalina:       "bab190961709b00de3da9a56ec89396cd773ead7531f62fd2c6756bb2743c9a7"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "e7bf9e8cee09ae435aa694e1b8942f915f7a9f58ec16a1e0b1fc5f7a76014dae"
   end
 
   depends_on "asciidoctor" => :build

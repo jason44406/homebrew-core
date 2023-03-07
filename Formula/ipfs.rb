@@ -1,52 +1,45 @@
 class Ipfs < Formula
   desc "Peer-to-peer hypermedia protocol"
-  homepage "https://ipfs.io/"
-  url "https://github.com/ipfs/go-ipfs.git",
-      tag:      "v0.6.0",
-      revision: "d6e036a888ba95c15ce243a45c0cacb4a5bb8ee4"
-  # license ["Apache-2.0", "MIT"] - pending https://github.com/Homebrew/brew/pull/7953
-  license "Apache-2.0"
-  revision 1
-  head "https://github.com/ipfs/go-ipfs.git"
+  homepage "https://ipfs.tech/"
+  url "https://github.com/ipfs/kubo.git",
+      tag:      "v0.18.1",
+      revision: "675f8bddc18baf473f728af5ea8701cb79f97854"
+  license all_of: [
+    "MIT",
+    any_of: ["MIT", "Apache-2.0"],
+  ]
+  head "https://github.com/ipfs/kubo.git", branch: "master"
+
+  livecheck do
+    url :stable
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "0a54783b7614037349b7c378897bd9da2212db9bf43db160a94a5e463dd1ee33" => :catalina
-    sha256 "aff43c71a166c388cb8e6ca5a46d8282dd54f8111632f6d8f8f7cd9a910577c5" => :mojave
-    sha256 "d7bea0bd153859687ad5f6375a6a6bb95ce8968366342aec0e005500bc2d159e" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "fcbad31c879fdec667936a4554dcca91c691d66e44b9661f357a0809a00e6398"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "928391df10977e6fc904376b75a9af4eab747ee8bbd9a88fe3a0a018ae399df0"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "e90e63800fee90e649eaabcb0c303629af268d466106323feed7eaf85ebf2703"
+    sha256 cellar: :any_skip_relocation, ventura:        "aa4c5193277f7c900d647020acc15a18f9329330369cf8171867581708755f4d"
+    sha256 cellar: :any_skip_relocation, monterey:       "b164663b8126c003b6e77a1cd981996067e0af3cc0bf6a96ed6a69650144b80a"
+    sha256 cellar: :any_skip_relocation, big_sur:        "1a45563a05f0ec8250036e80069be098afd65f0cc4eacaa2c016150456ce127c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "2a595cddf7450bf86035d486f7221f52a60c0698143238f3388fca5fa3b5ca17"
   end
 
-  depends_on "go@1.14" => :build
+  # Support for go 1.20 is merged upstream but not yet landed in a tag:
+  # https://github.com/ipfs/kubo/pull/9647
+  # Remove on next release.
+  depends_on "go@1.19" => :build
 
   def install
-    ENV["GOPATH"] = buildpath
-    (buildpath/"src/github.com/ipfs/go-ipfs").install buildpath.children
-    cd("src/github.com/ipfs/go-ipfs") { system "make", "install" }
-    bin.install "bin/ipfs"
+    system "make", "build"
+    bin.install "cmd/ipfs/ipfs"
 
-    cd("src/github.com/ipfs/go-ipfs") { bash_completion.install "misc/completion/ipfs-completion.bash" }
+    generate_completions_from_executable(bin/"ipfs", "commands", "completion", shells: [:bash])
   end
 
-  plist_options manual: "ipfs daemon"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-      <dict>
-        <key>Label</key>
-        <string>#{plist_name}</string>
-        <key>ProgramArguments</key>
-        <array>
-          <string>#{opt_bin}/ipfs</string>
-          <string>daemon</string>
-        </array>
-        <key>RunAtLoad</key>
-        <true/>
-      </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"ipfs", "daemon"]
   end
 
   test do

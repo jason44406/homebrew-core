@@ -1,20 +1,38 @@
 class Glassfish < Formula
   desc "Java EE application server"
-  homepage "https://github.com/eclipse-ee4j/glassfish"
-  url "https://www.eclipse.org/downloads/download.php?file=/glassfish/glassfish-5.1.0.zip&r=1"
-  sha256 "26f3fa6463d24c5ed3956e4cab24a97e834ca37d7a23d341aadaa78d9e0093ce"
+  homepage "https://glassfish.org/"
+  url "https://download.eclipse.org/ee4j/glassfish/glassfish-7.0.2.zip"
+  mirror "https://github.com/eclipse-ee4j/glassfish/releases/download/7.0.2/glassfish-7.0.2.zip"
+  sha256 "d98087f0dc24d503e10cb2565ed7833028d172c816de799ba89234f5f9e9bb67"
   license "EPL-2.0"
 
-  bottle :unneeded
+  livecheck do
+    url "https://projects.eclipse.org/projects/ee4j.glassfish/downloads"
+    regex(/href=.*?glassfish[._-]v?(\d+(?:\.\d+)+)\.zip/i)
+  end
 
-  depends_on java: "1.8"
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "3f21ccea36ec8b555282224e1cda9b44134dd61c6c6e1d1be5d930221a5ad512"
+  end
+
+  depends_on "openjdk@17"
 
   conflicts_with "payara", because: "both install the same scripts"
 
   def install
-    rm_rf Dir["bin/*.bat"]
-    libexec.install Dir["*", ".org.opensolaris,pkg"]
-    bin.install_symlink Dir["#{libexec}/bin/*"]
+    # Remove all windows files
+    rm_rf Dir["bin/*.bat", "glassfish/bin/*.bat"]
+
+    libexec.install Dir["*"]
+    bin.install Dir["#{libexec}/bin/*"]
+
+    env = Language::Java.overridable_java_home_env("17")
+    env["GLASSFISH_HOME"] = libexec
+    bin.env_script_all_files libexec/"bin", env
+
+    File.open(libexec/"glassfish/config/asenv.conf", "a") do |file|
+      file.puts "AS_JAVA=\"#{env[:JAVA_HOME]}\""
+    end
   end
 
   def caveats
@@ -25,40 +43,21 @@ class Glassfish < Formula
   end
 
   test do
-    # check version
-    system "#{opt_libexec}/glassfish/bin/asadmin version | grep #{version}"
-
-    mkdir testpath/"glassfish"
-    cp_r libexec/"glassfish", testpath/"glassfish"
-
-    asadmin = testpath/"glassfish/glassfish/bin/asadmin"
-    asenv_conf_path = testpath/"glassfish/glassfish/config/asenv.conf"
-    domains_path = testpath/"glassfish/glassfish/domains"
-    domain_xml_path = domains_path/"domain1/config/domain.xml"
-    domaindir_arg = "--domaindir=#{domains_path}"
-
-    # tell glassfish to use Java 8
-    java8_home = Language::Java.java_home("1.8")
-    File.open(asenv_conf_path, "a") { |file| file.puts "AS_JAVA=\"#{java8_home}\"" }
-
     port = free_port
+    # `asadmin` needs this to talk to a custom port when running `asadmin version`
+    ENV["AS_ADMIN_PORT"] = port.to_s
 
-    # assign port to glassfish admin console
-    text = File.read(domain_xml_path)
-    new_contents = text.gsub(/port="4848"/, "port=\"#{port}\"")
-    File.open(domain_xml_path, "w") { |file| file.puts new_contents }
+    cp_r libexec/"glassfish/domains", testpath
+    inreplace testpath/"domains/domain1/config/domain.xml", "port=\"4848\"", "port=\"#{port}\""
 
     fork do
-      exec asadmin, "start-domain", domaindir_arg, "domain1"
+      exec bin/"asadmin", "start-domain", "--domaindir=#{testpath}/domains", "domain1"
     end
+    sleep 60
 
-    sleep 15
+    output = shell_output("curl -s -X GET localhost:#{port}")
+    assert_match "GlassFish Server", output
 
-    begin
-      output = shell_output("curl -s -X GET localhost:#{port}")
-      assert_match "GlassFish Server", output
-    ensure
-      exec asadmin, "stop-domain", domaindir_arg, "domain1"
-    end
+    assert_match version.to_s, shell_output("#{bin}/asadmin version")
   end
 end

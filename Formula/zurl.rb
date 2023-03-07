@@ -1,28 +1,35 @@
 class Zurl < Formula
+  include Language::Python::Virtualenv
+
   desc "HTTP and WebSocket client worker with ZeroMQ interface"
   homepage "https://github.com/fanout/zurl"
-  url "https://dl.bintray.com/fanout/source/zurl-1.11.0.tar.bz2"
-  sha256 "18aa3b077aefdba47cc46c5bca513ca2e20f2564715be743f70e4efa4fdccd7a"
-  license "GPL-3.0"
-  revision 1
+  url "https://github.com/fanout/zurl/releases/download/v1.11.1/zurl-1.11.1.tar.bz2"
+  sha256 "39948523ffbd0167bc8ba7d433b38577156e970fe9f3baa98f2aed269241d70c"
+  license "GPL-3.0-or-later"
 
   bottle do
-    cellar :any
-    sha256 "34df5e2569529b11cfdb776fbb7693bd2be133f6f79ebf058a6ec9e40c14b3e7" => :catalina
-    sha256 "461956a45a61737a7ecd8c4e4a22f9511341f72a07bc5e05551771c94e264055" => :mojave
-    sha256 "b6c5d64251514191c0f987ef18481bce8f8a06f4de292c39c21112c939a3c9cf" => :high_sierra
+    rebuild 2
+    sha256 cellar: :any,                 arm64_ventura:  "a6cae5932ecc6e54b3874c5c0ffd3fd42938a5cc73858647941f50e669326eea"
+    sha256 cellar: :any,                 arm64_monterey: "3e64b28ec36eb751cf1eedc05403644f751e6833ee0ab4ffb4543adb005fb42a"
+    sha256 cellar: :any,                 arm64_big_sur:  "9a86510d8ffb9c0550c7dcfc14fe92cd20b876c4ded19db26f1ca14b81657bc7"
+    sha256 cellar: :any,                 ventura:        "34e3faccba5108af712ee514615b60bfcdaf10968e04860559c8c80a25a85b2f"
+    sha256 cellar: :any,                 monterey:       "43b4a966a87dc863c364b4c48ebf6de61fd82599bfa85b64a5e715d367d30de5"
+    sha256 cellar: :any,                 big_sur:        "80bb1d4733e032fdc64bb18f08edac44eca3095f290f8f74216662cab66313c4"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "19c6ed0468ae2c6b2fbfb73cd4bc2f83e3f625494040a0e34177faca58ec4849"
   end
 
   depends_on "pkg-config" => :build
-  depends_on "python@3.8" => :test
-  depends_on "qt"
+  depends_on "python@3.11" => :test
+  depends_on "qt@5"
   depends_on "zeromq"
 
   uses_from_macos "curl"
 
+  fails_with gcc: "5"
+
   resource "pyzmq" do
-    url "https://files.pythonhosted.org/packages/86/08/e5fc492317cc9d65b32d161c6014d733e8ab20b5e78e73eca63f53b17004/pyzmq-19.0.1.tar.gz"
-    sha256 "13a5638ab24d628a6ade8f794195e1a1acd573496c3b85af2f1183603b7bf5e0"
+    url "https://files.pythonhosted.org/packages/46/0d/b06cf99a64d4187632f4ac9ddf6be99cd35de06fe72d75140496a8e0eef5/pyzmq-24.0.1.tar.gz"
+    sha256 "216f5d7dbb67166759e59b0479bca82b8acf9bed6015b526b8eb10143fb08e77"
   end
 
   def install
@@ -32,14 +39,14 @@ class Zurl < Formula
   end
 
   test do
+    python3 = "python3.11"
+
     conffile = testpath/"zurl.conf"
     ipcfile = testpath/"zurl-req"
     runfile = testpath/"test.py"
 
-    resource("pyzmq").stage do
-      system Formula["python@3.8"].opt_bin/"python3",
-      *Language::Python.setup_install_args(testpath/"vendor")
-    end
+    venv = virtualenv_create(testpath/"vendor", python3)
+    venv.pip_install resource("pyzmq")
 
     conffile.write(<<~EOS,
       [General]
@@ -96,9 +103,7 @@ class Zurl < Formula
     end
 
     begin
-      xy = Language::Python.major_minor_version Formula["python@3.8"].opt_bin/"python3"
-      ENV["PYTHONPATH"] = testpath/"vendor/lib/python#{xy}/site-packages"
-      system Formula["python@3.8"].opt_bin/"python3", runfile
+      system testpath/"vendor/bin/#{python3}", runfile
     ensure
       Process.kill("TERM", pid)
       Process.wait(pid)

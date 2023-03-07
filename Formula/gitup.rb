@@ -3,56 +3,60 @@ class Gitup < Formula
 
   desc "Update multiple git repositories at once"
   homepage "https://github.com/earwig/git-repo-updater"
-  url "https://github.com/earwig/git-repo-updater.git",
-      tag:      "v0.5.1",
-      revision: "b502b2eaa46a6a10d9db228209f984bb235444a7"
+  url "https://files.pythonhosted.org/packages/7f/07/4835f8f4de5924b5f38b816c648bde284f0cec9a9ae65bd7e5b7f5867638/gitup-0.5.1.tar.gz"
+  sha256 "4f787079cd65d8f60c5842181204635e1b72d3533ae91f0c619624c6b20846dd"
   license "MIT"
-  revision 2
+  revision 5
+  head "https://github.com/earwig/git-repo-updater.git", branch: "develop"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "61b9abe9e481e9fa3a86074756d065f48f92cf71420e6855e95ad1ecdc92cecb" => :catalina
-    sha256 "2e1fb0d6519682a80737b73136fd6cf1c81928d993e88e835cb053725ff40bf2" => :mojave
-    sha256 "63c2169d68aed5aca9a91bba014cdb96238b61316267691dd7c63ef566b89fc8" => :high_sierra
+    rebuild 2
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "6110fff8fd46bffadb3b59d51a48eec76210962047600d867582004749110e73"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "2912ddcf3ad3afa21a00a57c61d4cf6e91f399f8ca038883c5e18c34329f5b2c"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "904c9403ba3d1debd7caae12b2022e8eebb1a0dab75d6d2c7937ec00177bd822"
+    sha256 cellar: :any_skip_relocation, ventura:        "cc14ccaf85e55faf029a5cbdbfed3f242bc28054f0578989a5f073355a214807"
+    sha256 cellar: :any_skip_relocation, monterey:       "7128646ce0ed24a44a05193e7c6fff6725bf97b5cf76693945e8bc40027aad2e"
+    sha256 cellar: :any_skip_relocation, big_sur:        "7172cbae00985c0f57a1b89b9f5026bd305455546a5266ba1b8d7c212b0fe3ea"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "45c09f68a85e5d32050da31f4f8364d930f08cadeb19d2002e9f05d1cd624435"
   end
 
-  depends_on "python@3.8"
+  depends_on "python@3.11"
 
   resource "colorama" do
-    url "https://files.pythonhosted.org/packages/e6/76/257b53926889e2835355d74fec73d82662100135293e17d382e2b74d1669/colorama-0.3.9.tar.gz"
-    sha256 "48eb22f4f8461b1df5734a074b57042430fb06e1d61bd1e11b078c0fe6d7a1f1"
+    url "https://files.pythonhosted.org/packages/d8/53/6f443c9a4a8358a93a6792e2acffb9d9d5cb0a5cfd8802644b7b1c9a02e4/colorama-0.4.6.tar.gz"
+    sha256 "08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"
   end
 
-  resource "gitdb2" do
-    url "https://files.pythonhosted.org/packages/b9/36/4bdb753087a9232899ac482ee2d5da25f50b63998d661aa4e8170acd95b5/gitdb2-2.0.4.tar.gz"
-    sha256 "bb4c85b8a58531c51373c89f92163b92f30f81369605a67cd52d1fc21246c044"
+  resource "gitdb" do
+    url "https://files.pythonhosted.org/packages/4b/47/dc98f3d5d48aa815770e31490893b92c5f1cd6c6cf28dd3a8ae0efffac14/gitdb-4.0.10.tar.gz"
+    sha256 "6eb990b69df4e15bad899ea868dc46572c3f75339735663b81de79b06f17eb9a"
   end
 
   resource "GitPython" do
-    url "https://files.pythonhosted.org/packages/4d/e8/98e06d3bc954e3c5b34e2a579ddf26255e762d21eb24fede458eff654c51/GitPython-2.1.11.tar.gz"
-    sha256 "8237dc5bfd6f1366abeee5624111b9d6879393d84745a507de0fda86043b65a8"
+    url "https://files.pythonhosted.org/packages/ef/8d/50658d134d89e080bb33eb8e2f75d17563b5a9dfb75383ea1a78e1df6fff/GitPython-3.1.30.tar.gz"
+    sha256 "769c2d83e13f5d938b7688479da374c4e3d49f71549aaf462b646db9602ea6f8"
   end
 
-  resource "smmap2" do
-    url "https://files.pythonhosted.org/packages/ad/e9/0fb974b182ff41d28ad267d0b4201b35159619eb610ea9a2e036817cb0b8/smmap2-2.0.4.tar.gz"
-    sha256 "dc216005e529d57007ace27048eb336dcecb7fc413cfb3b2f402bb25972b69c6"
+  resource "smmap" do
+    url "https://files.pythonhosted.org/packages/21/2d/39c6c57032f786f1965022563eec60623bb3e1409ade6ad834ff703724f3/smmap-5.0.0.tar.gz"
+    sha256 "c840e62059cd3be204b0c9c9f74be2c09d5648eddd4580d9314c3ecde0b30936"
   end
 
   def install
     virtualenv_install_with_resources
   end
 
-  test do
-    def prepare_repo(uri, local_head)
-      system "git", "init"
-      system "git", "remote", "add", "origin", uri
-      system "git", "fetch", "origin"
-      system "git", "checkout", local_head
-      system "git", "reset", "--hard"
-      system "git", "checkout", "-b", "master"
-      system "git", "branch", "--set-upstream-to=origin/master", "master"
-    end
+  def prepare_repo(uri, local_head)
+    system "git", "init"
+    system "git", "remote", "add", "origin", uri
+    system "git", "fetch", "origin"
+    system "git", "checkout", local_head
+    system "git", "reset", "--hard"
+    system "git", "checkout", "-b", "master"
+    system "git", "branch", "--set-upstream-to=origin/master", "master"
+  end
 
+  test do
     first_head_start = "f47ab45abdbc77e518776e5dc44f515721c523ae"
     mkdir "first" do
       prepare_repo("https://github.com/pr0d1r2/homebrew-contrib.git", first_head_start)
@@ -65,11 +69,11 @@ class Gitup < Formula
 
     system bin/"gitup", "first", "second"
 
-    first_head = `cd first ; git rev-parse HEAD`.split.first
-    assert_not_equal first_head, first_head_start
+    first_head = Utils.git_head(testpath/"first")
+    refute_equal first_head, first_head_start
 
-    second_head = `cd second ; git rev-parse HEAD`.split.first
-    assert_not_equal second_head, second_head_start
+    second_head = Utils.git_head(testpath/"second")
+    refute_equal second_head, second_head_start
 
     third_head_start = "f47ab45abdbc77e518776e5dc44f515721c523ae"
     mkdir "third" do
@@ -79,8 +83,8 @@ class Gitup < Formula
     system bin/"gitup", "--add", "third"
 
     system bin/"gitup"
-    third_head = `cd third ; git rev-parse HEAD`.split.first
-    assert_not_equal third_head, third_head_start
+    third_head = Utils.git_head(testpath/"third")
+    refute_equal third_head, third_head_start
 
     assert_match %r{#{Dir.pwd}/third}, `#{bin}/gitup --list`.strip
 

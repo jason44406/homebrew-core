@@ -1,26 +1,25 @@
 class Libosmium < Formula
   desc "Fast and flexible C++ library for working with OpenStreetMap data"
   homepage "https://osmcode.org/libosmium/"
-  url "https://github.com/osmcode/libosmium/archive/v2.15.6.tar.gz"
-  sha256 "55879b9da0f3756f3216f9fb857f35afb3b01294b5f18e0d1719334e7d4f5ac9"
+  url "https://github.com/osmcode/libosmium/archive/v2.19.0.tar.gz"
+  sha256 "6911a8ca8e81d49205357177982df908af11376919f93b814cccf02f1d4d63e3"
   license "BSL-1.0"
 
   bottle do
-    cellar :any_skip_relocation
-    rebuild 1
-    sha256 "dadd63f6645e8f030f245083218f5a6bfd60bf97a6fa7e8a212010a934fa0b1a" => :catalina
-    sha256 "dadd63f6645e8f030f245083218f5a6bfd60bf97a6fa7e8a212010a934fa0b1a" => :mojave
-    sha256 "dadd63f6645e8f030f245083218f5a6bfd60bf97a6fa7e8a212010a934fa0b1a" => :high_sierra
+    sha256 cellar: :any_skip_relocation, all: "6914081ff3d264c208c771080b8495541c58a97e13454659d2ac0bd3779fb28d"
   end
 
   depends_on "boost" => :build
   depends_on "cmake" => :build
+  depends_on "lz4"
 
+  uses_from_macos "bzip2"
   uses_from_macos "expat"
+  uses_from_macos "zlib"
 
   resource "protozero" do
-    url "https://github.com/mapbox/protozero/archive/v1.7.0.tar.gz"
-    sha256 "beffbdfab060854fd770178a8db9c028b5b6ee4a059a2fed82c46390a85f3f31"
+    url "https://github.com/mapbox/protozero/archive/v1.7.1.tar.gz"
+    sha256 "27e0017d5b3ba06d646a3ec6391d5ccc8500db821be480aefd2e4ddc3de5ff99"
   end
 
   def install
@@ -63,7 +62,7 @@ class Libosmium < Formula
       }
     EOS
 
-    system ENV.cxx, "-std=c++11", "-stdlib=libc++", "-lexpat", "-o", "libosmium_read", "test.cpp"
+    system ENV.cxx, "test.cpp", "-std=c++11", "-lexpat", "-o", "libosmium_read", "-pthread"
     system "./libosmium_read", "test.osm"
   end
 end

@@ -3,42 +3,46 @@ class Csvkit < Formula
 
   desc "Suite of command-line tools for converting to and working with CSV"
   homepage "https://csvkit.readthedocs.io/"
-  url "https://files.pythonhosted.org/packages/95/c9/8dd118c0ea0114125a8bf50d552626b95f6478bcf29a252296e93d778855/csvkit-1.0.5.tar.gz"
-  sha256 "7bd390f4d300e45dc9ed67a32af762a916bae7d9a85087a10fd4f64ce65fd5b9"
-  revision 1
+  url "https://files.pythonhosted.org/packages/f7/88/bc793b75b22b24c8876bb516002768060f0b933da13661387a55604266cb/csvkit-1.1.1.tar.gz"
+  sha256 "beddb7b78f6b22adbed6ead5ad5de4bfb31dd2c55f3211b2a2b3b65529049223"
+  license "MIT"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "1bb059e0420e7f4e117ad9bb0ad9ec2e281547c87ce3dec197dbcbcc2fbb3223" => :catalina
-    sha256 "39eb13816f8ea1ff6e91d759450a1cb56edc558cdc997776eb60a1fbfeaf4881" => :mojave
-    sha256 "2d7e167505bd1635d0fa97f525683c5a938cb6ebf7351299260822a4560cf513" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "ca0f327bd1aa353d7577cffef8e69036dbcd109c8186639e49a0a9db1f7d1bc1"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "cbc315e77d2b59ff1e60be496d17dac02b48437546ef6553a7d2c479363799c1"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "2d3fe7c39bbe404f3259abad05094728362654ef9d5406f6690e13314543f0dd"
+    sha256 cellar: :any_skip_relocation, ventura:        "9f4891c0c19f290c81ff5f9c27ab1150ba71773a8418cc0a0d98b86d883309c3"
+    sha256 cellar: :any_skip_relocation, monterey:       "abe95928144483842be223b69af15b0f8a79e1441d638b6852921c62e29f7b7f"
+    sha256 cellar: :any_skip_relocation, big_sur:        "61a24baa066b0a81133629e7dd9b3f1932ee6adefc96a0043881f657c42f3eda"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "180194a1809964c842e8e8be14a5e9c7c77d1bb3a3d154ec26333a581f09e519"
   end
 
-  depends_on "python@3.8"
+  depends_on "python@3.11"
+  depends_on "six"
 
   resource "agate" do
-    url "https://files.pythonhosted.org/packages/d4/1c/99fb34c81c68012c71e8d35a1f16a6b25952322e23c911c81327c8464be8/agate-1.6.1.tar.gz"
-    sha256 "c93aaa500b439d71e4a5cf088d0006d2ce2c76f1950960c8843114e5f361dfd3"
+    url "https://files.pythonhosted.org/packages/07/12/c95569f05a85164e14ba13f974dca942a75b727bedab3925f2a29e175589/agate-1.7.1.tar.gz"
+    sha256 "eadf46d980168b8922d5d396d6258eecd5e7dbef7e6f0c0b71e968545ea96389"
   end
 
   resource "agate-dbf" do
-    url "https://files.pythonhosted.org/packages/cb/05/8bd93fd8f47354e5a31b1ba5876a9498a59fa32166b2e3315da43774adb8/agate-dbf-0.2.1.tar.gz"
-    sha256 "00c93c498ec9a04cc587bf63dd7340e67e2541f0df4c9a7259d7cb3dd4ce372f"
+    url "https://files.pythonhosted.org/packages/54/70/a32dfaa47cb7b4e4d70aff67d89c32984085b946442d26a9d9fca7d96d8b/agate-dbf-0.2.2.tar.gz"
+    sha256 "589682b78c5c03f2dc8511e6e3edb659fb7336cd118e248896bb0b44c2f1917b"
   end
 
   resource "agate-excel" do
-    url "https://files.pythonhosted.org/packages/a9/cd/ba7ce638900a91f00e6ebaa72c46fc90bfc13cb595071cee82c96057d5d6/agate-excel-0.2.3.tar.gz"
-    sha256 "8f255ef2c87c436b7132049e1dd86c8e08bf82d8c773aea86f3069b461a17d52"
+    url "https://files.pythonhosted.org/packages/7c/85/f74ba95d9b4d53ffab0e17a1133d5e5f8c1910f4b48f9f7c116f3bf0c1c8/agate-excel-0.2.5.tar.gz"
+    sha256 "62315708433108772f7f610ca769996b468a4ead380076dbaf6ffe262831b153"
   end
 
   resource "agate-sql" do
-    url "https://files.pythonhosted.org/packages/4a/fb/796c6e7b625fde74274786da69f08aca5c5eefb891db77344f95ad7b75db/agate-sql-0.5.4.tar.gz"
-    sha256 "9277490ba8b8e7c747a9ae3671f52fe486784b48d4a14e78ca197fb0e36f281b"
+    url "https://files.pythonhosted.org/packages/b6/94/d67d4f01cebb56ab0eb728af6903904b252bc2a85b01838fda7e065279bd/agate-sql-0.5.9.tar.gz"
+    sha256 "30b642a32a5b671161abef9e8ec36352f2e78a24ce849054edac6946d8b9ddc6"
   end
 
   resource "Babel" do
-    url "https://files.pythonhosted.org/packages/34/18/8706cfa5b2c73f5a549fdc0ef2e24db71812a2685959cff31cbdfc010136/Babel-2.8.0.tar.gz"
-    sha256 "1aac2ae2d0d8ea368fa90906567f5c08463d98ade155c0c4bfedd6a0f7160e38"
+    url "https://files.pythonhosted.org/packages/ff/80/45b42203ecc32c8de281f52e3ec81cb5e4ef16127e9e8543089d8b1649fb/Babel-2.11.0.tar.gz"
+    sha256 "5ef4b3226b0180dedded4229651c8b0e1a3a6a2837d45a073272f313e4cf97f6"
   end
 
   resource "dbfread" do
@@ -46,44 +50,44 @@ class Csvkit < Formula
     sha256 "07c8a9af06ffad3f6f03e8fe91ad7d2733e31a26d2b72c4dd4cfbae07ee3b73d"
   end
 
-  resource "et_xmlfile" do
-    url "https://files.pythonhosted.org/packages/22/28/a99c42aea746e18382ad9fb36f64c1c1f04216f41797f2f0fa567da11388/et_xmlfile-1.0.1.tar.gz"
-    sha256 "614d9722d572f6246302c4491846d2c393c199cfa4edc9af593437691683335b"
+  resource "et-xmlfile" do
+    url "https://files.pythonhosted.org/packages/3d/5d/0413a31d184a20c763ad741cc7852a659bf15094c24840c5bdd1754765cd/et_xmlfile-1.1.0.tar.gz"
+    sha256 "8eb9e2bc2f8c97e37a2dc85a09ecdcdec9d8a396530a6d5a33b30b9a92da0c5c"
   end
 
-  resource "future" do
-    url "https://files.pythonhosted.org/packages/45/0b/38b06fd9b92dc2b68d58b75f900e97884c45bedd2ff83203d933cf5851c9/future-0.18.2.tar.gz"
-    sha256 "b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d"
+  resource "greenlet" do
+    url "https://files.pythonhosted.org/packages/1e/1e/632e55a04d732c8184201238d911207682b119c35cecbb9a573a6c566731/greenlet-2.0.2.tar.gz"
+    sha256 "e7c8dc13af7db097bed64a051d2dd49e9f0af495c26995c00a9ee842690d34c0"
   end
 
   resource "isodate" do
-    url "https://files.pythonhosted.org/packages/b1/80/fb8c13a4cd38eb5021dc3741a9e588e4d1de88d895c1910c6fc8a08b7a70/isodate-0.6.0.tar.gz"
-    sha256 "2e364a3d5759479cdb2d37cce6b9376ea504db2ff90252a2e5b7cc89cc9ff2d8"
-  end
-
-  resource "jdcal" do
-    url "https://files.pythonhosted.org/packages/7b/b0/fa20fce23e9c3b55b640e629cb5edf32a85e6af3cf7af599940eb0c753fe/jdcal-1.4.1.tar.gz"
-    sha256 "472872e096eb8df219c23f2689fc336668bdb43d194094b5cc1707e1640acfc8"
+    url "https://files.pythonhosted.org/packages/db/7a/c0a56c7d56c7fa723988f122fa1f1ccf8c5c4ccc48efad0d214b49e5b1af/isodate-0.6.1.tar.gz"
+    sha256 "48c5881de7e8b0a0d648cb024c8062dc84e7b840ed81e864c7614fd3c127bde9"
   end
 
   resource "leather" do
-    url "https://files.pythonhosted.org/packages/a0/44/1acad8bfe958874c66825a4bdddbd277a549580b88c5daf3a4c128c521b0/leather-0.3.3.tar.gz"
-    sha256 "076d1603b5281488285718ce1a5ce78cf1027fe1e76adf9c548caf83c519b988"
+    url "https://files.pythonhosted.org/packages/73/c5/5bc5a19a62147ee8ff2de7b416ee6534b5bd79f22c790d0365ebef223f34/leather-0.3.4.tar.gz"
+    sha256 "b43e21c8fa46b2679de8449f4d953c06418666dc058ce41055ee8a8d3bb40918"
+  end
+
+  resource "olefile" do
+    url "https://files.pythonhosted.org/packages/34/81/e1ac43c6b45b4c5f8d9352396a14144bba52c8fec72a80f425f6a4d653ad/olefile-0.46.zip"
+    sha256 "133b031eaf8fd2c9399b78b8bc5b8fcbe4c31e85295749bb17a87cba8f3c3964"
   end
 
   resource "openpyxl" do
-    url "https://files.pythonhosted.org/packages/95/8c/83563c60489954e5b80f9e2596b93a68e1ac4e4a730deb1aae632066d704/openpyxl-3.0.3.tar.gz"
-    sha256 "547a9fc6aafcf44abe358b89ed4438d077e9d92e4f182c87e2dc294186dc4b64"
+    url "https://files.pythonhosted.org/packages/10/bf/950ea7896f3c42ab04073cd2903f0a190ba77ef28bdf76191f6f86373712/openpyxl-3.1.1.tar.gz"
+    sha256 "f06d44e2c973781068bce5ecf860a09bcdb1c7f5ce1facd5e9aa82c92c93ae72"
   end
 
   resource "parsedatetime" do
-    url "https://files.pythonhosted.org/packages/5f/19/43357ced106dd1ab6bceb1decb866e8619172fc271991a54eb2f680a2e9b/parsedatetime-2.5.tar.gz"
-    sha256 "d2e9ddb1e463de871d32088a3f3cea3dc8282b1b2800e081bd0ef86900451667"
+    url "https://files.pythonhosted.org/packages/a8/20/cb587f6672dbe585d101f590c3871d16e7aec5a576a1694997a3777312ac/parsedatetime-2.6.tar.gz"
+    sha256 "4cb368fbb18a0b7231f4d76119165451c8d2e35951455dfee97c62a87b04d455"
   end
 
   resource "python-slugify" do
-    url "https://files.pythonhosted.org/packages/92/5f/7b84a0bba8a0fdd50c046f8b57dcf179dc16237ad33446079b7c484de04c/python-slugify-4.0.0.tar.gz"
-    sha256 "a8fc3433821140e8f409a9831d13ae5deccd0b033d4744d94b31fea141bdd84c"
+    url "https://files.pythonhosted.org/packages/49/3b/492affa71ccdeaadce1a6fba17e12fec301820b19b8cd7220d849686f8ec/python-slugify-8.0.0.tar.gz"
+    sha256 "f1da83f3c7ab839b3f84543470cd95bdb5a81f1a0b80fed502f78b7dca256062"
   end
 
   resource "pytimeparse" do
@@ -92,18 +96,13 @@ class Csvkit < Formula
   end
 
   resource "pytz" do
-    url "https://files.pythonhosted.org/packages/82/c3/534ddba230bd4fbbd3b7a3d35f3341d014cca213f369a9940925e7e5f691/pytz-2019.3.tar.gz"
-    sha256 "b02c06db6cf09c12dd25137e563b31700d3b80fcc4ad23abb7a315f2789819be"
-  end
-
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/21/9f/b251f7f8a76dec1d6651be194dfba8fb8d7781d10ab3987190de8391d08e/six-1.14.0.tar.gz"
-    sha256 "236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a"
+    url "https://files.pythonhosted.org/packages/03/3e/dc5c793b62c60d0ca0b7e58f1fdd84d5aaa9f8df23e7589b39cc9ce20a03/pytz-2022.7.1.tar.gz"
+    sha256 "01a0681c4b9684a28304615eba55d1ab31ae00bf68ec157ec3708a8182dbbcd0"
   end
 
   resource "SQLAlchemy" do
-    url "https://files.pythonhosted.org/packages/af/47/35edeb0f86c0b44934c05d961c893e223ef27e79e1f53b5e6f14820ff553/SQLAlchemy-1.3.13.tar.gz"
-    sha256 "64a7b71846db6423807e96820993fa12a03b89127d278290ca25c0b11ed7b4fb"
+    url "https://files.pythonhosted.org/packages/af/ae/8d8e67f2691f0fdb845df90013d68c12a9127e009b4dedc34a3228f4e5ad/SQLAlchemy-1.4.46.tar.gz"
+    sha256 "6913b8247d8a292ef8315162a51931e2b40ce91681f1b6f18f697045200c4a30"
   end
 
   resource "text-unidecode" do
@@ -111,14 +110,9 @@ class Csvkit < Formula
     sha256 "bad6603bb14d279193107714b288be206cac565dfa49aa5b105294dd5c4aab93"
   end
 
-  resource "Unidecode" do
-    url "https://files.pythonhosted.org/packages/b1/d6/7e2a98e98c43cf11406de6097e2656d31559f788e9210326ce6544bd7d40/Unidecode-1.1.1.tar.gz"
-    sha256 "2b6aab710c2a1647e928e36d69c21e76b453cd455f4e2621000e54b2a9b8cce8"
-  end
-
   resource "xlrd" do
-    url "https://files.pythonhosted.org/packages/aa/05/ec9d4fcbbb74bbf4da9f622b3b61aec541e4eccf31d3c60c5422ec027ce2/xlrd-1.2.0.tar.gz"
-    sha256 "546eb36cee8db40c3eaa46c351e67ffee6eeb5fa2650b71bc4c758a29a1b29b2"
+    url "https://files.pythonhosted.org/packages/a6/b3/19a2540d21dea5f908304375bd43f5ed7a4c28a370dc9122c565423e6b44/xlrd-2.0.1.tar.gz"
+    sha256 "f72f148f54442c6b056bf931dbc34f986fd0c3b0b6b5a58d013c9aef274d0c88"
   end
 
   def install

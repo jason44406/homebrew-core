@@ -3,50 +3,53 @@ class Dnsviz < Formula
 
   desc "Tools for analyzing and visualizing DNS and DNSSEC behavior"
   homepage "https://github.com/dnsviz/dnsviz/"
-  url "https://files.pythonhosted.org/packages/25/d2/0ebfe23440a1adfdca403d7773570d3c05a3a8c5bcbaa0c091b5114d0224/dnsviz-0.8.2.tar.gz"
-  sha256 "a81ff254c23718cd6f364b03bf6e9c80468fa4663fd5be66043de7b0bece1cab"
-  license "GPL-2.0"
-  revision 3
+  url "https://files.pythonhosted.org/packages/a5/7c/b38750c866e7e29bc76450c75f61ede6c2560e75cfe36df81e9517612434/dnsviz-0.9.4.tar.gz"
+  sha256 "6448d4c6e7c1844aa2a394d60f7cc53721ad985e0e830c30265ef08a74a7aa28"
+  license "GPL-2.0-or-later"
+  revision 1
 
   bottle do
-    cellar :any
-    sha256 "06a261b8e0edd4d03bba5d44e2b1fb71ccf401aeae782f07153d3df980e86229" => :catalina
-    sha256 "6622680336cd9f2ad3fc65976cb08788337ac36d6415474ddc1fb11f98896b3b" => :mojave
-    sha256 "a1d37cc96afce1a2ac783c8f8ecbfa19744d487a9c0de7bba54bacd3ebcc7ca1" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "1c3f1960ac66cbc6ef977e948ec914df709f9d4f145a939193641249873432cd"
+    sha256 cellar: :any,                 arm64_monterey: "0808cd92a1f361ccbc4bfcb09d0d6ea592db4394949c297cbcbd4c3bb12cdc0a"
+    sha256 cellar: :any,                 arm64_big_sur:  "6c5c1515579d080c67065d611c38b4148d8c08203a56fc51cce180e3d8996dcc"
+    sha256 cellar: :any,                 ventura:        "9d7221d1793f47410e265ca33840bde8d57aa48b7e634c0e5718d6bba9c3248d"
+    sha256 cellar: :any,                 monterey:       "e07479b69e52e6971e0b533047b4a829dcf35aa027f01450d777735209a28c28"
+    sha256 cellar: :any,                 big_sur:        "b19b4f06152b79120bd471ada33334c04e7c5f5cbd9fe3d5823264416563e77a"
+    sha256 cellar: :any,                 catalina:       "d679a6d054b4084a9d11bd171255c509e1bac86b36b4cb0577475eaaf476fa9e"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "850b615e4092887988ff6aa74f9303a5e1b1f43513ed783a6ae7f885bb4b5365"
   end
 
   depends_on "pkg-config" => :build
   depends_on "swig" => :build
   depends_on "bind" => :test
   depends_on "graphviz"
-  depends_on "libsodium"
   depends_on "openssl@1.1"
-  depends_on "python@3.8"
+  depends_on "python@3.11"
 
-  resource "dnspython" do
-    url "https://files.pythonhosted.org/packages/ec/c5/14bcd63cb6d06092a004793399ec395405edf97c2301dfdc146dfbd5beed/dnspython-1.16.0.zip"
-    sha256 "36c5e8e38d4369a08b6780b7f27d790a292b2b08eea01607865bf0936c558e01"
+  on_linux do
+    # Fix build error of m2crypto, see https://github.com/crocs-muni/roca/issues/1#issuecomment-336893096
+    depends_on "swig"
   end
 
-  resource "libnacl" do
-    url "https://files.pythonhosted.org/packages/08/9b/16725e8cbb278569db379ea6e4eb24b2e8c574be1ec7617ac2dff8f91b2b/libnacl-1.7.1.tar.gz"
-    sha256 "33f31c4686541aee24876706b46a846f93c60e62d6b4211bc16bd08ba71d8fb8"
+  resource "dnspython" do
+    url "https://files.pythonhosted.org/packages/99/fb/e7cd35bba24295ad41abfdff30f6b4c271fd6ac70d20132fa503c3e768e0/dnspython-2.2.1.tar.gz"
+    sha256 "0f7569a4a6ff151958b64304071d370daa3243d15941a7beedf0c9fe5105603e"
   end
 
   resource "M2Crypto" do
-    url "https://files.pythonhosted.org/packages/74/18/3beedd4ac48b52d1a4d12f2a8c5cf0ae342ce974859fba838cbbc1580249/M2Crypto-0.35.2.tar.gz"
-    sha256 "4c6ad45ffb88670c590233683074f2440d96aaccb05b831371869fc387cbd127"
+    url "https://files.pythonhosted.org/packages/2c/52/c35ec79dd97a8ecf6b2bbd651df528abb47705def774a4a15b99977274e8/M2Crypto-0.38.0.tar.gz"
+    sha256 "99f2260a30901c949a8dc6d5f82cd5312ffb8abc92e76633baf231bbbcb2decb"
   end
 
   resource "pygraphviz" do
-    url "https://files.pythonhosted.org/packages/7e/b1/d6d849ddaf6f11036f9980d433f383d4c13d1ebcfc3cd09bc845bda7e433/pygraphviz-1.5.zip"
-    sha256 "50a829a305dc5a0fd1f9590748b19fece756093b581ac91e00c2c27c651d319d"
+    url "https://files.pythonhosted.org/packages/ee/7e/7366c082f959db7ee18a16fc38dc594158ede65ca789bef87751ed5130c7/pygraphviz-1.10.zip"
+    sha256 "457e093a888128903251a266a8cc16b4ba93f3f6334b3ebfed92c7471a74d867"
   end
 
   def install
-    ENV["SWIG_FEATURES"]="-I#{Formula["openssl@1.1"].opt_include}"
-
-    virtualenv_install_with_resources
+    ENV["SWIG_FEATURES"] = "-I#{Formula["openssl@1.1"].opt_include}"
+    virtualenv_install_with_resources(link_manpages: true)
   end
 
   test do
@@ -127,14 +130,14 @@ class Dnsviz < Formula
       example.com.		IN DS 34983 10 1 EC358CFAAEC12266EF5ACFC1FEAF2CAFF083C418
       example.com.		IN DS 34983 10 2 608D3B089D79D554A1947BD10BEC0A5B1BDBE67B4E60E34B1432ED00 33F24B49
     EOS
-    system "#{bin}/dnsviz", "probe", "-d", "0", "-A",
+    system bin/"dnsviz", "probe", "-d", "0", "-A",
       "-x", "example.com:example.com.zone.signed",
       "-N", "example.com:example.com.zone-delegation",
       "-D", "example.com:example.com.zone-delegation",
       "-o", "example.com.json",
       "example.com"
-    system "#{bin}/dnsviz", "graph", "-r", "example.com.json", "-Thtml", "-o", "/dev/null"
-    system "#{bin}/dnsviz", "grok", "-r", "example.com.json", "-o", "/dev/null"
-    system "#{bin}/dnsviz", "print", "-r", "example.com.json", "-o", "/dev/null"
+    system bin/"dnsviz", "graph", "-r", "example.com.json", "-Thtml", "-o", "/dev/null"
+    system bin/"dnsviz", "grok", "-r", "example.com.json", "-o", "/dev/null"
+    system bin/"dnsviz", "print", "-r", "example.com.json", "-o", "/dev/null"
   end
 end

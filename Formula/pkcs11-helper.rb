@@ -1,17 +1,26 @@
 class Pkcs11Helper < Formula
   desc "Library to simplify the interaction with PKCS#11"
   homepage "https://github.com/OpenSC/OpenSC/wiki/pkcs11-helper"
-  url "https://github.com/OpenSC/pkcs11-helper/releases/download/pkcs11-helper-1.26/pkcs11-helper-1.26.0.tar.bz2"
-  sha256 "e886ec3ad17667a3694b11a71317c584839562f74b29c609d54c002973b387be"
-  # license ["BSD-3-Clause", "GPL-2.0"] - pending https://github.com/Homebrew/brew/pull/7953
-  license "BSD-3-Clause"
-  head "https://github.com/OpenSC/pkcs11-helper.git"
+  url "https://github.com/OpenSC/pkcs11-helper/releases/download/pkcs11-helper-1.29.0/pkcs11-helper-1.29.0.tar.bz2"
+  sha256 "996846a3c8395e03d8c0515111dc84d82e6e3648d44ba28cb2dbbbca2d4db7d6"
+  license any_of: ["BSD-3-Clause", "GPL-2.0-or-later"]
+  head "https://github.com/OpenSC/pkcs11-helper.git", branch: "master"
+
+  livecheck do
+    url :stable
+    strategy :github_latest
+    regex(%r{href=.*?/tag/pkcs11-helper[._-]v?(\d+(?:\.\d+)+)["' >]}i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "dc52806291729e3481bb2a90cabb9df77f21c30351ed2cc67213caaefed8c667" => :catalina
-    sha256 "f2783434ebb595a4e9a9b570c05dcf030a7539d1008e988427e4cd36281b6917" => :mojave
-    sha256 "6796ffb18fc1f6c22b800caf32e0e4698c1f82e10529ed6535b634afabf237fe" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "57529ea37fd6a79a28c02ff0fe484412fb6244bded38a2dcff03cef63a4d82fc"
+    sha256 cellar: :any,                 arm64_monterey: "02155c6d56975a3cb96cdd5b2e57e993b5841300af1636fd0d8ae5b8e9fae33d"
+    sha256 cellar: :any,                 arm64_big_sur:  "2fe182fd00dd0baca77ff94f26a3648a2afbfb3c2ffe7f57b73ece952cacecf0"
+    sha256 cellar: :any,                 ventura:        "3e69f78454ee03577960653df8e439972f6c12bbd724053081c8d17d86baf66f"
+    sha256 cellar: :any,                 monterey:       "1ae6236ec0c857d5dc1cc2f80c0a50b4d69e8672cf895ce4d53f5c511ea0a511"
+    sha256 cellar: :any,                 big_sur:        "caa4474b77fbb8d95e11c77a7d2f4da6ab3b8dec4fe62128e5a72f8572e0a8a8"
+    sha256 cellar: :any,                 catalina:       "06f17f7492feabec8b42fa5d2da9f16f4b83526b6f5fa36c251c20a4132db6b1"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "4b5bcb11b8e1317ef37b1b3e6ba37675ef05fbb7c6f6c314694a9fef3d9c0299"
   end
 
   depends_on "autoconf" => :build

@@ -1,31 +1,50 @@
 class Zsh < Formula
   desc "UNIX shell (command interpreter)"
   homepage "https://www.zsh.org/"
-  url "https://downloads.sourceforge.net/project/zsh/zsh/5.8/zsh-5.8.tar.xz"
-  mirror "https://www.zsh.org/pub/zsh-5.8.tar.xz"
-  sha256 "dcc4b54cc5565670a65581760261c163d720991f0d06486da61f8d839b52de27"
+  url "https://downloads.sourceforge.net/project/zsh/zsh/5.9/zsh-5.9.tar.xz"
+  mirror "https://www.zsh.org/pub/zsh-5.9.tar.xz"
+  sha256 "9b8d1ecedd5b5e81fbf1918e876752a7dd948e05c1a0dba10ab863842d45acd5"
+  license "MIT-Modern-Variant"
+
+  livecheck do
+    url "https://sourceforge.net/projects/zsh/rss?path=/zsh"
+  end
 
   bottle do
-    sha256 "209d04a4d62f6162f1b6cf824d2c50b00b52cb812c04c1967e5b376573b5aef0" => :catalina
-    sha256 "c5c35657637c97132efbaa0fd8e2add568aaa62adfe66e7d19f961f8e9506da9" => :mojave
-    sha256 "029b8c6922f01bfd832dd0f4f940f99328d2495714c37c1dc7ef326d6fb1459e" => :high_sierra
+    sha256 arm64_ventura:  "03171d3b9ea605b88cfa73682a6f06f8e6c3e5e44fb96dbc9eedb3ab70a69c28"
+    sha256 arm64_monterey: "1c6d208a7aa0601b25d04c5d41a393424b1094cf188e5b0c80fafc6e1e2755ef"
+    sha256 arm64_big_sur:  "0a93821dee76829dac49770d4b32d08d0678272c43937e3858d7f901bab86cd6"
+    sha256 ventura:        "1175aa3d19707da832bcb82e6a5ef49f513d98a840bcc252f96379eec4d5c18e"
+    sha256 monterey:       "b9a38fa0344b187333771a5585ad2d01c27e69a7e5362ba3fc8d7389aa3279f3"
+    sha256 big_sur:        "722236bd8c9a094e1eca09263f5e83a94d4c97c2ca797804eef4f9564ef729ec"
+    sha256 catalina:       "64c8757cc6db0247fb9f604ff84f61726fb5d91318c566157fa2957782040403"
+    sha256 x86_64_linux:   "fb0b59e7b1407323ea06b7c757de4d75bbcfb0836ce05857b0b2cf7816a231e0"
   end
 
   head do
-    url "https://git.code.sf.net/p/zsh/code.git"
+    url "https://git.code.sf.net/p/zsh/code.git", branch: "master"
     depends_on "autoconf" => :build
   end
 
   depends_on "ncurses"
   depends_on "pcre"
 
+  on_system :linux, macos: :ventura_or_newer do
+    depends_on "texinfo" => :build
+  end
+
   resource "htmldoc" do
-    url "https://downloads.sourceforge.net/project/zsh/zsh-doc/5.8/zsh-5.8-doc.tar.xz"
-    mirror "https://www.zsh.org/pub/zsh-5.8-doc.tar.xz"
-    sha256 "9b4e939593cb5a76564d2be2e2bfbb6242509c0c56fd9ba52f5dba6cf06fdcc4"
+    url "https://downloads.sourceforge.net/project/zsh/zsh-doc/5.9/zsh-5.9-doc.tar.xz"
+    mirror "https://www.zsh.org/pub/zsh-5.9-doc.tar.xz"
+    sha256 "6f7c091249575e68c177c5e8d5c3e9705660d0d3ca1647aea365fd00a0bd3e8a"
   end
 
   def install
+    # Work around configure issues with Xcode 12
+    # https://www.zsh.org/mla/workers/2020/index.html
+    # https://github.com/Homebrew/homebrew-core/issues/64921
+    ENV.append "CFLAGS", "-Wno-implicit-function-declaration"
+
     system "Util/preconfig" if build.head?
 
     system "./configure", "--prefix=#{prefix}",

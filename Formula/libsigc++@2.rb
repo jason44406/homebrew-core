@@ -1,26 +1,34 @@
 class LibsigcxxAT2 < Formula
   desc "Callback framework for C++"
   homepage "https://libsigcplusplus.github.io/libsigcplusplus/"
-  url "https://download.gnome.org/sources/libsigc++/2.10/libsigc++-2.10.3.tar.xz"
-  sha256 "0b68dfc6313c6cc90ac989c6d722a1bf0585ad13846e79746aa87cb265904786"
-  license "LGPL-2.1"
+  url "https://download.gnome.org/sources/libsigc++/2.10/libsigc++-2.10.8.tar.xz"
+  sha256 "235a40bec7346c7b82b6a8caae0456353dc06e71f14bc414bcc858af1838719a"
+  license "LGPL-3.0-or-later"
 
   bottle do
-    cellar :any
-    sha256 "bcf678faa58639056292bb201143fe4add755d9f6da6a65f4b7d10cff0ccfe17" => :catalina
-    sha256 "034cb3a54d796e4b9ec4619a15612fc64fc7e7cbddf189f71bb5342f7b631a3d" => :mojave
-    sha256 "c8cccc56cfb07d96e339af416c7a2449673c5303f15f99c5f668fc4c5f792695" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "c3faa72283c90172978072aae40c1f7cc75ebecdc58cbb292f50759c2f6a0f50"
+    sha256 cellar: :any,                 arm64_monterey: "f08cb049ca155fb8ac09d1586ea415084ba95e3e2aa760c5b4ddabe51ea44b08"
+    sha256 cellar: :any,                 arm64_big_sur:  "5d024a8626df8d8bb872a2e1f1452ebe793f3b95a9c08814abe36a48e9f19297"
+    sha256 cellar: :any,                 ventura:        "9c65d0d59d9f38882611c7f19433d78dd72ff1b13336137c602ce0a031360ca7"
+    sha256 cellar: :any,                 monterey:       "155cb09e024335504393bc4ea4921348449bbcbf08384f7e6e1210c2cee3f403"
+    sha256 cellar: :any,                 big_sur:        "5ea91db7ec5618625126b12e5bf7de2b2d8cc21b77170536f0d9d33de3bc8ffa"
+    sha256 cellar: :any,                 catalina:       "f4aa31cd03380890a69669687fee5a978586ea8cd8613e871864f2a5dcc7bd97"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "1a2909597897d782656e62646e426c9e0f29a11d845b986de0f13a0e07adcd77"
   end
 
-  uses_from_macos "m4" => :build
+  depends_on "meson" => :build
+  depends_on "ninja" => :build
 
   def install
     ENV.cxx11
-    system "./configure", "--prefix=#{prefix}", "--disable-dependency-tracking"
-    system "make"
-    system "make", "check"
-    system "make", "install"
+
+    mkdir "build" do
+      system "meson", *std_meson_args, ".."
+      system "ninja"
+      system "ninja", "install"
+    end
   end
+
   test do
     (testpath/"test.cpp").write <<~EOS
       #include <sigc++/sigc++.h>

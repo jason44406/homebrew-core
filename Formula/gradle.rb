@@ -1,19 +1,26 @@
 class Gradle < Formula
   desc "Open-source build automation tool based on the Groovy and Kotlin DSL"
   homepage "https://www.gradle.org/"
-  url "https://services.gradle.org/distributions/gradle-6.6-all.zip"
-  sha256 "83fa7c3e5ab84c3c5c4a04fb16947338209efa9aab1f6bf09a5d0e3d2ed87742"
+  url "https://services.gradle.org/distributions/gradle-8.0.2-all.zip"
+  sha256 "47a5bfed9ef814f90f8debcbbb315e8e7c654109acd224595ea39fca95c5d4da"
   license "Apache-2.0"
 
-  bottle :unneeded
+  livecheck do
+    url "https://gradle.org/install/"
+    regex(/href=.*?gradle[._-]v?(\d+(?:\.\d+)+)-all\.(?:zip|t)/i)
+  end
+
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "7ed643823d2fd2cf01f4a5aab323ed5aaf7950efd0f42056f68656e06952b23e"
+  end
 
   depends_on "openjdk"
 
   def install
     rm_f Dir["bin/*.bat"]
     libexec.install %w[bin docs lib src]
-    (bin/"gradle").write_env_script libexec/"bin/gradle",
-      JAVA_HOME: "${JAVA_HOME:-#{Formula["openjdk"].opt_prefix}}"
+    env = Language::Java.overridable_java_home_env("19")
+    (bin/"gradle").write_env_script libexec/"bin/gradle", env
   end
 
   test do

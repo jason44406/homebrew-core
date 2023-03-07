@@ -1,34 +1,27 @@
 class Automake < Formula
   desc "Tool for generating GNU Standards-compliant Makefiles"
   homepage "https://www.gnu.org/software/automake/"
-  url "https://ftp.gnu.org/gnu/automake/automake-1.16.2.tar.xz"
-  mirror "https://ftpmirror.gnu.org/automake/automake-1.16.2.tar.xz"
-  sha256 "ccc459de3d710e066ab9e12d2f119bd164a08c9341ca24ba22c9adaa179eedd0"
+  url "https://ftp.gnu.org/gnu/automake/automake-1.16.5.tar.xz"
+  mirror "https://ftpmirror.gnu.org/automake/automake-1.16.5.tar.xz"
+  sha256 "f01d58cd6d9d77fbdca9eb4bbd5ead1988228fdb73d6f7a201f5f8d6b118b469"
   license "GPL-2.0-or-later"
-  revision 1
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "06c47bab91fc9c8a912a162f02fbf4c6d03b75820110250d2408e694bacd8236" => :catalina
-    sha256 "4b120878f02328e006cb51c2456f5ff26e8c5ad5688ac00fada4a53e72479ce6" => :mojave
-    sha256 "4a98437a54592391f677ecea0bbac02f823e7f3168b9a782067cca9aa8f78b4e" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "f68481d06be7fa3f0a0881edb825a336e7f6548191c762d68bd817183b238f5a"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "f68481d06be7fa3f0a0881edb825a336e7f6548191c762d68bd817183b238f5a"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "f68481d06be7fa3f0a0881edb825a336e7f6548191c762d68bd817183b238f5a"
+    sha256 cellar: :any_skip_relocation, ventura:        "ae77a247a13ea860236a29b02769f5327395f712413f694d8a8d20cb6c21332d"
+    sha256 cellar: :any_skip_relocation, monterey:       "ae77a247a13ea860236a29b02769f5327395f712413f694d8a8d20cb6c21332d"
+    sha256 cellar: :any_skip_relocation, big_sur:        "ae77a247a13ea860236a29b02769f5327395f712413f694d8a8d20cb6c21332d"
+    sha256 cellar: :any_skip_relocation, catalina:       "ae77a247a13ea860236a29b02769f5327395f712413f694d8a8d20cb6c21332d"
+    sha256 cellar: :any_skip_relocation, mojave:         "ae77a247a13ea860236a29b02769f5327395f712413f694d8a8d20cb6c21332d"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "59808c20f7dc565f106b432941b43c52f3d7f46a8d562ab27a4aabd424783158"
   end
 
   depends_on "autoconf"
 
-  # Download more up-to-date config scripts.
-  resource "config" do
-    url "https://git.savannah.gnu.org/cgit/config.git/snapshot/config-0b5188819ba6091770064adf26360b204113317e.tar.gz"
-    sha256 "3dfb73df7d073129350b6896d62cabb6a70f479d3951f00144b408ba087bdbe8"
-    version "2020-08-17"
-  end
-
   def install
-    ENV["PERL"] = "/usr/bin/perl"
-
-    resource("config").stage do
-      cp Dir["config.*"], buildpath/"lib"
-    end
+    ENV["PERL"] = "/usr/bin/perl" if OS.mac?
 
     system "./configure", "--prefix=#{prefix}"
     system "make", "install"

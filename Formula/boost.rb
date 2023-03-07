@@ -1,35 +1,45 @@
 class Boost < Formula
   desc "Collection of portable C++ source libraries"
   homepage "https://www.boost.org/"
-  url "https://dl.bintray.com/boostorg/release/1.73.0/source/boost_1_73_0.tar.bz2"
-  mirror "https://dl.bintray.com/homebrew/mirror/boost_1_73_0.tar.bz2"
-  sha256 "4eb3b8d442b426dc35346235c8733b5ae35ba431690e38c6a8263dce9fcbb402"
+  url "https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.tar.bz2"
+  sha256 "71feeed900fbccca04a3b4f2f84a7c217186f28a940ed8b7ed4725986baf99fa"
   license "BSL-1.0"
-  head "https://github.com/boostorg/boost.git"
+  revision 1
+  head "https://github.com/boostorg/boost.git", branch: "master"
+
+  livecheck do
+    url "https://www.boost.org/users/download/"
+    regex(/href=.*?boost[._-]v?(\d+(?:[._]\d+)+)\.t/i)
+    strategy :page_match do |page, regex|
+      page.scan(regex).map { |match| match.first.tr("_", ".") }
+    end
+  end
 
   bottle do
-    cellar :any
-    sha256 "d2cbb9cee2af7c3f62513979030413e9fdb3a6b4cae69241fc36f33e36d3781d" => :catalina
-    sha256 "ff9e2f3587b878611b26b7bfb064b7c200e74c38d6553a0617510b6161361512" => :mojave
-    sha256 "ddbb7dcb02070127d9b7d897e8a3b66a51bf2a70fa4232c8bcf0f4001ae27eb1" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "8a4a21f28eea820cdfb2ca94d6a9c2ecad40592b145de06698283dc3c7ae0eeb"
+    sha256 cellar: :any,                 arm64_monterey: "da47f5dce669699eb052452fe166e5cd118a6f6d3f64abe4cae53461743a2cc2"
+    sha256 cellar: :any,                 arm64_big_sur:  "640b02baab8cf76935b79203660de45e0721f1428697b9916327b06e86b9300a"
+    sha256 cellar: :any,                 ventura:        "b3fc7aade48d9a8bec56ac3cc57a3c5ead36d67365cf3447c578cd31ddb8fbee"
+    sha256 cellar: :any,                 monterey:       "160aabda5d6497dc72a389dd251becc971e37d4702763b3b45a5c7bbc29f0419"
+    sha256 cellar: :any,                 big_sur:        "51a2646e51a7a304848efa7cca17312c4a3acc5e28ef664037d0675c5c9a1e83"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "26a83186402f3625806df9d7f6e41a1188d726d7f21ee5ccbfb3310e763d1ebc"
   end
 
   depends_on "icu4c"
+  depends_on "xz"
+  depends_on "zstd"
 
   uses_from_macos "bzip2"
   uses_from_macos "zlib"
 
-  # Fix build on Xcode 11.4
-  patch do
-    url "https://github.com/boostorg/build/commit/b3a59d265929a213f02a451bb63cea75d668a4d9.patch?full_index=1"
-    sha256 "04a4df38ed9c5a4346fbb50ae4ccc948a1440328beac03cb3586c8e2e241be08"
-    directory "tools/build"
-  end
-
   def install
     # Force boost to compile with the desired compiler
     open("user-config.jam", "a") do |file|
-      file.write "using darwin : : #{ENV.cxx} ;\n"
+      if OS.mac?
+        file.write "using darwin : : #{ENV.cxx} ;\n"
+      else
+        file.write "using gcc : : #{ENV.cxx} ;\n"
+      end
     end
 
     # libdir should be set by --prefix but isn't
@@ -57,8 +67,6 @@ class Boost < Formula
       -j#{ENV.make_jobs}
       --layout=tagged-1.66
       --user-config=user-config.jam
-      -sNO_LZMA=1
-      -sNO_ZSTD=1
       install
       threading=multi,single
       link=shared,static
@@ -74,26 +82,22 @@ class Boost < Formula
     system "./b2", *args
   end
 
-  def caveats
-    s = ""
-    # ENV.compiler doesn't exist in caveats. Check library availability
-    # instead.
-    if Dir["#{lib}/libboost_log*"].empty?
-      s += <<~EOS
-        Building of Boost.Log is disabled because it requires newer GCC or Clang.
-      EOS
-    end
-
-    s
-  end
-
   test do
     (testpath/"test.cpp").write <<~EOS
       #include <boost/algorithm/string.hpp>
+      #include <boost/iostreams/device/array.hpp>
+      #include <boost/iostreams/device/back_inserter.hpp>
+      #include <boost/iostreams/filter/zstd.hpp>
+      #include <boost/iostreams/filtering_stream.hpp>
+      #include <boost/iostreams/stream.hpp>
+
       #include <string>
+      #include <iostream>
       #include <vector>
       #include <assert.h>
+
       using namespace boost::algorithm;
+      using namespace boost::iostreams;
       using namespace std;
 
       int main()
@@ -104,10 +108,30 @@ class Boost < Formula
         assert(strVec.size()==2);
         assert(strVec[0]=="a");
         assert(strVec[1]=="b");
+
+        // Test boost::iostreams::zstd_compressor() linking
+        std::vector<char> v;
+        back_insert_device<std::vector<char>> snk{v};
+        filtering_ostream os;
+        os.push(zstd_compressor());
+        os.push(snk);
+        os << "Boost" << std::flush;
+        os.pop();
+
+        array_source src{v.data(), v.size()};
+        filtering_istream is;
+        is.push(zstd_decompressor());
+        is.push(src);
+        std::string s;
+        is >> s;
+
+        assert(s == "Boost");
+
         return 0;
       }
     EOS
-    system ENV.cxx, "test.cpp", "-std=c++14", "-stdlib=libc++", "-o", "test"
+    system ENV.cxx, "test.cpp", "-std=c++14", "-o", "test", "-L#{lib}", "-lboost_iostreams",
+                    "-L#{Formula["zstd"].opt_lib}", "-lzstd"
     system "./test"
   end
 end

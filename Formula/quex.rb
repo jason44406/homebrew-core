@@ -1,29 +1,33 @@
 class Quex < Formula
+  include Language::Python::Shebang
+
   desc "Generate lexical analyzers"
   homepage "https://quex.sourceforge.io/"
-  url "https://downloads.sourceforge.net/project/quex/quex-0.70.0.tar.gz"
-  sha256 "761b68d68255862001d1fe8bf8876ba3d35586fd1927a46a667aea11511452cd"
+  url "https://downloads.sourceforge.net/project/quex/quex-0.71.2.zip"
+  sha256 "0453227304a37497e247e11b41a1a8eb04bcd0af06a3f9d627d706b175a8a965"
+  license "MIT"
+  revision 1
   head "https://svn.code.sf.net/p/quex/code/trunk"
 
-  bottle do
-    cellar :any_skip_relocation
-    sha256 "f3d39a7468e8c529ce1c0d6ab5b2d028f50771304993e9f2e996490f846c4b6c" => :catalina
-    sha256 "f3d39a7468e8c529ce1c0d6ab5b2d028f50771304993e9f2e996490f846c4b6c" => :mojave
-    sha256 "f3d39a7468e8c529ce1c0d6ab5b2d028f50771304993e9f2e996490f846c4b6c" => :high_sierra
+  livecheck do
+    url :stable
+    regex(%r{url=.*?/quex[._-]v?(\d+(?:\.\d+)+)\.[tz]}i)
   end
 
-  depends_on :macos # Due to Python 2 (Migration to Python 3 has started)
-  # https://sourceforge.net/p/quex/git/ci/e0d9de092751dc0b61e0c7fa2777fdc49ea1d13e/)
+  bottle do
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, all: "007566f7df864d2264063bf557e8c1c2b08b7f4b37fa415e30f01516ace3e294"
+  end
+
+  depends_on "python@3.11"
 
   def install
+    rewrite_shebang detected_python_shebang, "quex-exe.py"
     libexec.install "quex", "quex-exe.py"
     doc.install "README", "demo"
 
     # Use a shim script to set QUEX_PATH on the user's behalf
-    (bin/"quex").write <<~EOS
-      #!/bin/bash
-      QUEX_PATH="#{libexec}" "#{libexec}/quex-exe.py" "$@"
-    EOS
+    (bin/"quex").write_env_script libexec/"quex-exe.py", QUEX_PATH: libexec
 
     if build.head?
       man1.install "doc/manpage/quex.1"

@@ -1,23 +1,33 @@
 class ProtocGenGogofaster < Formula
   desc "Protocol Buffers for Go with Gadgets"
   homepage "https://github.com/gogo/protobuf"
-  url "https://github.com/gogo/protobuf/archive/v1.3.1.tar.gz"
-  sha256 "5184f06decd681fcc82f6583976111faf87189c0c2f8063b34ac2ea9ed997236"
+  url "https://github.com/gogo/protobuf/archive/v1.3.2.tar.gz"
+  sha256 "2bb4b13d6e56b3911f09b8e9ddd15708477fbff8823c057cc79dd99c9a452b34"
   license "BSD-3-Clause"
-  head "https://github.com/gogo/protobuf.git"
+  revision 2
+  head "https://github.com/gogo/protobuf.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "00acaa078f3284f87ffdd438be762fd5cb20054b3bfbe9165d9fdf735115f92c" => :catalina
-    sha256 "52850416de9fb23a820f7655f47b74633349405d3c2230b68ede71bd1963b4cb" => :mojave
-    sha256 "b91c1a5e5effda960a8029b9cbe4855a6e3a7ea8859e06d3237cd87cc12604ed" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "1f4e5870fa91ee6e996ce3e245e8034b5f6f4f8c6db9dd1f5c8ede89ed9fd58c"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "378b53c4119a446426fbb9ef36b571f1c7bd97a4e4c97b6267b7760caa12d060"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "55f33ac4a991f8e935b7d86d9fbe73f0df950548844a2cead274b02376483990"
+    sha256 cellar: :any_skip_relocation, ventura:        "e71b696d1283ace865581017660a03b96ccca94a4c178adab8c44eecabd344b2"
+    sha256 cellar: :any_skip_relocation, monterey:       "816053916d093c0d7f5d8f11e6720e5dfb01c5123a1c2bfee00625b463791e8b"
+    sha256 cellar: :any_skip_relocation, big_sur:        "6fba8cafcb5492731cf7ef4916cd4dcf60863f51db329b13dd9549a1082f196b"
+    sha256 cellar: :any_skip_relocation, catalina:       "6fba8cafcb5492731cf7ef4916cd4dcf60863f51db329b13dd9549a1082f196b"
+    sha256 cellar: :any_skip_relocation, mojave:         "6fba8cafcb5492731cf7ef4916cd4dcf60863f51db329b13dd9549a1082f196b"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "a75f5bb389047f9b9086864ebeab5d95c8e415a0603543c19413b614293aeb04"
   end
+
+  # gogoprotobuf is officially deprecated:
+  # https://github.com/gogo/protobuf/commit/f67b8970b736e53dbd7d0a27146c8f1ac52f74e5
+  deprecate! date: "2023-03-02", because: :deprecated_upstream
 
   depends_on "go" => :build
   depends_on "protobuf"
 
   def install
-    system "go", "build", *std_go_args, "-ldflags", "-s -w", "./protoc-gen-gogofaster"
+    system "go", "build", *std_go_args(ldflags: "-s -w"), "./protoc-gen-gogofaster"
   end
 
   test do

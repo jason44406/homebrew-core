@@ -1,25 +1,32 @@
 class Libtcod < Formula
   desc "API for roguelike developers"
   homepage "https://github.com/libtcod/libtcod"
-  url "https://github.com/libtcod/libtcod/archive/1.15.1.tar.gz"
-  sha256 "2713d8719be53db7a529cbf53064e5bc9f3adf009db339d3a81b50d471bc306f"
+  url "https://github.com/libtcod/libtcod/archive/1.23.1.tar.gz"
+  sha256 "dd00be7dde66aa7456bab8acf98b6a0ae73871bd5bee10a7838752fdd7007c6e"
   license "BSD-3-Clause"
-  revision 1
 
   bottle do
-    cellar :any
-    sha256 "f6cbbe0ba4037f31da72f30fb97138c9f24b03a1f9293336971f771f3df40489" => :catalina
-    sha256 "1e61a2db504b8999e3796ada0dcd1de3d42e07f00a6fd7f84b2b767d8883a047" => :mojave
-    sha256 "3fec806904f3aad780ba54cb4deec9f34422fafc096ef18b7762989c90b2ae8e" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "4d3d7be32377aa333d1e5352f28ace0d5985ebb0a2f95910e18553deb206463b"
+    sha256 cellar: :any,                 arm64_monterey: "d7777853052eee7141bdf456a8be5e96b2065d7f50c9b948a3f307c00f2c1f37"
+    sha256 cellar: :any,                 arm64_big_sur:  "1dd1c1908bc001d8d3fc6148b841bf64f774d49cecd84f99a59d5b5df8359abd"
+    sha256 cellar: :any,                 ventura:        "6e01727ebeac536f92ce375cc2a51aff1309e901ebe84b5d03558d61686bb3b6"
+    sha256 cellar: :any,                 monterey:       "375b0bd3b779a058256c33c65a84b94a035b038ce6e49a8030a27e6162e858e6"
+    sha256 cellar: :any,                 big_sur:        "ec1a87e97f42dabad818aa501b92a94df612eed7f7e20380a4a806a69ad25c82"
+    sha256 cellar: :any,                 catalina:       "8827b6154dbdf32f0806390d613321de3126dc89658cbc9a1fe0e3a45a5c5bf4"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "c481d057b749803c27882166d1e66c5877aef2f80cf5c38c18e6afed900287a7"
   end
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
   depends_on "libtool" => :build
   depends_on "pkg-config" => :build
-  depends_on "python@3.8" => :build
-  depends_on :macos # Due to Python 2
+  depends_on "python@3.11" => :build
+  depends_on macos: :catalina
   depends_on "sdl2"
+
+  conflicts_with "libzip", "minizip-ng", because: "libtcod, libzip and minizip-ng install a `zip.h` header"
+
+  fails_with gcc: "5"
 
   def install
     cd "buildsys/autotools" do
@@ -48,16 +55,17 @@ class Libtcod < Formula
       }
     EOS
     system ENV.cc, "-I#{include}", "-L#{lib}", "-ltcod", "version-c.c", "-o", "version-c"
-    assert_equal "#{version}\n", `./version-c`
+    assert_equal version.to_s, shell_output("./version-c").strip
     (testpath/"version-cc.cc").write <<~EOS
       #include <libtcod/libtcod.hpp>
+      #include <iostream>
       int main()
       {
         std::cout << TCOD_STRVERSION << std::endl;
         return 0;
       }
     EOS
-    system ENV.cxx, "-std=c++14", "-I#{include}", "-L#{lib}", "-ltcod", "version-cc.cc", "-o", "version-cc"
-    assert_equal "#{version}\n", `./version-cc`
+    system ENV.cxx, "-std=c++17", "-I#{include}", "-L#{lib}", "-ltcod", "version-cc.cc", "-o", "version-cc"
+    assert_equal version.to_s, shell_output("./version-cc").strip
   end
 end

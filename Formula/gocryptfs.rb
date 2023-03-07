@@ -1,30 +1,24 @@
 class Gocryptfs < Formula
   desc "Encrypted overlay filesystem written in Go"
   homepage "https://nuetzlich.net/gocryptfs/"
-  url "https://github.com/rfjakob/gocryptfs/releases/download/v1.8.0/gocryptfs_v1.8.0_src-deps.tar.gz"
-  sha256 "c4ca576c2a47f0ed395b96f70fb58fc8f7b4beced8ae67e356eeed6898f8352a"
+  url "https://github.com/rfjakob/gocryptfs/releases/download/v2.3.1/gocryptfs_v2.3.1_src-deps.tar.gz"
+  sha256 "62a856a9771307b34a75a1e9ab9489abe4a4e7e7f9230c2b1046ca037ea2ba50"
   license "MIT"
 
   bottle do
-    cellar :any
-    sha256 "adf2a34cc99f353992e790c856971e9128d55caf5c51a2ae0a50ff5506e63c1c" => :catalina
-    sha256 "3e4cd09514efbd074f41f6636f0df0b01708856446c1da1d6cfe766cd8cae121" => :mojave
-    sha256 "a7e6b3d28c3e3cd78ff4be78adc8d2feeb8061c7459d2c8e6f04e61f0029bb51" => :high_sierra
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "8ba609268953709b02ba038118ea8f5193ef8e5c30318673bd5967e408fad84b"
   end
 
   depends_on "go" => :build
   depends_on "pkg-config" => :build
-  depends_on "openssl@1.1"
-  depends_on :osxfuse
+  depends_on "libfuse"
+  depends_on :linux # on macOS, requires closed-source macFUSE
+  depends_on "openssl@3"
 
   def install
-    ENV["GOPATH"] = buildpath
-    (buildpath/"src/github.com/rfjakob/gocryptfs").install buildpath.children
-    cd "src/github.com/rfjakob/gocryptfs" do
-      system "./build.bash"
-      bin.install "gocryptfs"
-      prefix.install_metafiles
-    end
+    system "./build.bash"
+    bin.install "gocryptfs", "gocryptfs-xray/gocryptfs-xray"
+    man1.install "Documentation/gocryptfs.1", "Documentation/gocryptfs-xray.1"
   end
 
   test do

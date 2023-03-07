@@ -3,19 +3,24 @@ class GitPlus < Formula
 
   desc "Git utilities: git multi, git relation, git old-branches, git recent"
   homepage "https://github.com/tkrajina/git-plus"
-  url "https://files.pythonhosted.org/packages/73/b5/6cf7f0513fd1ef42b5a3ac0e342b3c4176551f60ad17fc5dbe52329f2b58/git-plus-v0.4.6.tar.gz"
-  sha256 "bcf3a83a2730e8b6f5bc106db00b7b6be5df534cb9543ba7ecc506c535c5158b"
+  url "https://files.pythonhosted.org/packages/d3/2a/c573678f7150f35305f50727bcfd41edf1415fb1e523860f0f0788d99205/git-plus-0.4.9.tar.gz"
+  sha256 "b9a9dbbffc030a044cb7d9ee46b3fe1b683162cee52172c7349eda8216680ec6"
   license "Apache-2.0"
-  head "https://github.com/tkrajina/git-plus.git"
+  head "https://github.com/tkrajina/git-plus.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "37e7a26aa4cca6a9b1fb8b2f87f84b4dac45c27a2393dd22100dd46a033cfc6c" => :catalina
-    sha256 "7a324cb78e6055568c2d91f04172d5c7e0e4ef5fc1dcabcb8060773f78865873" => :mojave
-    sha256 "8b2e2b84a5525f199a20dafc0e1d4726ce53352eeb9e21479741b2331910afac" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "f1df39b9bfc960ca8745fae4a881b5d976b4056b6381440c2979ede17795cd0b"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "f1df39b9bfc960ca8745fae4a881b5d976b4056b6381440c2979ede17795cd0b"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "f1df39b9bfc960ca8745fae4a881b5d976b4056b6381440c2979ede17795cd0b"
+    sha256 cellar: :any_skip_relocation, ventura:        "f84a2bb9606908c30040db300734c023394660e0ffb6229939be0c4ccbeb02a7"
+    sha256 cellar: :any_skip_relocation, monterey:       "f84a2bb9606908c30040db300734c023394660e0ffb6229939be0c4ccbeb02a7"
+    sha256 cellar: :any_skip_relocation, big_sur:        "f84a2bb9606908c30040db300734c023394660e0ffb6229939be0c4ccbeb02a7"
+    sha256 cellar: :any_skip_relocation, catalina:       "f84a2bb9606908c30040db300734c023394660e0ffb6229939be0c4ccbeb02a7"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "9c9200ae7d572a148f00ffbbb30cd1ce12c56f2f01a4b3026b107aef52765337"
   end
 
-  depends_on "python@3.8"
+  depends_on "python@3.11"
 
   def install
     virtualenv_install_with_resources

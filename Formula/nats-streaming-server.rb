@@ -1,54 +1,45 @@
 class NatsStreamingServer < Formula
   desc "Lightweight cloud messaging system"
   homepage "https://nats.io"
-  url "https://github.com/nats-io/nats-streaming-server/archive/v0.18.0.tar.gz"
-  sha256 "b1127d5317612178b0ba19468066ff3f59212a407fcd88401ffb6c6df9b68d1a"
+  url "https://github.com/nats-io/nats-streaming-server/archive/v0.25.3.tar.gz"
+  sha256 "3fd42f75ecf65aa8d5faebcaa45c5fe4a2a1a1d24c8f7d1f5919434f1ccbc3b1"
   license "Apache-2.0"
-  head "https://github.com/nats-io/nats-streaming-server.git"
+  head "https://github.com/nats-io/nats-streaming-server.git", branch: "main"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "a06f30c69dd3207cb6d57af4e360228d6e322a5f11da0ee6b953f64a7f8f7c0e" => :catalina
-    sha256 "35893ee9e92a67a057358be54b30f37ddfb44210feac598e80c0646bd3aec3ff" => :mojave
-    sha256 "00f582b64e5cf8c8170f0b9fff79a37d82d60d2ac8af18ac5ea703a779924a72" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "7595afec85c53398229cdae0a2e03413f004b4d110f2cb73825bc3416aa5940e"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "31171d17c6763cd8a9bfee3a2dfa4ed571607245a464a74c519ec35c971bf18d"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "9d1bb3527d1a871e05b72bf74f58439682296103a432d087547b500989a2f43c"
+    sha256 cellar: :any_skip_relocation, ventura:        "fe9ffbdb0154fb815d4c4877b8d745cc081d0d6e2fe51155b73cea2a96f1a966"
+    sha256 cellar: :any_skip_relocation, monterey:       "7dfaf98e147efb8bb4eb99c38a7e5e5e7fe0cfbb6773729e276cdcf369ec2cd4"
+    sha256 cellar: :any_skip_relocation, big_sur:        "f6e01fc372b782e38990fa83e6de446761a9518db696aa99073488672be6d962"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "76f05c2dd715b1999ad21e445cd67a3cf7c4b1f6bd6b5457d9071684f343d561"
   end
 
   depends_on "go" => :build
 
   def install
-    system "go", "build", "-ldflags", "-s -w", "-trimpath", "-o", bin/"nats-streaming-server"
-    prefix.install_metafiles
+    system "go", "build", *std_go_args(ldflags: "-s -w")
   end
 
-  plist_options manual: "nats-streaming-server"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{opt_bin}/nats-streaming-server</string>
-          </array>
-          <key>RunAtLoad</key>
-          <true/>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run opt_bin/"nats-streaming-server"
   end
 
   test do
+    port = free_port
+    http_port = free_port
     pid = fork do
-      exec "#{bin}/nats-streaming-server --port=8085 --pid=#{testpath}/pid --log=#{testpath}/log"
+      exec "#{bin}/nats-streaming-server",
+           "--port=#{port}",
+           "--http_port=#{http_port}",
+           "--pid=#{testpath}/pid",
+           "--log=#{testpath}/log"
     end
     sleep 3
 
     begin
-      assert_match "INFO", shell_output("curl localhost:8085")
+      assert_match "uptime", shell_output("curl localhost:#{http_port}/varz")
       assert_predicate testpath/"log", :exist?
       assert_match version.to_s, File.read(testpath/"log")
     ensure

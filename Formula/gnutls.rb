@@ -1,20 +1,28 @@
 class Gnutls < Formula
   desc "GNU Transport Layer Security (TLS) Library"
   homepage "https://gnutls.org/"
-  url "https://www.gnupg.org/ftp/gcrypt/gnutls/v3.6/gnutls-3.6.14.tar.xz"
-  mirror "https://www.mirrorservice.org/sites/ftp.gnupg.org/gcrypt/gnutls/v3.6/gnutls-3.6.14.tar.xz"
-  sha256 "5630751adec7025b8ef955af4d141d00d252a985769f51b4059e5affa3d39d63"
-  license "LGPL-2.1"
+  url "https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/gnutls-3.8.0.tar.xz"
+  mirror "https://www.mirrorservice.org/sites/ftp.gnupg.org/gcrypt/gnutls/v3.8/gnutls-3.8.0.tar.xz"
+  sha256 "0ea0d11a1660a1e63f960f157b197abe6d0c8cb3255be24e1fb3815930b9bdc5"
+  license all_of: ["LGPL-2.1-or-later", "GPL-3.0-only"]
 
-  bottle do
-    sha256 "ed76b5d22e195a797c2d01ab2f4a8e769a023b056b17e86f11cb6b9af200babe" => :catalina
-    sha256 "d57c7537ca0565e8c8fdf13beb4b082548f87a0df2295469596f1cfe3067faae" => :mojave
-    sha256 "2773c249c2a71f299261889185bda3950ed15150ff09529a71f88c30d68ff26f" => :high_sierra
+  livecheck do
+    url "https://www.gnutls.org/news.html"
+    regex(/>\s*GnuTLS\s*v?(\d+(?:\.\d+)+)\s*</i)
   end
 
-  depends_on "autoconf" => :build
-  depends_on "automake" => :build
+  bottle do
+    sha256 arm64_ventura:  "a10227b5f3b46064fb325eb21d5103b6fad145dbbb87abd4f8ff8d76270ea32a"
+    sha256 arm64_monterey: "d375f9982faad9b6664508624629c9018ecf807d34c38bb91f875557cc9aa0cf"
+    sha256 arm64_big_sur:  "d21c45d81baaf4ea81a6ff134bad1df8575e5e7e50186e24d74d42402220a2d2"
+    sha256 ventura:        "a41072e29a3fe9bdf8408946b7ad308b1d504e87c79d5bb39dd57172354d4e73"
+    sha256 monterey:       "75da330e4d73ade890aa0c998443319d07d4d63089bfd6c16bf7d87ba756bff5"
+    sha256 big_sur:        "d1cddbab50cd28e1e84b57bb3c08e76c204626894bebf044c80fdb3c44d8a577"
+    sha256 x86_64_linux:   "7a131f11110a752a7326a0b1c57dff58c7fc4eea5f2a1e4ae7de781d71532883"
+  end
+
   depends_on "pkg-config" => :build
+  depends_on "ca-certificates"
   depends_on "gmp"
   depends_on "libidn2"
   depends_on "libtasn1"
@@ -23,9 +31,7 @@ class Gnutls < Formula
   depends_on "p11-kit"
   depends_on "unbound"
 
-  on_linux do
-    depends_on "autogen" => :build
-  end
+  uses_from_macos "zlib"
 
   def install
     args = %W[
@@ -35,18 +41,12 @@ class Gnutls < Formula
       --prefix=#{prefix}
       --sysconfdir=#{etc}
       --with-default-trust-store-file=#{pkgetc}/cert.pem
-      --disable-guile
       --disable-heartbeat-support
       --with-p11-kit
     ]
 
-    # Work around a gnulib issue with macOS Catalina
-    args << "gl_cv_func_ftello_works=yes"
-
     system "./configure", *args
-    # Adding LDFLAGS= to allow the build on Catalina 10.15.4
-    # See https://gitlab.com/gnutls/gnutls/-/issues/966
-    system "make", "LDFLAGS=", "install"
+    system "make", "install"
 
     # certtool shadows the macOS certtool utility
     mv bin/"certtool", bin/"gnutls-certtool"
@@ -54,27 +54,18 @@ class Gnutls < Formula
   end
 
   def post_install
-    keychains = %w[
-      /System/Library/Keychains/SystemRootCertificates.keychain
-    ]
+    rm_f pkgetc/"cert.pem"
+    pkgetc.install_symlink Formula["ca-certificates"].pkgetc/"cert.pem"
+  end
 
-    certs_list = `security find-certificate -a -p #{keychains.join(" ")}`
-    certs = certs_list.scan(/-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----/m)
-
-    valid_certs = certs.select do |cert|
-      IO.popen("openssl x509 -inform pem -checkend 0 -noout", "w") do |openssl_io|
-        openssl_io.write(cert)
-        openssl_io.close_write
-      end
-
-      $CHILD_STATUS.success?
-    end
-
-    pkgetc.mkpath
-    (pkgetc/"cert.pem").atomic_write(valid_certs.join("\n"))
+  def caveats
+    <<~EOS
+      Guile bindings are now in the `guile-gnutls` formula.
+    EOS
   end
 
   test do
     system bin/"gnutls-cli", "--version"
+    assert_match "expired certificate", shell_output("#{bin}/gnutls-cli expired.badssl.com", 1)
   end
 end

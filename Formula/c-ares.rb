@@ -1,31 +1,35 @@
 class CAres < Formula
   desc "Asynchronous DNS library"
-  homepage "https://c-ares.haxx.se/"
-  url "https://c-ares.haxx.se/download/c-ares-1.16.1.tar.gz"
-  sha256 "d08312d0ecc3bd48eee0a4cc0d2137c9f194e0a28de2028928c0f6cae85f86ce"
+  homepage "https://c-ares.org/"
+  url "https://c-ares.org/download/c-ares-1.19.0.tar.gz"
+  mirror "https://github.com/c-ares/c-ares/releases/download/cares-1_17_2/c-ares-1.19.0.tar.gz"
+  mirror "http://fresh-center.net/linux/misc/dns/c-ares-1.19.0.tar.gz"
+  mirror "http://fresh-center.net/linux/misc/dns/legacy/c-ares-1.19.0.tar.gz"
+  sha256 "bfceba37e23fd531293829002cac0401ef49a6dc55923f7f92236585b7ad1dd3"
   license "MIT"
+  head "https://github.com/c-ares/c-ares.git", branch: "main"
+
+  livecheck do
+    url :homepage
+    regex(/href=.*?c-ares[._-](\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "0ba43741f90d2529cf03785faf077ee38898124474bd147718ed8a9ccf0f68a5" => :catalina
-    sha256 "5c144152a0ea9ce016043fc37b6f456f9a8270298432d5283c52ec3676c70b3c" => :mojave
-    sha256 "a2761fa50d7e565997a8c1f5fffdad4ad439b5f5245852b5bf6c431b85fe447a" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "509c92f0a1814475b0f9635923d2a895d2b2e00d0360d7dbf5e94f9625d09b15"
+    sha256 cellar: :any,                 arm64_monterey: "1fc78eca07e024e86100c49645ab4e31e994a1d8c601d0373fcea0980ba92ffc"
+    sha256 cellar: :any,                 arm64_big_sur:  "537a7aea3bbae0b6380ea608e648bcbe9591fc5e02f19dabb307d2d3cf330139"
+    sha256 cellar: :any,                 ventura:        "0830e352c2b4ee35920c8f8729b62bae6d6b22413b8209fd687a07b0e08b396d"
+    sha256 cellar: :any,                 monterey:       "b139bac5959fe35d704520ce0409578b1cea4c4e1f49510c4db6800d4d304952"
+    sha256 cellar: :any,                 big_sur:        "7d5bf9ffd0c47eb9a0f5cc56cccdca52e631595ea00833a3ccd3be7adde54d16"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "35460bcc5ba465569d515ea2773e270951749500e493622d19c3d2151e8113ae"
   end
 
-  head do
-    url "https://github.com/bagder/c-ares.git"
-
-    depends_on "autoconf" => :build
-    depends_on "automake" => :build
-    depends_on "libtool" => :build
-  end
+  depends_on "cmake" => :build
 
   def install
-    system "./buildconf" if build.head?
-    system "./configure", "--prefix=#{prefix}",
-                          "--disable-dependency-tracking",
-                          "--disable-debug"
-    system "make", "install"
+    system "cmake", "-S", ".", "-B", "build", *std_cmake_args, "-DCMAKE_INSTALL_RPATH=#{rpath}"
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
   end
 
   test do
@@ -42,5 +46,7 @@ class CAres < Formula
     EOS
     system ENV.cc, "test.c", "-L#{lib}", "-lcares", "-o", "test"
     system "./test"
+
+    system "#{bin}/ahost", "127.0.0.1"
   end
 end

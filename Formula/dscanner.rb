@@ -2,22 +2,35 @@ class Dscanner < Formula
   desc "Analyses e.g. the style and syntax of D code"
   homepage "https://github.com/dlang-community/D-Scanner"
   url "https://github.com/dlang-community/D-Scanner.git",
-      tag:      "v0.10.0",
-      revision: "a40492bc92e86bad6441fc3aba776fe2c6a5090b"
+      tag:      "v0.14.0",
+      revision: "d5d6920502bf1bfdb29474007a59fd606df0aadc"
   license "BSL-1.0"
-  head "https://github.com/dlang-community/D-Scanner.git"
+  head "https://github.com/dlang-community/D-Scanner.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "1104121a6f2ab74f65f126502a9e0851c69fbf8a70d45de0a882e33b45155fe1" => :catalina
-    sha256 "f1dbd26e0a79c660505f1e53f938afe9385670e8556156a0c4742287a815f77e" => :mojave
-    sha256 "b416c8ed423b6f6ffaf0abb2e3368f5734219f8874fe11ec445a661c43fe1d61" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "b103273d63236f1b0248e4ae49cc8222d20aaa0a1caea7868b9fc534c6ebb88d"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "6aa9de194ec0c6fc7eeaebc1b248246d2b6a277a90a90a750d15286b304696dc"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "e29961bc77ba4286bf0639b6d5820c1e6f2eaceed7acb8d33c1d745281ac20b7"
+    sha256 cellar: :any_skip_relocation, ventura:        "42ef416a861cc5c3417280a2e9a174443f1e6d7f8b3643b10239d86417f33289"
+    sha256 cellar: :any_skip_relocation, monterey:       "f536efe9c19e9487d576cd25a2c6327c5aacf2fb88e003941e5487b130b48448"
+    sha256 cellar: :any_skip_relocation, big_sur:        "1cdfbe7edce737e08e428c5cb8617c44b5a8ec433a51406654f0c4865a1f9a56"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "f621b9b86043c107ff01833bc027bfa6e1a5f160fd987696dc85de4ca80441ce"
   end
 
-  depends_on "dmd" => :build
+  on_arm do
+    depends_on "ldc" => :build
+  end
+
+  on_intel do
+    depends_on "dmd" => :build
+  end
 
   def install
-    system "make", "dmdbuild"
+    # Fix for /usr/bin/ld: obj/dmd/containers/src/containers/ttree.o:
+    # relocation R_X86_64_32 against hidden symbol `__stop_minfo'
+    # can not be used when making a PIE object
+    ENV.append "DFLAGS", "-fPIC" if OS.linux?
+    system "make", "all", "DC=#{Hardware::CPU.arm? ? "ldc2" : "dmd"}"
     bin.install "bin/dscanner"
   end
 

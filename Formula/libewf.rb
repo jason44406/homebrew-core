@@ -2,19 +2,24 @@ class Libewf < Formula
   desc "Library for support of the Expert Witness Compression Format"
   homepage "https://github.com/libyal/libewf"
   # The main libewf repository is currently "experimental".
-  url "https://github.com/libyal/libewf-legacy/releases/download/20140808/libewf-20140808.tar.gz"
-  sha256 "dfe29b5f2f1841ff1fe11979780d710a660dbc4727af82ec391f398e6b49e5fd"
-  license "LGPL-3.0"
+  # See discussions in this issue, https://github.com/libyal/libewf/issues/127
+  url "https://github.com/libyal/libewf-legacy/releases/download/20140813/libewf-20140813.tar.gz"
+  sha256 "dbfdf1bbea5944b014c2311cce4615d92b2b6b91c8401eef8640de9f3e75845b"
+  license "LGPL-3.0-or-later"
 
   bottle do
-    cellar :any
-    sha256 "43d8ba6c2441f65080f257a7239fe468be70cb2578ec2106230edd1164e967b6" => :catalina
-    sha256 "4c5482f8f1c97f9c3f3687bccd9c3628b314699bc26743e641f2ae573bf95eeb" => :mojave
-    sha256 "cae6fd2f38855fd15f8a50b644d0817181fed055aef85b7793759d7703a833d4" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "3df048c0a05b7b49154289de3cbaa1a0fa7197a5383ce24a4b65a3be39ebc5ac"
+    sha256 cellar: :any,                 arm64_monterey: "7407568f70dcabf8cc76832250ed36d437966be3c865ec89d060d352fd249326"
+    sha256 cellar: :any,                 arm64_big_sur:  "937eea6b5a11fb0855c7eb793b8ec3066a1ac06752ee3c7a9eaa0c7247a05d48"
+    sha256 cellar: :any,                 ventura:        "2904c88b892db2bb42b27002baf35d5af1fc02de5c68d00a91c47aa0c720fa60"
+    sha256 cellar: :any,                 monterey:       "42e44287e857a5cc4dda58bf7c54167a901a985a9fce34314994ee3b2e1b4596"
+    sha256 cellar: :any,                 big_sur:        "72364ba1d62b1f7ea9e2a1197e926e59975c4c641bf7ea638ebef05621e79967"
+    sha256 cellar: :any,                 catalina:       "40e02197afb43ee61393f4708c7383a478979fcd858fda648acc208aafd3dd33"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "b976fbecc550d49aa69a3a49c0e1b6015a4fa6838a6f3001ce160a4ec12bb874"
   end
 
   head do
-    url "https://github.com/libyal/libewf.git"
+    url "https://github.com/libyal/libewf.git", branch: "main"
     depends_on "autoconf" => :build
     depends_on "automake" => :build
     depends_on "gettext" => :build

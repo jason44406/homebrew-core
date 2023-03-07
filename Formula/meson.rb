@@ -1,28 +1,42 @@
 class Meson < Formula
   desc "Fast and user friendly build system"
   homepage "https://mesonbuild.com/"
-  url "https://github.com/mesonbuild/meson/releases/download/0.55.1/meson-0.55.1.tar.gz"
-  sha256 "3b5741f884e04928bdfa1947467ff06afa6c98e623c25cef75adf71ca39ce080"
+  url "https://github.com/mesonbuild/meson/releases/download/1.0.1/meson-1.0.1.tar.gz"
+  sha256 "d926b730de6f518728cc7c57bc5e701667bae0c3522f9e369427b2cc7839d3c1"
   license "Apache-2.0"
-  head "https://github.com/mesonbuild/meson.git"
+  head "https://github.com/mesonbuild/meson.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "ad63598f734e071dcaff8e1294bf4bdc7f4e3c6d76e5b32a9d1016aea96fb808" => :catalina
-    sha256 "ad63598f734e071dcaff8e1294bf4bdc7f4e3c6d76e5b32a9d1016aea96fb808" => :mojave
-    sha256 "ad63598f734e071dcaff8e1294bf4bdc7f4e3c6d76e5b32a9d1016aea96fb808" => :high_sierra
+    sha256 cellar: :any_skip_relocation, all: "4b2d869546148ebfd74dcca907620acb794b7bdf153da89f450933bd8cb80e0e"
   end
 
   depends_on "ninja"
-  depends_on "python@3.8"
+  depends_on "python@3.11"
 
   def install
-    version = Language::Python.major_minor_version Formula["python@3.8"].bin/"python3"
-    ENV["PYTHONPATH"] = lib/"python#{version}/site-packages"
+    python = "python3.11"
+    system python, *Language::Python.setup_install_args(prefix, python), "--install-data=#{prefix}"
 
-    system Formula["python@3.8"].bin/"python3", *Language::Python.setup_install_args(prefix)
+    bash_completion.install "data/shell-completions/bash/meson"
+    zsh_completion.install "data/shell-completions/zsh/_meson"
+    vim_plugin_dir = buildpath/"data/syntax-highlighting/vim"
+    (share/"vim/vimfiles").install %w[ftdetect ftplugin indent syntax].map { |dir| vim_plugin_dir/dir }
 
-    bin.env_script_all_files(libexec/"bin", PYTHONPATH: ENV["PYTHONPATH"])
+    # Make the bottles uniform. This also ensures meson checks `HOMEBREW_PREFIX`
+    # for fulfilling dependencies rather than just `/usr/local`.
+    mesonbuild = prefix/Language::Python.site_packages(python)/"mesonbuild"
+    inreplace_files = %w[
+      coredata.py
+      dependencies/boost.py
+      dependencies/cuda.py
+      dependencies/qt.py
+      utils/universal.py
+      modules/python.py
+    ].map { |f| mesonbuild/f }
+    inreplace_files << (bash_completion/"meson")
+
+    # Passing `build.stable?` ensures a failed `inreplace` won't fail HEAD installs.
+    inreplace inreplace_files, "/usr/local", HOMEBREW_PREFIX, build.stable?
   end
 
   test do
@@ -37,9 +51,10 @@ class Meson < Formula
       executable('hello', 'helloworld.c')
     EOS
 
-    mkdir testpath/"build" do
-      system "#{bin}/meson", ".."
-      assert_predicate testpath/"build/build.ninja", :exist?
-    end
+    system bin/"meson", "setup", "build"
+    assert_predicate testpath/"build/build.ninja", :exist?
+
+    system bin/"meson", "compile", "-C", "build", "--verbose"
+    assert_equal "hi", shell_output("build/hello").chomp
   end
 end

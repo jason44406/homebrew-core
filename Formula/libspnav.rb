@@ -1,18 +1,18 @@
 class Libspnav < Formula
   desc "Client library for connecting to 3Dconnexion's 3D input devices"
-  homepage "https://spacenav.sourceforge.io"
-  url "https://downloads.sourceforge.net/project/spacenav/spacenav%20library%20%28SDK%29/libspnav%200.2.3/libspnav-0.2.3.tar.gz"
-  sha256 "7ae4d7bb7f6a5dda28b487891e01accc856311440f582299760dace6ee5f1f93"
+  homepage "https://spacenav.sourceforge.net/"
+  url "https://github.com/FreeSpacenav/libspnav/releases/download/v1.1/libspnav-1.1.tar.gz"
+  sha256 "04b297f68a10db4fa40edf68d7f823ba7b9d0442f2b665181889abe2cea42759"
+  license "BSD-3-Clause"
 
   bottle do
-    cellar :any
-    sha256 "9d7234296b1bdb5c4dd0f1aa5855cca877d2eba7fa83812c34438e7cf401a3cf" => :catalina
-    sha256 "a428a0b1037ff3dfd5a7ba2463f6ca96717e69be734627d8d7abd079f17fb7d5" => :mojave
-    sha256 "d61c3082aef6a700ad02d553304add7bb6bb2541236a97cf0a571dcc88f67d16" => :high_sierra
-    sha256 "55cf0552148451302bb50c04a843d8d3834ca95a38c79bf5270f20ac49f82d41" => :sierra
-    sha256 "48685db33ebe4acb821b33dbd609f95d03c47bd6c316b08f1bc1110d86271643" => :el_capitan
-    sha256 "87bf93469bb14eef1a24de81cd521f6a62363a6aa7c04a319f3f18905de039b1" => :yosemite
-    sha256 "f425659deb611eacb94f2245f0c8f8235aa0169a422874f2aa2c32f8d207b84a" => :mavericks
+    sha256 cellar: :any,                 arm64_ventura:  "5bffbb2a231c0c4ae6b4cbcfe58d5a6aa1fd2459681462fafae815b965f754c7"
+    sha256 cellar: :any,                 arm64_monterey: "805c36825ae869487c0e122ad802cbc9ae65ef9e025579199f1462e0f90ed9bb"
+    sha256 cellar: :any,                 arm64_big_sur:  "e4608a7496c3941c0b1867745d3d613d3d50a67208094d0a7d4e56fdbe8e4836"
+    sha256 cellar: :any,                 ventura:        "7c01d1c7d88b845a23670b14576ce1d8d407e691187af83048ad4d1c8b9c9e3d"
+    sha256 cellar: :any,                 monterey:       "be943c5f3129713ec763a4616f39dbd9b42ce1840c97f48dbd569d14334fb87e"
+    sha256 cellar: :any,                 big_sur:        "426b551c6ca93b494ddebd517baca82cb911625bf9b6b7d6f97d405be140833c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "0288eba7fc2a946a58922400ce7810acf79c7076e151f2d51e91258bc3e19061"
   end
 
   def install
@@ -38,7 +38,7 @@ class Libspnav < Formula
         return 0;
       }
     EOS
-    system ENV.cc, "test.cpp", "-I#{include}", "-L#{lib}", "-lspnav", "-o", "test"
+    system ENV.cc, "test.cpp", "-I#{include}", "-L#{lib}", "-lspnav", "-lm", "-o", "test"
     system "./test"
   end
 end

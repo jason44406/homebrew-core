@@ -1,85 +1,82 @@
 class Fail2ban < Formula
   desc "Scan log files and ban IPs showing malicious signs"
   homepage "https://www.fail2ban.org/"
-  url "https://github.com/fail2ban/fail2ban/archive/0.11.1.tar.gz"
-  sha256 "71d2a52b66bb0f87ac3812246bdd3819ec561913cd44afd39130a342f043aa6d"
-  license "GPL-2.0"
+  url "https://github.com/fail2ban/fail2ban/archive/1.0.2.tar.gz"
+  sha256 "ae8b0b41f27a7be12d40488789d6c258029b23a01168e3c0d347ee80b325ac23"
+  license "GPL-2.0-or-later"
+
+  livecheck do
+    url :stable
+    strategy :github_latest
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "74818c094f3afe181c5f6870331822d4bb32d99258f31f2dc30cfea89d111051" => :catalina
-    sha256 "01c86b6a7c231710a39884494ab6cca4f1568724bcb3abc3edade9c56207d236" => :mojave
-    sha256 "336d82f86f30d90847910f8ba414b6326104f1109fe7fad3fab1af3d62331be4" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "f911d7921d2738aa75228e317e2a4100e1462de3464acd2a7a5edd716f74ed4a"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "f911d7921d2738aa75228e317e2a4100e1462de3464acd2a7a5edd716f74ed4a"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "f911d7921d2738aa75228e317e2a4100e1462de3464acd2a7a5edd716f74ed4a"
+    sha256 cellar: :any_skip_relocation, ventura:        "0a05b30fecd031fba3686b8667325b4b4e14c31ce23c879d28227b0f1613b51c"
+    sha256 cellar: :any_skip_relocation, monterey:       "0a05b30fecd031fba3686b8667325b4b4e14c31ce23c879d28227b0f1613b51c"
+    sha256 cellar: :any_skip_relocation, big_sur:        "0a05b30fecd031fba3686b8667325b4b4e14c31ce23c879d28227b0f1613b51c"
+    sha256 cellar: :any_skip_relocation, catalina:       "0a05b30fecd031fba3686b8667325b4b4e14c31ce23c879d28227b0f1613b51c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "33bbfefcc5a2a740e03ae2b858cca57502f57e3635f89169fd07d77f4155293d"
   end
 
   depends_on "help2man" => :build
   depends_on "sphinx-doc" => :build
-  depends_on "python@3.8"
+  depends_on "python@3.11"
 
   def install
-    ENV.prepend_create_path "PYTHONPATH", libexec/"lib/python3.8/site-packages"
-    ENV["PYTHON"] = Formula["python@3.8"].opt_bin/"python3"
+    python3 = "python3.11"
+    ENV["PYTHON"] = which(python3)
 
     rm "setup.cfg"
-    Dir["config/paths-*.conf"].each do |r|
-      next if /paths-common\.conf|paths-osx\.conf/.match?(File.basename(r))
-
-      rm r
-    end
+    Pathname.glob("config/paths-*.conf").reject do |pn|
+      pn.fnmatch?("config/paths-common.conf") || pn.fnmatch?("config/paths-osx.conf")
+    end.map(&:unlink)
 
     # Replace paths in config
     inreplace "config/jail.conf", "before = paths-debian.conf", "before = paths-osx.conf"
 
     # Replace hardcoded paths
-    inreplace "setup.py" do |s|
-      s.gsub! %r{/etc}, etc
-      s.gsub! %r{/var}, var
-    end
-
-    inreplace Dir["config/{action,filter}.d/**/*"].select { |ff| File.file?(ff) }.each do |s|
-      s.gsub! %r{/etc}, etc, false
-      s.gsub! %r{/var}, var, false
-    end
-
-    inreplace ["config/fail2ban.conf", "config/paths-common.conf", "doc/run-rootless.txt"].each do |s|
-      s.gsub! %r{/etc}, etc
-      s.gsub! %r{/var}, var
-    end
-
-    inreplace Dir["fail2ban/client/*"].each do |s|
-      s.gsub! %r{/etc}, etc, false
-      s.gsub! %r{/var}, var, false
-    end
+    inreplace_etc_var("setup.py")
+    inreplace_etc_var(Pathname.glob("config/{action,filter}.d/**/*").select(&:file?), audit_result: false)
+    inreplace_etc_var(["config/fail2ban.conf", "config/paths-common.conf", "doc/run-rootless.txt"])
+    inreplace_etc_var(Pathname.glob("fail2ban/client/*"), audit_result: false)
 
     inreplace "fail2ban/server/asyncserver.py", "/var/run/fail2ban/fail2ban.sock",
               var/"run/fail2ban/fail2ban.sock"
 
-    inreplace Dir["fail2ban/tests/**/*"].select { |ff| File.file?(ff) }.each do |s|
-      s.gsub! %r{/etc}, etc, false
-      s.gsub! %r{/var}, var, false
-    end
-
-    inreplace Dir["man/*"].each do |s|
-      s.gsub! %r{/etc}, etc, false
-      s.gsub! %r{/var}, var, false
-    end
+    inreplace_etc_var(Pathname.glob("fail2ban/tests/**/*").select(&:file?), audit_result: false)
+    inreplace_etc_var(Pathname.glob("man/*"), audit_result: false)
 
     # Fix doc compilation
-    inreplace "setup.py", "/usr/share/doc/fail2ban", (share/"doc")
+    inreplace "setup.py", "/usr/share/doc/fail2ban", doc
     inreplace "setup.py", "if os.path.exists('#{var}/run')", "if True"
     inreplace "setup.py", "platform_system in ('linux',", "platform_system in ('linux', 'darwin',"
 
-    system "python3", "setup.py", "install", "--prefix=#{libexec}"
+    # Replace 2to3 since we don't create an unversioned symlink in libexec
+    inreplace "fail2ban-2to3", " 2to3 ", " 2to3-#{Language::Python.major_minor_version python3} "
+
+    system "./fail2ban-2to3"
+    system python3, *Language::Python.setup_install_args(prefix, python3), "--without-tests"
 
     cd "doc" do
       system "make", "dirhtml", "SPHINXBUILD=sphinx-build"
-      (share/"doc").install "build/dirhtml"
+      doc.install "build/dirhtml"
     end
 
-    bin.install Dir[libexec/"bin/*"]
-    bin.env_script_all_files(libexec/"bin", PYTHONPATH: ENV["PYTHONPATH"])
-    man1.install Dir["man/*.1"]
+    man1.install Pathname.glob("man/*.1")
     man5.install "man/jail.conf.5"
+    # Install into `bash-completion@2` path as not compatible with `bash-completion`
+    (share/"bash-completion/completions").install "files/bash-completion" => "fail2ban"
+  end
+
+  def inreplace_etc_var(targets, audit_result: true)
+    inreplace targets do |s|
+      s.gsub! %r{/etc}, etc, audit_result
+      s.gsub! %r{/var}, var, audit_result
+    end
   end
 
   def post_install
@@ -109,30 +106,17 @@ class Fail2ban < Formula
     EOS
   end
 
-  plist_options startup: true
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-      <dict>
-        <key>Label</key>
-        <string>#{plist_name}</string>
-        <key>ProgramArguments</key>
-        <array>
-          <string>#{opt_bin}/fail2ban-client</string>
-          <string>-x</string>
-          <string>start</string>
-        </array>
-        <key>RunAtLoad</key>
-        <true/>
-      </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"fail2ban-client", "-x", "start"]
+    require_root true
   end
 
   test do
     system "#{bin}/fail2ban-client", "--test"
+
+    (testpath/"test.log").write <<~EOS
+      Jan 31 11:59:59 [sshd] error: PAM: Authentication failure for test from 127.0.0.1
+    EOS
+    system "#{bin}/fail2ban-regex", "test.log", "sshd"
   end
 end

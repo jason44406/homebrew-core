@@ -4,18 +4,43 @@ class Rpm2cpio < Formula
   url "https://svnweb.freebsd.org/ports/head/archivers/rpm2cpio/files/rpm2cpio?revision=408590&view=co"
   version "1.4"
   sha256 "2841bacdadde2a9225ca387c52259d6007762815468f621253ebb537d6636a00"
+  license "BSD-2-Clause"
 
-  bottle do
-    cellar :any_skip_relocation
-    sha256 "8655ba73b79595a55d289c2c969e027f2034c0af88263f9fa8c5cb8a1184a823" => :catalina
-    sha256 "081902485154a2061d890e6421a55d15bfe5072c05109c79e0ef50f2a11b96e5" => :mojave
-    sha256 "804dccff2726a9ac18a1002cd8adb06aacd07ce1fff93b995c042d4e78775176" => :high_sierra
-    sha256 "05f2a6011c554efb2c2196fdf08bfc6f7c6fd6d4e32530399888aabcc73ca339" => :sierra
+  livecheck do
+    url "https://svnweb.freebsd.org/ports/head/archivers/rpm2cpio/Makefile?view=co"
+    regex(/^PORTVERSION=\s*?v?(\d+(?:\.\d+)+)$/i)
   end
 
+  bottle do
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "a0d766ccb938671a8c732670ae21369f7213ff1c75bcbae8dd3375043ca7a0f4"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "4dc679df047764833091737b1c6abe53f76788281df5fa220ff0914cf5f7bde6"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "f4048459b1dce919e2cdbb30b79b7893a5ebac6edf34ec82bc7ac224836b06c5"
+    sha256 cellar: :any_skip_relocation, ventura:        "d23abbffe4e9bb974d7be5a6e07ba8105b641a01cbd924d439b87a9824849deb"
+    sha256 cellar: :any_skip_relocation, monterey:       "d93f7543c723d33c9cc2666bfe057583889d60d4d250f4f6921e1844a652043e"
+    sha256 cellar: :any_skip_relocation, big_sur:        "9a704cd7500da1e5ee5da24db92d732212c7d3e1106ab7dd54888f5fcb681475"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "5a5a71b883b56d4c4188946221d349a9e0bdbc5f2f1a835df26b0504c439b335"
+  end
+
+  depends_on "libarchive"
   depends_on "xz"
 
+  conflicts_with "rpm", because: "both install `rpm2cpio` binaries"
+
+  resource "homebrew-testdata" do
+    url "https://rpmfind.net/linux/fedora/linux/development/rawhide/Everything/x86_64/os/Packages/h/hello-2.10-9.fc38.x86_64.rpm"
+    sha256 "59a4cb33a7f59d00153a0d8c726d3e02b03d8bcb6f90e1a9348bc019258a26c8"
+  end
+
   def install
-    bin.install "rpm2cpio?revision=408590&view=co" => "rpm2cpio"
+    tar = OS.mac? ? "tar" : "bsdtar"
+    inreplace "rpm2cpio", "tar", Formula["libarchive"].bin/tar
+    bin.install "rpm2cpio"
+  end
+
+  test do
+    resource("homebrew-testdata").stage do
+      system "#{bin}/rpm2cpio", "hello-2.10-9.fc38.x86_64.rpm"
+    end
   end
 end

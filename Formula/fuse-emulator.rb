@@ -1,14 +1,18 @@
 class FuseEmulator < Formula
   desc "Free Unix Spectrum Emulator"
   homepage "https://fuse-emulator.sourceforge.io/"
-  url "https://downloads.sourceforge.net/project/fuse-emulator/fuse/1.5.7/fuse-1.5.7.tar.gz"
-  sha256 "f0e2583f2642cdc3b2a737910d24e289d46e4f7e151805e3b0827024b2b45e4d"
-  license "GPL-2.0"
+  url "https://downloads.sourceforge.net/project/fuse-emulator/fuse/1.6.0/fuse-1.6.0.tar.gz"
+  sha256 "3a8fedf2ffe947c571561bac55a59adad4c59338f74e449b7e7a67d9ca047096"
+  license "GPL-2.0-or-later"
+  revision 1
 
   bottle do
-    sha256 "53310374faf051b906a38e8cabac72c9b68d1c671f1c33161dee0e4b44263e16" => :mojave
-    sha256 "007c73a4b5bd3a79b3fa49683e12672afdcc6456d0d89c53de672ec308741555" => :high_sierra
-    sha256 "f61e728e1a3bd5c89e8f9f887f15d5d18ab37cc0af6a857547eff7314d297305" => :sierra
+    sha256 arm64_monterey: "a27a5c880e711be90be247febe40f5a872c2a7cd5d3a569785cde244dfabf156"
+    sha256 arm64_big_sur:  "2e69fcb7757f40f65d29b4e7a62217d51c9735024906b91b5a4ccfd329836f66"
+    sha256 monterey:       "a1486ffb825291ba014642a71c54d6983d5a03a144721038f7db990698e115f7"
+    sha256 big_sur:        "b9bfc52e3eb1d8af025f6cc89c947ea15af0e77975ae53bf2dcef04f82d17f92"
+    sha256 catalina:       "f6ec30f9ee02d5a51a6c87d7a19f6b96d771585f8b881678f143fb82fa882e38"
+    sha256 x86_64_linux:   "6f86b83a89073ec0b21ab434b61cd82e87d1f32ca4232cc083a91bc021e1e7b6"
   end
 
   head do
@@ -18,10 +22,14 @@ class FuseEmulator < Formula
     depends_on "libtool" => :build
   end
 
+  deprecate! date: "2023-02-14", because: :unmaintained
+
   depends_on "pkg-config" => :build
   depends_on "libpng"
   depends_on "libspectrum"
-  depends_on "sdl"
+  depends_on "sdl12-compat"
+
+  uses_from_macos "libxml2"
 
   def install
     system "./autogen.sh" if build.head?

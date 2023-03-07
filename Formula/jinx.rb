@@ -1,19 +1,24 @@
 class Jinx < Formula
   desc "Embeddable scripting language for real-time applications"
   homepage "https://github.com/JamesBoer/Jinx"
-  url "https://github.com/JamesBoer/Jinx/archive/v1.1.8.tar.gz"
-  sha256 "9388305d55e61cfb41eae1b50b0144668d39eb512d40af83efdfbccc1ab8ad1a"
+  url "https://github.com/JamesBoer/Jinx/archive/v1.3.10.tar.gz"
+  sha256 "5b3a3e6c2c4b976dfdb16519aee7299c98dbf417b8179099a5509a5fd4d513ac"
   license "MIT"
-  head "https://github.com/JamesBoer/Jinx.git"
+  head "https://github.com/JamesBoer/Jinx.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "500008f0bcc3b8104cf661a23f0801d898699b4ceb811f4605025af28d5556c9" => :catalina
-    sha256 "146702c8621f915729d27b1ac04105e534a984e62532d7966a4252e412febcb0" => :mojave
-    sha256 "d091ec17ecfeba616bdf756768e8f1800a06d6dfbf1245979194d35f7a4b4039" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "76c5986afd50a5bbe9ee092ab25dfe8633ae63e1895b5ee90107f508a6297673"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "362834274bbb963b081203c47ece5ccbae44ab6959177d293f2d6af86b2063bf"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "2cc147cfcb7b0769a0570f011806266e8762eea26cc751fc49df4749f5e73de8"
+    sha256 cellar: :any_skip_relocation, ventura:        "6f9d56b84c16029fbec98ffe69d6fcf84e83effbeabde98cd2c3a553cbb366ff"
+    sha256 cellar: :any_skip_relocation, monterey:       "cafc3ac794c99f4e0a74380927681bd35eb465eb22d940a99cee23aae2f8ea61"
+    sha256 cellar: :any_skip_relocation, big_sur:        "eb75b3db57ce5a1349190419c5e1f7e880c74c0d0f8ae5485a708739358592ff"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "ca7c15cf146241f441cf37fd695dbae391da90bdb5cf6b3fcf7d3c1f05be2270"
   end
 
   depends_on "cmake" => :build
+
+  fails_with gcc: "5"
 
   def install
     # disable building tests

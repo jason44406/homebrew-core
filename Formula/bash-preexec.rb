@@ -1,12 +1,14 @@
 class BashPreexec < Formula
-  desc "Bash preexec and precmd functions (like Zsh)"
+  desc "Preexec and precmd functions for Bash (like Zsh)"
   homepage "https://github.com/rcaloras/bash-preexec"
-  url "https://github.com/rcaloras/bash-preexec/archive/0.4.0.tar.gz"
-  sha256 "6585301348800400983a8b09d43df8c343ea2d7d9e0222029961d75fb7754840"
+  url "https://github.com/rcaloras/bash-preexec/archive/0.5.0.tar.gz"
+  sha256 "23c589cd1da209c0598f92fac8d81bb11632ba1b2e68ccaf4ad2c4f3204b877c"
   license "MIT"
-  head "https://github.com/rcaloras/bash-preexec.git"
+  head "https://github.com/rcaloras/bash-preexec.git", branch: "master"
 
-  bottle :unneeded
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "bbc6178de7bf7f51abae6cba24f2a178efac44b00aa077cde3c5a2a4184a01b3"
+  end
 
   def install
     (prefix/"etc/profile.d").install "bash-preexec.sh"

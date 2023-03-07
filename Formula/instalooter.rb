@@ -5,16 +5,22 @@ class Instalooter < Formula
   homepage "https://github.com/althonos/instalooter"
   url "https://files.pythonhosted.org/packages/30/13/907e6aaba6280e1001080ab47e750068ffc5fb7174203985b3c9d678e3f2/instalooter-2.4.4.tar.gz"
   sha256 "fb9b4a948702361a161cc42e58857e3a6c9dafd9e22568b07bc0d0b09c3c34a9"
-  license "GPL-3.0"
+  license "GPL-3.0-or-later"
+  revision 3
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "0dd79c703d6348809dd3d2ad5af9cc78c73793df7a79659902499bd097d4053c" => :catalina
-    sha256 "6306aaebc9b021e81c5311247e5611f1936b187e3393a18fc4105ab9b64ea206" => :mojave
-    sha256 "085db0739c583a65fbdf72da04ad31e4187450b1cd51a44b4524d1c06524eb9d" => :high_sierra
+    rebuild 2
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "cad091558eb5bd1495501dbe9fb6669b5a3088cf9f20f6e442495b9b7aeace6f"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "9c8b6da2922c02e21f0613254e52e13d404bcc0c093244d25129bb38bc5a2be7"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "35873f81fdf70dcf619ce044f18ef7ae6a48d8817fe642267f8da6a22d0a0f87"
+    sha256 cellar: :any_skip_relocation, ventura:        "b6609bcc7bcc08a5962bfd8809ed70cb431580869d4c137ec62d996a4d6cb6d8"
+    sha256 cellar: :any_skip_relocation, monterey:       "7b400055f5c71f707e93959e80f215de2b90fc4ea342b705579c7ddffa30a7f5"
+    sha256 cellar: :any_skip_relocation, big_sur:        "d75ca6a5dd22ae2e15554c99d1a55d54774530ebf10d4c8cf872c1170465c0e4"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "cdeed01b88f0a29560bcc057bc8efa93961b9a15c83077d4e10e7d6345294fd9"
   end
 
-  depends_on "python@3.8"
+  depends_on "python@3.11"
+  depends_on "six"
 
   resource "appdirs" do
     url "https://files.pythonhosted.org/packages/d7/d8/05696357e0311f5b5c316d7b95f46c669dd9c15aaeecbb48c7d0aeb88c40/appdirs-1.4.4.tar.gz"
@@ -22,18 +28,18 @@ class Instalooter < Formula
   end
 
   resource "certifi" do
-    url "https://files.pythonhosted.org/packages/40/a7/ded59fa294b85ca206082306bba75469a38ea1c7d44ea7e1d64f5443d67a/certifi-2020.6.20.tar.gz"
-    sha256 "5930595817496dd21bb8dc35dad090f1c2cd0adfaf21204bf6732ca5d8ee34d3"
+    url "https://files.pythonhosted.org/packages/37/f7/2b1b0ec44fdc30a3d31dfebe52226be9ddc40cd6c0f34ffc8923ba423b69/certifi-2022.12.7.tar.gz"
+    sha256 "35824b4c3a97115964b408844d64aa14db1cc518f6562e8d7261699d1350a9e3"
   end
 
-  resource "chardet" do
-    url "https://files.pythonhosted.org/packages/fc/bb/a5768c230f9ddb03acc9ef3f0d4a3cf93462473795d18e9535498c8f929d/chardet-3.0.4.tar.gz"
-    sha256 "84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae"
+  resource "charset-normalizer" do
+    url "https://files.pythonhosted.org/packages/96/d7/1675d9089a1f4677df5eb29c3f8b064aa1e70c1251a0a8a127803158942d/charset-normalizer-3.0.1.tar.gz"
+    sha256 "ebea339af930f8ca5d7a699b921106c6e29c617fe9606fa7baa043c1cdae326f"
   end
 
   resource "coloredlogs" do
-    url "https://files.pythonhosted.org/packages/84/1b/1ecdd371fa68839cfbda15cc671d0f6c92d2c42688df995a9bf6e36f3511/coloredlogs-14.0.tar.gz"
-    sha256 "a1fab193d2053aa6c0a97608c4342d031f1f93a3d1218432c59322441d31a505"
+    url "https://files.pythonhosted.org/packages/5a/6d/1796dc260bfd8be7c9ecd9c17e02b5b2ad9ba310983cc4ceabc1ea4dbb42/coloredlogs-14.3.tar.gz"
+    sha256 "7ef1a7219870c7f02c218a2f2877ce68f2f8e087bb3a55bd6fbaa2a4362b4d52"
   end
 
   resource "docopt" do
@@ -42,53 +48,43 @@ class Instalooter < Formula
   end
 
   resource "fs" do
-    url "https://files.pythonhosted.org/packages/1d/a1/8813629b38a8d97e8f1eceb6c7da03b37633c93104fbd8e30e09d195425a/fs-2.4.11.tar.gz"
-    sha256 "cc99d476b500f993df8ef697b96dc70928ca2946a455c396a566efe021126767"
+    url "https://files.pythonhosted.org/packages/5d/a9/af5bfd5a92592c16cdae5c04f68187a309be8a146b528eac3c6e30edbad2/fs-2.4.16.tar.gz"
+    sha256 "ae97c7d51213f4b70b6a958292530289090de3a7e15841e108fbe144f069d313"
   end
 
   resource "humanfriendly" do
-    url "https://files.pythonhosted.org/packages/6c/19/8e3b4c6fa7cca4788817db398c05274d98ecc6a35e0eaad2846fde90c863/humanfriendly-8.2.tar.gz"
-    sha256 "bf52ec91244819c780341a3438d5d7b09f431d3f113a475147ac9b7b167a3d12"
+    url "https://files.pythonhosted.org/packages/cc/3f/2c29224acb2e2df4d2046e4c73ee2662023c58ff5b113c4c1adac0886c43/humanfriendly-10.0.tar.gz"
+    sha256 "6b0b831ce8f15f7300721aa49829fc4e83921a9a301cc7f606be6686a2288ddc"
   end
 
   resource "idna" do
-    url "https://files.pythonhosted.org/packages/ea/b7/e0e3c1c467636186c39925827be42f16fee389dc404ac29e930e9136be70/idna-2.10.tar.gz"
-    sha256 "b307872f855b18632ce0c21c5e45be78c0ea7ae4c15c828c20788b26921eb3f6"
+    url "https://files.pythonhosted.org/packages/8b/e1/43beb3d38dba6cb420cefa297822eac205a277ab43e5ba5d5c46faf96438/idna-3.4.tar.gz"
+    sha256 "814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4"
   end
 
   resource "python-dateutil" do
-    url "https://files.pythonhosted.org/packages/be/ed/5bbc91f03fa4c839c4c7360375da77f9659af5f7086b7a7bdda65771c8e0/python-dateutil-2.8.1.tar.gz"
-    sha256 "73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"
-  end
-
-  resource "pytz" do
-    url "https://files.pythonhosted.org/packages/f4/f6/94fee50f4d54f58637d4b9987a1b862aeb6cd969e73623e02c5c00755577/pytz-2020.1.tar.gz"
-    sha256 "c35965d010ce31b23eeb663ed3cc8c906275d6be1a34393a1d73a41febf4a048"
+    url "https://files.pythonhosted.org/packages/4c/c4/13b4776ea2d76c115c1d1b84579f3764ee6d57204f6be27119f13a61d0a9/python-dateutil-2.8.2.tar.gz"
+    sha256 "0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"
   end
 
   resource "requests" do
-    url "https://files.pythonhosted.org/packages/da/67/672b422d9daf07365259958912ba533a0ecab839d4084c487a5fe9a5405f/requests-2.24.0.tar.gz"
-    sha256 "b3559a131db72c33ee969480840fff4bb6dd111de7dd27c8ee1f820f4f00231b"
-  end
-
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/6b/34/415834bfdafca3c5f451532e8a8d9ba89a21c9743a0c59fbd0205c7f9426/six-1.15.0.tar.gz"
-    sha256 "30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"
+    url "https://files.pythonhosted.org/packages/9d/ee/391076f5937f0a8cdf5e53b701ffc91753e87b07d66bae4a09aa671897bf/requests-2.28.2.tar.gz"
+    sha256 "98b1b2782e3c6c4904938b84c0eb932721069dfdb9134313beff7c83c2df24bf"
   end
 
   resource "tenacity" do
-    url "https://files.pythonhosted.org/packages/a9/26/dfe61bbfbe7d723fe76ff41960c96161fd32ff303be88bbbdfb428250cd4/tenacity-6.2.0.tar.gz"
-    sha256 "29ae90e7faf488a8628432154bb34ace1cca58244c6ea399fd33f066ac71339a"
+    url "https://files.pythonhosted.org/packages/70/0c/47136795c8be87c7c30f28c9a56b59deb9550b2a1f5f3abb177daf5da1a3/tenacity-6.3.1.tar.gz"
+    sha256 "e14d191fb0a309b563904bbc336582efe2037de437e543b38da749769b544d7f"
   end
 
   resource "tqdm" do
-    url "https://files.pythonhosted.org/packages/71/6c/6530032ec26dddd47bb9e052781bcbbcaa560f05d10cdaf365ecb990d220/tqdm-4.48.0.tar.gz"
-    sha256 "6baa75a88582b1db6d34ce4690da5501d2a1cb65c34664840a456b2c9f794d29"
+    url "https://files.pythonhosted.org/packages/c1/c2/d8a40e5363fb01806870e444fc1d066282743292ff32a9da54af51ce36a2/tqdm-4.64.1.tar.gz"
+    sha256 "5f4f682a004951c1b450bc753c710e9280c5746ce6ffedee253ddbcbf54cf1e4"
   end
 
   resource "urllib3" do
-    url "https://files.pythonhosted.org/packages/05/8c/40cd6949373e23081b3ea20d5594ae523e681b6f472e600fbc95ed046a36/urllib3-1.25.9.tar.gz"
-    sha256 "3018294ebefce6572a474f0604c2021e33b3fd8006ecd11d62107a5d2a963527"
+    url "https://files.pythonhosted.org/packages/c5/52/fe421fb7364aa738b3506a2d99e4f3a56e079c0a798e9f4fa5e14c60922f/urllib3-1.26.14.tar.gz"
+    sha256 "076907bf8fd355cde77728471316625a4d2f7e713c125f51953bb5b3eecf4f72"
   end
 
   resource "verboselogs" do

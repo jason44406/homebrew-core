@@ -1,68 +1,75 @@
 class LibtorrentRasterbar < Formula
   desc "C++ bittorrent library with Python bindings"
   homepage "https://www.libtorrent.org/"
-  url "https://github.com/arvidn/libtorrent/releases/download/libtorrent-1.2.9/libtorrent-rasterbar-1.2.9.tar.gz"
-  sha256 "6c986225a1c2d9eb23c5b1ac0692d83208b721a05c968102a17ee3fde01bd709"
+  url "https://github.com/arvidn/libtorrent/releases/download/v2.0.8/libtorrent-rasterbar-2.0.8.tar.gz"
+  sha256 "09dd399b4477638cf140183f5f85d376abffb9c192bc2910002988e27d69e13e"
   license "BSD-3-Clause"
+  revision 2
+  head "https://github.com/arvidn/libtorrent.git", branch: "RC_2_0"
+
+  livecheck do
+    url :stable
+    regex(/^v?(\d+(?:[._]\d+)+)$/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "0e6895cc08dbd61dfa24beaa432285b23625c57a2630a7ae0a8ea88bd2b8ed57" => :catalina
-    sha256 "2f75ce87ec73177d32caff6f534f433614196884ebef8932b92a55b615097be8" => :mojave
-    sha256 "9b82b726e6b422bd00f8e6513f99d7e4df86731d4f119ba2abfeba770803002b" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "90e440fe5fa55291c9765e645833906103cc8375adc3e3b70c6d95b1aef11bb7"
+    sha256 cellar: :any,                 arm64_monterey: "e50606d0705530b6ef7c09e021e7696a5174966b729cb30c4a79a4d1e3f261d6"
+    sha256 cellar: :any,                 arm64_big_sur:  "8d2cb9917a3e77eef52e504db858ba677bcfa032d8648d75f0f4b91612b2dc7a"
+    sha256 cellar: :any,                 ventura:        "4a47b58565d58d79f895f6a2046e4c6f1ae155512289aa4c8597ae9f8e93c298"
+    sha256 cellar: :any,                 monterey:       "327d7149976cce2526be9c2063da421a590e4960872f9a273cdaaf8ab50ab216"
+    sha256 cellar: :any,                 big_sur:        "727b8fe235c2410885590a7d3cc1f75b27eedab9252d04bf6a38948dc13e50eb"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "4553a944cd871c7db3934aba1b15be13630d2849f3b7932c80203c1c35a5eca4"
   end
 
-  head do
-    url "https://github.com/arvidn/libtorrent.git"
-    depends_on "autoconf" => :build
-    depends_on "automake" => :build
-    depends_on "libtool" => :build
-  end
-
-  depends_on "pkg-config" => :build
+  depends_on "cmake" => :build
   depends_on "boost"
   depends_on "boost-python3"
   depends_on "openssl@1.1"
-  depends_on "python@3.8"
+  depends_on "python@3.11"
 
   conflicts_with "libtorrent-rakshasa", because: "they both use the same libname"
 
   def install
-    pyver = Language::Python.major_minor_version(Formula["python@3.8"].bin/"python3").to_s.delete(".")
     args = %W[
-      --disable-debug
-      --disable-dependency-tracking
-      --disable-silent-rules
-      --prefix=#{prefix}
-      --enable-encryption
-      --enable-python-binding
-      --with-boost=#{Formula["boost"].opt_prefix}
-      --with-boost-python=boost_python#{pyver}-mt
-      PYTHON=python3
-      PYTHON_EXTRA_LIBS=#{`#{Formula["python@3.8"].opt_bin}/python3-config --libs --embed`.chomp}
-      PYTHON_EXTRA_LDFLAGS=#{`#{Formula["python@3.8"].opt_bin}/python3-config --ldflags`.chomp}
+      -DCMAKE_CXX_STANDARD=14
+      -Dencryption=ON
+      -Dpython-bindings=ON
+      -Dpython-egg-info=ON
+      -DCMAKE_INSTALL_RPATH=#{lib}
     ]
 
-    if build.head?
-      system "./bootstrap.sh", *args
-    else
-      system "./configure", *args
-    end
-
-    system "make", "install"
-
-    rm Dir["examples/Makefile*"]
+    system "cmake", "-S", ".", "-B", "build", *std_cmake_args, *args
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
     libexec.install "examples"
   end
 
   test do
-    system ENV.cxx, "-std=c++11", "-I#{Formula["boost"].include}/boost",
-                    "-L#{lib}", "-ltorrent-rasterbar",
-                    "-L#{Formula["boost"].lib}", "-lboost_system",
-                    "-framework", "SystemConfiguration",
-                    "-framework", "CoreFoundation",
-                    libexec/"examples/make_torrent.cpp", "-o", "test"
+    args = [
+      "-I#{Formula["boost"].include}/boost",
+      "-L#{Formula["boost"].lib}",
+      "-I#{include}",
+      "-L#{lib}",
+      "-lpthread",
+      "-lboost_system",
+      "-ltorrent-rasterbar",
+    ]
+
+    if OS.mac?
+      args += [
+        "-framework",
+        "SystemConfiguration",
+        "-framework",
+        "CoreFoundation",
+      ]
+    end
+
+    system ENV.cxx, libexec/"examples/make_torrent.cpp",
+                    "-std=c++14", *args, "-o", "test"
     system "./test", test_fixtures("test.mp3"), "-o", "test.torrent"
     assert_predicate testpath/"test.torrent", :exist?
+
+    system "python3.11", "-c", "import libtorrent"
   end
 end

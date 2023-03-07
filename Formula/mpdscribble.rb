@@ -1,56 +1,59 @@
 class Mpdscribble < Formula
   desc "Last.fm reporting client for mpd"
   homepage "https://www.musicpd.org/clients/mpdscribble/"
-  url "https://www.musicpd.org/download/mpdscribble/0.22/mpdscribble-0.22.tar.gz"
-  sha256 "ff882d02bd830bdcbccfe3c3c9b0d32f4f98d9becdb68dc3135f7480465f1e38"
-  revision 2
+  url "https://www.musicpd.org/download/mpdscribble/0.24/mpdscribble-0.24.tar.xz"
+  sha256 "f6b4cba748b3b87e705270b4923c8e23e94c2e00fedd50beb1468dbe2fb2a8e7"
+  license "GPL-2.0-or-later"
 
-  bottle do
-    sha256 "d8e226d580e44da3f93849bfdd6065a356e9d0e2cf086c31cc4be273e3152980" => :catalina
-    sha256 "f6c7e1d2b4f6112ae2b0548e0571580f4f671789e81eb799efc92ac236cd2d0b" => :mojave
-    sha256 "68c6dcdc89b8cbdd8b8c5fea0822cfdb883874b390cb5a9a69192880a3b03838" => :high_sierra
-    sha256 "bfc893a2fe7e712bfc17f83aeb7e5f9cf46d260f3d5756cd499a6a6100c1feec" => :sierra
+  livecheck do
+    url :homepage
+    regex(/href=.*?mpdscribble[._-]v?(\d+(?:\.\d+)+)\.t/i)
   end
 
+  bottle do
+    sha256 arm64_ventura:  "ae57ca49a553d9b3c52d221c988fd7db50cb2b73a6bfa8770f40afe2072b7818"
+    sha256 arm64_monterey: "101f7677113534f4432b89ff1ca9cd9a9677a1ca15697cf876b7c430c6883b23"
+    sha256 arm64_big_sur:  "c473ded7b091401379daf8b14d076c7e4ea835e0da5915f689c10482e413fc55"
+    sha256 ventura:        "382070590073cb7a59e5ba786eb506a735ef2989b0351ebb9c620b555a967954"
+    sha256 monterey:       "7c8ac2c91c994368d5978770ceeb9f63960bec3b043b4b22538804268f1c0db8"
+    sha256 big_sur:        "fbd81b4642294a6d2362ee03d17315d20c3aefc8aa07731bc9ff01cf9134be96"
+    sha256 catalina:       "82a9465072feede3c7e85f39253901d2eaf2342bdff720ce0c0cf1245e9fafa8"
+    sha256 x86_64_linux:   "bfec788d81176ae3f6e668a741b95db6ed9765c1a27d07504e4e120538fe3df5"
+  end
+
+  depends_on "boost" => :build
+  depends_on "meson" => :build
+  depends_on "ninja" => :build
   depends_on "pkg-config" => :build
-  depends_on "glib"
+  depends_on "libgcrypt"
   depends_on "libmpdclient"
 
+  uses_from_macos "curl"
+
+  # build patch, remove in next release
+  patch do
+    url "https://github.com/MusicPlayerDaemon/mpdscribble/commit/0dbcea25c81f3fdc608f71ef71a9784679fee17f.patch?full_index=1"
+    sha256 "df312bf1b60c371d33c05a6d8c82fb10e702e5eea91ed0dbe5bcee7f4302f550"
+  end
+
   def install
-    system "./configure", "--prefix=#{prefix}", "--sysconfdir=#{etc}"
-    system "make", "install"
+    mkdir "build" do
+      system "meson", *std_meson_args, "--sysconfdir=#{etc}", ".."
+      system "ninja"
+      system "ninja", "install"
+    end
   end
 
   def caveats
     <<~EOS
-      The configuration file was placed in #{etc}/mpdscribble.conf
+      The configuration file has been placed in #{etc}/mpdscribble.conf.
     EOS
   end
 
-  plist_options manual: "mpdscribble"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-      <dict>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>WorkingDirectory</key>
-          <string>#{HOMEBREW_PREFIX}</string>
-          <key>ProgramArguments</key>
-          <array>
-              <string>#{opt_bin}/mpdscribble</string>
-              <string>--no-daemon</string>
-          </array>
-          <key>RunAtLoad</key>
-          <true/>
-          <key>KeepAlive</key>
-          <true/>
-      </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"mpdscribble", "--no-daemon"]
+    keep_alive true
+    working_dir HOMEBREW_PREFIX
   end
 
   test do

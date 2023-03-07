@@ -1,25 +1,42 @@
 class Gsoap < Formula
   desc "SOAP stub and skeleton compiler for C and C++"
   homepage "https://www.genivia.com/products.html"
-  url "https://downloads.sourceforge.net/project/gsoap2/gsoap-2.8/gsoap_2.8.106.zip"
-  sha256 "4e74838baf5437e95ae17aa3efb48bd0621f483bff4424f6255fcf327ff80765"
-  license any_of: ["GPL-2.0-or-later", "gSOAP-1.3b"]
+  url "https://downloads.sourceforge.net/project/gsoap2/gsoap_2.8.125.zip"
+  sha256 "d7f5c71bda7e032c1819b53daa7d8bb531f9275aee1851ccb9a89f27e29e300f"
+  # Parts of the software are alternatively licensed under gSOAP-1.3b, but this
+  # license is considered non-free by Debian and Fedora due to section 3.2:
+  #
+  # 3.2. Availability of Source Code.
+  # Any Modification created by You will be provided to the Initial Developer in
+  # Source Code form and are subject to the terms of the License.
+  #
+  # Ref: https://salsa.debian.org/ellert/gsoap/-/blob/master/debian/copyright#L7-26
+  license "GPL-2.0-or-later" => { with: "openvpn-openssl-exception" }
+
+  livecheck do
+    url :stable
+    regex(%r{url=.*?/gsoap[._-]v?(\d+(?:\.\d+)+)\.zip}i)
+  end
 
   bottle do
-    sha256 "155b8a6caafea00e17d03f713dc450359c37d7c193deff91a19c25a4045cb1da" => :catalina
-    sha256 "ade4c75fd5bc70122bb5925397161bd8dd4d39ea4bd3e30e7ca0ef8d0beef4aa" => :mojave
-    sha256 "b8c9ca987c521a6ce5513fb2c1617b137f47e3f061990bca7b88a196d1402be1" => :high_sierra
+    sha256 arm64_ventura:  "ad567dacc24fe56c847641ee12778a750f606142d7cb0909eb5cdb28e9dd74be"
+    sha256 arm64_monterey: "61bf675a7481497f9bcc7ce9ad0d902dc80f819498edb94cbdafd4f52d30b6a2"
+    sha256 arm64_big_sur:  "6f6298244fccb9cb0fc17ffd001a560ec1dfd607dee10ceaee343d84dfccb75e"
+    sha256 ventura:        "d1b3a80e867849b049ca8b617b977effa5e33a34fae0e30f926567288acd1ae5"
+    sha256 monterey:       "be56aaf5a9f8ebadf22c9cae37f4c6752948df8b46c676241d634fda6e7664aa"
+    sha256 big_sur:        "aefd17440ba3a368c7b16632f962ed68c34e62a8fa7ab7d025fce640b3e85c7f"
+    sha256 x86_64_linux:   "7530059c686521d89b7c19552efb6e48c9581fe4d80f3751b8bd9fa03309e4b3"
   end
 
   depends_on "autoconf" => :build
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
 
-  uses_from_macos "bison"
-  uses_from_macos "flex"
+  uses_from_macos "bison" => :build
+  uses_from_macos "flex" => :build
   uses_from_macos "zlib"
 
   def install
-    system "./configure", "--prefix=#{prefix}"
+    system "./configure", *std_configure_args, "--disable-silent-rules"
     system "make"
     system "make", "install"
   end

@@ -1,24 +1,37 @@
+require "language/perl"
+
 class Asciiquarium < Formula
+  include Language::Perl::Shebang
+
   desc "Aquarium animation in ASCII art"
   homepage "https://robobunny.com/projects/asciiquarium/html/"
   url "https://robobunny.com/projects/asciiquarium/asciiquarium_1.1.tar.gz"
   sha256 "1b08c6613525e75e87546f4e8984ab3b33f1e922080268c749f1777d56c9d361"
-  license "GPL-2.0"
-  revision 1
+  license "GPL-2.0-or-later"
+  revision 4
 
-  bottle do
-    cellar :any_skip_relocation
-    sha256 "9bf092861aad33c28e8f753d79032eb9af48521508dbee0a5ec6dc3646e6cc89" => :catalina
-    sha256 "7c9263400bd1045b998e5f48d34d79fa4df0e27daf5f9c49afb1ed283a39f537" => :mojave
-    sha256 "10d2a74f8e447c87fa477de74aa692a1d0043ab508e9a924126e0a3d55ffe5a7" => :high_sierra
-    sha256 "890b0e69b0261ff61b0d0666f2b3e0f579c1f63556c77c2d8d24bc1ef3f4e241" => :sierra
-    sha256 "9120f02b70c63672af2752de536aeaeac5ef57bc2b3a388afe1ab9e12d40a59b" => :el_capitan
-    sha256 "6b20abf264f40c7123e40f0f34cfc11f0c12a03b1a74a324e3f3a7ae75e94f3f" => :yosemite
+  livecheck do
+    url "https://robobunny.com/projects/asciiquarium/"
+    regex(/href=.*?asciiquarium[._-]v?(\d+(?:\.\d+)+)\.t/i)
   end
 
+  bottle do
+    sha256 cellar: :any,                 arm64_ventura:  "eaeef5f718e5346acce2ce6680d3970a3d8e7e7f6ee0ea0a4a58ca0e4b2d0c60"
+    sha256 cellar: :any,                 arm64_monterey: "bffaf8931358ce91194a050df4d70785d1675ae86a13abf16039a6633961e59c"
+    sha256 cellar: :any,                 arm64_big_sur:  "054f9401007de6e17d4ed642bb4c38490fcbf72713e6357b0269ee0f3e538e36"
+    sha256 cellar: :any,                 ventura:        "4d723f7505af54bf515aa127a673d5a700e1f04573214826b43f7fb323c7c816"
+    sha256 cellar: :any,                 monterey:       "6dd99c8969cd14a6ab694d9fc3df4ce29bd6b262aefc04af71714e26e081577b"
+    sha256 cellar: :any,                 big_sur:        "3328f27bbb4cecfb62236e12fcac7f0f101c21d3843533d9d687f1d8892ebe73"
+    sha256 cellar: :any,                 catalina:       "20b7a67f26033299553cbcc66e01f75510ee16f384d670a92546c282349865b2"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "5c6e8ffdf5b6f3578234c833129b28cdefe9055980c391ca069aa9d69c85f7dd"
+  end
+
+  depends_on "ncurses"
+  depends_on "perl"
+
   resource "Curses" do
-    url "https://cpan.metacpan.org/authors/id/G/GI/GIRAFFED/Curses-1.34.tar.gz"
-    sha256 "808e44d5946be265af5ff0b90f3d0802108e7d1b39b0fe68a4a446fe284d322b"
+    url "https://cpan.metacpan.org/authors/id/G/GI/GIRAFFED/Curses-1.37.tar.gz"
+    sha256 "74707ae3ad19b35bbefda2b1d6bd31f57b40cdac8ab872171c8714c88954db20"
   end
 
   resource "Term::Animation" do
@@ -40,7 +53,7 @@ class Asciiquarium < Formula
     # Disable dynamic selection of perl which may cause segfault when an
     # incompatible perl is picked up.
     # https://github.com/Homebrew/homebrew-core/issues/4936
-    inreplace "asciiquarium", "#!/usr/bin/env perl", "#!/usr/bin/perl"
+    rewrite_shebang detected_perl_shebang, "asciiquarium"
 
     chmod 0755, "asciiquarium"
     bin.install "asciiquarium"
@@ -48,6 +61,8 @@ class Asciiquarium < Formula
   end
 
   test do
+    return if OS.linux? && ENV["HOMEBREW_GITHUB_ACTIONS"]
+
     # This is difficult to test because:
     # - There are no command line switches that make the process exit
     # - The output is a constant stream of terminal control codes
@@ -60,10 +75,14 @@ class Asciiquarium < Formula
 
     require "pty"
     ENV["TERM"] = "xterm"
-    PTY.spawn(bin/"asciiquarium") do |stdin, _stdout, pid|
-      sleep 0.1
-      Process.kill "TERM", pid
-      output = stdin.read
+    PTY.spawn(bin/"asciiquarium") do |stdout, stdin, _pid|
+      sleep 1
+      stdin.write "q"
+      output = begin
+        stdout.gets
+      rescue Errno::EIO
+        nil
+      end
       assert_match "\e[?10", output[0..4]
     end
   end

@@ -6,7 +6,14 @@ class Kawa < Formula
   sha256 "dab1f41da968191fc68be856f133e3d02ce65d2dbd577a27e0490f18ca00fa22"
   revision 1
 
-  bottle :unneeded
+  livecheck do
+    url :stable
+    regex(/href=.*?kawa[._-]v?(\d+(?:\.\d+)+)\.(?:t|zip)/i)
+  end
+
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "4832b73db70b9b1c74289522820b9ba04c2eab1bf03285e4bfdfc76962c1123c"
+  end
 
   depends_on "openjdk"
 

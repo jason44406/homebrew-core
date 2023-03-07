@@ -1,39 +1,53 @@
 class Gucharmap < Formula
   desc "GNOME Character Map, based on the Unicode Character Database"
   homepage "https://wiki.gnome.org/Apps/Gucharmap"
-  url "https://download.gnome.org/sources/gucharmap/12.0/gucharmap-12.0.1.tar.xz"
-  sha256 "39de8aad9d7f0af33c29db1a89f645e76dad2fce00d1a0f7c8a689252a2c2155"
-  revision 3
+  url "https://gitlab.gnome.org/GNOME/gucharmap/-/archive/15.0.2/gucharmap-15.0.2.tar.bz2"
+  sha256 "ab7317cf111ebe2efe435a68c65d5866923ad2f8c256dff1089fe2ff474b8470"
+  license "GPL-3.0-or-later"
 
   bottle do
-    sha256 "732ed6b19cd29d595941397082369c61c35a4e960ca0b36e4dd306cc7a97b06e" => :catalina
-    sha256 "a01bf4f29277930ae3376a8d6a69c762d95ba0d1e2807af55f7ec8e3c41866cb" => :mojave
-    sha256 "9c3fbd03c494d4dfa3f126d070e033529aa71d1902674d1b70c1c2ccb73f5835" => :high_sierra
+    sha256 arm64_ventura:  "9b7d31351e1de102a14324471a47af88a6d2f9e3f7137f3629f51e537f4b0bf4"
+    sha256 arm64_monterey: "56036c11acc671e1ea64b6738c028c2f30e62f44d69c7486a4ee2c83ef79f4cc"
+    sha256 arm64_big_sur:  "c7fa054afb17f3d139a9448be6dbbcc838870595daf3b9c6d3e0417940d7fbc8"
+    sha256 ventura:        "8e80b0e5a5e7996cbd0b67fc15df8fc80ed91da30998f54d46e87fc625fbfa62"
+    sha256 monterey:       "6d545e0a772e7c38aa51375c7b5cf580624dffcd1ba3e4c630fe9e08854e1a67"
+    sha256 big_sur:        "3aaad8a75f07cc45f5c04a9a38f4a5a7127978d561409dedb0c168e5d65c21e2"
+    sha256 x86_64_linux:   "dbaedbda536b85bae704fa15f3d71a2f6bee406ecec19b7e243ccd456aacfb33"
   end
 
-  depends_on "coreutils" => :build
   depends_on "desktop-file-utils" => :build
-  depends_on "intltool" => :build
+  depends_on "gobject-introspection" => :build
+  depends_on "gtk-doc" => :build
   depends_on "itstool" => :build
+  depends_on "meson" => :build
+  depends_on "ninja" => :build
   depends_on "pkg-config" => :build
-  depends_on "python@3.8" => :build
+  depends_on "vala" => :build
   depends_on "gtk+3"
 
-  def install
-    xy = Language::Python.major_minor_version Formula["python@3.8"].opt_bin/"python3"
-    ENV.append_path "PYTHONPATH", "#{Formula["libxml2"].opt_lib}/python#{xy}/site-packages"
-    ENV["WGET"] = "curl"
+  resource "ucd" do
+    url "https://www.unicode.org/Public/15.0.0/ucd/UCD.zip"
+    sha256 "5fbde400f3e687d25cc9b0a8d30d7619e76cb2f4c3e85ba9df8ec1312cb6718c"
+  end
 
-    system "./configure", "--disable-debug",
-                          "--disable-dependency-tracking",
-                          "--disable-silent-rules",
-                          "--prefix=#{prefix}",
-                          "--disable-Bsymbolic",
-                          "--disable-schemas-compile",
-                          "--enable-introspection=no",
-                          "--with-unicode-data=download"
-    system "make", "WGETFLAGS=--remote-name --remote-time --connect-timeout 30 --retry 8"
-    system "make", "install"
+  resource "unihan" do
+    url "https://www.unicode.org/Public/15.0.0/ucd/Unihan.zip", using: :nounzip
+    sha256 "24b154691fc97cb44267b925d62064297086b3f896b57a8181c7b6d42702a026"
+  end
+
+  def install
+    ENV["DESTDIR"] = "/"
+    ENV["XML_CATALOG_FILES"] = etc/"xml/catalog"
+
+    (buildpath/"unicode").install resource("ucd")
+    (buildpath/"unicode").install resource("unihan")
+
+    # ERROR: Assert failed: -Wl,-Bsymbolic-functions is required but not supported
+    inreplace "meson.build", "'-Wl,-Bsymbolic-functions'", "" if OS.mac?
+
+    system "meson", *std_meson_args, "build", "-Ducd_path=#{buildpath}/unicode"
+    system "meson", "compile", "-C", "build", "--verbose"
+    system "meson", "install", "-C", "build"
   end
 
   def post_install

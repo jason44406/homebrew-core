@@ -1,52 +1,33 @@
 class Makedepend < Formula
   desc "Creates dependencies in makefiles"
   homepage "https://x.org/"
-  url "https://xorg.freedesktop.org/releases/individual/util/makedepend-1.0.6.tar.bz2"
-  sha256 "d558a52e8017d984ee59596a9582c8d699a1962391b632bec3bb6804bf4d501c"
+  url "https://xorg.freedesktop.org/releases/individual/util/makedepend-1.0.8.tar.xz"
+  sha256 "bfb26f8025189b2a01286ce6daacc2af8fe647440b40bb741dd5c397572cba5b"
   license "MIT"
 
+  livecheck do
+    url "https://xorg.freedesktop.org/releases/individual/util/"
+    regex(/href=.*?makedepend[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
+
   bottle do
-    cellar :any_skip_relocation
-    sha256 "afe76789b5f01ccfee8cc0d4ffa308015fb5d8791a1d7ce6b2dc1ee4bf2a020f" => :catalina
-    sha256 "a25fb9fd3ce11f6b98da2c53fad8f046174697087f5f34664999afb9df5f41de" => :mojave
-    sha256 "0f463e197923867ff9387b2ccd1461d4b410e89205bd3896ae98c5d52679c4c8" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "e14418de0a98957bcce5796f8952e41e1409f4b13125a80cb133056b7d8a4acc"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "66b45de376ee39540d5c05b58e79b4027a5bc038eb6c42785eb6527220261f1e"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "8ea9ff3be2137147d46691a4a7d25411c73121f53d4dadd5041759899b17a389"
+    sha256 cellar: :any_skip_relocation, ventura:        "fe25334cf2b74dc002395e9cfd76e95445f4496b2870287dbac688f04389224d"
+    sha256 cellar: :any_skip_relocation, monterey:       "d31ab18614d72efef3aab19db9e81a6b353064a389cd49404a72ee10f7949a45"
+    sha256 cellar: :any_skip_relocation, big_sur:        "88938e80fd01b90be05a3bfde77946d8392bc9a065a69d22e0723d7db18d329c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "a9b80b1ecd86eb7852026c657475fb738407db7ced7c015ea74300685dbfbd98"
   end
 
   depends_on "pkg-config" => :build
-
-  resource "xproto" do
-    url "https://xorg.freedesktop.org/releases/individual/proto/xproto-7.0.31.tar.gz"
-    mirror "http://xorg.mirrors.pair.com/individual/proto/xproto-7.0.31.tar.gz"
-    sha256 "6d755eaae27b45c5cc75529a12855fed5de5969b367ed05003944cf901ed43c7"
-  end
-
-  resource "xorg-macros" do
-    url "https://xorg.freedesktop.org/releases/individual/util/util-macros-1.19.2.tar.bz2"
-    mirror "http://xorg.mirrors.pair.com/individual/util/util-macros-1.19.2.tar.bz2"
-    sha256 "d7e43376ad220411499a79735020f9d145fdc159284867e99467e0d771f3e712"
-  end
+  depends_on "util-macros"
+  depends_on "xorgproto"
 
   def install
-    resource("xproto").stage do
-      system "./configure", "--disable-dependency-tracking",
-                            "--disable-silent-rules",
-                            "--prefix=#{buildpath}/xproto"
-
-      # https://github.com/spack/spack/issues/4805#issuecomment-316130729 build fix for xproto
-      ENV.deparallelize { system "make", "install" }
-    end
-
-    resource("xorg-macros").stage do
-      system "./configure", "--prefix=#{buildpath}/xorg-macros"
-      system "make", "install"
-    end
-
-    ENV.append_path "PKG_CONFIG_PATH", "#{buildpath}/xproto/lib/pkgconfig"
-    ENV.append_path "PKG_CONFIG_PATH", "#{buildpath}/xorg-macros/share/pkgconfig"
-
     system "./configure", "--disable-dependency-tracking",
                           "--disable-silent-rules",
-                          "--prefix=#{prefix}"
+                          *std_configure_args
     system "make", "install"
   end
 

@@ -1,16 +1,19 @@
 class Ola < Formula
   desc "Open Lighting Architecture for lighting control information"
   homepage "https://www.openlighting.org/ola/"
-  url "https://github.com/OpenLightingProject/ola/releases/download/0.10.7/ola-0.10.7.tar.gz"
-  sha256 "8a65242d95e0622a3553df498e0db323a13e99eeb1accc63a8a2ca8913ab31a0"
-  license "GPL-2.0"
-  revision 4
-  head "https://github.com/OpenLightingProject/ola.git"
+  url "https://github.com/OpenLightingProject/ola/releases/download/0.10.9/ola-0.10.9.tar.gz"
+  sha256 "44073698c147fe641507398253c2e52ff8dc7eac8606cbf286c29f37939a4ebf"
+  license all_of: ["GPL-2.0-or-later", "LGPL-2.1-or-later"]
+  head "https://github.com/OpenLightingProject/ola.git", branch: "master"
 
   bottle do
-    sha256 "350f7200c8bf51cc0d71e6088142a14104b4574f1968faa61acf3a0fa56ac267" => :catalina
-    sha256 "56e441f86ce6fc1a13281ceed57d02083704f68a5cbae19df80ac96e9f685f2e" => :mojave
-    sha256 "27661bfe7dcc570ba2eee7fc92be48c8bb740daed4aa4e7a4dfda395a141c99f" => :high_sierra
+    sha256 arm64_ventura:  "088b059188475214389d952efb6c53c52ecbf09765e7bb9a861bd45bd60c4a33"
+    sha256 arm64_monterey: "dfac4651c419b77a336a1c54703d273556ce977942bd78fdc4a51e4c1d354a07"
+    sha256 arm64_big_sur:  "094361072bfbc2edaf6180c1d4bc679096bfefd38562a02a301176510f6f329d"
+    sha256 ventura:        "ffed4857b650f63697aae34fe23bbb11d9334b5787d1d2dbad430eae0abd639f"
+    sha256 monterey:       "872aa05d050ab475bffe9f4e3f5188cc7bab102804149bc8f4edde254ca99dd3"
+    sha256 big_sur:        "4a5fef50aaf6ff9ae879e748c7adc4281c5df248dabc3f9aef925286570b909f"
+    sha256 x86_64_linux:   "1bfba400da5d6a62cab3685d8f99aec29794a616fb413c26a1eb4d95547db195"
   end
 
   depends_on "autoconf" => :build
@@ -21,37 +24,39 @@ class Ola < Formula
   depends_on "libmicrohttpd"
   depends_on "libusb"
   depends_on "numpy"
-  depends_on "protobuf@3.6"
-  depends_on "python@3.8"
+  depends_on "protobuf"
+  depends_on "python@3.11"
 
-  # remove in version 0.11
-  patch do
-    url "https://raw.githubusercontent.com/macports/macports-ports/89b697d200c7112839e8f2472cd2ff8dfa6509de/net/ola/files/patch-protobuf3.diff"
-    sha256 "bbbcb5952b0bdcd01083cef92b72a747d3adbe7ca9e50d865a0c69ae31a8fb4a"
+  uses_from_macos "bison" => :build
+  uses_from_macos "flex" => :build
+
+  def python3
+    "python3.11"
   end
 
   def install
-    xy = Language::Python.major_minor_version Formula["python@3.8"].bin/"python3"
-    protobuf_pth = Formula["protobuf@3.6"].opt_lib/"python#{xy}/site-packages/homebrew-protobuf.pth"
-    (buildpath/".brew_home/Library/Python/#{xy}/lib/python/site-packages").install_symlink protobuf_pth
+    # https://github.com/Homebrew/homebrew-core/pull/123791
+    # remove when the above PR is merged
+    ENV.append_to_cflags "-DNDEBUG"
 
     args = %W[
       --disable-fatal-warnings
-      --disable-dependency-tracking
       --disable-silent-rules
-      --prefix=#{prefix}
       --disable-unittests
       --enable-python-libs
       --enable-rdm-tests
+      --with-python_prefix=#{prefix}
+      --with-python_exec_prefix=#{prefix}
     ]
 
-    ENV["PYTHON"] = Formula["python@3.8"].bin/"python3"
-    system "autoreconf", "-fvi"
-    system "./configure", *args
+    ENV["PYTHON"] = python3
+    system "autoreconf", "--force", "--install", "--verbose"
+    system "./configure", *std_configure_args, *args
     system "make", "install"
   end
 
   test do
-    system bin/"ola_plugin_info"
+    system bin/"ola_plugin_state", "-h"
+    system python3, "-c", "from ola.ClientWrapper import ClientWrapper"
   end
 end

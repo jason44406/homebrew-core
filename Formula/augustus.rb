@@ -1,52 +1,43 @@
 class Augustus < Formula
   desc "Predict genes in eukaryotic genomic sequences"
   homepage "https://bioinf.uni-greifswald.de/augustus/"
-  url "https://github.com/Gaius-Augustus/Augustus/releases/download/v3.3.3/augustus-3.3.3.tar.gz"
-  sha256 "4cc4d32074b18a8b7f853ebaa7c9bef80083b38277f8afb4d33c755be66b7140"
+  url "https://github.com/Gaius-Augustus/Augustus/archive/refs/tags/v3.5.0.tar.gz"
+  sha256 "5ed6ce6106303b800c5e91d37a250baff43b20824657b853ae04d11ad8bdd686"
   license "Artistic-1.0"
-  revision 1
-  head "https://github.com/Gaius-Augustus/Augustus.git"
+  revision 2
+  head "https://github.com/Gaius-Augustus/Augustus.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "9e6fc1d57f48cf314fa418059a9d619a8451d7e65ed8234225e52f311673cf6d" => :catalina
-    sha256 "476eeca3de3f98c4e539cee89078a3f37f667ae7f47ef375115439154bc23e3c" => :mojave
-    sha256 "b5077e94d1ee68864ed0d89bfc892ad80dcd37b89e149b23733bd9280d54771b" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "c8a40d5edb2642c2df7d5e93db9305fc0404ba6525ce224db40ea6bafe3ed5d7"
+    sha256 cellar: :any,                 arm64_monterey: "07ff9bfa13f2f557ddefe6b1888b3034e8bec8e7285cdc6f04dabe430dbb5c33"
+    sha256 cellar: :any,                 arm64_big_sur:  "c092fa44baaa1dde2158195dbd7614339af1f8963bcefd288cf716d36a99fd55"
+    sha256 cellar: :any,                 ventura:        "1b560cc1a8133bb39ae900d5240fb9ca740a2c6a8a113024a3ddf87b54212a3b"
+    sha256 cellar: :any,                 monterey:       "90d53a60c52ca92a27b8c8bef3084578e6b221817cd64d69de1a0704bcb3e848"
+    sha256 cellar: :any,                 big_sur:        "fc23a4198593359283bf2ae522d9cf6e750690c167e483a91eb441a988773e43"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "f7618e6d6dee6fb77f0f71bc59ef3ada03bbae0fc4aab7cb25f15c1c0c84b348"
   end
 
-  depends_on "boost" => :build
   depends_on "bamtools"
-  depends_on "gcc"
+  depends_on "boost"
+  depends_on "htslib"
+
+  uses_from_macos "python" => :build, since: :catalina
+  uses_from_macos "zlib"
 
   def install
-    # Avoid "fatal error: 'sam.h' file not found" by not building bam2wig
-    inreplace "auxprogs/Makefile", "cd bam2wig; make;", "#cd bam2wig; make;"
-
-    # Fix error: api/BamReader.h: No such file or directory
-    inreplace "auxprogs/bam2hints/Makefile",
-      "INCLUDES = /usr/include/bamtools",
-      "INCLUDES = #{Formula["bamtools"].include/"bamtools"}"
-    inreplace "auxprogs/filterBam/src/Makefile",
-      "BAMTOOLS = /usr/include/bamtools",
-      "BAMTOOLS= #{Formula["bamtools"].include/"bamtools"}"
-
-    # Prevent symlinking into /usr/local/bin/
-    inreplace "Makefile", %r{ln -sf.*/usr/local/bin/}, "#ln -sf"
-
     # Compile executables for macOS. Tarball ships with executables for Linux.
     system "make", "clean"
 
-    # Clang breaks proteinprofile on macOS. This issue has been first reported
-    # to upstream in 2016 (see https://github.com/nextgenusfs/funannotate/issues/3).
-    # See also https://github.com/Gaius-Augustus/Augustus/issues/64
-    cd "src" do
-      with_env("HOMEBREW_CC" => Formula["gcc"].opt_bin/"gcc-#{Formula["gcc"].installed_version.major}") do
-        system "make"
-      end
-    end
+    system "make", "COMPGENEPRED=false",
+                   "INCLUDE_PATH_BAMTOOLS=-I#{Formula["bamtools"].opt_include}/bamtools",
+                   "LIBRARY_PATH_BAMTOOLS=-L#{Formula["bamtools"].opt_lib}",
+                   "INCLUDE_PATH_HTSLIB=-I#{Formula["htslib"].opt_include}/htslib",
+                   "LIBRARY_PATH_HTSLIB=-L#{Formula["htslib"].opt_lib}"
 
-    system "make"
-    system "make", "install", "INSTALLDIR=#{prefix}"
+    # Set PREFIX to prevent symlinking into /usr/local/bin/
+    (buildpath/"tmp/bin").mkpath
+    system "make", "install", "INSTALLDIR=#{prefix}", "PREFIX=#{buildpath}/tmp"
+
     bin.env_script_all_files libexec/"bin", AUGUSTUS_CONFIG_PATH: prefix/"config"
     pkgshare.install "examples"
   end

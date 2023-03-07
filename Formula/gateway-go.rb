@@ -2,23 +2,41 @@ class GatewayGo < Formula
   desc "GateWay Client for OpenIoTHub"
   homepage "https://github.com/OpenIoTHub"
   url "https://github.com/OpenIoTHub/gateway-go.git",
-      tag:      "v0.1.84",
-      revision: "02671c3c79f0eb2e9b665ed8d80d3ceb0481a438"
+      tag:      "v0.2.1",
+      revision: "a11b5bb2f7a39846510a82b54b7d7f0cb376c8cc"
   license "MIT"
+  head "https://github.com/OpenIoTHub/gateway-go.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "0b7bf2719a4ff53b18b34299676ff6922ad197acf4d9b8e8e36354b44e59681d" => :catalina
-    sha256 "dbad229c58f27b9391ce8b8669344f94949299131c871bf2562e709801391e3c" => :mojave
-    sha256 "83ce4a71613655910ffdaa775a35c9cb2e7da7774e2bd7628300e5fcd0d18510" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "a2589fb8c9d62f5d0c0461e2a1d97f5faa59b16d4b1e6cbf19ee8629bff374ea"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "a30b9b9d633124d60f8740c95751313cc9c87bb450995ee600f4c681cec48663"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "1289511baccbc884e1c79e92e30445a305651485dd2cb1a8b6242ac6b38844ee"
+    sha256 cellar: :any_skip_relocation, ventura:        "ee66e8b2772e8912f6c5ce097dc2f6067487542f779bfa256fa107446d7cb616"
+    sha256 cellar: :any_skip_relocation, monterey:       "b96d40dd009bfaa5ecd74824fe860322cf854ec78d9c2abfc9da82d73212d1f7"
+    sha256 cellar: :any_skip_relocation, big_sur:        "e8fce6b06613433741f6a8c2c5bcb9c89afc5498de24c35c89a7a1b4747c4a84"
+    sha256 cellar: :any_skip_relocation, catalina:       "7b229dc97e840c50f850831492dd54fe20f1bbf76ab124559a0eedbc58f66847"
+    sha256 cellar: :any_skip_relocation, mojave:         "e054ab5529e2bf8dff5537da85d8eb43c550894614e8e59968c235b0b5589b82"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "81394624d4f5bf2a35f565dfa9342f49badf78495b124d0a6ad14103f581050c"
   end
 
   depends_on "go" => :build
 
   def install
-    system "go", "build", "-mod=vendor", "-ldflags",
-             "-s -w -X main.version=#{version} -X main.commit=#{stable.specs[:revision]} -X main.builtBy=homebrew",
-             *std_go_args
+    ldflags = %W[
+      -s -w
+      -X main.version=#{version}
+      -X main.commit=#{Utils.git_head}
+      -X main.builtBy=homebrew
+    ]
+    system "go", "build", "-mod=vendor", *std_go_args(ldflags: ldflags)
+    (etc/"gateway-go").install "gateway-go.yaml"
+  end
+
+  service do
+    run [opt_bin/"gateway-go", "-c", etc/"gateway-go.yaml"]
+    keep_alive true
+    error_log_path var/"log/gateway-go.log"
+    log_path var/"log/gateway-go.log"
   end
 
   test do

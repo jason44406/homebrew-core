@@ -1,16 +1,25 @@
 class Wapm < Formula
   desc "WebAssembly Package Manager (CLI)"
   homepage "https://wapm.io/"
-  url "https://github.com/wasmerio/wapm-cli/archive/v0.5.0.tar.gz"
-  sha256 "7731d476585105fbb0ac5766661b4b68f1680b7071635654042bdaeef3b66987"
+  url "https://github.com/wasmerio/wapm-cli/archive/v0.5.9.tar.gz"
+  sha256 "67f98e7e584ee05b53a70e19624ca73538aef28f46e1bb31c49262ba0e00a2ec"
   license "MIT"
-  head "https://github.com/wasmerio/wapm-cli.git"
+  head "https://github.com/wasmerio/wapm-cli.git", branch: "master"
+
+  livecheck do
+    url :stable
+    strategy :github_latest
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "4f1c18ce08a6f4a483a50888ad9769898a203bd826b992f877010f38a80ca710" => :catalina
-    sha256 "db34bd4d679207ae7d903a4beada8e30e3568f16c55fd610a196931c440716ef" => :mojave
-    sha256 "70e4c8f038838547a2e70116567c1042f2f4cec53542e0750d4d061f80dc7b23" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "8b08738bc1b9beda9d2a865bff6cafe3fa4216bf96c9252c35646718f5f1607d"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "ff4e64b42f0dc537ce9ff5dfc463af0adda2fe75526eee5d42da45484747646c"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "572c1d1a4ad8b4a56affef4ef40085b875f9f655f439fecd249f620b1b632caf"
+    sha256 cellar: :any_skip_relocation, ventura:        "5478c5f66e9b93bc517fbd617131457369af4db06a3adacd5154fe1f4866c07f"
+    sha256 cellar: :any_skip_relocation, monterey:       "d8ac65e18e12300294d391210f8944fdf3a21a2580c1e633f4399085f6c98780"
+    sha256 cellar: :any_skip_relocation, big_sur:        "429a76f2db523702a2c6ce40c0f0e4562f0756e22882680b2e7e6e94e2f2a675"
+    sha256 cellar: :any_skip_relocation, catalina:       "d164b8af6b8a005697c6795e9c53df98200fb1b6cdc103ecce68dd69b135525c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "f7ee08cb75bf71add9b45bd1df5b65b605ac8d667349e745948cc8dcb089721e"
   end
 
   depends_on "rust" => :build
@@ -26,7 +35,7 @@ class Wapm < Formula
     Dir.mkdir ENV["WASMER_DIR"]
     Dir.mkdir ENV["WASMER_CACHE_DIR"]
 
-    system "#{bin}/wapm", "install", "cowsay"
+    system bin/"wapm", "install", "cowsay"
 
     expected_output = <<~'EOF'
        _____________

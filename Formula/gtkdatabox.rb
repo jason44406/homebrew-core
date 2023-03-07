@@ -1,19 +1,24 @@
 class Gtkdatabox < Formula
   desc "Widget for live display of large amounts of changing data"
   homepage "https://sourceforge.net/projects/gtkdatabox/"
-  url "https://downloads.sourceforge.net/project/gtkdatabox/gtkdatabox/0.9.3.1/gtkdatabox-0.9.3.1.tar.gz"
-  sha256 "d04938d969d5458bd0df1b4fa22f647fb2eeeef75555a71f967e6c039fb4bde5"
-  license "LGPL-2.1"
+  url "https://downloads.sourceforge.net/project/gtkdatabox/gtkdatabox-1/gtkdatabox-1.0.0.tar.gz"
+  sha256 "8bee70206494a422ecfec9a88d32d914c50bb7a0c0e8fedc4512f5154aa9d3e3"
+  license "LGPL-2.1-or-later"
 
   bottle do
-    cellar :any
-    sha256 "e85124ef7180c8803f8700e9269a47d3b5841c1cdace25e6914a50a0b7389dd1" => :catalina
-    sha256 "bfb185bdad65010d94e7ec0d343f11dafb0135adecf0480a43b705a54b062ff1" => :mojave
-    sha256 "f0b09b52354b68f4bc4e2d01dcd970f5f5f6f549141dd75af3734a9b3c1f0b2f" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "b2ebe0189a75ed8bc48c6eee421cd63b42fc0a7792a78c3783ae1ba2acaa4ad2"
+    sha256 cellar: :any,                 arm64_monterey: "af11118be54316daf2c684ab1ed515c1150e151bc58ae7d59e4c9afcb40c5180"
+    sha256 cellar: :any,                 arm64_big_sur:  "23e28de98208139a408ecdca12fbe9a7008bbbbca2929a4cc7a85b29bf57edf6"
+    sha256 cellar: :any,                 ventura:        "91b73d901896ec24e2297a1290de34bb3699784fda2f28796bc8a7c8c95e5983"
+    sha256 cellar: :any,                 monterey:       "f123f4e93272456caacfad30ae63252ea51001a0f5b2838f147c337ee6e2bf92"
+    sha256 cellar: :any,                 big_sur:        "534fd2192131f7d6a3b07e75bc02e1f184996f3bcadc01ef396cad541946f518"
+    sha256 cellar: :any,                 catalina:       "c9dc8748b00eddcc57d4d006c1f36bec576b4180bcd33458766e6c17d029c47b"
+    sha256 cellar: :any,                 mojave:         "7bd730c346c35c5a87d693e4c9bb4f87ae38031204bed90391027ad18c2786be"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "15a45c4557baf53c2ad7131bb167ad88ca2d9521e51bf738fb4ec35f23750eda"
   end
 
   depends_on "pkg-config" => :build
-  depends_on "gtk+"
+  depends_on "gtk+3"
 
   def install
     system "./configure", "--disable-dependency-tracking",
@@ -26,6 +31,7 @@ class Gtkdatabox < Formula
       #include <gtkdatabox.h>
 
       int main(int argc, char *argv[]) {
+        gtk_init(&argc, &argv);
         GtkWidget *db = gtk_databox_new();
         return 0;
       }
@@ -37,7 +43,7 @@ class Gtkdatabox < Formula
     gdk_pixbuf = Formula["gdk-pixbuf"]
     gettext = Formula["gettext"]
     glib = Formula["glib"]
-    gtkx = Formula["gtk+"]
+    gtkx = Formula["gtk+3"]
     harfbuzz = Formula["harfbuzz"]
     libpng = Formula["libpng"]
     pango = Formula["pango"]
@@ -51,8 +57,8 @@ class Gtkdatabox < Formula
       -I#{gettext.opt_include}
       -I#{glib.opt_include}/glib-2.0
       -I#{glib.opt_lib}/glib-2.0/include
-      -I#{gtkx.opt_include}/gtk-2.0
-      -I#{gtkx.opt_lib}/gtk-2.0/include
+      -I#{gtkx.opt_include}/gtk-3.0
+      -I#{gtkx.opt_lib}/gtk-3.0/include
       -I#{harfbuzz.opt_include}/harfbuzz
       -I#{include}
       -I#{libpng.opt_include}/libpng16
@@ -69,18 +75,19 @@ class Gtkdatabox < Formula
       -L#{pango.opt_lib}
       -latk-1.0
       -lcairo
-      -lgdk-quartz-2.0
+      -lgdk-3
       -lgdk_pixbuf-2.0
       -lgio-2.0
       -lglib-2.0
       -lgobject-2.0
-      -lgtk-quartz-2.0
+      -lgtk-3
       -lgtkdatabox
-      -lintl
       -lpango-1.0
       -lpangocairo-1.0
     ]
+    flags << "-lintl" if OS.mac?
     system ENV.cc, "test.c", "-o", "test", *flags
-    system "./test"
+    # Disable this part of test on Linux because display is not available.
+    system "./test" if OS.mac?
   end
 end

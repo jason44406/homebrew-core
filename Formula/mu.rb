@@ -1,46 +1,58 @@
-# Note that odd release numbers indicate unstable releases.
+# NOTE: Odd release numbers indicate unstable releases.
 # Please only submit PRs for [x.even.x] version numbers:
 # https://github.com/djcb/mu/commit/23f4a64bdcdee3f9956a39b9a5a4fd0c5c2370ba
 class Mu < Formula
   desc "Tool for searching e-mail messages stored in the maildir-format"
   homepage "https://www.djcbsoftware.nl/code/mu/"
-  url "https://github.com/djcb/mu/archive/1.4.13.tar.gz"
-  sha256 "8856465501dccd9101eda1a29bedada010e6ff828c9d922f1abe86b152a2741b"
+  url "https://github.com/djcb/mu/releases/download/v1.8.14/mu-1.8.14.tar.xz"
+  sha256 "1a9c5e15b5e8b67622f7e58dfadd453abf232c0b715bd5f89b955e704455219c"
   license "GPL-3.0-or-later"
+  head "https://github.com/djcb/mu.git", branch: "master"
+
+  # We restrict matching to versions with an even-numbered minor version number,
+  # as an odd-numbered minor version number indicates a development version:
+  # https://github.com/djcb/mu/commit/23f4a64bdcdee3f9956a39b9a5a4fd0c5c2370ba
+  livecheck do
+    url :stable
+    regex(/^v?(\d+\.\d*[02468](?:\.\d+)*)$/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "c2db643c69aaae50c5127dafd2018de2239c344c2b3a1cacb80cdb77d3710469" => :catalina
-    sha256 "c547ba5d0d7272e92a75c0c4476979b4e56066c6e1c5b98eff408bc5f87f7d8a" => :mojave
-    sha256 "a7f8c294053aa05cfe1942361471f4f27cf0c2631940952d44ebe1c6455adab0" => :high_sierra
+    sha256 arm64_ventura:  "a7374671eb123ef221ad1df86dba8b3fd9ad7d10e048f439245b88240ae15676"
+    sha256 arm64_monterey: "aff9b01cee886de6fbe057aa2fe33aead281911496a65f58e254586f04766912"
+    sha256 arm64_big_sur:  "88e297752713b5922ee0d4fe819677bbf2c1d787cf27ec90bbdfbeca7d402e6a"
+    sha256 ventura:        "ffcd38352e528ccae36b058d630a79e0240626a8d76ee3535bbdefbd90b69306"
+    sha256 monterey:       "5abf4fafe115819cf9a22bac48b7307157561c06e237d389af2bdd590e06dff4"
+    sha256 big_sur:        "252ae563cb147d3cbcdfb3cb4ba84b2febb0a4ebefd567ae449f2215a31fed5c"
+    sha256 x86_64_linux:   "07366478a9a8b5c3f328e73837f1c7dcf213a73a5c28ebd74d316378b6747dc2"
   end
 
-  head do
-    url "https://github.com/djcb/mu.git"
-
-    depends_on "autoconf-archive" => :build
-  end
-
-  depends_on "autoconf" => :build
-  depends_on "automake" => :build
   depends_on "emacs" => :build
   depends_on "libgpg-error" => :build
   depends_on "libtool" => :build
+  depends_on "meson" => :build
+  depends_on "ninja" => :build
   depends_on "pkg-config" => :build
   depends_on "gettext"
   depends_on "glib"
   depends_on "gmime"
+  depends_on "guile" # Possible opportunistic linkage. TODO: Check if this can be removed.
   depends_on "xapian"
 
-  uses_from_macos "texinfo" => :build
+  on_system :linux, macos: :ventura_or_newer do
+    depends_on "texinfo" => :build
+  end
+
+  conflicts_with "mu-repo", because: "both install `mu` binaries"
+
+  fails_with gcc: "5"
 
   def install
-    system "autoreconf", "-ivf"
-    system "./configure", "--disable-dependency-tracking",
-                          "--prefix=#{prefix}",
-                          "--with-lispdir=#{elisp}"
-    system "make"
-    system "make", "install"
+    mkdir "build" do
+      system "meson", *std_meson_args, "-Dlispdir=#{elisp}", ".."
+      system "ninja", "-v"
+      system "ninja", "install", "-v"
+    end
   end
 
   # Regression test for:

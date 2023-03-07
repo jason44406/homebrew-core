@@ -1,22 +1,26 @@
 class Jump < Formula
   desc "Helps you navigate your file system faster by learning your habits"
   homepage "https://github.com/gsamokovarov/jump"
-  url "https://github.com/gsamokovarov/jump/archive/v0.30.1.tar.gz"
-  sha256 "76d6453246c047b49e669499dc1b6a7e4c4520653627461d84ad40c6afb45562"
+  url "https://github.com/gsamokovarov/jump/archive/v0.51.0.tar.gz"
+  sha256 "ce297cada71e1dca33cd7759e55b28518d2bf317cdced1f3b3f79f40fa1958b5"
   license "MIT"
-  head "https://github.com/gsamokovarov/jump.git"
+  head "https://github.com/gsamokovarov/jump.git", branch: "main"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "7399051ba9939abcfbca29e7f371315de6d55d1bd6fa9e1f7aa7d9ee947dd836" => :catalina
-    sha256 "ba0fecff57b7efe0b984f55ad372bcb06c249f6df9353bab2cc648aef5c48ccf" => :mojave
-    sha256 "450233293f93a80152625bfa6b965d7aa17dd5ee74f775e8adae414b41177250" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "90378306728d3520372749d0632558adc2ee809652145a720545ffcc80328c92"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "530e68bb757c889ad241551f9312b147bb349463c854d72708590dc128798227"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "530e68bb757c889ad241551f9312b147bb349463c854d72708590dc128798227"
+    sha256 cellar: :any_skip_relocation, ventura:        "dbedde353648c54dffc593bef54f2a7e089d84bd8756d7913545baf8162cae91"
+    sha256 cellar: :any_skip_relocation, monterey:       "0065c059d901a155f99e532ff126ed58abfe27d27b9ab5e3decdf44dcf0ca06d"
+    sha256 cellar: :any_skip_relocation, big_sur:        "0065c059d901a155f99e532ff126ed58abfe27d27b9ab5e3decdf44dcf0ca06d"
+    sha256 cellar: :any_skip_relocation, catalina:       "0065c059d901a155f99e532ff126ed58abfe27d27b9ab5e3decdf44dcf0ca06d"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "aa81693c6c5fe052474ea740a8e49610aea0f2a1fdfd319e9b4333ad17bda82f"
   end
 
   depends_on "go" => :build
 
   def install
-    system "go", "build", "-ldflags", "-s -w", "-trimpath", "-o", "#{bin}/jump"
+    system "go", "build", *std_go_args(ldflags: "-s -w")
     man1.install "man/jump.1"
     man1.install "man/j.1"
   end

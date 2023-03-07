@@ -1,23 +1,25 @@
 class Stress < Formula
   desc "Tool to impose load on and stress test a computer system"
-  homepage "https://people.seas.harvard.edu/~apw/stress/"
-  url "https://people.seas.harvard.edu/~apw/stress/stress-1.0.4.tar.gz"
-  mirror "https://deb.debian.org/debian/pool/main/s/stress/stress_1.0.4.orig.tar.gz"
-  sha256 "057e4fc2a7706411e1014bf172e4f94b63a12f18412378fca8684ca92408825b"
-  license "GPL-2.0"
+  homepage "https://github.com/resurrecting-open-source-projects/stress"
+  url "https://github.com/resurrecting-open-source-projects/stress/archive/refs/tags/1.0.7.tar.gz"
+  sha256 "cdaa56671506133e2ed8e1e318d793c2a21c4a00adc53f31ffdef1ece8ace0b1"
+  license "GPL-2.0-or-later"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "ca9674089210d1cac7af47b5f8402ce41bcbc8348892a72f226bb4d29587b349" => :catalina
-    sha256 "57923f0549beb3e528ad7683a09d615096d875512fb46b9ed7c54aa6382ca793" => :mojave
-    sha256 "3087af5469f5867b82ab85158c7268d0172b58da91baec06916659bb0fd2f930" => :high_sierra
-    sha256 "1a18d667f7804579758079e3a3f94683a64687120b5f4b77cf25a63f3f8cec39" => :sierra
-    sha256 "b4635c185bfba65271d74aaff155161d2df388be303d135315066260e9699c5e" => :el_capitan
-    sha256 "845f44585d0a3749c163300029f832125950d37af4a5b53c0b20fb143e6db014" => :yosemite
-    sha256 "6741dc72df4a43cfe2c947d9e50d08df1e35029025ff2436d5a20a01117f4fb6" => :mavericks
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "f744647b8c4d3d83ecedd29b802bcf4d03b8fde7ca5a659caceb3d3bf4a19df8"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "ecf4d28b29d30fe0d43c30d5bb8f5bb119842694a04dcefdbef78a37ce0adb77"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "e8ec9b4a8cd6c22f4987344d6db9d9287a54b0e9ec45897dae46deb1c49684da"
+    sha256 cellar: :any_skip_relocation, ventura:        "7c8d2136d92522af1285918a98ee6f175252ce4a575997aa34f05de62cab378a"
+    sha256 cellar: :any_skip_relocation, monterey:       "35747dadcf335894c442ffccfc3e85f16f35f404aae3e7630015abaeea2f6890"
+    sha256 cellar: :any_skip_relocation, big_sur:        "4c0e687b08b14497b89ff3fee89e878808c32dd73d3ea1452ec5bfd49abab88c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "ffa76db1094886481f76dcba90c949bd03f5d29971e943d9dce96a5f53f6da78"
   end
 
+  depends_on "autoconf" => :build
+  depends_on "automake" => :build
+
   def install
+    system "./autogen.sh"
     system "./configure", "--disable-dependency-tracking",
                           "--prefix=#{prefix}"
     system "make", "install"

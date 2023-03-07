@@ -1,22 +1,30 @@
 class Cromwell < Formula
   desc "Workflow Execution Engine using Workflow Description Language"
   homepage "https://github.com/broadinstitute/cromwell"
-  url "https://github.com/broadinstitute/cromwell/releases/download/52//cromwell-52.jar"
-  sha256 "4b3195420d59d7ea129c3d690c9a1cc323403d9c85965ed7c2a37144af13ffa1"
+  url "https://github.com/broadinstitute/cromwell/releases/download/85/cromwell-85.jar"
+  sha256 "100f6c61df72b4079b3ad0f03e8f73e6e2c0afe99d212ec8d42faf4bd4de1e23"
   license "BSD-3-Clause"
 
-  head do
-    url "https://github.com/broadinstitute/cromwell.git"
-    depends_on "sbt" => :build
+  bottle do
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "32c1c6f5ba62df9c2fa1ee21ecd00cd71f6e176cf9f481a388602beaaaad1fe2"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "32c1c6f5ba62df9c2fa1ee21ecd00cd71f6e176cf9f481a388602beaaaad1fe2"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "32c1c6f5ba62df9c2fa1ee21ecd00cd71f6e176cf9f481a388602beaaaad1fe2"
+    sha256 cellar: :any_skip_relocation, ventura:        "32c1c6f5ba62df9c2fa1ee21ecd00cd71f6e176cf9f481a388602beaaaad1fe2"
+    sha256 cellar: :any_skip_relocation, monterey:       "32c1c6f5ba62df9c2fa1ee21ecd00cd71f6e176cf9f481a388602beaaaad1fe2"
+    sha256 cellar: :any_skip_relocation, big_sur:        "32c1c6f5ba62df9c2fa1ee21ecd00cd71f6e176cf9f481a388602beaaaad1fe2"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "da037e50ee875bdc82bc99122ea830c6de4a301581ec0286deb4c677de11580c"
   end
 
-  bottle :unneeded
+  head do
+    url "https://github.com/broadinstitute/cromwell.git", branch: "develop"
+    depends_on "sbt" => :build
+  end
 
   depends_on "openjdk"
 
   resource "womtool" do
-    url "https://github.com/broadinstitute/cromwell/releases/download/52//womtool-52.jar"
-    sha256 "67331af5a4850c5c04e521682c6618c93c475c041f254121849ddb4cffde5c16"
+    url "https://github.com/broadinstitute/cromwell/releases/download/85/womtool-85.jar"
+    sha256 "53e0d6201933a5c335437dcafd62625e9f241995d450dfd1b5c0ca37a834f89b"
   end
 
   def install
@@ -31,14 +39,8 @@ class Cromwell < Formula
       end
     end
 
-    (bin/"cromwell").write <<~EOS
-      #!/bin/bash
-      exec "#{Formula["openjdk"].opt_bin}/java" $JAVA_OPTS -jar "#{libexec}/cromwell.jar" "$@"
-    EOS
-    (bin/"womtool").write <<~EOS
-      #!/bin/bash
-      exec "#{Formula["openjdk"].opt_bin}/java" -jar "#{libexec}/womtool.jar" "$@"
-    EOS
+    bin.write_jar_script libexec/"cromwell.jar", "cromwell", "$JAVA_OPTS"
+    bin.write_jar_script libexec/"womtool.jar", "womtool"
   end
 
   test do

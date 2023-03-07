@@ -4,16 +4,24 @@ class Semgrep < Formula
   desc "Easily detect and prevent bugs and anti-patterns in your codebase"
   homepage "https://semgrep.dev"
   url "https://github.com/returntocorp/semgrep.git",
-    tag:      "v0.20.0",
-    revision: "1e89dcc5d1e88d447397b663d5de7ce2a38976c0"
+      tag:      "v1.14.0",
+      revision: "8c3e0a7df22216038cb59e9ac321ced5ab929c19"
   license "LGPL-2.1-only"
   head "https://github.com/returntocorp/semgrep.git", branch: "develop"
 
+  livecheck do
+    url :stable
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
+  end
+
   bottle do
-    cellar :any
-    sha256 "4a16e4551cfdccbe072bedd8755818432a2f6504936d7aba4037f70280f25cb3" => :catalina
-    sha256 "f552f1cff04d1e7ff993533f2189319f3648d2d48e871126c6c44f67550ae375" => :mojave
-    sha256 "7af777218dfdcf9fc41a845a8468818f52e0030b6f4537ad6f65b54d3acfe83d" => :high_sierra
+    sha256 cellar: :any, arm64_ventura:  "06e2b5e7e8bd81b702323e08864fece5f6ac23339de8aa0a41d66d8234e22448"
+    sha256 cellar: :any, arm64_monterey: "fd551099d0c22eae85ae4fa9cf72deccf7c5fc6180f5b819de67a281538e5044"
+    sha256 cellar: :any, arm64_big_sur:  "d834d9e16927c90502b51879a94db8618e73b40ca4ace6acf5183ce6840f43c2"
+    sha256 cellar: :any, ventura:        "7cb25c4548d42f7ad9fc4f0e5c80061cc9c29c45d117aa31a71279368f266c0e"
+    sha256 cellar: :any, monterey:       "64a82c6b6d81b5e08bc2fd84a6e9a7978fc597b6c737e3ddc8deda1eee537367"
+    sha256 cellar: :any, big_sur:        "c2af19cf869fadeb6cc513fc826eb7df055b7056f7ea55991e38cdb072340b8e"
+    sha256               x86_64_linux:   "d0bd8bdf8d98506f97d2bb57795ae036d55cfc7aa727a4d0912208084f4ce215"
   end
 
   depends_on "cmake" => :build
@@ -21,122 +29,188 @@ class Semgrep < Formula
   depends_on "dune" => :build
   depends_on "ocaml" => :build
   depends_on "opam" => :build
+  depends_on "pipenv" => :build
   depends_on "pkg-config" => :build
-  depends_on "python@3.8"
+  depends_on "pcre"
+  depends_on "python-typing-extensions"
+  depends_on "python@3.11"
+  depends_on "tree-sitter"
+
+  uses_from_macos "rsync" => :build
+
+  fails_with gcc: "5"
 
   resource "attrs" do
-    url "https://files.pythonhosted.org/packages/98/c3/2c227e66b5e896e15ccdae2e00bbc69aa46e9a8ce8869cc5fa96310bf612/attrs-19.3.0.tar.gz"
-    sha256 "f7b7ce16570fe9965acd6d30101a28f62fb4a7f9e926b3bbc9b61f8b04247e72"
+    url "https://files.pythonhosted.org/packages/21/31/3f468da74c7de4fcf9b25591e682856389b3400b4b62f201e65f15ea3e07/attrs-22.2.0.tar.gz"
+    sha256 "c9227bfc2f01993c03f68db37d1d15c9690188323c067c641f1a35ca58185f99"
+  end
+
+  resource "boltons" do
+    url "https://files.pythonhosted.org/packages/ad/1f/6c0608d86e0fc77c982a2923ece80eef85f091f2332fc13cbce41d70d502/boltons-21.0.0.tar.gz"
+    sha256 "65e70a79a731a7fe6e98592ecfb5ccf2115873d01dbc576079874629e5c90f13"
+  end
+
+  resource "bracex" do
+    url "https://files.pythonhosted.org/packages/b3/96/d53e290ddf6215cfb24f93449a1835eff566f79a1f332cf046a978df0c9e/bracex-2.3.post1.tar.gz"
+    sha256 "e7b23fc8b2cd06d3dec0692baabecb249dda94e06a617901ff03a6c56fd71693"
   end
 
   resource "certifi" do
-    url "https://files.pythonhosted.org/packages/40/a7/ded59fa294b85ca206082306bba75469a38ea1c7d44ea7e1d64f5443d67a/certifi-2020.6.20.tar.gz"
-    sha256 "5930595817496dd21bb8dc35dad090f1c2cd0adfaf21204bf6732ca5d8ee34d3"
+    url "https://files.pythonhosted.org/packages/37/f7/2b1b0ec44fdc30a3d31dfebe52226be9ddc40cd6c0f34ffc8923ba423b69/certifi-2022.12.7.tar.gz"
+    sha256 "35824b4c3a97115964b408844d64aa14db1cc518f6562e8d7261699d1350a9e3"
   end
 
-  resource "chardet" do
-    url "https://files.pythonhosted.org/packages/fc/bb/a5768c230f9ddb03acc9ef3f0d4a3cf93462473795d18e9535498c8f929d/chardet-3.0.4.tar.gz"
-    sha256 "84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae"
+  resource "charset-normalizer" do
+    url "https://files.pythonhosted.org/packages/96/d7/1675d9089a1f4677df5eb29c3f8b064aa1e70c1251a0a8a127803158942d/charset-normalizer-3.0.1.tar.gz"
+    sha256 "ebea339af930f8ca5d7a699b921106c6e29c617fe9606fa7baa043c1cdae326f"
+  end
+
+  resource "click" do
+    url "https://files.pythonhosted.org/packages/59/87/84326af34517fca8c58418d148f2403df25303e02736832403587318e9e8/click-8.1.3.tar.gz"
+    sha256 "7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e"
+  end
+
+  resource "click-option-group" do
+    url "https://files.pythonhosted.org/packages/4c/29/ff7cd69825b5bfb48e39853b75d5dc2e98a581730f2b6c9c014188730755/click-option-group-0.5.5.tar.gz"
+    sha256 "78ee474f07a0ca0ef6c0317bb3ebe79387aafb0c4a1e03b1d8b2b0be1e42fc78"
   end
 
   resource "colorama" do
-    url "https://files.pythonhosted.org/packages/82/75/f2a4c0c94c85e2693c229142eb448840fba0f9230111faa889d1f541d12d/colorama-0.4.3.tar.gz"
-    sha256 "e96da0d330793e2cb9485e9ddfd918d456036c7149416295932478192f4436a1"
+    url "https://files.pythonhosted.org/packages/d8/53/6f443c9a4a8358a93a6792e2acffb9d9d5cb0a5cfd8802644b7b1c9a02e4/colorama-0.4.6.tar.gz"
+    sha256 "08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"
+  end
+
+  resource "defusedxml" do
+    url "https://files.pythonhosted.org/packages/0f/d5/c66da9b79e5bdb124974bfe172b4daf3c984ebd9c2a06e2b8a4dc7331c72/defusedxml-0.7.1.tar.gz"
+    sha256 "1bb3032db185915b62d7c6209c5a8792be6a32ab2fedacc84e01b52c51aa3e69"
+  end
+
+  resource "face" do
+    url "https://files.pythonhosted.org/packages/d7/bc/4d0f6c1e095eb977782edd94245f84b69c6f8df152480c78ab310e895098/face-22.0.0.tar.gz"
+    sha256 "d5d692f90bc8f5987b636e47e36384b9bbda499aaf0a77aa0b0bbe834c76923d"
+  end
+
+  resource "glom" do
+    url "https://files.pythonhosted.org/packages/3f/d1/69432deefa6f5283ec75b246d0540097ae26f618b915519ee3824c4c5dd6/glom-22.1.0.tar.gz"
+    sha256 "1510c6587a8f9c64a246641b70033cbc5ebde99f02ad245693678038e821aeb5"
   end
 
   resource "idna" do
-    url "https://files.pythonhosted.org/packages/ea/b7/e0e3c1c467636186c39925827be42f16fee389dc404ac29e930e9136be70/idna-2.10.tar.gz"
-    sha256 "b307872f855b18632ce0c21c5e45be78c0ea7ae4c15c828c20788b26921eb3f6"
+    url "https://files.pythonhosted.org/packages/8b/e1/43beb3d38dba6cb420cefa297822eac205a277ab43e5ba5d5c46faf96438/idna-3.4.tar.gz"
+    sha256 "814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4"
+  end
+
+  resource "jsonschema" do
+    url "https://files.pythonhosted.org/packages/36/3d/ca032d5ac064dff543aa13c984737795ac81abc9fb130cd2fcff17cfabc7/jsonschema-4.17.3.tar.gz"
+    sha256 "0f864437ab8b6076ba6707453ef8f98a6a0d512a80e93f8abdb676f737ecb60d"
+  end
+
+  resource "markdown-it-py" do
+    url "https://files.pythonhosted.org/packages/e4/c0/59bd6d0571986f72899288a95d9d6178d0eebd70b6650f1bb3f0da90f8f7/markdown-it-py-2.2.0.tar.gz"
+    sha256 "7c9a5e412688bc771c67432cbfebcdd686c93ce6484913dccf06cb5a0bea35a1"
+  end
+
+  resource "mdurl" do
+    url "https://files.pythonhosted.org/packages/d6/54/cfe61301667036ec958cb99bd3efefba235e65cdeb9c84d24a8293ba1d90/mdurl-0.1.2.tar.gz"
+    sha256 "bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba"
   end
 
   resource "packaging" do
-    url "https://files.pythonhosted.org/packages/55/fd/fc1aca9cf51ed2f2c11748fa797370027babd82f87829c7a8e6dbe720145/packaging-20.4.tar.gz"
-    sha256 "4357f74f47b9c12db93624a82154e9b120fa8293699949152b22065d556079f8"
+    url "https://files.pythonhosted.org/packages/47/d5/aca8ff6f49aa5565df1c826e7bf5e85a6df852ee063600c1efa5b932968c/packaging-23.0.tar.gz"
+    sha256 "b6ad297f8907de0fa2fe1ccbd26fdaf387f5f47c7275fedf8cce89f99446cf97"
   end
 
-  resource "pyparsing" do
-    url "https://files.pythonhosted.org/packages/c1/47/dfc9c342c9842bbe0036c7f763d2d6686bcf5eb1808ba3e170afdb282210/pyparsing-2.4.7.tar.gz"
-    sha256 "c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1"
+  resource "peewee" do
+    url "https://files.pythonhosted.org/packages/68/a9/3f23e0d8a05e9ec4f6180dc01ec0e73e207e526161ee74647eb1488b613d/peewee-3.16.0.tar.gz"
+    sha256 "1800c0a04962ee99d161c07f5a12fc49549caf5cfcda426a9103e34e37f854ba"
+  end
+
+  resource "Pygments" do
+    url "https://files.pythonhosted.org/packages/da/6a/c427c06913204e24de28de5300d3f0e809933f376e0b7df95194b2bb3f71/Pygments-2.14.0.tar.gz"
+    sha256 "b3ed06a9e8ac9a9aae5a6f5dbe78a8a58655d17b43b93c078f094ddc476ae297"
+  end
+
+  resource "pyrsistent" do
+    url "https://files.pythonhosted.org/packages/bf/90/445a7dbd275c654c268f47fa9452152709134f61f09605cf776407055a89/pyrsistent-0.19.3.tar.gz"
+    sha256 "1a2994773706bbb4995c31a97bc94f1418314923bd1048c6d964837040376440"
+  end
+
+  resource "python-lsp-jsonrpc" do
+    url "https://files.pythonhosted.org/packages/99/45/1c2a272950679af529f7360af6ee567ef266f282e451be926329e8d50d84/python-lsp-jsonrpc-1.0.0.tar.gz"
+    sha256 "7bec170733db628d3506ea3a5288ff76aa33c70215ed223abdb0d95e957660bd"
   end
 
   resource "requests" do
-    url "https://files.pythonhosted.org/packages/da/67/672b422d9daf07365259958912ba533a0ecab839d4084c487a5fe9a5405f/requests-2.24.0.tar.gz"
-    sha256 "b3559a131db72c33ee969480840fff4bb6dd111de7dd27c8ee1f820f4f00231b"
+    url "https://files.pythonhosted.org/packages/9d/ee/391076f5937f0a8cdf5e53b701ffc91753e87b07d66bae4a09aa671897bf/requests-2.28.2.tar.gz"
+    sha256 "98b1b2782e3c6c4904938b84c0eb932721069dfdb9134313beff7c83c2df24bf"
+  end
+
+  resource "rich" do
+    url "https://files.pythonhosted.org/packages/68/31/b8934896818c885001aeb7df388ba0523ea3ec88ad31805983d9b0480a50/rich-13.3.1.tar.gz"
+    sha256 "125d96d20c92b946b983d0d392b84ff945461e5a06d3867e9f9e575f8697b67f"
   end
 
   resource "ruamel.yaml" do
-    url "https://files.pythonhosted.org/packages/16/8b/54a26c1031595e5edd0e616028b922d78d8ffba8bc775f0a4faeada846cc/ruamel.yaml-0.16.10.tar.gz"
-    sha256 "099c644a778bf72ffa00524f78dd0b6476bca94a1da344130f4bf3381ce5b954"
+    url "https://files.pythonhosted.org/packages/46/a9/6ed24832095b692a8cecc323230ce2ec3480015fbfa4b79941bd41b23a3c/ruamel.yaml-0.17.21.tar.gz"
+    sha256 "8b7ce697a2f212752a35c1ac414471dc16c424c9573be4926b56ff3f5d23b7af"
   end
 
-  resource "ruamel.yaml.clib" do
-    url "https://files.pythonhosted.org/packages/92/28/612085de3fae9f82d62d80255d9f4cf05b1b341db1e180adcf28c1bf748d/ruamel.yaml.clib-0.2.0.tar.gz"
-    sha256 "b66832ea8077d9b3f6e311c4a53d06273db5dc2db6e8a908550f3c14d67e718c"
+  resource "tomli" do
+    url "https://files.pythonhosted.org/packages/c0/3f/d7af728f075fb08564c5949a9c95e44352e23dee646869fa104a3b2060a3/tomli-2.0.1.tar.gz"
+    sha256 "de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"
   end
 
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/6b/34/415834bfdafca3c5f451532e8a8d9ba89a21c9743a0c59fbd0205c7f9426/six-1.15.0.tar.gz"
-    sha256 "30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"
-  end
-
-  resource "tqdm" do
-    url "https://files.pythonhosted.org/packages/71/6c/6530032ec26dddd47bb9e052781bcbbcaa560f05d10cdaf365ecb990d220/tqdm-4.48.0.tar.gz"
-    sha256 "6baa75a88582b1db6d34ce4690da5501d2a1cb65c34664840a456b2c9f794d29"
+  resource "ujson" do
+    url "https://files.pythonhosted.org/packages/43/1a/b0a027144aa5c8f4ea654f4afdd634578b450807bb70b9f8bad00d6f6d3c/ujson-5.7.0.tar.gz"
+    sha256 "e788e5d5dcae8f6118ac9b45d0b891a0d55f7ac480eddcb7f07263f2bcf37b23"
   end
 
   resource "urllib3" do
-    url "https://files.pythonhosted.org/packages/81/f4/87467aeb3afc4a6056e1fe86626d259ab97e1213b1dfec14c7cb5f538bf0/urllib3-1.25.10.tar.gz"
-    sha256 "91056c15fa70756691db97756772bb1eb9678fa585d9184f24534b100dc60f4a"
+    url "https://files.pythonhosted.org/packages/c5/52/fe421fb7364aa738b3506a2d99e4f3a56e079c0a798e9f4fa5e14c60922f/urllib3-1.26.14.tar.gz"
+    sha256 "076907bf8fd355cde77728471316625a4d2f7e713c125f51953bb5b3eecf4f72"
+  end
+
+  resource "wcmatch" do
+    url "https://files.pythonhosted.org/packages/b7/94/5dd083fc972655f6689587c3af705aabc8b8e781bacdf22d6d2282fe6142/wcmatch-8.4.1.tar.gz"
+    sha256 "b1f042a899ea4c458b7321da1b5e3331e3e0ec781583434de1301946ceadb943"
   end
 
   def install
-    # Remove Sudo Command in install script. Safe to remove patch on 0.18.0
-    # https://github.com/returntocorp/ocaml-tree-sitter/pull/83
-    inreplace "ocaml-tree-sitter/scripts/install-tree-sitter-lib", "sudo make install", "make install"
-
     ENV.deparallelize
     Dir.mktmpdir("opamroot") do |opamroot|
       ENV["OPAMROOT"] = opamroot
       ENV["OPAMYES"] = "1"
 
-      # Used by semgrep-core for clang to find libtree-sitter.a
-      ENV["LIBRARY_PATH"] = lib
-
-      # Used by ocaml-tree-sitter to find tree-sitter/*.h headers
-      ENV.append_path "PKG_CONFIG_PATH", "#{lib}/pkgconfig"
-      ENV["C_INCLUDE_PATH"] = include
-
-      # Used by tree-sitter to place libtree-sitter.a, and header files
-      ENV["PREFIX"] = prefix
-
       system "opam", "init", "--no-setup", "--disable-sandboxing"
-      ENV.deparallelize { system "opam", "switch", "create", "ocaml-base-compiler.4.10.0" }
+      ENV.deparallelize { system "opam", "switch", "create", "ocaml-base-compiler.4.14.0" }
 
-      system "opam", "exec", "--", "make", "setup"
-      system "opam", "install", "./pfff"
+      # Manually run steps from `opam exec -- make setup` to link Homebrew's tree-sitter
+      system "opam", "update", "-y"
 
-      # Install tree-sitter
-      cd "ocaml-tree-sitter" do
-        cd "tree-sitter" do
-          system "opam", "exec", "--", "make"
-          system "opam", "exec", "--", "make", "install"
-        end
-        system "opam", "install", "-y", "."
+      # We pass --no-depexts so as to disable the check for pkg-config.
+      # It seems to not be found when building on ubuntu
+      # See discussion on https://github.com/Homebrew/homebrew-core/pull/82693
+      system "opam", "install", "-y", "--deps-only", "--no-depexts", "./libs/ocaml-tree-sitter-core"
+      system "opam", "install", "-y", "--deps-only", "--no-depexts", "./"
+
+      # Run configure script in ocaml-tree-sitter-core
+      cd "./libs/ocaml-tree-sitter-core" do
+        system "./configure"
       end
 
-      # Install semgrep-core
-      cd "semgrep-core" do
-        system "opam", "install", "--deps-only", "-y", "."
-        system "opam", "exec", "--", "make", "all"
-        system "opam", "exec", "--", "make", "install"
-        bin.install "_build/default/bin/Main.exe" => "semgrep-core"
-      end
+      # Install semgrep-core and spacegrep
+      system "opam", "install", "--deps-only", "-y", "."
+      system "opam", "exec", "--", "make", "core"
+      system "opam", "exec", "--", "make", "core-install"
+      bin.install "_build/install/default/bin/semgrep-core" => "semgrep-core"
+      bin.install "_build/install/default/bin/spacegrep" => "spacegrep"
     end
 
-    python_path = "semgrep"
+    ENV["SEMGREP_SKIP_BIN"] = "1"
+    python_path = "cli"
     cd python_path do
-      venv = virtualenv_create(libexec, Formula["python@3.8"].bin/"python3.8")
-      venv.pip_install resources
+      venv = virtualenv_create(libexec, Formula["python@3.11"].bin/"python3.11")
+      venv.pip_install resources.reject { |r| r.name == "ocaml-tree-sitter" }
       venv.pip_install_and_link buildpath/python_path
     end
   end
@@ -149,6 +223,20 @@ class Semgrep < Formula
     EOS
 
     output = shell_output("#{bin}/semgrep script.py -l python -e '$X == $X'")
+    assert_match "a + b == a + b", output
+
+    (testpath/"script.ts").write <<~EOS
+      function test_equal() {
+        a = 1;
+        b = 2;
+        //ERROR: match
+        if (a + b == a + b)
+            return 1;
+        return 0;
+      }
+    EOS
+
+    output = shell_output("#{bin}/semgrep script.ts -l ts -e '$X == $X'")
     assert_match "a + b == a + b", output
   end
 end

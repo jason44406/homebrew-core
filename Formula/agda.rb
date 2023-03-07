@@ -1,76 +1,58 @@
-require "language/haskell"
-
 class Agda < Formula
-  include Language::Haskell::Cabal
-
   desc "Dependently typed functional programming language"
   homepage "https://wiki.portal.chalmers.se/agda/"
   license "BSD-3-Clause"
 
   stable do
-    url "https://hackage.haskell.org/package/Agda-2.6.1/Agda-2.6.1.tar.gz"
-    sha256 "678f416af8f30d017825309f15fac41d239b07f66a4c40497e8435a6bdb7c129"
+    url "https://hackage.haskell.org/package/Agda-2.6.3/Agda-2.6.3.tar.gz"
+    sha256 "beacc9802c470e42bb0707f9ffe7db488a936c635407dada5d4db060b58d6016"
 
     resource "stdlib" do
-      # version needed to build with ghc-8.10.1
-      url "https://github.com/agda/agda-stdlib.git",
-          revision: "b859bd363a96bc862ead0509bdf5869837651896"
+      url "https://github.com/agda/agda-stdlib/archive/v1.7.2.tar.gz"
+      sha256 "d86a41b9d2e1d2e956ec91bdef9cb34646da11f50f76996761c9a1562c3c47a2"
     end
   end
 
   bottle do
-    rebuild 2
-    sha256 "c2d27dd1e42cee97bd2d4d19d38e027e627df890025265dceab6454d662a3b3e" => :catalina
-    sha256 "664bd4405aebb3eab9c982257425e439a1e03514053f9ddbda08e4257cc2a4d3" => :mojave
-    sha256 "f3d520dba93d25d02aeb32b4493aab265e41ef70d161777745a25d203d1dd1e5" => :high_sierra
+    sha256 arm64_ventura:  "e6d794683df004cb540fc13038cb80378b7e5ee42fe8c20bd7c87cd7313606fe"
+    sha256 arm64_monterey: "ef61f482507d2e0f89c2df9136f83fee454701c570f7834d60da72ec0f707264"
+    sha256 arm64_big_sur:  "ccfb912d275052fb8d0a81ea3216e921c77f46cf0b2ec7b7dba5ef238f1868e1"
+    sha256 ventura:        "5dbae0ce1b653e7dc099e234e137bb703dc8ded804d2785aaab3129440befb6d"
+    sha256 monterey:       "afffee3246e21852bae17f1587a35a279fcdba0b87cda6fd8ed20c4166218a56"
+    sha256 big_sur:        "e3a67f21d8e018dc4bb3ba17f08e1906125a7f2920b1e36a3af691cd1ad4f6ad"
+    sha256 x86_64_linux:   "764d1eb2568588b1cb9a9e62dbc78e8caadd361424c2dde1b060f024cec399f9"
   end
 
   head do
-    url "https://github.com/agda/agda.git"
+    url "https://github.com/agda/agda.git", branch: "master"
 
     resource "stdlib" do
-      url "https://github.com/agda/agda-stdlib.git"
+      url "https://github.com/agda/agda-stdlib.git", branch: "master"
     end
   end
 
   depends_on "cabal-install"
   depends_on "emacs"
-  depends_on "ghc@8.8"
+  depends_on "ghc"
 
+  uses_from_macos "ncurses"
   uses_from_macos "zlib"
 
   def install
-    # install Agda core
-    install_cabal_package using: ["alex", "happy", "cpphs"]
-
-    resource("stdlib").stage lib/"agda"
-
-    # generate the standard library's bytecode
-    cd lib/"agda" do
-      cabal_sandbox home: buildpath, keep_lib: true do
-        cabal_install "--only-dependencies"
-        cabal_install
-        system "GenerateEverything"
-      end
-    end
+    system "cabal", "v2-update"
+    system "cabal", "--store-dir=#{libexec}", "v2-install", *std_cabal_v2_args
 
     # generate the standard library's documentation and vim highlighting files
+    resource("stdlib").stage lib/"agda"
     cd lib/"agda" do
+      cabal_args = std_cabal_v2_args.reject { |s| s["installdir"] }
+      system "cabal", "--store-dir=#{libexec}", "v2-install", *cabal_args, "--installdir=#{lib}/agda"
+      system "./GenerateEverything"
       system bin/"agda", "-i", ".", "-i", "src", "--html", "--vim", "README.agda"
     end
 
-    # compile the included Emacs mode
-    system bin/"agda-mode", "compile"
-    elisp.install_symlink Dir["#{share}/*/Agda-#{version}/emacs-mode/*"]
-  end
-
-  def caveats
-    <<~EOS
-      To use the Agda standard library by default:
-        mkdir -p ~/.agda
-        echo #{HOMEBREW_PREFIX}/lib/agda/standard-library.agda-lib >>~/.agda/libraries
-        echo standard-library >>~/.agda/defaults
-    EOS
+    # Clean up references to Homebrew shims
+    rm_rf "#{lib}/agda/dist-newstyle/cache"
   end
 
   test do
@@ -127,33 +109,26 @@ class Agda < Formula
       main = return tt
     EOS
 
-    stdlibiotest = testpath/"StdlibIOTest.agda"
-    stdlibiotest.write <<~EOS
-      module StdlibIOTest where
-
-      open import IO
-
-      main : _
-      main = run (putStr "Hello, world!")
-    EOS
+    # we need a test-local copy of the stdlib as the test writes to
+    # the stdlib directory
+    resource("stdlib").stage testpath/"lib/agda"
 
     # typecheck a simple module
     system bin/"agda", simpletest
 
     # typecheck a module that uses the standard library
-    system bin/"agda", "-i", lib/"agda"/"src", stdlibtest
+    system bin/"agda", "-i", testpath/"lib/agda/src", stdlibtest
 
     # compile a simple module using the JS backend
     system bin/"agda", "--js", simpletest
 
     # test the GHC backend
+    cabal_args = std_cabal_v2_args.reject { |s| s["installdir"] }
     system "cabal", "v2-update"
-    system "cabal", "v2-install", "ieee754", "--lib", *std_cabal_v2_args
+    system "cabal", "v2-install", "ieee754", "--lib", *cabal_args
+
     # compile and run a simple program
     system bin/"agda", "-c", iotest
     assert_equal "", shell_output(testpath/"IOTest")
-    # compile and run a program that uses the standard library
-    system bin/"agda", "-c", "-i", lib/"agda"/"src", stdlibiotest
-    assert_equal "Hello, world!", shell_output(testpath/"StdlibIOTest")
   end
 end

@@ -3,19 +3,25 @@ class Ydcv < Formula
 
   desc "YouDao Console Version"
   homepage "https://github.com/felixonmars/ydcv"
-  url "https://github.com/felixonmars/ydcv/archive/0.7.tar.gz"
-  sha256 "03dd5de36ea8fce3170e678e63fc3694e2718b22bc5e1526e3e07f5c36ec9aa0"
+  url "https://files.pythonhosted.org/packages/1f/29/17124ebfdea8d810774977474a8652018c04c4a6db1ca413189f7e5b9d52/ydcv-0.7.tar.gz"
+  sha256 "53cd59501557496512470e7db5fb14e42ddcb411fe4fa45c00864d919393c1da"
   license "GPL-3.0"
-  revision 2
+  revision 4
+  head "https://github.com/felixonmars/ydcv.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "c58351df91ff5461873cb5cae4dcecc40d8f2c64d15152b95c279a1624fe01d0" => :catalina
-    sha256 "8ea0db97fbede09e11d8890652db0128197c8fb551796efdf795c73021c1d578" => :mojave
-    sha256 "906ce5ee60c5b2c8d4c90b42fbc8e08cafd67de0df9f9b63bd7f4a0f428073c7" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "cb6154d76b16bd58ccd709104fedad005bb7987624b81947dcb56e89e85f7c73"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "cb6154d76b16bd58ccd709104fedad005bb7987624b81947dcb56e89e85f7c73"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "cb6154d76b16bd58ccd709104fedad005bb7987624b81947dcb56e89e85f7c73"
+    sha256 cellar: :any_skip_relocation, ventura:        "1395cd029c7edc09b2d1d12707585e41f433dd14b54bdc92dcd53376cca76570"
+    sha256 cellar: :any_skip_relocation, monterey:       "1395cd029c7edc09b2d1d12707585e41f433dd14b54bdc92dcd53376cca76570"
+    sha256 cellar: :any_skip_relocation, big_sur:        "1395cd029c7edc09b2d1d12707585e41f433dd14b54bdc92dcd53376cca76570"
+    sha256 cellar: :any_skip_relocation, catalina:       "1395cd029c7edc09b2d1d12707585e41f433dd14b54bdc92dcd53376cca76570"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "52f466e847bf7841d0108b5bdb3e034ea2412d9d8d354088d270c088e784482e"
   end
 
-  depends_on "python@3.8"
+  depends_on "python@3.11"
 
   def install
     ENV["SETUPTOOLS_SCM_PRETEND_VERSION"] = version

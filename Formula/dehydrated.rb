@@ -1,25 +1,24 @@
 class Dehydrated < Formula
   desc "LetsEncrypt/acme client implemented as a shell-script"
   homepage "https://dehydrated.io"
-  url "https://github.com/lukas2511/dehydrated/archive/v0.6.5.tar.gz"
-  sha256 "10aabd0027450bc70a18e49acaca7a9697e0cfb92368d3e508b7a4d6d69bfa35"
+  url "https://github.com/dehydrated-io/dehydrated/archive/v0.7.1.tar.gz"
+  sha256 "3d993237af5abd4ee83100458867454ed119e41fac72b3d2bce9efc60d4dff32"
   license "MIT"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "844e6e0618f99e44fb74c86abfed902f82e6c67ac9879f41a1f1bd0922554730" => :catalina
-    sha256 "376b14fa1047117a1779c583cd73139b7e4e8d3dafae240bac62912580aae571" => :mojave
-    sha256 "376b14fa1047117a1779c583cd73139b7e4e8d3dafae240bac62912580aae571" => :high_sierra
-    sha256 "1b4042e46b66cb78a1f4a423d742bfe3110f12ea8d26177ff0f05d2aea24d6b2" => :sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "f17795e23bdd54c28ee3b776ca2a23961d82ad07dd28b9d5081ae8edb2dae79c"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "f17795e23bdd54c28ee3b776ca2a23961d82ad07dd28b9d5081ae8edb2dae79c"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "f17795e23bdd54c28ee3b776ca2a23961d82ad07dd28b9d5081ae8edb2dae79c"
+    sha256 cellar: :any_skip_relocation, ventura:        "ebef64bfbbb961baab69a546da164867b6d3d0acc2090b6f0a8d9d1b2e6ac26b"
+    sha256 cellar: :any_skip_relocation, monterey:       "ebef64bfbbb961baab69a546da164867b6d3d0acc2090b6f0a8d9d1b2e6ac26b"
+    sha256 cellar: :any_skip_relocation, big_sur:        "ebef64bfbbb961baab69a546da164867b6d3d0acc2090b6f0a8d9d1b2e6ac26b"
+    sha256 cellar: :any_skip_relocation, catalina:       "ebef64bfbbb961baab69a546da164867b6d3d0acc2090b6f0a8d9d1b2e6ac26b"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "f17795e23bdd54c28ee3b776ca2a23961d82ad07dd28b9d5081ae8edb2dae79c"
   end
 
   def install
-    ENV["GOPATH"] = buildpath
-    (buildpath/"src/github.com/lukas2511/dehydrated").install buildpath.children
-    cd "src/github.com/lukas2511/dehydrated" do
-      bin.install "dehydrated"
-      prefix.install_metafiles
-    end
+    bin.install "dehydrated"
+    man1.install "docs/man/dehydrated.1"
   end
 
   test do

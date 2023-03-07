@@ -4,19 +4,27 @@ class Clblas < Formula
   url "https://github.com/clMathLibraries/clBLAS/archive/v2.12.tar.gz"
   sha256 "7269c7cb06a43c5e96772010eba032e6d54e72a3abff41f16d765a5e524297a9"
   license "Apache-2.0"
+  revision 1
 
   bottle do
-    cellar :any
-    sha256 "97d7206bae700bdba2b4f1c6570d7e772ab5ade56d82af61d98d75eebe764f72" => :catalina
-    sha256 "de18e1f78894ad83aa80a1d2a6d21973d61507be13a657055bd19b1f11b80c0b" => :mojave
-    sha256 "47e08f87365e11a57d2ffc2fb81a3cfcd8bd784c438c1e08e1fe4116fc774553" => :high_sierra
-    sha256 "22a6cc8252ed5d431ccea7d51631f57bcee3876be7f65a0ac0fbaabfe09a9484" => :sierra
-    sha256 "e18aa93ecbd78f5f70607653a1e1c48f73952aeef1a568e2205362368c40ba4c" => :el_capitan
-    sha256 "ac0d50729480e60afd56862a49f92408cb0ed61967ba91fcdc9e024e06f39917" => :yosemite
+    sha256 cellar: :any,                 arm64_ventura:  "ddd0d6b3d160284e87fee5d6cbb6585632cd24842c1f26954205acb665e3c74a"
+    sha256 cellar: :any,                 arm64_monterey: "ec2838495fac090d05c5eb2e2f5cb8fd3640bb238fc068459900e50cc7f28674"
+    sha256 cellar: :any,                 arm64_big_sur:  "8ade8c33c4231863fb5ebda26cd90cd1e1b5f30193c9b7bb113939e2c588c9e9"
+    sha256 cellar: :any,                 ventura:        "d8bc99eb36031d7e6f662b40b2d8ef98a1d60fe414959c2ec5f23c590ebcf353"
+    sha256 cellar: :any,                 monterey:       "2be6e0730bf2740496eb4b90b90077ce65185ab8fc1c0714edb8ea834904a8ec"
+    sha256 cellar: :any,                 big_sur:        "3f4f8ceae96d4b24049e7b81e89f7bc5785bcd7968bf5378fb54cafd259b6d92"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "afc8e13fe7b5d465840eac248a461975d7fd33b89ba74a238cb743c1ac6c7c1f"
   end
 
   depends_on "boost" => :build
   depends_on "cmake" => :build
+  depends_on "python@3.11" => :build
+
+  on_linux do
+    depends_on "opencl-headers" => [:build, :test]
+    depends_on "opencl-icd-loader"
+    depends_on "pocl"
+  end
 
   def install
     system "cmake", "src", *std_cmake_args,
@@ -32,7 +40,8 @@ class Clblas < Formula
   test do
     # We do not run the test, as it fails on CI machines
     # ("clGetDeviceIDs() failed with -1")
+    opencl_lib = OS.mac? ? ["-framework", "OpenCL"] : ["-lOpenCL"]
     system ENV.cc, pkgshare/"example_srot.c", "-I#{include}", "-L#{lib}",
-                   "-lclBLAS", "-framework", "OpenCL"
+                   "-lclBLAS", *opencl_lib, "-Wno-implicit-function-declaration"
   end
 end

@@ -3,48 +3,43 @@ class GitRemoteCodecommit < Formula
 
   desc "Git Remote Helper to interact with AWS CodeCommit"
   homepage "https://github.com/aws/git-remote-codecommit"
-  url "https://github.com/aws/git-remote-codecommit/archive/1.15.1.tar.gz"
-  sha256 "23bcc0715c72217f8dcd5841aecce537c360138016baa6b1ed9a2873af546e0b"
+  url "https://files.pythonhosted.org/packages/2c/d2/bdf76a090f4b0afe254b03333bbe7df2a26818417cbb6f646dc1888104b7/git-remote-codecommit-1.16.tar.gz"
+  sha256 "f8e10cc5c177486022e4e7c2c08e671ed35ad63f3a2da1309a1f8eae7b6e69da"
   license "Apache-2.0"
-  head "https://github.com/aws/git-remote-codecommit.git"
+  head "https://github.com/aws/git-remote-codecommit.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "71392ab342c2b182d371f8219cd176705b2d98d790868c146c058e0642108bf6" => :catalina
-    sha256 "563bc42f34b6b865a790d8b4b7bf17db9693b09d31ae650c441882f67569fa85" => :mojave
-    sha256 "f8e50499e041294d303aaf3c4b2fc72de65d6e4a1fb13bd267287045f721ee92" => :high_sierra
+    rebuild 2
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "43ef3adad3daaf8fd88f1a1fb349e2ae31bfe525201412c3291e775a19d84966"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "e9eb04b1e5bcb3bb3865616151c0f1623bff6a2290947505671ba5a302bf6927"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "062a914e87f8ba41aa676d3a46b20823f03f6d5f350ddd0c72c128606051d7e4"
+    sha256 cellar: :any_skip_relocation, ventura:        "5a990f540b94844cacfe46f88b39b3c80f99a378660560f6aab67e5e32f2072f"
+    sha256 cellar: :any_skip_relocation, monterey:       "4e26950dfc93111777c733a7c8ffaf48240286b37dab08e97c8a91d1d9275607"
+    sha256 cellar: :any_skip_relocation, big_sur:        "633630a3d3df1fb7d7f4e99e89b06cbbbb45413b314725f17156c6eb058f30dd"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "06b9786d4c53d05b8cf19dae7640325ff5117a4650d986736209e778527343f2"
   end
 
-  depends_on "python@3.8"
+  depends_on "python@3.11"
+  depends_on "six"
 
   resource "botocore" do
-    url "https://files.pythonhosted.org/packages/a7/10/d9bbdbee6d3ea63897e468dddabb3edb7b7360a901e3eee249cdb132a78a/botocore-1.17.43.tar.gz"
-    sha256 "3fb144d2b5d705127f394f7483737ece6fa79577ca7c493e4f42047ac8636200"
-  end
-
-  resource "docutils" do
-    url "https://files.pythonhosted.org/packages/93/22/953e071b589b0b1fee420ab06a0d15e5aa0c7470eb9966d60393ce58ad61/docutils-0.15.2.tar.gz"
-    sha256 "a2aeea129088da402665e92e0b25b04b073c04b2dce4ab65caaa38b7ce2e1a99"
+    url "https://files.pythonhosted.org/packages/1c/4f/c2755bd8a1636f17c470dc4c57ddd390b2c5f6505041c70133f7fa151815/botocore-1.29.36.tar.gz"
+    sha256 "5cb1fb381c427fe12274eb866f2ff739169e0e1f33c2481a474ba2ff8ca43f75"
   end
 
   resource "jmespath" do
-    url "https://files.pythonhosted.org/packages/3c/56/3f325b1eef9791759784aa5046a8f6a1aff8f7c898a2e34506771d3b99d8/jmespath-0.10.0.tar.gz"
-    sha256 "b85d0567b8666149a93172712e68920734333c0ce7e89b78b3e987f71e5ed4f9"
+    url "https://files.pythonhosted.org/packages/00/2a/e867e8531cf3e36b41201936b7fa7ba7b5702dbef42922193f05c8976cd6/jmespath-1.0.1.tar.gz"
+    sha256 "90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe"
   end
 
   resource "python-dateutil" do
-    url "https://files.pythonhosted.org/packages/be/ed/5bbc91f03fa4c839c4c7360375da77f9659af5f7086b7a7bdda65771c8e0/python-dateutil-2.8.1.tar.gz"
-    sha256 "73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"
-  end
-
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/6b/34/415834bfdafca3c5f451532e8a8d9ba89a21c9743a0c59fbd0205c7f9426/six-1.15.0.tar.gz"
-    sha256 "30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"
+    url "https://files.pythonhosted.org/packages/4c/c4/13b4776ea2d76c115c1d1b84579f3764ee6d57204f6be27119f13a61d0a9/python-dateutil-2.8.2.tar.gz"
+    sha256 "0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"
   end
 
   resource "urllib3" do
-    url "https://files.pythonhosted.org/packages/81/f4/87467aeb3afc4a6056e1fe86626d259ab97e1213b1dfec14c7cb5f538bf0/urllib3-1.25.10.tar.gz"
-    sha256 "91056c15fa70756691db97756772bb1eb9678fa585d9184f24534b100dc60f4a"
+    url "https://files.pythonhosted.org/packages/c2/51/32da03cf19d17d46cce5c731967bf58de9bd71db3a379932f53b094deda4/urllib3-1.26.13.tar.gz"
+    sha256 "c083dd0dce68dbfbe1129d5271cb90f9447dea7d52097c6e0126120c521ddea8"
   end
 
   def install

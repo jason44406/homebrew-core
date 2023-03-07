@@ -1,12 +1,16 @@
 class TomeeWebprofile < Formula
   desc "All-Apache Java EE 7 Web Profile stack"
   homepage "https://tomee.apache.org/"
-  url "https://www.apache.org/dyn/closer.lua?path=tomee/tomee-8.0.3/apache-tomee-8.0.3-webprofile.tar.gz"
-  mirror "https://archive.apache.org/dist/tomee/tomee-8.0.3/apache-tomee-8.0.3-webprofile.tar.gz"
-  sha256 "ff9921913c0a6e24514a139703db066e90d2e51c37cfde948595c7d5d5e4168b"
+  url "https://www.apache.org/dyn/closer.lua?path=tomee/tomee-9.0.0/apache-tomee-9.0.0-webprofile.tar.gz"
+  mirror "https://archive.apache.org/dist/tomee/tomee-9.0.0/apache-tomee-9.0.0-webprofile.tar.gz"
+  sha256 "bd2490ef348f757d00fbfd96fee5584eaadf9886d3b0b56c1aac24482469def2"
   license "Apache-2.0"
 
-  bottle :unneeded
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "c140be26b21debf6a7014497477074ec401053299e04133eb3130d9d387ce47e"
+  end
+
+  depends_on "openjdk"
 
   def install
     # Remove Windows scripts
@@ -17,7 +21,8 @@ class TomeeWebprofile < Formula
     # Install files
     prefix.install %w[NOTICE LICENSE RELEASE-NOTES RUNNING.txt]
     libexec.install Dir["*"]
-    bin.install_symlink "#{libexec}/bin/startup.sh" => "tomee-webprofile-startup"
+    (bin/"tomee-webprofile-startup").write_env_script "#{libexec}/bin/startup.sh",
+                                                      Language::Java.overridable_java_home_env
   end
 
   def caveats
@@ -30,6 +35,7 @@ class TomeeWebprofile < Formula
   end
 
   test do
+    ENV["JAVA_HOME"] = Formula["openjdk"].opt_prefix
     system "#{opt_libexec}/bin/configtest.sh"
   end
 end

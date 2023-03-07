@@ -1,16 +1,31 @@
 class Pcre2 < Formula
   desc "Perl compatible regular expressions library with a new API"
   homepage "https://www.pcre.org/"
-  url "https://ftp.pcre.org/pub/pcre/pcre2-10.35.tar.bz2"
-  sha256 "9ccba8e02b0ce78046cdfb52e5c177f0f445e421059e43becca4359c669d4613"
+  url "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.42/pcre2-10.42.tar.bz2"
+  sha256 "8d36cd8cb6ea2a4c2bb358ff6411b0c788633a2a45dabbf1aeb4b701d1b5e840"
   license "BSD-3-Clause"
-  head "svn://vcs.exim.org/pcre2/code/trunk"
+
+  livecheck do
+    url :stable
+    regex(/^pcre2[._-]v?(\d+(?:\.\d+)+)$/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "6a1e59a5db23d684f92d2bf695601d1b466f3e9d5407f704ba4679d885d13cef" => :catalina
-    sha256 "d7be9b0193654484e40bc30dd330711cc1e72fa9bf29f854dd50458f6a827d1b" => :mojave
-    sha256 "69c4fb400d19d1910df33376974b274362ed715ab7d67ee480b5211156174784" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "8423a338c590ab1a6f265b39a9d1a67ab1361a586f0e494a8c9555cff2867536"
+    sha256 cellar: :any,                 arm64_monterey: "23ce93cf86bd4816b7d039efa0a5d68c751bce3f552a8cbf41762518b4be199e"
+    sha256 cellar: :any,                 arm64_big_sur:  "69483f445671a54f0e03f96b7ef41218913f793a84c32cf98de1e79aa029fbf1"
+    sha256 cellar: :any,                 ventura:        "7f414ed9d561dc85aacd41c7d18a452d3f58a6fe73af02b8fb876483080ec4df"
+    sha256 cellar: :any,                 monterey:       "76ccbd45954e84db49558afca66ff135e615e5c9069bafe519ce9a1029e17530"
+    sha256 cellar: :any,                 big_sur:        "1d858ca3171ba18bc70ca3980bafca1ce5ec65eb6550ff87d4f5facae0dd3b32"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "6fb73ccbfd7f7d48b9400512ded73383a19dc54ec015ab1aab2b849480c3b3f8"
+  end
+
+  head do
+    url "https://github.com/PCRE2Project/pcre2.git", branch: "master"
+
+    depends_on "autoconf" => :build
+    depends_on "automake" => :build
+    depends_on "libtool" => :build
   end
 
   uses_from_macos "bzip2"
@@ -24,8 +39,12 @@ class Pcre2 < Formula
       --enable-pcre2-32
       --enable-pcre2grep-libz
       --enable-pcre2grep-libbz2
+      --enable-jit
     ]
-    args << "--enable-jit" if Hardware::CPU.arch == :x86_64
+
+    args << "--enable-pcre2test-libedit" if OS.mac?
+
+    system "./autogen.sh" if build.head?
 
     system "./configure", *args
     system "make"

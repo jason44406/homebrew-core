@@ -3,21 +3,27 @@ class AwsGoogleAuth < Formula
 
   desc "Acquire AWS credentials using Google Apps"
   homepage "https://github.com/cevoaustralia/aws-google-auth"
-  url "https://github.com/cevoaustralia/aws-google-auth/archive/0.0.36.tar.gz"
-  sha256 "c880633b2813b3fd2312fd1301a8927ebc7b13c3405932bd0ec760cecfb7c780"
+  url "https://files.pythonhosted.org/packages/32/4c/3a1dd1781c9d3bb4a85921b3d3e6e32fc0f0bad61ace6a8e1bd1a59c5ba0/aws-google-auth-0.0.38.tar.gz"
+  sha256 "7a044636df2f0ce6ceb01f8f57aba0b6a79ae58a91bef788b0ccc6474914e8ee"
   license "MIT"
-  head "https://github.com/cevoaustralia/aws-google-auth.git"
+  revision 3
+  head "https://github.com/cevoaustralia/aws-google-auth.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "1d6890e0d3fd5e514d91db206c47b798ee5c5411a25cf2cd2eda8cf4abfc4806" => :catalina
-    sha256 "a1da781b800a1a533e2b6afd3443f77b04a952da872320732c16b1bab858a4a5" => :mojave
-    sha256 "371f6acaf6ce534b1a7d6569ea5fb02d05a0da5818b6f0e7097edb91ebdc5a66" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "38adcec404107aa3a11cdd6c502c8db788d31b39c20f78170e0a2347d9dda1f9"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "20a863f8a5894e9db4d4ec8ee4c4933062121ca6248f36b2954c96902491f0db"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "2c76f2e7fca79fd9a707685fe8be1e84bc10e894741ddb20b95203e65d4043c3"
+    sha256 cellar: :any_skip_relocation, ventura:        "43f460fed16266678a15a9e1996a4123783d454c83161c0c9d52c028a2bd1ace"
+    sha256 cellar: :any_skip_relocation, monterey:       "48356dcb8aabb80ca37213fbcf3472b71ec49877005678b2da24f4ac6554919b"
+    sha256 cellar: :any_skip_relocation, big_sur:        "a685483c34374eaa9dec45c840f523b6b7112e9149293ca61a48fac4edce7bfc"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "313157c28c0ff67f56fff8758e23c6439f073aee8251bf2f9aade34e4cf17cbb"
   end
 
-  depends_on "freetype"
-  depends_on "jpeg"
-  depends_on "python@3.8"
+  depends_on "pillow"
+  depends_on "python-tabulate"
+  depends_on "python@3.11"
+  depends_on "six"
 
   uses_from_macos "libffi"
   uses_from_macos "libxml2"
@@ -25,209 +31,172 @@ class AwsGoogleAuth < Formula
 
   on_linux do
     depends_on "pkg-config" => :build
-  end
-
-  resource "soupsieve" do
-    url "https://files.pythonhosted.org/packages/15/53/3692c565aea19f7d9dd696fee3d0062782e9ad5bf9535267180511a15967/soupsieve-2.0.tar.gz"
-    sha256 "e914534802d7ffd233242b785229d5ba0766a7f487385e3f714446a07bf540ae"
+    depends_on "rust" => :build
   end
 
   resource "beautifulsoup4" do
-    url "https://files.pythonhosted.org/packages/3b/e4/7cfc641f11e0eef60123912611a5c9ee7d4638da7325878b695b9ae4bb6f/beautifulsoup4-4.9.0.tar.gz"
-    sha256 "594ca51a10d2b3443cbac41214e12dbb2a1cd57e1a7344659849e2e20ba6a8d8"
-  end
-
-  resource "Pillow" do
-    url "https://files.pythonhosted.org/packages/81/1a/6b2971adc1bca55b9a53ed1efa372acff7e8b9913982a396f3fa046efaf8/Pillow-6.0.0.tar.gz"
-    sha256 "809c0a2ce9032cbcd7b5313f71af4bdc5c8c771cb86eb7559afd954cab82ebb5"
-  end
-
-  resource "docutils" do
-    url "https://files.pythonhosted.org/packages/93/22/953e071b589b0b1fee420ab06a0d15e5aa0c7470eb9966d60393ce58ad61/docutils-0.15.2.tar.gz"
-    sha256 "a2aeea129088da402665e92e0b25b04b073c04b2dce4ab65caaa38b7ce2e1a99"
-  end
-
-  resource "jmespath" do
-    url "https://files.pythonhosted.org/packages/5c/40/3bed01fc17e2bb1b02633efc29878dfa25da479ad19a69cfb11d2b88ea8e/jmespath-0.9.5.tar.gz"
-    sha256 "cca55c8d153173e21baa59983015ad0daf603f9cb799904ff057bfb8ff8dc2d9"
-  end
-
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/21/9f/b251f7f8a76dec1d6651be194dfba8fb8d7781d10ab3987190de8391d08e/six-1.14.0.tar.gz"
-    sha256 "236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a"
-  end
-
-  resource "python-dateutil" do
-    url "https://files.pythonhosted.org/packages/be/ed/5bbc91f03fa4c839c4c7360375da77f9659af5f7086b7a7bdda65771c8e0/python-dateutil-2.8.1.tar.gz"
-    sha256 "73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"
-  end
-
-  resource "urllib3" do
-    url "https://files.pythonhosted.org/packages/05/8c/40cd6949373e23081b3ea20d5594ae523e681b6f472e600fbc95ed046a36/urllib3-1.25.9.tar.gz"
-    sha256 "3018294ebefce6572a474f0604c2021e33b3fd8006ecd11d62107a5d2a963527"
-  end
-
-  resource "botocore" do
-    url "https://files.pythonhosted.org/packages/1b/aa/2a4ab9f8a2b4a87d3dc3451b0df9aa695707549d9d5206fefcefb31e8224/botocore-1.15.41.tar.gz"
-    sha256 "a45a65ba036bc980decfc3ce6c2688a2d5fffd76e4b02ea4d59e63ff0f6896d4"
-  end
-
-  resource "s3transfer" do
-    url "https://files.pythonhosted.org/packages/50/de/2b688c062107942486c81a739383b1432a72717d9a85a6a1a692f003c70c/s3transfer-0.3.3.tar.gz"
-    sha256 "921a37e2aefc64145e7b73d50c71bb4f26f46e4c9f414dc648c6245ff92cf7db"
+    url "https://files.pythonhosted.org/packages/e8/b0/cd2b968000577ec5ce6c741a54d846dfa402372369b8b6861720aa9ecea7/beautifulsoup4-4.11.1.tar.gz"
+    sha256 "ad9aa55b65ef2808eb405f46cf74df7fcb7044d5cbc26487f96eb2ef2e436693"
   end
 
   resource "boto3" do
-    url "https://files.pythonhosted.org/packages/2b/5a/b54170621b5ab51a1661863bc37dae681b9e16c14b33aa5fa62822e53098/boto3-1.12.41.tar.gz"
-    sha256 "c2c1ee703cb0fa03c5df84b7f00eaa462c808be477dc9014c1e8eef269122770"
+    url "https://files.pythonhosted.org/packages/90/8a/bd891775c4948f2ae5d8dd9af13f6d0a085bc82dc7608abf474691558eb1/boto3-1.26.25.tar.gz"
+    sha256 "e0ba3620feb430e31926270ea3dc0bb94df55a0fd2b209bd91f7904f2f2166ef"
   end
 
-  resource "configparser" do
-    url "https://files.pythonhosted.org/packages/e5/7c/d4ccbcde76b4eea8cbd73b67b88c72578e8b4944d1270021596e80b13deb/configparser-5.0.0.tar.gz"
-    sha256 "2ca44140ee259b5e3d8aaf47c79c36a7ab0d5e94d70bd4105c03ede7a20ea5a1"
-  end
-
-  resource "entrypoints" do
-    url "https://files.pythonhosted.org/packages/b4/ef/063484f1f9ba3081e920ec9972c96664e2edb9fdc3d8669b0e3b8fc0ad7c/entrypoints-0.3.tar.gz#sha256=c70dd71abe5a8c85e55e12c19bd91ccfeec11a6e99044204511f9ed547d48451"
-    sha256 "c70dd71abe5a8c85e55e12c19bd91ccfeec11a6e99044204511f9ed547d48451"
-  end
-
-  resource "keyring" do
-    url "https://files.pythonhosted.org/packages/0b/2a/4abe0beccb37d125d77fd716d18c1a5cde509faa60a1b0d2e9bba13ec572/keyring-21.2.0.tar.gz"
-    sha256 "197fd5903901030ef7b82fe247f43cfed2c157a28e7747d1cfcf4bc5e699dd03"
-  end
-
-  resource "keyrings.alt" do
-    url "https://files.pythonhosted.org/packages/de/95/b127128917fef9ace8d8bfa66f3e3a81915d3dfa295d5f06784bca0c9854/keyrings.alt-3.4.0.tar.gz"
-    sha256 "91328ac4229e70b1d0061d21bf61d36b031a6b4828f2682e38c741812f6eb23d"
-  end
-
-  resource "lxml" do
-    url "https://files.pythonhosted.org/packages/39/2b/0a66d5436f237aff76b91e68b4d8c041d145ad0a2cdeefe2c42f76ba2857/lxml-4.5.0.tar.gz"
-    sha256 "8620ce80f50d023d414183bf90cc2576c2837b88e00bea3f33ad2630133bbb60"
+  resource "botocore" do
+    url "https://files.pythonhosted.org/packages/5e/d5/503f88cc4ccf6881db110c31257c1aa5270c59aad0be6e807a6520db0b71/botocore-1.29.25.tar.gz"
+    sha256 "a204140c9d7adadf3919d8024d79278f1865a20c869e4f216eaea599ca3a1743"
   end
 
   resource "certifi" do
-    url "https://files.pythonhosted.org/packages/b8/e2/a3a86a67c3fc8249ed305fc7b7d290ebe5e4d46ad45573884761ef4dea7b/certifi-2020.4.5.1.tar.gz"
-    sha256 "51fcb31174be6e6664c5f69e3e1691a2d72a1a12e90f872cbdb1567eb47b6519"
+    url "https://files.pythonhosted.org/packages/37/f7/2b1b0ec44fdc30a3d31dfebe52226be9ddc40cd6c0f34ffc8923ba423b69/certifi-2022.12.7.tar.gz"
+    sha256 "35824b4c3a97115964b408844d64aa14db1cc518f6562e8d7261699d1350a9e3"
   end
 
-  resource "chardet" do
-    url "https://files.pythonhosted.org/packages/fc/bb/a5768c230f9ddb03acc9ef3f0d4a3cf93462473795d18e9535498c8f929d/chardet-3.0.4.tar.gz#sha256=84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae"
-    sha256 "84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae"
+  resource "charset-normalizer" do
+    url "https://files.pythonhosted.org/packages/a1/34/44964211e5410b051e4b8d2869c470ae8a68ae274953b1c7de6d98bbcf94/charset-normalizer-2.1.1.tar.gz"
+    sha256 "5a3d016c7c547f69d6f81fb0db9449ce888b418b5b9952cc5e6e66843e9dd845"
   end
 
-  resource "idna" do
-    url "https://files.pythonhosted.org/packages/cb/19/57503b5de719ee45e83472f339f617b0c01ad75cba44aba1e4c97c2b0abd/idna-2.9.tar.gz"
-    sha256 "7588d1c14ae4c77d74036e8c22ff447b26d0fde8f007354fd48a7814db15b7cb"
-  end
-
-  resource "requests" do
-    url "https://files.pythonhosted.org/packages/f5/4f/280162d4bd4d8aad241a21aecff7a6e46891b905a4341e7ab549ebaf7915/requests-2.23.0.tar.gz"
-    sha256 "b3f43d496c6daba4493e7c431722aeb7dbc6288f52a6e04e7b6023b0247817e6"
-  end
-
-  resource "tabulate" do
-    url "https://files.pythonhosted.org/packages/57/6f/213d075ad03c84991d44e63b6516dd7d185091df5e1d02a660874f8f7e1e/tabulate-0.8.7.tar.gz"
-    sha256 "db2723a20d04bcda8522165c73eea7c300eda74e0ce852d9022e0159d7895007"
-  end
-
-  resource "pytz" do
-    url "https://files.pythonhosted.org/packages/82/c3/534ddba230bd4fbbd3b7a3d35f3341d014cca213f369a9940925e7e5f691/pytz-2019.3.tar.gz"
-    sha256 "b02c06db6cf09c12dd25137e563b31700d3b80fcc4ad23abb7a315f2789819be"
-  end
-
-  resource "tzlocal" do
-    url "https://files.pythonhosted.org/packages/c6/52/5ec375d4efcbe4e31805f3c4b301bdfcff9dcbdb3605d4b79e117a16b38d/tzlocal-2.0.0.tar.gz"
-    sha256 "949b9dd5ba4be17190a80c0268167d7e6c92c62b30026cf9764caf3e308e5590"
+  resource "configparser" do
+    url "https://files.pythonhosted.org/packages/4b/c0/3a47084aca7a940ed1334f89ed2e67bcb42168c4f40c486e267fe71e7aa0/configparser-5.3.0.tar.gz"
+    sha256 "8be267824b541c09b08db124917f48ab525a6c3e837011f3130781a224c57090"
   end
 
   resource "filelock" do
-    url "https://files.pythonhosted.org/packages/14/ec/6ee2168387ce0154632f856d5cc5592328e9cf93127c5c9aeca92c8c16cb/filelock-3.0.12.tar.gz"
-    sha256 "18d82244ee114f543149c66a6e0c14e9c4f8a1044b5cdaadd0f82159d6a6ff59"
+    url "https://files.pythonhosted.org/packages/d8/73/292d9ea2370840a163e6dd2d2816a571244e9335e2f6ad957bf0527c492f/filelock-3.8.2.tar.gz"
+    sha256 "7565f628ea56bfcd8e54e42bdc55da899c85c1abfe1b5bcfd147e9188cebb3b2"
+  end
+
+  resource "idna" do
+    url "https://files.pythonhosted.org/packages/8b/e1/43beb3d38dba6cb420cefa297822eac205a277ab43e5ba5d5c46faf96438/idna-3.4.tar.gz"
+    sha256 "814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4"
+  end
+
+  resource "importlib-metadata" do
+    url "https://files.pythonhosted.org/packages/32/5a/e0d75c8010295ae6746f379f5324bc726076dfc426548bfa6f0763fce870/importlib_metadata-5.1.0.tar.gz"
+    sha256 "d5059f9f1e8e41f80e9c56c2ee58811450c31984dfa625329ffd7c0dad88a73b"
+  end
+
+  resource "jaraco.classes" do
+    url "https://files.pythonhosted.org/packages/bf/02/a956c9bfd2dfe60b30c065ed8e28df7fcf72b292b861dca97e951c145ef6/jaraco.classes-3.2.3.tar.gz"
+    sha256 "89559fa5c1d3c34eff6f631ad80bb21f378dbcbb35dd161fd2c6b93f5be2f98a"
+  end
+
+  resource "jmespath" do
+    url "https://files.pythonhosted.org/packages/00/2a/e867e8531cf3e36b41201936b7fa7ba7b5702dbef42922193f05c8976cd6/jmespath-1.0.1.tar.gz"
+    sha256 "90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe"
+  end
+
+  resource "keyring" do
+    url "https://files.pythonhosted.org/packages/1c/35/c22960f14f5e17384296b2f09da259f8b5244fb3831eccec71cf948a49c6/keyring-23.11.0.tar.gz"
+    sha256 "ad192263e2cdd5f12875dedc2da13534359a7e760e77f8d04b50968a821c2361"
+  end
+
+  resource "keyrings.alt" do
+    url "https://files.pythonhosted.org/packages/88/4e/2af12a91eb8245b7ff24fdc0afbe5a1d62e9d5ec24ffdb53972753cec644/keyrings.alt-4.2.0.tar.gz"
+    sha256 "2ba3d56441ba0637f5f9c096068f67010ac0453f9d0b626de2aa3019353b6431"
+  end
+
+  resource "lxml" do
+    url "https://files.pythonhosted.org/packages/70/bb/7a2c7b4f8f434aa1ee801704bf08f1e53d7b5feba3d5313ab17003477808/lxml-4.9.1.tar.gz"
+    sha256 "fe749b052bb7233fe5d072fcb549221a8cb1a16725c47c37e42b0b9cb3ff2c3f"
+  end
+
+  resource "more-itertools" do
+    url "https://files.pythonhosted.org/packages/13/b3/397aa9668da8b1f0c307bc474608653d46122ae0563d1d32f60e24fa0cbd/more-itertools-9.0.0.tar.gz"
+    sha256 "5a6257e40878ef0520b1803990e3e22303a41b5714006c32a3fd8304b26ea1ab"
+  end
+
+  resource "python-dateutil" do
+    url "https://files.pythonhosted.org/packages/4c/c4/13b4776ea2d76c115c1d1b84579f3764ee6d57204f6be27119f13a61d0a9/python-dateutil-2.8.2.tar.gz"
+    sha256 "0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"
+  end
+
+  resource "pytz-deprecation-shim" do
+    url "https://files.pythonhosted.org/packages/94/f0/909f94fea74759654390a3e1a9e4e185b6cd9aa810e533e3586f39da3097/pytz_deprecation_shim-0.1.0.post0.tar.gz"
+    sha256 "af097bae1b616dde5c5744441e2ddc69e74dfdcb0c263129610d85b87445a59d"
+  end
+
+  resource "requests" do
+    url "https://files.pythonhosted.org/packages/a5/61/a867851fd5ab77277495a8709ddda0861b28163c4613b011bc00228cc724/requests-2.28.1.tar.gz"
+    sha256 "7c5599b102feddaa661c826c56ab4fee28bfd17f5abca1ebbe3e7f19d7c97983"
+  end
+
+  resource "s3transfer" do
+    url "https://files.pythonhosted.org/packages/e1/eb/e57c93d5cd5edf8c1d124c831ef916601540db70acd96fa21fe60cef1365/s3transfer-0.6.0.tar.gz"
+    sha256 "2ed07d3866f523cc561bf4a00fc5535827981b117dd7876f036b0c1aca42c947"
+  end
+
+  resource "soupsieve" do
+    url "https://files.pythonhosted.org/packages/f3/03/bac179d539362319b4779a00764e95f7542f4920084163db6b0fd4742d38/soupsieve-2.3.2.post1.tar.gz"
+    sha256 "fc53893b3da2c33de295667a0e19f078c14bf86544af307354de5fcf12a3f30d"
+  end
+
+  resource "tzdata" do
+    url "https://files.pythonhosted.org/packages/5b/30/b7abfb11be6642d26de1c1840d25e8d90333513350ad0ebc03101d55e13b/tzdata-2022.7.tar.gz"
+    sha256 "fe5f866eddd8b96e9fcba978f8e503c909b19ea7efda11e52e39494bad3a7bfa"
+  end
+
+  resource "tzlocal" do
+    url "https://files.pythonhosted.org/packages/7d/b9/164d5f510e0547ae92280d0ca4a90407a15625901afbb9f57a19d9acd9eb/tzlocal-4.2.tar.gz"
+    sha256 "ee5842fa3a795f023514ac2d801c4a81d1743bbe642e3940143326b3a00addd7"
+  end
+
+  resource "urllib3" do
+    url "https://files.pythonhosted.org/packages/c2/51/32da03cf19d17d46cce5c731967bf58de9bd71db3a379932f53b094deda4/urllib3-1.26.13.tar.gz"
+    sha256 "c083dd0dce68dbfbe1129d5271cb90f9447dea7d52097c6e0126120c521ddea8"
+  end
+
+  resource "zipp" do
+    url "https://files.pythonhosted.org/packages/8e/b3/8b16a007184714f71157b1a71bbe632c5d66dd43bc8152b3c799b13881e1/zipp-3.11.0.tar.gz"
+    sha256 "a7a22e05929290a67401440b39690ae6563279bced5f314609d9d03798f56766"
   end
 
   resource "pycparser" do
     on_linux do
-      url "https://files.pythonhosted.org/packages/68/9e/49196946aee219aead1290e00d1e7fdeab8567783e83e1b9ab5585e6206a/pycparser-2.19.tar.gz#sha256=a988718abfad80b6b157acce7bf130a30876d27603738ac39f140993246b25b3"
-      sha256 "a988718abfad80b6b157acce7bf130a30876d27603738ac39f140993246b25b3"
+      url "https://files.pythonhosted.org/packages/5e/0b/95d387f5f4433cb0f53ff7ad859bd2c6051051cebbb564f139a999ab46de/pycparser-2.21.tar.gz"
+      sha256 "e644fdec12f7872f86c58ff790da456218b10f863970249516d60a5eaca77206"
     end
   end
 
   resource "cffi" do
     on_linux do
-      url "https://files.pythonhosted.org/packages/2d/bf/960e5a422db3ac1a5e612cb35ca436c3fc985ed4b7ed13a1b4879006f450/cffi-1.13.2.tar.gz#sha256=599a1e8ff057ac530c9ad1778293c665cb81a791421f46922d80a86473c13346"
-      sha256 "599a1e8ff057ac530c9ad1778293c665cb81a791421f46922d80a86473c13346"
+      url "https://files.pythonhosted.org/packages/2b/a8/050ab4f0c3d4c1b8aaa805f70e26e84d0e27004907c5b8ecc1d31815f92a/cffi-1.15.1.tar.gz"
+      sha256 "d400bfb9a37b1351253cb402671cea7e89bdecc294e8016a707f6d1d8ac934f9"
     end
   end
 
   resource "cryptography" do
     on_linux do
-      url "https://files.pythonhosted.org/packages/be/60/da377e1bed002716fb2d5d1d1cab720f298cb33ecff7bf7adea72788e4e4/cryptography-2.8.tar.gz#sha256=3cda1f0ed8747339bbdf71b9f38ca74c7b592f24f65cdb3ab3765e4b02871651"
-      sha256 "3cda1f0ed8747339bbdf71b9f38ca74c7b592f24f65cdb3ab3765e4b02871651"
+      url "https://files.pythonhosted.org/packages/13/dd/a9608b7aebe5d2dc0c98a4b2090a6b815628efa46cc1c046b89d8cd25f4c/cryptography-38.0.3.tar.gz"
+      sha256 "bfbe6ee19615b07a98b1d2287d6a6073f734735b49ee45b11324d85efc4d5cbd"
     end
   end
 
   resource "jeepney" do
     on_linux do
-      url "https://files.pythonhosted.org/packages/74/24/9b720cc6b2a73c908896a0ed64cb49780dcfbf4964e23a725aa6323f4452/jeepney-0.4.3.tar.gz#sha256=3479b861cc2b6407de5188695fa1a8d57e5072d7059322469b62628869b8e36e"
-      sha256 "3479b861cc2b6407de5188695fa1a8d57e5072d7059322469b62628869b8e36e"
+      url "https://files.pythonhosted.org/packages/d6/f4/154cf374c2daf2020e05c3c6a03c91348d59b23c5366e968feb198306fdf/jeepney-0.8.0.tar.gz"
+      sha256 "5efe48d255973902f6badc3ce55e2aa6c5c3b3bc642059ef3a91247bcfcc5806"
     end
   end
 
-  resource "secretstorage" do
+  resource "SecretStorage" do
     on_linux do
-      url "https://files.pythonhosted.org/packages/a6/89/df343dbc2957a317127e7ff2983230dc5336273be34f2e1911519d85aeb5/SecretStorage-3.1.1.tar.gz#sha256=20c797ae48a4419f66f8d28fc221623f11fc45b6828f96bdb1ad9990acb59f92"
-      sha256 "20c797ae48a4419f66f8d28fc221623f11fc45b6828f96bdb1ad9990acb59f92"
+      url "https://files.pythonhosted.org/packages/53/a4/f48c9d79cb507ed1373477dbceaba7401fd8a23af63b837fa61f1dcd3691/SecretStorage-3.3.3.tar.gz"
+      sha256 "2403533ef369eca6d2ba81718576c5e0f564d5cca1b58f73a8b23e7d4eeebd77"
     end
   end
 
   def install
-    # Fix "ld: file not found: /usr/lib/system/libsystem_darwin.dylib" for lxml
-    ENV["SDKROOT"] = MacOS.sdk_path if MacOS.version == :sierra
-
-    venv = virtualenv_create(libexec, "python3")
-
-    resource("entrypoints").stage do
-      # Without removing this file, `pip` will ignore the `setup.py` file and
-      # attempt to download the [`flit`](https://github.com/takluyver/flit)
-      # build system.
-      rm_f "pyproject.toml"
-
-      venv.pip_install Pathname.pwd
-    end
-
-    resource("Pillow").stage do
-      inreplace "setup.py" do |s|
-        sdkprefix = MacOS.sdk_path_if_needed ? MacOS.sdk_path : ""
-        s.gsub! "openjpeg.h",
-          "probably_not_a_header_called_this_eh.h"
-        s.gsub! "ZLIB_ROOT = None",
-          "ZLIB_ROOT = ('#{sdkprefix}/usr/lib', '#{sdkprefix}/usr/include')"
-        s.gsub! "JPEG_ROOT = None",
-          "JPEG_ROOT = ('#{Formula["jpeg"].opt_prefix}/lib', '#{Formula["jpeg"].opt_prefix}/include')"
-        s.gsub! "FREETYPE_ROOT = None",
-          "FREETYPE_ROOT = ('#{Formula["freetype"].opt_prefix}/lib', '#{Formula["freetype"].opt_prefix}/include')"
-      end
-
-      # avoid triggering "helpful" distutils code that doesn't recognize Xcode 7 .tbd stubs
-      unless MacOS::CLT.installed?
-        ENV.append "CFLAGS", "-I#{MacOS.sdk_path}/System/Library/Frameworks/Tk.framework/Versions/8.5/Headers"
-      end
-      venv.pip_install Pathname.pwd
-    end
-
-    res = resources.map(&:name).to_set - ["entrypoints", "Pillow"]
-
-    res.each do |r|
-      venv.pip_install resource(r)
-    end
-
-    venv.pip_install_and_link buildpath
+    virtualenv_install_with_resources
   end
 
   test do
-    assert_match /Invalid username or password/,
-      shell_output("echo 'foobar' | #{bin}/aws-google-auth -u foo -I C01111111 -S 111111111111 2>&1", 1)
+    auth_process = IO.popen "#{bin}/aws-google-auth"
+    sleep 10
+    Process.kill "TERM", auth_process.pid
+    assert_match "AWS Region:", auth_process.read
   end
 end

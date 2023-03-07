@@ -3,23 +3,29 @@ class Cookiecutter < Formula
 
   desc "Utility that creates projects from templates"
   homepage "https://github.com/cookiecutter/cookiecutter"
-  url "https://github.com/cookiecutter/cookiecutter/archive/1.7.2.tar.gz"
-  sha256 "32d176621bbbe76f11012e015930d2382f0fbe803362091e79a5dddbf5612abc"
+  url "https://files.pythonhosted.org/packages/96/43/65a3dad94dceaaaa12807ce4d4eff1064db6e91a8c6fb6945e3e61e63552/cookiecutter-2.1.1.tar.gz"
+  sha256 "f3982be8d9c53dac1261864013fdec7f83afd2e42ede6f6dd069c5e149c540d5"
   license "BSD-3-Clause"
-  head "https://github.com/cookiecutter/cookiecutter.git"
+  head "https://github.com/cookiecutter/cookiecutter.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "a2478744f1af2f5f7c88cf397f9b0909aa7ccbd9006bb47bae8d0d7de47e827a" => :catalina
-    sha256 "94952b16808a3e0428e3403f495d163532079a93ed7e1d1c56b0946f8bc354f4" => :mojave
-    sha256 "ced26761fb874fe209564d63067b40713ae17de01c7bb16baed6b8e75675abc6" => :high_sierra
+    rebuild 3
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "b8f9c48b055b403ce01f51f69ba08534c5ae194b26424e6a1c933dc26f3063e4"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "58877579e48f540668e3a9cfd1103ca4d0fd12e55961cbd4d0ffec4b93ff0b79"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "ceb1d37e1f947b2fd189fccb07879c2bb8d364edfe7ba13d4cc4cfb0b94cda9e"
+    sha256 cellar: :any_skip_relocation, ventura:        "77887a257f9dd8d83316b29c7de657fef70306f227eeb181aed8fe2a07cc08b0"
+    sha256 cellar: :any_skip_relocation, monterey:       "2a75dddb0d521ebfd8a4214eacec8209f7442fb390998a1151e7ba0b745b4d87"
+    sha256 cellar: :any_skip_relocation, big_sur:        "c8308d71ed751100b9f9a0163e519baf631d8e12b1e39b95b5d969f2490dd3cb"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "675482def9f3d9dd76605a39a390c56e92a87bd97d5512c5759a430eb062c70d"
   end
 
-  depends_on "python@3.8"
+  depends_on "python@3.11"
+  depends_on "pyyaml"
+  depends_on "six"
 
   resource "arrow" do
-    url "https://files.pythonhosted.org/packages/17/d0/8a69308a5cf4f07c53dca744402606610ec910dda1a9cdc94b3fc4a0c3a5/arrow-0.15.5.tar.gz"
-    sha256 "5390e464e2c5f76971b60ffa7ee29c598c7501a294bc9f5e6dadcb251a5d027b"
+    url "https://files.pythonhosted.org/packages/7f/c0/c601ea7811f422700ef809f167683899cdfddec5aa3f83597edf97349962/arrow-1.2.3.tar.gz"
+    sha256 "3934b30ca1b9f292376d9db15b19446088d12ec58629bc3f0da28fd55fb633a1"
   end
 
   resource "binaryornot" do
@@ -28,28 +34,33 @@ class Cookiecutter < Formula
   end
 
   resource "certifi" do
-    url "https://files.pythonhosted.org/packages/b8/e2/a3a86a67c3fc8249ed305fc7b7d290ebe5e4d46ad45573884761ef4dea7b/certifi-2020.4.5.1.tar.gz"
-    sha256 "51fcb31174be6e6664c5f69e3e1691a2d72a1a12e90f872cbdb1567eb47b6519"
+    url "https://files.pythonhosted.org/packages/37/f7/2b1b0ec44fdc30a3d31dfebe52226be9ddc40cd6c0f34ffc8923ba423b69/certifi-2022.12.7.tar.gz"
+    sha256 "35824b4c3a97115964b408844d64aa14db1cc518f6562e8d7261699d1350a9e3"
   end
 
   resource "chardet" do
-    url "https://files.pythonhosted.org/packages/fc/bb/a5768c230f9ddb03acc9ef3f0d4a3cf93462473795d18e9535498c8f929d/chardet-3.0.4.tar.gz"
-    sha256 "84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae"
+    url "https://files.pythonhosted.org/packages/41/32/cdc91dcf83849c7385bf8e2a5693d87376536ed000807fa07f5eab33430d/chardet-5.1.0.tar.gz"
+    sha256 "0d62712b956bc154f85fb0a266e2a3c5913c2967e00348701b32411d6def31e5"
+  end
+
+  resource "charset-normalizer" do
+    url "https://files.pythonhosted.org/packages/a1/34/44964211e5410b051e4b8d2869c470ae8a68ae274953b1c7de6d98bbcf94/charset-normalizer-2.1.1.tar.gz"
+    sha256 "5a3d016c7c547f69d6f81fb0db9449ce888b418b5b9952cc5e6e66843e9dd845"
   end
 
   resource "click" do
-    url "https://files.pythonhosted.org/packages/4e/ab/5d6bc3b697154018ef196f5b17d958fac3854e2efbc39ea07a284d4a6a9b/click-7.1.1.tar.gz"
-    sha256 "8a18b4ea89d8820c5d0c7da8a64b2c324b4dabb695804dbfea19b9be9d88c0cc"
+    url "https://files.pythonhosted.org/packages/59/87/84326af34517fca8c58418d148f2403df25303e02736832403587318e9e8/click-8.1.3.tar.gz"
+    sha256 "7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e"
   end
 
   resource "idna" do
-    url "https://files.pythonhosted.org/packages/cb/19/57503b5de719ee45e83472f339f617b0c01ad75cba44aba1e4c97c2b0abd/idna-2.9.tar.gz"
-    sha256 "7588d1c14ae4c77d74036e8c22ff447b26d0fde8f007354fd48a7814db15b7cb"
+    url "https://files.pythonhosted.org/packages/8b/e1/43beb3d38dba6cb420cefa297822eac205a277ab43e5ba5d5c46faf96438/idna-3.4.tar.gz"
+    sha256 "814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4"
   end
 
   resource "Jinja2" do
-    url "https://files.pythonhosted.org/packages/64/a7/45e11eebf2f15bf987c3bc11d37dcc838d9dc81250e67e4c5968f6008b6c/Jinja2-2.11.2.tar.gz"
-    sha256 "89aab215427ef59c34ad58735269eb58b1a5808103067f7bb9d5836c651b3bb0"
+    url "https://files.pythonhosted.org/packages/7a/ff/75c28576a1d900e87eb6335b063fab47a8ef3c8b4d88524c4bf78f670cce/Jinja2-3.1.2.tar.gz"
+    sha256 "31351a702a408a9e7595a8fc6150fc3f43bb6bf7e319770cbc0db9df9437e852"
   end
 
   resource "jinja2-time" do
@@ -58,33 +69,23 @@ class Cookiecutter < Formula
   end
 
   resource "MarkupSafe" do
-    url "https://files.pythonhosted.org/packages/b9/2e/64db92e53b86efccfaea71321f597fa2e1b2bd3853d8ce658568f7a13094/MarkupSafe-1.1.1.tar.gz"
-    sha256 "29872e92839765e546828bb7754a68c418d927cd064fd4708fab9fe9c8bb116b"
-  end
-
-  resource "poyo" do
-    url "https://files.pythonhosted.org/packages/7d/56/01b496f36bbd496aed9351dd1b06cf57fd2f5028480a87adbcf7a4ff1f65/poyo-0.5.0.tar.gz"
-    sha256 "e26956aa780c45f011ca9886f044590e2d8fd8b61db7b1c1cf4e0869f48ed4dd"
+    url "https://files.pythonhosted.org/packages/1d/97/2288fe498044284f39ab8950703e88abbac2abbdf65524d576157af70556/MarkupSafe-2.1.1.tar.gz"
+    sha256 "7f91197cc9e48f989d12e4e6fbc46495c446636dfc81b9ccf50bb0ec74b91d4b"
   end
 
   resource "python-dateutil" do
-    url "https://files.pythonhosted.org/packages/be/ed/5bbc91f03fa4c839c4c7360375da77f9659af5f7086b7a7bdda65771c8e0/python-dateutil-2.8.1.tar.gz"
-    sha256 "73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"
+    url "https://files.pythonhosted.org/packages/4c/c4/13b4776ea2d76c115c1d1b84579f3764ee6d57204f6be27119f13a61d0a9/python-dateutil-2.8.2.tar.gz"
+    sha256 "0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"
   end
 
   resource "python-slugify" do
-    url "https://files.pythonhosted.org/packages/92/5f/7b84a0bba8a0fdd50c046f8b57dcf179dc16237ad33446079b7c484de04c/python-slugify-4.0.0.tar.gz"
-    sha256 "a8fc3433821140e8f409a9831d13ae5deccd0b033d4744d94b31fea141bdd84c"
+    url "https://files.pythonhosted.org/packages/7c/d3/8e523f41fc3f8d3cc58d2284bb49c1961caefc1a434599ff410ddde38f82/python-slugify-7.0.0.tar.gz"
+    sha256 "7a0f21a39fa6c1c4bf2e5984c9b9ae944483fd10b54804cb0e23a3ccd4954f0b"
   end
 
   resource "requests" do
-    url "https://files.pythonhosted.org/packages/f5/4f/280162d4bd4d8aad241a21aecff7a6e46891b905a4341e7ab549ebaf7915/requests-2.23.0.tar.gz"
-    sha256 "b3f43d496c6daba4493e7c431722aeb7dbc6288f52a6e04e7b6023b0247817e6"
-  end
-
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/21/9f/b251f7f8a76dec1d6651be194dfba8fb8d7781d10ab3987190de8391d08e/six-1.14.0.tar.gz"
-    sha256 "236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a"
+    url "https://files.pythonhosted.org/packages/a5/61/a867851fd5ab77277495a8709ddda0861b28163c4613b011bc00228cc724/requests-2.28.1.tar.gz"
+    sha256 "7c5599b102feddaa661c826c56ab4fee28bfd17f5abca1ebbe3e7f19d7c97983"
   end
 
   resource "text-unidecode" do
@@ -93,8 +94,8 @@ class Cookiecutter < Formula
   end
 
   resource "urllib3" do
-    url "https://files.pythonhosted.org/packages/05/8c/40cd6949373e23081b3ea20d5594ae523e681b6f472e600fbc95ed046a36/urllib3-1.25.9.tar.gz"
-    sha256 "3018294ebefce6572a474f0604c2021e33b3fd8006ecd11d62107a5d2a963527"
+    url "https://files.pythonhosted.org/packages/c2/51/32da03cf19d17d46cce5c731967bf58de9bd71db3a379932f53b094deda4/urllib3-1.26.13.tar.gz"
+    sha256 "c083dd0dce68dbfbe1129d5271cb90f9447dea7d52097c6e0126120c521ddea8"
   end
 
   def install

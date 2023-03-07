@@ -3,17 +3,17 @@ class Archivemount < Formula
   homepage "https://www.cybernoia.de/software/archivemount.html"
   url "https://www.cybernoia.de/software/archivemount/archivemount-0.9.1.tar.gz"
   sha256 "c529b981cacb19541b48ddafdafb2ede47a40fcaf16c677c1e2cd198b159c5b3"
+  license "LGPL-2.0-or-later"
 
   bottle do
-    cellar :any
-    sha256 "68c3994948be590e8ee5e9a9de00182162135a76b0a5dd780c7d8b067a480062" => :catalina
-    sha256 "439cdd8d7c962cf9a5144e20206ddaeaabc15c1752c58acd059e31976e254f6a" => :mojave
-    sha256 "428113b60673b6bb8be9467587f1d82bf4c9447c7f0bbdea47749bed3ec86798" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "ac01adc4cf171af9509390a108469579aaaccb9eada8a57e54c10419ad239b3e"
   end
 
   depends_on "pkg-config" => :build
   depends_on "libarchive"
-  depends_on :osxfuse
+  depends_on "libfuse@2"
+  depends_on :linux # on macOS, requires closed-source macFUSE
 
   def install
     ENV.append_to_cflags "-I/usr/local/include/osxfuse"

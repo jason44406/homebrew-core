@@ -1,16 +1,28 @@
 class Tectonic < Formula
   desc "Modernized, complete, self-contained TeX/LaTeX engine"
   homepage "https://tectonic-typesetting.github.io/"
-  url "https://github.com/tectonic-typesetting/tectonic/archive/v0.1.12.tar.gz"
-  sha256 "30d2e0fe31145a10097368f11a00540ba201be43d28e7ad580699f47bfa70bf4"
+  url "https://github.com/tectonic-typesetting/tectonic/archive/tectonic@0.12.0.tar.gz"
+  sha256 "96a53ab5ba29d2bf263f19b6f07450471118bf2067c610b362a1492d0b9b989f"
   license "MIT"
-  revision 2
+  revision 1
+  head "https://github.com/tectonic-typesetting/tectonic.git", branch: "master"
+
+  # As of writing, only the tags starting with `tectonic@` are release versions.
+  # NOTE: The `GithubLatest` strategy cannot be used here because the "latest"
+  # release on GitHub sometimes points to a tag that isn't a release version.
+  livecheck do
+    url :stable
+    regex(/^tectonic@v?(\d+(?:\.\d+)+)$/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "bd48e4e17779696ca1e647b1809ffbe65821e6387e1c787acf0ab1168bd6c059" => :catalina
-    sha256 "b01e0fad7b78afa074addd3e4e423211a4c66b327a6365639fb1f70b20af2f1e" => :mojave
-    sha256 "1a9f68211f8f9e8268652eb367d1cbafcab3bfcd5779a0be9d71ef456b326de9" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "decb0609b7fcb74eb2a31ae866ffa6c5a029fb952f0e7b6340ec2a62389d3082"
+    sha256 cellar: :any,                 arm64_monterey: "95d88b3e9f86985ef1ebf8f8312c54e74d990ca27ca067e5da680b5d4018b838"
+    sha256 cellar: :any,                 arm64_big_sur:  "c334df1e51fe1d910f9a2918f97f0a0307254de9cc0005cdb03b9c92640b42bf"
+    sha256 cellar: :any,                 ventura:        "8169a82836c8b7e569f152b9ff7eb1780b3c49eeaa55f9ae2c650e7c23f6d60a"
+    sha256 cellar: :any,                 monterey:       "427b5701bb6a6548d97ee8bf8b2bac83d99e901bd661e8140bb84d4e465f6b6e"
+    sha256 cellar: :any,                 big_sur:        "19c2550f5990ca570c579fc31b9329e17975de795ada0839eb9ddada3d30de85"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "a3cecf70dfe2804bc491cb7954d09bfd5c6948ccc8cb0249ca2ae5d96795d3eb"
   end
 
   depends_on "pkg-config" => :build
@@ -31,7 +43,7 @@ class Tectonic < Formula
     # https://crates.io/crates/openssl#manual-configuration
     ENV["OPENSSL_DIR"] = Formula["openssl@1.1"].opt_prefix
 
-    system "cargo", "install", *std_cargo_args
+    system "cargo", "install", "--features", "external-harfbuzz", *std_cargo_args
   end
 
   test do

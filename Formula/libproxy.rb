@@ -1,36 +1,49 @@
 class Libproxy < Formula
   desc "Library that provides automatic proxy configuration management"
   homepage "https://libproxy.github.io/libproxy/"
-  url "https://github.com/libproxy/libproxy/archive/0.4.15.tar.gz"
-  sha256 "18f58b0a0043b6881774187427ead158d310127fc46a1c668ad6d207fb28b4e0"
-  license "LGPL-2.1"
-  revision 2
-  head "https://github.com/libproxy/libproxy.git"
+  url "https://github.com/libproxy/libproxy/archive/refs/tags/0.4.18.tar.gz"
+  sha256 "0b4a9218d88f6cf9fa25996a3f38329a11f688a9d026141d9d0e966d8fa63837"
+  license "LGPL-2.1-or-later"
+  head "https://github.com/libproxy/libproxy.git", branch: "master"
 
   bottle do
-    sha256 "fbb6b461e2abfbd8f3c117c64410827fac0759cefab76cbccd4051f9d5b98d9c" => :catalina
-    sha256 "74b3f2231eaaaf6ca8cbcb7868b0cb71a62ed4228b1c6fb81ce1b9548819cdb6" => :mojave
-    sha256 "bf36cc90d464f46a70aca6407df2ea7c7b1b325d29346de3813298016cd0c324" => :high_sierra
+    sha256 arm64_ventura:  "6246d732f961d77005bd78e3e26dcb17ca6e30db717ff15153e318567e2d50d2"
+    sha256 arm64_monterey: "443454cdeda3546c1d04c36f51d1c71312806abd99ac968dfa22ee6dd3ac6119"
+    sha256 arm64_big_sur:  "00438a3c641cdb2326ad06e45f446ec78bd247740415d5f969cd14875c6f6902"
+    sha256 ventura:        "1dfa2bf3dec13e70f0a4af42f131cddea3016de6e0a3c12bcf9e595f2e13c911"
+    sha256 monterey:       "b1de5bf78ffc1fc870d383cd713c438e181d037506d11c95c9dafffe302e05e1"
+    sha256 big_sur:        "b22d402e7747a6a4f725c0cef38256d29292544b6117be5f761627182be3b585"
+    sha256 x86_64_linux:   "9e610ba5049b018c45b4c2a8eeae8f01391227dc30189d54ecd476496d6fdbba"
   end
 
   depends_on "cmake" => :build
-  depends_on "python@3.8"
+  depends_on "pkg-config" => :build
+  depends_on "python@3.11"
 
-  uses_from_macos "perl"
+  on_linux do
+    depends_on "dbus"
+    depends_on "glib"
+  end
+
+  # patch for `Unknown CMake command "px_check_modules"`
+  # remove in next release
+  patch do
+    url "https://github.com/libproxy/libproxy/commit/8fec01ed4b95afc71bf7710bf5b736a5de03b343.patch?full_index=1"
+    sha256 "af7f90c68f3807fefb3d8502a5180f9d71b749f21c956fc5be8a1c049ce88d05"
+  end
 
   def install
-    xy = Language::Python.major_minor_version Formula["python@3.8"].opt_bin/"python3"
-    args = std_cmake_args + %W[
-      ..
-      -DPYTHON3_SITEPKG_DIR=#{lib}/python#{xy}/site-packages
+    ENV.cxx11
+
+    args = %W[
+      -DPYTHON3_SITEPKG_DIR=#{prefix/Language::Python.site_packages("python3.11")}
       -DWITH_PERL=OFF
       -DWITH_PYTHON2=OFF
     ]
 
-    mkdir "build" do
-      system "cmake", *args
-      system "make", "install"
-    end
+    system "cmake", "-S", ".", "-B", "build", *args, *std_cmake_args
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
   end
 
   test do

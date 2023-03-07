@@ -1,21 +1,24 @@
 class Skinny < Formula
   desc "Full-stack web app framework in Scala"
-  homepage "http://skinny-framework.org/"
-  url "https://github.com/skinny-framework/skinny-framework/releases/download/3.1.0/skinny-3.1.0.tar.gz"
-  sha256 "4c5661f73bda7d5ccb5a8966efe801951e2a343cf152ac6e9a06d287c5c8712d"
+  homepage "https://skinny-framework.github.io"
+  url "https://github.com/skinny-framework/skinny-framework/releases/download/4.0.1/skinny-4.0.1.tar.gz"
+  sha256 "2382ba97f799bfc772ee79b2c084c63a1278ddd89de8dacd4ba6433f41294812"
   license "MIT"
 
-  bottle :unneeded
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "97cc1387283607f82657290b059c45d22018c2b2a93abe4ce14cf771af450def"
+  end
+
   depends_on "openjdk"
 
   def install
+    inreplace %w[skinny skinny-blank-app/skinny], "/usr/local", HOMEBREW_PREFIX
     libexec.install Dir["*"]
-    (bin/"skinny").write <<~EOS
-      #!/bin/bash
-      export PATH=#{bin}:$PATH
-      export JAVA_HOME="${JAVA_HOME:-#{Formula["openjdk"].opt_prefix}}"
-      PREFIX="#{libexec}" exec "#{libexec}/skinny" "$@"
-    EOS
+
+    skinny_env = Language::Java.overridable_java_home_env
+    skinny_env[:PATH] = "#{bin}:${PATH}"
+    skinny_env[:PREFIX] = libexec
+    (bin/"skinny").write_env_script libexec/"skinny", skinny_env
   end
 
   test do

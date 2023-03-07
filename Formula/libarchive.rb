@@ -1,14 +1,24 @@
 class Libarchive < Formula
   desc "Multi-format archive and compression library"
   homepage "https://www.libarchive.org"
-  url "https://www.libarchive.org/downloads/libarchive-3.4.3.tar.xz"
-  sha256 "0bfc3fd40491768a88af8d9b86bf04a9e95b6d41a94f9292dbc0ec342288c05f"
+  url "https://www.libarchive.org/downloads/libarchive-3.6.2.tar.xz"
+  sha256 "9e2c1b80d5fbe59b61308fdfab6c79b5021d7ff4ff2489fb12daf0a96a83551d"
+  license "BSD-2-Clause"
+  revision 1
+
+  livecheck do
+    url :homepage
+    regex(/href=.*?libarchive[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "ec29541614dd1acd7189e69c6e6a689f959d25e1fb52acf06e52b9a4c38166c4" => :catalina
-    sha256 "5cdfab0da88b4a1141cd2f512ad2815f69191bf7d9adc49e0cb9c814af286688" => :mojave
-    sha256 "df697f70e6100533afeffb949ec2c22c7fcdf23821a2a76c460977cecfbb01b8" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "8aa6a214d4ea80cb0092010bbfdd91aa6405c22b39a0587a5368c08dee6bdd15"
+    sha256 cellar: :any,                 arm64_monterey: "3dca2b28193205841b537cb73c20dbe4dc19e473068196c0815c1c2dbf1cd9c0"
+    sha256 cellar: :any,                 arm64_big_sur:  "255b8c7c939162611f4f7e7056555a19fd78459f642d224c28d4349ef8b804ff"
+    sha256 cellar: :any,                 ventura:        "bc3d258c66c8ac7a30925dc823acc0f5d65bbe72b44396785a388b4f578780ef"
+    sha256 cellar: :any,                 monterey:       "ca5dbd790a973e3f1b5d34fd8acdb7e7b1cab5d1557025939e72bad1646ab843"
+    sha256 cellar: :any,                 big_sur:        "994462e0b0807311e1825879e20a951c55b61e0445b73b843bc0c55d4570a2de"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "cf97322be50a6d08a28a1fc6838d50ca6da0e6234a87615325580a3f3784af4a"
   end
 
   keg_only :provided_by_macos
@@ -23,8 +33,7 @@ class Libarchive < Formula
   uses_from_macos "zlib"
 
   def install
-    system "./configure",
-           "--prefix=#{prefix}",
+    system "./configure", *std_configure_args,
            "--without-lzo2",    # Use lzop binary instead of lzo2 due to GPL
            "--without-nettle",  # xar hashing option but GPLv3
            "--without-xml2",    # xar hashing option but tricky dependencies
@@ -32,6 +41,11 @@ class Libarchive < Formula
            "--with-expat"       # best xar hashing option
 
     system "make", "install"
+
+    # fixes https://github.com/libarchive/libarchive/issues/1819
+    inreplace lib/"pkgconfig/libarchive.pc", "Libs.private: ", "Libs.private: -liconv " if OS.mac?
+    inreplace lib/"pkgconfig/libarchive.pc", "Requires.private: iconv", ""
+    return unless OS.mac?
 
     # Just as apple does it.
     ln_s bin/"bsdtar", bin/"tar"
@@ -43,6 +57,6 @@ class Libarchive < Formula
   test do
     (testpath/"test").write("test")
     system bin/"bsdtar", "-czvf", "test.tar.gz", "test"
-    assert_match /test/, shell_output("#{bin}/bsdtar -xOzf test.tar.gz")
+    assert_match "test", shell_output("#{bin}/bsdtar -xOzf test.tar.gz")
   end
 end

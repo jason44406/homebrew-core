@@ -1,20 +1,18 @@
 class Tup < Formula
   desc "File-based build system"
   homepage "http://gittup.org/tup/"
-  url "https://github.com/gittup/tup/archive/v0.7.9.tar.gz"
-  sha256 "9b0951afaa749186eb55d88860405b2f6b3d88632d1b5df1ec4a0bf973d8d326"
-  license "GPL-2.0"
-  head "https://github.com/gittup/tup.git"
+  url "https://github.com/gittup/tup/archive/v0.7.11.tar.gz"
+  sha256 "be24dff5f1f32cc85c73398487a756b4a393adab5e4d8500fd5164909d3e85b9"
+  license "GPL-2.0-only"
+  head "https://github.com/gittup/tup.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "6a6730ccbf131493bfd3f35b4e38f50a60cbefb122794ab603b6ad2e7fba2f28" => :catalina
-    sha256 "d1d2207224fb78fd4f1dcdbfacf2b62b10538ebacccd33356c5e93fcedad030e" => :mojave
-    sha256 "9e45e8c40a8576611ba6fa53a55c9004b31f41af75c9130ba909012ec19fef45" => :high_sierra
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "fe803cdb793a0521d4b711bbbdb150d404916e997dfba17146390219910f3383"
   end
 
   depends_on "pkg-config" => :build
-  depends_on :osxfuse
+  depends_on "libfuse"
+  depends_on :linux # on macOS, requires closed-source macFUSE
 
   def install
     ENV["TUP_LABEL"] = version

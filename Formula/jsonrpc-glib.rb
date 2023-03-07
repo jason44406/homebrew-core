@@ -1,15 +1,19 @@
 class JsonrpcGlib < Formula
   desc "GNOME library to communicate with JSON-RPC based peers"
   homepage "https://gitlab.gnome.org/GNOME/jsonrpc-glib"
-  url "https://download.gnome.org/sources/jsonrpc-glib/3.34/jsonrpc-glib-3.34.0.tar.xz"
-  sha256 "d1ceb24b503e49e7bfe6e44630c03abc65f2d047a68271eb62e332b13be90548"
-  revision 1
+  url "https://download.gnome.org/sources/jsonrpc-glib/3.42/jsonrpc-glib-3.42.0.tar.xz"
+  sha256 "221989a57ca82a12467dc427822cd7651b0cad038140c931027bf1074208276b"
+  license "LGPL-2.1-or-later"
 
   bottle do
-    cellar :any
-    sha256 "a51dd608adcefb9e3514534e49a5db64ad1e38b407b8d9349df7f3eb08bc5fe7" => :catalina
-    sha256 "b0ef1160532600a75471bb0e4cc3f48e7f092111ffa7d494534e46db43accabc" => :mojave
-    sha256 "298d4a37194ab19bc753bb4f7022ec0d34d12a30dd4860806582cda4406b62ec" => :high_sierra
+    sha256 cellar: :any, arm64_ventura:  "9a07d3d66e08e50c022e44e961ca0d3427058d940940d02a75ce7fc0e80e446c"
+    sha256 cellar: :any, arm64_monterey: "92133b3379600969851a22f77764ea937b7a2c6ed7abfaace7f5d82a46f2e365"
+    sha256 cellar: :any, arm64_big_sur:  "3dba2a5b06bdbc459d6fec65f00dad9f9b2882fa5a67da9a50daa8a9a5332171"
+    sha256 cellar: :any, ventura:        "0af2def8340cdad1583d230f62cec998cba94796ccd1f379d2aac3880a9b8df6"
+    sha256 cellar: :any, monterey:       "cd47544117766135f25e5330c9bf0d56714546c22a233d2fc958d3fad2fa1ab6"
+    sha256 cellar: :any, big_sur:        "10bac873ad2f887cb49000ba547b74f3a0f415171cfc4b277ad597838ad77ba9"
+    sha256 cellar: :any, catalina:       "56077dcb4a1b7160f150d9ce3fe15b7967b4575ba125be59dda49601d55740d8"
+    sha256               x86_64_linux:   "f045fc3c514160508c4d033da944dfffaefa784c8646d7993e57682395a55218"
   end
 
   depends_on "gobject-introspection" => :build
@@ -57,12 +61,14 @@ class JsonrpcGlib < Formula
       -lgio-2.0
       -lglib-2.0
       -lgobject-2.0
-      -lintl
       -ljson-glib-1.0
       -ljsonrpc-glib-1.0
-      -Wl,-framework
-      -Wl,CoreFoundation
     ]
+    if OS.mac?
+      flags << "-lintl"
+      flags << "-Wl,-framework"
+      flags << "-Wl,CoreFoundation"
+    end
     system ENV.cc, "test.c", "-o", "test", *flags
     system "./test"
   end

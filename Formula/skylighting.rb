@@ -1,20 +1,25 @@
 class Skylighting < Formula
   desc "Flexible syntax highlighter using KDE XML syntax descriptions"
   homepage "https://github.com/jgm/skylighting"
-  url "https://github.com/jgm/skylighting/archive/0.9.tar.gz"
-  sha256 "a9087166ee341e9f2e7c67e2ce7840c9e8e0f6872380a773219498a198e76cd0"
-  license "GPL-2.0"
-  head "https://github.com/jgm/skylighting.git"
+  url "https://github.com/jgm/skylighting/archive/0.13.2.1.tar.gz"
+  sha256 "250ce051ce406fb84beb65e7673c9b5e0485bde5d2bdc80be226e740b07f700e"
+  license "GPL-2.0-or-later"
+  head "https://github.com/jgm/skylighting.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "6f774e298df1a41e987ef7a2acc6e1ec45c4dc1175f07f2032586987dbf0e2e5" => :catalina
-    sha256 "9050fe0920451616678dde41951490e87512f0a508d67f07cefb1ed8d91f6013" => :mojave
-    sha256 "0dc7eb5496b414c2269785b3857b1f35eb1cfedc7526dc8bcb7651195d961c2f" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "ce9e68d0b5c2119d12420fd01ac4ac9b7522bb291cb1b754b28926a3d5fc6cc3"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "432c5e485da593b3a6894dd599acaa562ea59e0d8e1f1712dc3f5f249320d3a4"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "c12033c359d89036e470f79e9f6aa57f6f7aaaea8eedf145cc582c03a8281a21"
+    sha256 cellar: :any_skip_relocation, ventura:        "5d04b4cdd17b446a8766aad074c874d5d10f3178df5ef98acfdfa6a1263e1d85"
+    sha256 cellar: :any_skip_relocation, monterey:       "cd169efa86d7cd9a7873393f8f5cfb08d51bfbc933adbb90fd33d9e1296c42ec"
+    sha256 cellar: :any_skip_relocation, big_sur:        "20f657c745c2ae12347b87b7447788726825999893728f0649b4d25d5f515c28"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "6a2bd4187192187b7f84cc9fe174f9379a0472f999e1ba4c71c1dc443661ac0b"
   end
 
   depends_on "cabal-install" => :build
-  depends_on "ghc@8.8" => :build
+  depends_on "ghc" => :build
+
+  uses_from_macos "zlib"
 
   def install
     system "cabal", "v2-update"
@@ -26,7 +31,7 @@ class Skylighting < Formula
     mv buildpath/"skylighting.cabal.temp-loc", buildpath/"skylighting/skylighting.cabal"
 
     cd "skylighting" do
-      system bin/"skylighting-extract", *Dir[buildpath/"skylighting-core/xml/*.xml"]
+      system bin/"skylighting-extract", buildpath/"skylighting-core/xml"
     end
     system "cabal", "v2-install", buildpath/"skylighting", "-fexecutable", *std_cabal_v2_args
   end
@@ -58,55 +63,55 @@ class Skylighting < Formula
       \\usepackage{framed}
       \\definecolor{shadecolor}{RGB}{255,255,255}
       \\newenvironment{Shaded}{\\begin{snugshade}}{\\end{snugshade}}
-      \\newcommand{\\AlertTok}[1]{\\textcolor[rgb]{0.75,0.01,0.01}{\\textbf{\\colorbox[rgb]{0.97,0.90,0.90}{\#1}}}}
-      \\newcommand{\\AnnotationTok}[1]{\\textcolor[rgb]{0.79,0.38,0.79}{\#1}}
-      \\newcommand{\\AttributeTok}[1]{\\textcolor[rgb]{0.00,0.34,0.68}{\#1}}
-      \\newcommand{\\BaseNTok}[1]{\\textcolor[rgb]{0.69,0.50,0.00}{\#1}}
-      \\newcommand{\\BuiltInTok}[1]{\\textcolor[rgb]{0.39,0.29,0.61}{\\textbf{\#1}}}
-      \\newcommand{\\CharTok}[1]{\\textcolor[rgb]{0.57,0.30,0.62}{\#1}}
-      \\newcommand{\\CommentTok}[1]{\\textcolor[rgb]{0.54,0.53,0.53}{\#1}}
-      \\newcommand{\\CommentVarTok}[1]{\\textcolor[rgb]{0.00,0.58,1.00}{\#1}}
-      \\newcommand{\\ConstantTok}[1]{\\textcolor[rgb]{0.67,0.33,0.00}{\#1}}
-      \\newcommand{\\ControlFlowTok}[1]{\\textcolor[rgb]{0.12,0.11,0.11}{\\textbf{\#1}}}
-      \\newcommand{\\DataTypeTok}[1]{\\textcolor[rgb]{0.00,0.34,0.68}{\#1}}
-      \\newcommand{\\DecValTok}[1]{\\textcolor[rgb]{0.69,0.50,0.00}{\#1}}
-      \\newcommand{\\DocumentationTok}[1]{\\textcolor[rgb]{0.38,0.47,0.50}{\#1}}
-      \\newcommand{\\ErrorTok}[1]{\\textcolor[rgb]{0.75,0.01,0.01}{\\underline{\#1}}}
-      \\newcommand{\\ExtensionTok}[1]{\\textcolor[rgb]{0.00,0.58,1.00}{\\textbf{\#1}}}
-      \\newcommand{\\FloatTok}[1]{\\textcolor[rgb]{0.69,0.50,0.00}{\#1}}
-      \\newcommand{\\FunctionTok}[1]{\\textcolor[rgb]{0.39,0.29,0.61}{\#1}}
-      \\newcommand{\\ImportTok}[1]{\\textcolor[rgb]{1.00,0.33,0.00}{\#1}}
-      \\newcommand{\\InformationTok}[1]{\\textcolor[rgb]{0.69,0.50,0.00}{\#1}}
-      \\newcommand{\\KeywordTok}[1]{\\textcolor[rgb]{0.12,0.11,0.11}{\\textbf{\#1}}}
-      \\newcommand{\\NormalTok}[1]{\\textcolor[rgb]{0.12,0.11,0.11}{\#1}}
-      \\newcommand{\\OperatorTok}[1]{\\textcolor[rgb]{0.12,0.11,0.11}{\#1}}
-      \\newcommand{\\OtherTok}[1]{\\textcolor[rgb]{0.00,0.43,0.16}{\#1}}
-      \\newcommand{\\PreprocessorTok}[1]{\\textcolor[rgb]{0.00,0.43,0.16}{\#1}}
-      \\newcommand{\\RegionMarkerTok}[1]{\\textcolor[rgb]{0.00,0.34,0.68}{\\colorbox[rgb]{0.88,0.91,0.97}{\#1}}}
-      \\newcommand{\\SpecialCharTok}[1]{\\textcolor[rgb]{0.24,0.68,0.91}{\#1}}
-      \\newcommand{\\SpecialStringTok}[1]{\\textcolor[rgb]{1.00,0.33,0.00}{\#1}}
-      \\newcommand{\\StringTok}[1]{\\textcolor[rgb]{0.75,0.01,0.01}{\#1}}
-      \\newcommand{\\VariableTok}[1]{\\textcolor[rgb]{0.00,0.34,0.68}{\#1}}
-      \\newcommand{\\VerbatimStringTok}[1]{\\textcolor[rgb]{0.75,0.01,0.01}{\#1}}
-      \\newcommand{\\WarningTok}[1]{\\textcolor[rgb]{0.75,0.01,0.01}{\#1}}
+      \\newcommand{\\AlertTok}[1]{\\textcolor[rgb]{0.75,0.01,0.01}{\\textbf{\\colorbox[rgb]{0.97,0.90,0.90}{#1}}}}
+      \\newcommand{\\AnnotationTok}[1]{\\textcolor[rgb]{0.79,0.38,0.79}{#1}}
+      \\newcommand{\\AttributeTok}[1]{\\textcolor[rgb]{0.00,0.34,0.68}{#1}}
+      \\newcommand{\\BaseNTok}[1]{\\textcolor[rgb]{0.69,0.50,0.00}{#1}}
+      \\newcommand{\\BuiltInTok}[1]{\\textcolor[rgb]{0.39,0.29,0.61}{\\textbf{#1}}}
+      \\newcommand{\\CharTok}[1]{\\textcolor[rgb]{0.57,0.30,0.62}{#1}}
+      \\newcommand{\\CommentTok}[1]{\\textcolor[rgb]{0.54,0.53,0.53}{#1}}
+      \\newcommand{\\CommentVarTok}[1]{\\textcolor[rgb]{0.00,0.58,1.00}{#1}}
+      \\newcommand{\\ConstantTok}[1]{\\textcolor[rgb]{0.67,0.33,0.00}{#1}}
+      \\newcommand{\\ControlFlowTok}[1]{\\textcolor[rgb]{0.12,0.11,0.11}{\\textbf{#1}}}
+      \\newcommand{\\DataTypeTok}[1]{\\textcolor[rgb]{0.00,0.34,0.68}{#1}}
+      \\newcommand{\\DecValTok}[1]{\\textcolor[rgb]{0.69,0.50,0.00}{#1}}
+      \\newcommand{\\DocumentationTok}[1]{\\textcolor[rgb]{0.38,0.47,0.50}{#1}}
+      \\newcommand{\\ErrorTok}[1]{\\textcolor[rgb]{0.75,0.01,0.01}{\\underline{#1}}}
+      \\newcommand{\\ExtensionTok}[1]{\\textcolor[rgb]{0.00,0.58,1.00}{\\textbf{#1}}}
+      \\newcommand{\\FloatTok}[1]{\\textcolor[rgb]{0.69,0.50,0.00}{#1}}
+      \\newcommand{\\FunctionTok}[1]{\\textcolor[rgb]{0.39,0.29,0.61}{#1}}
+      \\newcommand{\\ImportTok}[1]{\\textcolor[rgb]{1.00,0.33,0.00}{#1}}
+      \\newcommand{\\InformationTok}[1]{\\textcolor[rgb]{0.69,0.50,0.00}{#1}}
+      \\newcommand{\\KeywordTok}[1]{\\textcolor[rgb]{0.12,0.11,0.11}{\\textbf{#1}}}
+      \\newcommand{\\NormalTok}[1]{\\textcolor[rgb]{0.12,0.11,0.11}{#1}}
+      \\newcommand{\\OperatorTok}[1]{\\textcolor[rgb]{0.12,0.11,0.11}{#1}}
+      \\newcommand{\\OtherTok}[1]{\\textcolor[rgb]{0.00,0.43,0.16}{#1}}
+      \\newcommand{\\PreprocessorTok}[1]{\\textcolor[rgb]{0.00,0.43,0.16}{#1}}
+      \\newcommand{\\RegionMarkerTok}[1]{\\textcolor[rgb]{0.00,0.34,0.68}{\\colorbox[rgb]{0.88,0.91,0.97}{#1}}}
+      \\newcommand{\\SpecialCharTok}[1]{\\textcolor[rgb]{0.24,0.68,0.91}{#1}}
+      \\newcommand{\\SpecialStringTok}[1]{\\textcolor[rgb]{1.00,0.33,0.00}{#1}}
+      \\newcommand{\\StringTok}[1]{\\textcolor[rgb]{0.75,0.01,0.01}{#1}}
+      \\newcommand{\\VariableTok}[1]{\\textcolor[rgb]{0.00,0.34,0.68}{#1}}
+      \\newcommand{\\VerbatimStringTok}[1]{\\textcolor[rgb]{0.75,0.01,0.01}{#1}}
+      \\newcommand{\\WarningTok}[1]{\\textcolor[rgb]{0.75,0.01,0.01}{#1}}
       \\title{#{testpath/"Test.java"}}
 
       \\begin{document}
       \\maketitle
       \\begin{Shaded}
       \\begin{Highlighting}[]
-      \\KeywordTok{import}\\ImportTok{ java.util.*;}
+      \\KeywordTok{import} \\ImportTok{java}\\OperatorTok{.}\\ImportTok{util}\\OperatorTok{.*;}
 
-      \\KeywordTok{public} \\KeywordTok{class}\\NormalTok{ Test \\{}
-          \\KeywordTok{public} \\DataTypeTok{static} \\DataTypeTok{void} \\FunctionTok{main}\\NormalTok{(}\\BuiltInTok{String}\\NormalTok{[] args) }\\KeywordTok{throws} \\BuiltInTok{Exception}\\NormalTok{ \\{}
-              \\DataTypeTok{final} \\BuiltInTok{ArrayDeque}\\NormalTok{\\textless{}}\\BuiltInTok{String}\\NormalTok{\\textgreater{} argDeque = }\\KeywordTok{new} \\BuiltInTok{ArrayDeque}\\NormalTok{\\textless{}\\textgreater{}(}\\BuiltInTok{Arrays}\\NormalTok{.}\\FunctionTok{asList}\\NormalTok{(args));}
-              \\KeywordTok{for}\\NormalTok{ (arg in argDeque) \\{}
-                  \\BuiltInTok{System}\\NormalTok{.}\\FunctionTok{out}\\NormalTok{.}\\FunctionTok{println}\\NormalTok{(arg);}
-                  \\KeywordTok{if}\\NormalTok{ (arg.}\\FunctionTok{equals}\\NormalTok{(}\\StringTok{\"foo\"}\\NormalTok{))}
-                      \\KeywordTok{throw} \\KeywordTok{new} \\BuiltInTok{NoSuchElementException}\\NormalTok{();}
-      \\NormalTok{        \\}}
-      \\NormalTok{    \\}}
-      \\NormalTok{\\}}
+      \\KeywordTok{public} \\KeywordTok{class}\\NormalTok{ Test }\\OperatorTok{\\{}
+          \\KeywordTok{public} \\DataTypeTok{static} \\DataTypeTok{void} \\FunctionTok{main}\\OperatorTok{(}\\BuiltInTok{String}\\OperatorTok{[]}\\NormalTok{ args}\\OperatorTok{)} \\KeywordTok{throws} \\BuiltInTok{Exception} \\OperatorTok{\\{}
+              \\DataTypeTok{final} \\BuiltInTok{ArrayDeque}\\OperatorTok{\\textless{}}\\BuiltInTok{String}\\OperatorTok{\\textgreater{}}\\NormalTok{ argDeque }\\OperatorTok{=} \\KeywordTok{new} \\BuiltInTok{ArrayDeque}\\OperatorTok{\\textless{}\\textgreater{}(}\\BuiltInTok{Arrays}\\OperatorTok{.}\\FunctionTok{asList}\\OperatorTok{(}\\NormalTok{args}\\OperatorTok{));}
+              \\ControlFlowTok{for} \\OperatorTok{(}\\NormalTok{arg in argDeque}\\OperatorTok{)} \\OperatorTok{\\{}
+                  \\BuiltInTok{System}\\OperatorTok{.}\\FunctionTok{out}\\OperatorTok{.}\\FunctionTok{println}\\OperatorTok{(}\\NormalTok{arg}\\OperatorTok{);}
+                  \\ControlFlowTok{if} \\OperatorTok{(}\\NormalTok{arg}\\OperatorTok{.}\\FunctionTok{equals}\\OperatorTok{(}\\StringTok{"foo"}\\OperatorTok{))}
+                      \\ControlFlowTok{throw} \\KeywordTok{new} \\BuiltInTok{NoSuchElementException}\\OperatorTok{();}
+              \\OperatorTok{\\}}
+          \\OperatorTok{\\}}
+      \\OperatorTok{\\}}
       \\end{Highlighting}
       \\end{Shaded}
 

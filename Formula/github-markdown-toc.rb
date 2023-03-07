@@ -1,22 +1,24 @@
 class GithubMarkdownToc < Formula
   desc "Easy TOC creation for GitHub README.md (in go)"
   homepage "https://github.com/ekalinin/github-markdown-toc.go"
-  url "https://github.com/ekalinin/github-markdown-toc.go/archive/1.0.0.tar.gz"
-  sha256 "0a13627a29114ee817160ecd3eba130c05f95c4aeedb9d0805d8b5a587fce55a"
+  url "https://github.com/ekalinin/github-markdown-toc.go/archive/refs/tags/v1.2.1.tar.gz"
+  sha256 "64e0fc1b87860ced2697ace61e1a91d9b1a14829df08f0da08e797efe5e91440"
   license "MIT"
 
   bottle do
-    cellar :any_skip_relocation
-    rebuild 1
-    sha256 "b4f9d659136a64866c45db6175dd57c366a05b99228e59c889714ae07810a9d9" => :catalina
-    sha256 "599edae04915747981605739964b0f496e22d434005be54cc7102ff64e592ba7" => :mojave
-    sha256 "44e9a44b52c69571064b4d316f99b1b0ba9b87ac0453e2f0e69a8da65513c9f7" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "e9228bf710a91e26eb1c4b24bf3815c14ebba843ed99215ad8514eb41cfc2c68"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "4b6a871dcb95229b7f01e7b3aa2e309e50db59ae2707b05777b01e0d1f340437"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "9b7f9b21a20d0ea3adc57e6f1700f22a1dd02a910ff31b90d5e25d7993eb678f"
+    sha256 cellar: :any_skip_relocation, ventura:        "2b15946d89399f867064dda64f2565ce167ff1f7a240f1a427a67a3d27eff507"
+    sha256 cellar: :any_skip_relocation, monterey:       "18e637f4ace86aa720ffe6f516811d48badfff316273daa441f364ccf6938876"
+    sha256 cellar: :any_skip_relocation, big_sur:        "ceb4404cd0d9cb9e0470df76d74b6109b4ef6668770d5cced64b0a6a1bb4e6d7"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "6b776f3f2b25671f686707ae436c0bf3e04df4cbf9dddd1ba49d2cb706a4ff17"
   end
 
   depends_on "go" => :build
 
   def install
-    system "go", "build", "-trimpath", "-o", bin/"gh-md-toc"
+    system "go", "build", *std_go_args(ldflags: "-s -w", output: bin/"gh-md-toc"), "./cmd/gh-md-toc"
   end
 
   test do

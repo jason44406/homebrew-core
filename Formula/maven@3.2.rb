@@ -7,9 +7,13 @@ class MavenAT32 < Formula
   license "Apache-2.0"
   revision 1
 
-  bottle :unneeded
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "bac2ed0bb786b98885700fdee9f2535005b0d89caebed6a6d8791d9948476206"
+  end
 
   keg_only :versioned_formula
+
+  disable! date: "2022-07-31", because: :unmaintained
 
   depends_on "openjdk"
 
@@ -31,7 +35,7 @@ class MavenAT32 < Formula
       basename = file.basename
       next if basename.to_s == "m2.conf"
 
-      (bin/basename).write_env_script file, JAVA_HOME: "${JAVA_HOME:-#{Formula["openjdk"].opt_prefix}}"
+      (bin/basename).write_env_script file, Language::Java.overridable_java_home_env
     end
   end
 

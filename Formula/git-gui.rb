@@ -1,20 +1,29 @@
 class GitGui < Formula
   desc "Tcl/Tk UI for the git revision control system"
   homepage "https://git-scm.com"
-  # Note: Please keep these values in sync with git.rb when updating.
-  url "https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.28.0.tar.xz"
-  sha256 "dfa5d1a253aa451465478fe45c6a40ab8605b340fdb4c4e80b16d7f87708439d"
-  license "GPL-2.0"
-  head "https://github.com/git/git.git", shallow: false
+  url "https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.39.2.tar.xz"
+  sha256 "475f75f1373b2cd4e438706185175966d5c11f68c4db1e48c26257c43ddcf2d6"
+  license "GPL-2.0-only"
+  head "https://github.com/git/git.git", branch: "master"
+
+  livecheck do
+    formula "git"
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "8cb98030e7d73a57d5584d67e7dabcf349ab188ad754bee2f04671ce5dc1ca5d" => :catalina
-    sha256 "904291f8245394daad2a2bd875d377939d45503237db2ddc0edbf81c2a63d039" => :mojave
-    sha256 "904291f8245394daad2a2bd875d377939d45503237db2ddc0edbf81c2a63d039" => :high_sierra
+    sha256 cellar: :any_skip_relocation, all: "9e3e31302b7f4f35288532d4fd95438aa1ad36a6784da7331666dee8ce9e3f66"
   end
 
   depends_on "tcl-tk"
+
+  # Patch to fix Homebrew/homebrew-core#68798.
+  # Remove when the following PR has been merged
+  # and included in a release:
+  # https://github.com/git/git/pull/944
+  patch do
+    url "https://github.com/git/git/commit/1db62e44b7ec93b6654271ef34065b31496cd02e.patch?full_index=1"
+    sha256 "0c7816ee9c8ddd7aa38aa29541c9138997650713bce67bdef501b1de0b50f539"
+  end
 
   def install
     # build verbosely

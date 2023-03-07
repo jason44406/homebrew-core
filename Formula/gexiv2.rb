@@ -1,34 +1,38 @@
 class Gexiv2 < Formula
   desc "GObject wrapper around the Exiv2 photo metadata library"
   homepage "https://wiki.gnome.org/Projects/gexiv2"
-  url "https://download.gnome.org/sources/gexiv2/0.12/gexiv2-0.12.1.tar.xz"
-  sha256 "8aeafd59653ea88f6b78cb03780ee9fd61a2f993070c5f0d0976bed93ac2bd77"
-  license "GPL-2.0"
+  url "https://download.gnome.org/sources/gexiv2/0.14/gexiv2-0.14.0.tar.xz"
+  sha256 "e58279a6ff20b6f64fa499615da5e9b57cf65ba7850b72fafdf17221a9d6d69e"
+  license "GPL-2.0-or-later"
+  revision 1
 
   bottle do
-    cellar :any
-    sha256 "1f8d42d1bb3e9ca58311b3a08b0576993007cb0d580e8740663e7ad4a055fb52" => :catalina
-    sha256 "7d97c40bab30a98f845560e0e6d12ea514ecceee3aab447f9a06664474d2ba10" => :mojave
-    sha256 "98515f671493f424a126e54ed940358f87a26d1bb049051735014b7c8a070900" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any, arm64_ventura:  "4acc296cbfbf2c39288b0bb622910e5e2f03ca0ad68e5d5f3af4fb503ae5bf68"
+    sha256 cellar: :any, arm64_monterey: "b6300eb15acf22cac3466956e449484911db0f9b67427829504216dcf39514f0"
+    sha256 cellar: :any, arm64_big_sur:  "a0506d0841fd0ce639b3a25d6f4fb4f822c9380cb79cc144b91f007249abe702"
+    sha256 cellar: :any, ventura:        "f5329234f64886acb9aad2e3fdbf01b774c6ae2b7a9f18cf88cfa3a57ad721da"
+    sha256 cellar: :any, monterey:       "5a8be246495cd20807578417ecbd8d9d758e234f1bd441e23acc1f52606eb2b4"
+    sha256 cellar: :any, big_sur:        "0a57239cb2d1492d0769602ce43b1b847bf0609443fe8666cf7ebd1e64bdc779"
+    sha256               x86_64_linux:   "d23162496ce910b7d2f4cd2f1e5721b75cd4346e5f6c77235ae549820a338164"
   end
 
   depends_on "gobject-introspection" => :build
   depends_on "meson" => :build
   depends_on "ninja" => :build
   depends_on "pkg-config" => :build
-  depends_on "python@3.8" => :build
+  depends_on "pygobject3" => :build
+  depends_on "python@3.11" => :build
   depends_on "vala" => :build
   depends_on "exiv2"
   depends_on "glib"
 
   def install
-    pyver = Language::Python.major_minor_version Formula["python@3.8"].opt_bin/"python3"
+    site_packages = prefix/Language::Python.site_packages("python3.11")
 
-    mkdir "build" do
-      system "meson", *std_meson_args, "-Dpython3_girdir=#{lib}/python#{pyver}/site-packages/gi/overrides", ".."
-      system "ninja"
-      system "ninja", "install"
-    end
+    system "meson", *std_meson_args, "build", "-Dpython3_girdir=#{site_packages}/gi/overrides"
+    system "meson", "compile", "-C", "build", "-v"
+    system "meson", "install", "-C", "build"
   end
 
   test do
@@ -40,14 +44,11 @@ class Gexiv2 < Formula
       }
     EOS
 
-    flags = [
-      "-I#{HOMEBREW_PREFIX}/include/glib-2.0",
-      "-I#{HOMEBREW_PREFIX}/lib/glib-2.0/include",
-      "-L#{lib}",
-      "-lgexiv2",
-    ]
-
-    system ENV.cc, "test.c", "-o", "test", *flags
+    system ENV.cc, "test.c", "-o", "test",
+                   "-I#{HOMEBREW_PREFIX}/include/glib-2.0",
+                   "-I#{HOMEBREW_PREFIX}/lib/glib-2.0/include",
+                   "-L#{lib}",
+                   "-lgexiv2"
     system "./test"
   end
 end

@@ -5,18 +5,36 @@ class Libotr < Formula
   sha256 "8b3b182424251067a952fb4e6c7b95a21e644fbb27fbd5f8af2b2ed87ca419f5"
   license "GPL-2.0"
 
+  livecheck do
+    url :homepage
+    regex(/href=.*?libotr[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
+
   bottle do
-    cellar :any
-    sha256 "b841026a4752756107affe9f6016da14ea5a9a0a48b33ccd461eced5cd89b64a" => :catalina
-    sha256 "90da0033157a7771cf7239d038f36e0d613616f1918a168fa763f3e2eafc0106" => :mojave
-    sha256 "0b340441feba4b325c3ff5c26a9e79b16294461f6f681ae42a2a5d45966e7391" => :high_sierra
-    sha256 "9f0b214278e4cdf81a1a0c083f1aa45ba64430b449121c4d0596357952dcc93d" => :sierra
-    sha256 "43d7a166cd12b611e7bf15dfa3865d18e573a81a218e2aeb0061d51203ecde39" => :el_capitan
-    sha256 "b3f215fd3952f7a97af36500365c3c017f23de107162f4c76b0e48355bd2a358" => :yosemite
-    sha256 "12338de29acd18bb5d7a90552e33b1a353ae7de3f10ab0316dfd6bda379d919b" => :mavericks
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "758ad5aecffe69404a6b32062bbdef4a7c6b89dab5d635b1f1f41b46f676e12f"
+    sha256 cellar: :any,                 arm64_monterey: "fe41c2686379f8b67aafc307e703775ab8060fb074734561e67cdc958a912e45"
+    sha256 cellar: :any,                 arm64_big_sur:  "f6a94af91827558244757f9fe7d856251f0b7b2de78e1ee38f6059808f1f51e7"
+    sha256 cellar: :any,                 ventura:        "3a1e5f35391e9b9ab7048a440b74f412100a541d43d6dd52bb6db73f3758a216"
+    sha256 cellar: :any,                 monterey:       "afa5f29cdb8a4a6618ecea8a75129679c6ade432cdae03f1e31caadeec8ddadd"
+    sha256 cellar: :any,                 big_sur:        "f59b69aa5af8b636f8bea1511fa63fed116f9c9571864fb7b44c21655e8a099b"
+    sha256 cellar: :any,                 catalina:       "8ecf904a816fc69adc5e8fe904ca2ef1b1d147090d2f6ee694ad6b5c07faa02c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "9a88f909cde9e876f1f3a9ffe30d2ba483715ba3fc03c188f78bc07758a18491"
   end
 
   depends_on "libgcrypt"
+
+  # Fix -flat_namespace being used on Big Sur and later.
+  patch do
+    url "https://raw.githubusercontent.com/Homebrew/formula-patches/03cf8088210822aa2c1ab544ed58ea04c897d9c4/libtool/configure-pre-0.4.2.418-big_sur.diff"
+    sha256 "83af02f2aa2b746bb7225872cab29a253264be49db0ecebb12f841562d9a2923"
+  end
+
+  # Fix client.c:624:30: error: 'PF_UNIX' undeclared (first use in this function)
+  patch do
+    url "https://sources.debian.org/data/main/libo/libotr/4.1.1-5/debian/patches/0006-include-socket.h.patch"
+    sha256 "cfda75f8c5bba2e735d2b4f1bb90f60b45fa1d554a97fff75cac467f7873ebde"
+  end
 
   def install
     system "./configure", "--disable-dependency-tracking",

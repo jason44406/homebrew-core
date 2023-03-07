@@ -1,15 +1,24 @@
 class Cgl < Formula
   desc "Cut Generation Library"
   homepage "https://github.com/coin-or/Cgl"
-  url "https://github.com/coin-or/Cgl/archive/releases/0.60.3.tar.gz"
-  sha256 "cfeeedd68feab7c0ce377eb9c7b61715120478f12c4dd0064b05ad640e20f3fb"
-  license "EPL-1.0"
+  url "https://github.com/coin-or/Cgl/archive/releases/0.60.6.tar.gz"
+  sha256 "9e2c51ffad816ab408763d6b931e2a3060482ee4bf1983148969de96d4b2c9ce"
+  license "EPL-2.0"
+
+  livecheck do
+    url :stable
+    regex(%r{^releases/v?(\d+(?:\.\d+)+)$}i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "6eb179515b4cf06ad8bb484e6384f6cdae99297f523372b082ef079ed84cafd4" => :catalina
-    sha256 "acdb179fb8b29973e75a674a12fa24f164b753300c625f1a4dc3ca8f3cd9dcf4" => :mojave
-    sha256 "2cc6712792b9b5fec15ec479492f4da50f371ce37af53fece6bce474f93cf336" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "97457bc867eb58f73da7c39453488704a2a9e6c0a461937239de8b8c5d86deed"
+    sha256 cellar: :any,                 arm64_monterey: "cea5e33d3a1cd912c38bc558e8c962b0ea0495820fa69b1fc29f5fb2d1386dd4"
+    sha256 cellar: :any,                 arm64_big_sur:  "7d100e6e8d3f9366d113cb527c4022c4be871fbab16c9b071d9d3abe9bffd8c1"
+    sha256 cellar: :any,                 ventura:        "02eee3abdaf5ada3a195772fdf76c39b14d42623219e443ab7551ae44ae08e87"
+    sha256 cellar: :any,                 monterey:       "4fedffb360740c5faa5bf6b62ae7d451e2d7a4cba55da63f8ed760c95458368e"
+    sha256 cellar: :any,                 big_sur:        "3c01eba7f47e4fb1bbac2f98f44333e1728ebde00d1ec8439b8c69c8b800bb53"
+    sha256 cellar: :any,                 catalina:       "b32056388c0fe4872ba562a456618e4b51cbfd8fb4d92be6c6a16cd53dc08cc5"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "81891856e66351a118b8f8640fc6509a10ea93936d46f3ca59132dc3e7a03f5f"
   end
 
   depends_on "pkg-config" => :build

@@ -1,36 +1,37 @@
 class Opencolorio < Formula
   desc "Color management solution geared towards motion picture production"
   homepage "https://opencolorio.org/"
-  url "https://github.com/imageworks/OpenColorIO/archive/v1.1.1.tar.gz"
-  sha256 "c9b5b9def907e1dafb29e37336b702fff22cc6306d445a13b1621b8a754c14c8"
+  url "https://github.com/AcademySoftwareFoundation/OpenColorIO/archive/v2.2.1.tar.gz"
+  sha256 "36f27c5887fc4e5c241805c29b8b8e68725aa05520bcaa7c7ec84c0422b8580e"
   license "BSD-3-Clause"
-  revision 2
-  head "https://github.com/imageworks/OpenColorIO.git"
+  head "https://github.com/AcademySoftwareFoundation/OpenColorIO.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "d47e35411a692bf51624ecd4958d48a24788d1e1ec0d0ceefa7b86120d7d3a0d" => :catalina
-    sha256 "8f8c1e02c9f4006463476b5dc870c3decc945e3df78fad43cfe93c4b5d1ec35e" => :mojave
-    sha256 "be544d7630cd26c9694474393de260c0114435b3bb1a7dd85b0379f49673c66b" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "24e90581137d74ea93eea49a901df620a6b6e2701b0c0093d2a11536e52759a4"
+    sha256 cellar: :any,                 arm64_monterey: "53198ac5f3461fb2548af12babb164d6693749b2023cf064eb2f5ffd1b71ecc6"
+    sha256 cellar: :any,                 arm64_big_sur:  "d074e606a1c3fec28b0d692c03aa88238074359ad47d56cf06887d9101b564cb"
+    sha256 cellar: :any,                 ventura:        "c3c4653825daa64ab29a454b7fb03407f2b92b0982a4a77e44fbb7e5370c7842"
+    sha256 cellar: :any,                 monterey:       "6ef1226d44426a9159f66d1ee39cbbc9b7954dda1c6f5167ae77e67bdc4a4c3d"
+    sha256 cellar: :any,                 big_sur:        "233b55833ab1b80ab8a7265ac31fe2f63a48b83f885ee0128d00443ff213bf9e"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "14827e687761b816cbeaab2471aba1791d23b080b8525123cbe09e4e78c23491"
   end
 
   depends_on "cmake" => :build
   depends_on "pkg-config" => :build
   depends_on "little-cms2"
-  depends_on "python@3.8"
+  depends_on "python@3.11"
 
   def install
-    args = std_cmake_args + %W[
-      -DCMAKE_VERBOSE_MAKEFILE=OFF
-      -DPYTHON=python3
-      -DPYTHON_EXECUTABLE=#{Formula["python@3.8"].opt_bin}/"python3"
+    python3 = "python3.11"
+    args = %W[
+      -DCMAKE_INSTALL_RPATH=#{rpath}
+      -DPYTHON=#{python3}
+      -DPYTHON_EXECUTABLE=#{which(python3)}
     ]
 
-    mkdir "macbuild" do
-      system "cmake", *args, ".."
-      system "make"
-      system "make", "install"
-    end
+    system "cmake", "-S", ".", "-B", "macbuild", *args, *std_cmake_args
+    system "cmake", "--build", "macbuild"
+    system "cmake", "--install", "macbuild"
   end
 
   def caveats

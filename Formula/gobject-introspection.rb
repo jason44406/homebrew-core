@@ -2,15 +2,21 @@ class GobjectIntrospection < Formula
   include Language::Python::Shebang
 
   desc "Generate introspection data for GObject libraries"
-  homepage "https://wiki.gnome.org/Projects/GObjectIntrospection"
-  url "https://download.gnome.org/sources/gobject-introspection/1.64/gobject-introspection-1.64.1.tar.xz"
-  sha256 "80beae6728c134521926affff9b2e97125749b38d38744dc901f4010ee3e7fa7"
-  revision 2
+  homepage "https://gi.readthedocs.io/en/latest/"
+  url "https://download.gnome.org/sources/gobject-introspection/1.74/gobject-introspection-1.74.0.tar.xz"
+  sha256 "347b3a719e68ba4c69ff2d57ee2689233ea8c07fc492205e573386779e42d653"
+  license all_of: ["GPL-2.0-or-later", "LGPL-2.0-or-later", "MIT"]
 
   bottle do
-    sha256 "4715d7cb549501fa75101266f6c49fe656666cb071a6e8f111b08cb3b74a2b15" => :catalina
-    sha256 "e6f0eacacdda25019941d42dd600c478f22de8c57a8975b2e26c4a5cfb8f367c" => :mojave
-    sha256 "b54f973af9b413e20a7b6485315da882f73e623c61f3573325a434d47e5b011a" => :high_sierra
+    rebuild 1
+    sha256 arm64_ventura:  "9342850d655d2ff1ab8d0b263a9cb9eb483fba3f3520754dea86c5db55633d7e"
+    sha256 arm64_monterey: "a2d055c6adfe61109d77d6868371a37f757ed2a0215e01e9e6b782af02d2fca8"
+    sha256 arm64_big_sur:  "8df914d538a9ee28653ae3a368830481541c13c9fc3bf6133587a86c6d2cc0e4"
+    sha256 ventura:        "56cbcedb7b5ff5edc66d039817a85d4dfc80d1861e9db9282e01853ca8a5e328"
+    sha256 monterey:       "44b03b7f51941f220e553cbf565e63c7c5e36833609cb6de248d2c62f66d5af3"
+    sha256 big_sur:        "60e0831ce9685429b4c7c11180789f225fd30d4542ed102acb912d684383271f"
+    sha256 catalina:       "71ad6ca87e733d7a25c43a6a3e5d8d3e2b983d33502e6936dfad0d77b17db6c6"
+    sha256 x86_64_linux:   "231554638d60b7702697dbd4266c0104bc2bf19de4f1f9f776e702e5f4b73690"
   end
 
   depends_on "bison" => :build
@@ -18,35 +24,49 @@ class GobjectIntrospection < Formula
   depends_on "ninja" => :build
   depends_on "cairo"
   depends_on "glib"
-  depends_on "libffi"
   depends_on "pkg-config"
-  depends_on "python@3.8"
+  # Ships a `_giscanner.cpython-311-darwin.so`, so needs a specific version.
+  depends_on "python@3.11"
 
-  uses_from_macos "flex"
+  uses_from_macos "flex" => :build
+  uses_from_macos "libffi", since: :catalina
 
   resource "tutorial" do
     url "https://gist.github.com/7a0023656ccfe309337a.git",
         revision: "499ac89f8a9ad17d250e907f74912159ea216416"
   end
 
+  # Fix library search path on non-/usr/local installs (e.g. Apple Silicon)
+  # See: https://github.com/Homebrew/homebrew-core/issues/75020
+  #      https://gitlab.gnome.org/GNOME/gobject-introspection/-/merge_requests/273
+  patch do
+    url "https://gitlab.gnome.org/tschoonj/gobject-introspection/-/commit/a7be304478b25271166cd92d110f251a8742d16b.diff"
+    sha256 "740c9fba499b1491689b0b1216f9e693e5cb35c9a8565df4314341122ce12f81"
+  end
+
   def install
+    python3 = "python3.11"
+
+    # Allow scripts to find "python3" during build if Python formula is altinstall'ed
+    pyver = Language::Python.major_minor_version python3
+    ENV.prepend_path "PATH", Formula["python@#{pyver}"].opt_libexec/"bin"
+
     ENV["GI_SCANNER_DISABLE_CACHE"] = "true"
     inreplace "giscanner/transformer.py", "/usr/share", "#{HOMEBREW_PREFIX}/share"
     inreplace "meson.build",
       "config.set_quoted('GOBJECT_INTROSPECTION_LIBDIR', join_paths(get_option('prefix'), get_option('libdir')))",
       "config.set_quoted('GOBJECT_INTROSPECTION_LIBDIR', '#{HOMEBREW_PREFIX}/lib')"
 
-    mkdir "build" do
-      system "meson", *std_meson_args,
-        "-Dpython=#{Formula["python@3.8"].opt_bin}/python3", ".."
-      system "ninja", "-v"
-      system "ninja", "install", "-v"
-      bin.find { |f| rewrite_shebang detected_python_shebang, f }
-    end
+    system "meson", "setup", "build", "-Dpython=#{which(python3)}",
+                                      "-Dextra_library_paths=#{HOMEBREW_PREFIX}/lib",
+                                      *std_meson_args
+    system "meson", "compile", "-C", "build", "--verbose"
+    system "meson", "install", "-C", "build"
+
+    rewrite_shebang detected_python_shebang, *bin.children
   end
 
   test do
-    ENV.prepend_path "PKG_CONFIG_PATH", Formula["libffi"].opt_lib/"pkgconfig"
     resource("tutorial").stage testpath
     system "make"
     assert_predicate testpath/"Tut-0.1.typelib", :exist?

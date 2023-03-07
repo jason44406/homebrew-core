@@ -3,29 +3,38 @@ class Pgcli < Formula
 
   desc "CLI for Postgres with auto-completion and syntax highlighting"
   homepage "https://pgcli.com/"
-  url "https://files.pythonhosted.org/packages/33/d0/646dcdd819f6313c5b534bb41e2970968a1cbccba39e5f969a65858d0bb4/pgcli-3.0.0.tar.gz"
-  sha256 "4920225838e8004ae6d2ec42f566e0a8b99c4bd42bc2c876d0de8501da0a4082"
+  url "https://files.pythonhosted.org/packages/a7/2c/5ec926b4ef08c23126875e29923bb803f2aee56d597aa248d429385d2887/pgcli-3.5.0.tar.gz"
+  sha256 "cc448d95159fc0903d36182992778a096eda5752d660d47671383c8e2bf633f1"
   license "BSD-3-Clause"
+  revision 1
 
   bottle do
-    cellar :any
-    sha256 "33762e29fe9be52d07d9500b3bb497afca3494ba73b7729e82047f531fe347ca" => :catalina
-    sha256 "dfc4edc73356fb8059808ae8a502fccf3df013caec1a39e18e6766b39a42ae5c" => :mojave
-    sha256 "42814524bbec67d415d06d991c17c0decd429c9a072d86c122d92bdf56affa5a" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "9ab2fb1bea21bef796157cf05da42a278404a67f394c592e4d3695ac0bb7fef3"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "232fd7532980b69acfa8996dfd499b6df7e767a34bd4885b02aaa3deb54e3ea3"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "fa9af36a0b43650bf8d5ffc161fb999cd47b542495ba5e21b9f1eba4a45563fb"
+    sha256 cellar: :any_skip_relocation, ventura:        "6d812a343973793dd97dc51c6bbe6b8434df4f95791be8cd6cdd1e2318462068"
+    sha256 cellar: :any_skip_relocation, monterey:       "fce0f635384198b96b8f62d8110e8af32e60473d4bded167cfe7a1ea8e90c5bc"
+    sha256 cellar: :any_skip_relocation, big_sur:        "bef5879324721cd250addf4be68c996c4563a94d38a44ff7bb59e45491111f60"
+    sha256 cellar: :any_skip_relocation, catalina:       "6555ad57744f60f52e7dd6fb5887aed28a40a8acf03371b7613d924ac80a2c56"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "91fb5d0a6e079cd9e4ee1f7ddfedf00ca5c5b6d46fde2ff26d83dde8552794de"
   end
 
   depends_on "libpq"
   depends_on "openssl@1.1"
-  depends_on "python@3.8"
+  depends_on "pygments"
+  depends_on "python-tabulate"
+  depends_on "python-typing-extensions"
+  depends_on "python@3.11"
+  depends_on "six"
 
   resource "cli-helpers" do
-    url "https://files.pythonhosted.org/packages/43/36/ba00975df9d393c0ccc3b1bf1610227bc4c4d611a5c69249b57be8ba6253/cli_helpers-1.2.1.tar.gz"
-    sha256 "98db22eaa86827d99ee6af9f5f3923142d04df256425204530842b032849a165"
+    url "https://files.pythonhosted.org/packages/27/01/6aaa4fc415274ac77372b4d259c234b9f5bfc8d78144c3fda1f3019d4690/cli_helpers-2.3.0.tar.gz"
+    sha256 "e7174d003a2b58fd3e31a73fbbc45d5aa513de62cbd42d437f78b9658bd5f967"
   end
 
-  resource "Click" do
-    url "https://files.pythonhosted.org/packages/4e/ab/5d6bc3b697154018ef196f5b17d958fac3854e2efbc39ea07a284d4a6a9b/click-7.1.1.tar.gz"
-    sha256 "8a18b4ea89d8820c5d0c7da8a64b2c324b4dabb695804dbfea19b9be9d88c0cc"
+  resource "click" do
+    url "https://files.pythonhosted.org/packages/59/87/84326af34517fca8c58418d148f2403df25303e02736832403587318e9e8/click-8.1.3.tar.gz"
+    sha256 "7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e"
   end
 
   resource "configobj" do
@@ -33,66 +42,80 @@ class Pgcli < Formula
     sha256 "a2f5650770e1c87fb335af19a9b7eb73fc05ccf22144eb68db7d00cd2bcb0902"
   end
 
-  resource "humanize" do
-    url "https://files.pythonhosted.org/packages/17/b7/ed02060fd1b8c0de361b929355cd26e42ed31bea1a9229d9e7d8bc3b7faa/humanize-2.3.0.tar.gz"
-    sha256 "98b7ac9d1a70ad62175c8e0dd44beebbd92418727fc4e214468dfb2baa8ebfb5"
+  resource "pendulum" do
+    url "https://files.pythonhosted.org/packages/db/15/6e89ae7cde7907118769ed3d2481566d05b5fd362724025198bb95faf599/pendulum-2.1.2.tar.gz"
+    sha256 "b06a0ca1bfe41c990bbf0c029f0b6501a7f2ec4e38bfec730712015e8860f207"
   end
 
   resource "pgspecial" do
-    url "https://files.pythonhosted.org/packages/4e/0c/47957ad5b5cfb488344032326a4a013127b005929422bc5e9ee98bdf18ec/pgspecial-1.11.9.tar.gz"
-    sha256 "77f8651450ccbde7d3036cfe93486a4eeeb5ade28d1ebc4b2ba186fea0023c56"
+    url "https://files.pythonhosted.org/packages/64/4d/e135172d93a1870897dbc01483f12b80c7f251ee08b583ec11a4b5888a08/pgspecial-2.0.1.tar.gz"
+    sha256 "64443bbc9ad09b57d0f4dcbb38eff44d52853b7418c9ea52f5857abe1bb534ec"
   end
 
   resource "prompt-toolkit" do
-    url "https://files.pythonhosted.org/packages/69/19/3aa4bf17e1cbbdfe934eb3d5b394ae9a0a7fb23594a2ff27e0fdaf8b4c59/prompt_toolkit-3.0.5.tar.gz"
-    sha256 "563d1a4140b63ff9dd587bda9557cffb2fe73650205ab6f4383092fb882e7dc8"
+    url "https://files.pythonhosted.org/packages/c4/6e/6ff7938f47981305a801a4c5b8d8ed282b58a28c01c394d43c1fbcfc810b/prompt_toolkit-3.0.33.tar.gz"
+    sha256 "535c29c31216c77302877d5120aef6c94ff573748a5b5ca5b1b1f76f5e700c73"
   end
 
-  resource "psycopg2" do
-    url "https://files.pythonhosted.org/packages/a8/8f/1c5690eebf148d1d1554fc00ccf9101e134636553dbb75bdfef4f85d7647/psycopg2-2.8.5.tar.gz"
-    sha256 "f7d46240f7a1ae1dd95aab38bd74f7428d46531f69219954266d669da60c0818"
+  resource "psycopg" do
+    url "https://files.pythonhosted.org/packages/e1/06/4d054820a210c923b03aca019717724e4d55a042bc1dea2b8cff663c1169/psycopg-3.1.4.tar.gz"
+    sha256 "6874dbaba583cc6663437604bf45f7c244b5fd702f88af6211cd5a74e8ee3a8a"
   end
 
-  resource "Pygments" do
-    url "https://files.pythonhosted.org/packages/6e/4d/4d2fe93a35dfba417311a4ff627489a947b01dc0cc377a3673c00cf7e4b2/Pygments-2.6.1.tar.gz"
-    sha256 "647344a061c249a3b74e230c739f434d7ea4d8b1d5f3721bc0f3558049b38f44"
+  resource "python-dateutil" do
+    url "https://files.pythonhosted.org/packages/4c/c4/13b4776ea2d76c115c1d1b84579f3764ee6d57204f6be27119f13a61d0a9/python-dateutil-2.8.2.tar.gz"
+    sha256 "0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"
+  end
+
+  resource "pytzdata" do
+    url "https://files.pythonhosted.org/packages/67/62/4c25435a7c2f9c7aef6800862d6c227fc4cd81e9f0beebc5549a49c8ed53/pytzdata-2020.1.tar.gz"
+    sha256 "3efa13b335a00a8de1d345ae41ec78dd11c9f8807f522d39850f2dd828681540"
   end
 
   resource "setproctitle" do
-    url "https://files.pythonhosted.org/packages/5a/0d/dc0d2234aacba6cf1a729964383e3452c52096dc695581248b548786f2b3/setproctitle-1.1.10.tar.gz"
-    sha256 "6283b7a58477dd8478fbb9e76defb37968ee4ba47b05ec1c053cb39638bd7398"
-  end
-
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/21/9f/b251f7f8a76dec1d6651be194dfba8fb8d7781d10ab3987190de8391d08e/six-1.14.0.tar.gz"
-    sha256 "236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a"
+    url "https://files.pythonhosted.org/packages/b5/47/ac709629ddb9779fee29b7d10ae9580f60a4b37e49bce72360ddf9a79cdc/setproctitle-1.3.2.tar.gz"
+    sha256 "b9fb97907c830d260fa0658ed58afd48a86b2b88aac521135c352ff7fd3477fd"
   end
 
   resource "sqlparse" do
-    url "https://files.pythonhosted.org/packages/67/4b/253b6902c1526885af6d361ca8c6b1400292e649f0e9c95ee0d2e8ec8681/sqlparse-0.3.1.tar.gz"
-    sha256 "e162203737712307dfe78860cc56c8da8a852ab2ee33750e33aeadf38d12c548"
-  end
-
-  resource "tabulate" do
-    url "https://files.pythonhosted.org/packages/57/6f/213d075ad03c84991d44e63b6516dd7d185091df5e1d02a660874f8f7e1e/tabulate-0.8.7.tar.gz"
-    sha256 "db2723a20d04bcda8522165c73eea7c300eda74e0ce852d9022e0159d7895007"
-  end
-
-  resource "terminaltables" do
-    url "https://files.pythonhosted.org/packages/9b/c4/4a21174f32f8a7e1104798c445dacdc1d4df86f2f26722767034e4de4bff/terminaltables-3.1.0.tar.gz"
-    sha256 "f3eb0eb92e3833972ac36796293ca0906e998dc3be91fbe1f8615b331b853b81"
+    url "https://files.pythonhosted.org/packages/ba/fa/5b7662b04b69f3a34b8867877e4dbf2a37b7f2a5c0bbb5a9eed64efd1ad1/sqlparse-0.4.3.tar.gz"
+    sha256 "69ca804846bb114d2ec380e4360a8a340db83f0ccf3afceeb1404df028f57268"
   end
 
   resource "wcwidth" do
-    url "https://files.pythonhosted.org/packages/25/9d/0acbed6e4a4be4fc99148f275488580968f44ddb5e69b8ceb53fc9df55a0/wcwidth-0.1.9.tar.gz"
-    sha256 "ee73862862a156bf77ff92b09034fc4825dd3af9cf81bc5b360668d425f3c5f1"
+    url "https://files.pythonhosted.org/packages/89/38/459b727c381504f361832b9e5ace19966de1a235d73cdbdea91c771a1155/wcwidth-0.2.5.tar.gz"
+    sha256 "c4d647b99872929fdb7bdcaa4fbe7f01413ed3d98077df798530e5b04f116c83"
   end
 
   def install
-    virtualenv_install_with_resources
+    venv = virtualenv_create(libexec, "python3.11")
+
+    # Help `psycopg` find our `libpq`, which is keg-only so its attempt to use `pg_config --libdir` fails
+    resource("psycopg").stage do
+      inreplace "psycopg/pq/_pq_ctypes.py", "libname = find_libpq_full_path()",
+                                            "libname = '#{Formula["libpq"].opt_lib/shared_library("libpq")}'"
+      venv.pip_install Pathname.pwd
+    end
+
+    # Switch build-system to poetry-core to avoid rust dependency on Linux.
+    # Remove when merged/released: https://github.com/sdispater/pytzdata/pull/13
+    resource("pytzdata").stage do
+      inreplace "pyproject.toml", 'requires = ["poetry>=1.0.0"]', 'requires = ["poetry-core>=1.0"]'
+      inreplace "pyproject.toml", 'build-backend = "poetry.masonry.api"', 'build-backend = "poetry.core.masonry.api"'
+      venv.pip_install_and_link Pathname.pwd
+    end
+
+    skip = %w[psycopg pytzdata]
+    venv.pip_install resources.reject { |r| skip.include? r.name }
+    venv.pip_install_and_link buildpath
   end
 
   test do
-    system bin/"pgcli", "--help"
+    assert_match "Invalid DSNs found in the config file", shell_output("#{bin}/pgcli --list-dsn 2>&1", 1)
+    (testpath/"pgclirc").write <<~EOS
+      [alias_dsn]
+      homebrew_dsn = postgresql://homebrew:password@localhost/dbname
+    EOS
+    assert_match "homebrew_dsn", shell_output("#{bin}/pgcli --pgclirc=#{testpath}/pgclirc --list-dsn")
   end
 end

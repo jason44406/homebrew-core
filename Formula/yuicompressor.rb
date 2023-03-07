@@ -6,7 +6,15 @@ class Yuicompressor < Formula
   license "BSD-3-Clause"
   revision 1
 
-  bottle :unneeded
+  livecheck do
+    url :stable
+    strategy :github_latest
+  end
+
+  bottle do
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, all: "94b45d04e09ea0fda70a1913d9af1c1770ff333c1602e67f1d2c2b9fa4f1fecd"
+  end
 
   depends_on "openjdk"
 

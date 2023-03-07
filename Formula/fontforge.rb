@@ -1,15 +1,18 @@
 class Fontforge < Formula
   desc "Command-line outline and bitmap font editor/converter"
   homepage "https://fontforge.github.io"
-  url "https://github.com/fontforge/fontforge/archive/20200314.tar.gz"
-  sha256 "ad0eb017379c6f7489aa8e2d7c160f19140d1ac6351f20df1d9857d9428efcf2"
-  license "GPL-3.0"
-  revision 1
+  url "https://github.com/fontforge/fontforge/releases/download/20230101/fontforge-20230101.tar.xz"
+  sha256 "ca82ec4c060c4dda70ace5478a41b5e7b95eb035fe1c4cf85c48f996d35c60f8"
+  license "GPL-3.0-or-later"
 
   bottle do
-    sha256 "6d2000c43d84a3353e7e27923c62ced0e5892338e69c6d341e61194cc70c1b4a" => :catalina
-    sha256 "3c94c039f0524bdf6e4748f65b7677c9d73ecd07718221dbc8eb1c143fe236d1" => :mojave
-    sha256 "1252f93604edae781fd5035ba5c367d820e341c13eec155bb24cf9ad5499dc4a" => :high_sierra
+    sha256 arm64_ventura:  "e4e49fa2cc9c3ea67878e771264b3fc98b23f3e2b5046ab28c644a7fead33143"
+    sha256 arm64_monterey: "daba676ad4d1ba5a160d883bffa73bfc189c68b571b1799275d8d65da4b34d24"
+    sha256 arm64_big_sur:  "24f77f4cea3d1d100c744e60abe044fd82a5e87846b206f1e4e34232ebc7a5d6"
+    sha256 ventura:        "e41f49422bd52bdaa48ef9d22f8e9c9de11ee1718b01929362da322ec0b82905"
+    sha256 monterey:       "c4681106deccb919618b65408cc0ca1f6cd5caf7a59cad0f136268e20979e254"
+    sha256 big_sur:        "e74714a52891d601fb1e053516a1ccd165c5146f52d8e84a658dc8cbe463ed77"
+    sha256 x86_64_linux:   "53ab801d9f1841f30771b4bddefd465733bb87ce3cbf67cefaf52efc9eaf0eab"
   end
 
   depends_on "cmake" => :build
@@ -21,54 +24,60 @@ class Fontforge < Formula
   depends_on "gettext"
   depends_on "giflib"
   depends_on "glib"
-  depends_on "jpeg"
+  depends_on "jpeg-turbo"
   depends_on "libpng"
   depends_on "libspiro"
   depends_on "libtiff"
   depends_on "libtool"
   depends_on "libuninameslist"
   depends_on "pango"
-  depends_on "python@3.8"
+  depends_on "python@3.11"
   depends_on "readline"
+  depends_on "woff2"
 
   uses_from_macos "libxml2"
 
-  # Remove with next release (cmake: adjust Python linkage)
-  # Original patchset: https://github.com/fontforge/fontforge/pull/4258
-  patch do
-    url "https://raw.githubusercontent.com/Homebrew/formula-patches/99af4b5/fontforge/20200314.patch"
-    sha256 "3deed4d79a1fdf5fb6de2fca7da8ffe14301acbeb015441574a7a28e902561f5"
+  resource "homebrew-testdata" do
+    url "https://raw.githubusercontent.com/fontforge/fontforge/1346ce6e4c004c312589fdb67e31d4b2c32a1656/tests/fonts/Ambrosia.sfd"
+    sha256 "6a22acf6be4ab9e5c5a3373dc878030b4b8dc4652323395388abe43679ceba81"
   end
-  def install
-    mkdir "build" do
-      system "cmake", "..",
-                      "-GNinja",
-                      "-DENABLE_GUI=OFF",
-                      "-DENABLE_FONTFORGE_EXTRAS=ON",
-                      *std_cmake_args
-      system "ninja"
-      system "ninja", "install"
 
-      # The "extras" built above don't get installed by default.
-      bin.install Dir["bin/*"].select { |f| File.executable? f }
-    end
+  def install
+    system "cmake", "-S", ".", "-B", "build", *std_cmake_args,
+                    "-GNinja",
+                    "-DENABLE_GUI=OFF",
+                    "-DENABLE_FONTFORGE_EXTRAS=ON"
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
   end
 
   def caveats
-    <<~EOS
-      This formula only installs the command line utilities.
+    on_macos do
+      <<~EOS
+        This formula only installs the command line utilities.
 
-      FontForge.app can be downloaded directly from the website:
-        https://fontforge.github.io
+        FontForge.app can be downloaded directly from the website:
+          https://fontforge.github.io
 
-      Alternatively, install with Homebrew Cask:
-        brew cask install fontforge
-    EOS
+        Alternatively, install with Homebrew Cask:
+          brew install --cask fontforge
+      EOS
+    end
   end
 
   test do
+    python = Formula["python@3.11"].opt_bin/"python3.11"
     system bin/"fontforge", "-version"
     system bin/"fontforge", "-lang=py", "-c", "import fontforge; fontforge.font()"
-    system Formula["python@3.8"].opt_bin/"python3", "-c", "import fontforge; fontforge.font()"
+    system python, "-c", "import fontforge; fontforge.font()"
+
+    resource("homebrew-testdata").stage do
+      ffscript = "fontforge.open('Ambrosia.sfd').generate('#{testpath}/Ambrosia.woff2')"
+      system bin/"fontforge", "-c", ffscript
+    end
+    assert_predicate testpath/"Ambrosia.woff2", :exist?
+
+    fileres = shell_output("/usr/bin/file #{testpath}/Ambrosia.woff2")
+    assert_match "Web Open Font Format (Version 2)", fileres
   end
 end

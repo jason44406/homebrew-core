@@ -1,40 +1,34 @@
 class ChromeCli < Formula
   desc "Control Google Chrome from the command-line"
   homepage "https://github.com/prasmussen/chrome-cli"
-  url "https://github.com/prasmussen/chrome-cli/archive/1.6.0.tar.gz"
-  sha256 "ff1fba560743cba7b661e8daef52d4494acc084da4a21c3fad211f7cdf5e971f"
+  url "https://github.com/prasmussen/chrome-cli/archive/1.9.1.tar.gz"
+  sha256 "1758f0b9b1e81f8ae2fb3b79231c0020211ddd6cc715a38f30b0bfe1643bc733"
   license "MIT"
-  head "https://github.com/prasmussen/chrome-cli.git"
+  head "https://github.com/prasmussen/chrome-cli.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "dcbd7ddb868c433f456921994be98e77d14bad4b51f3b1d5940def7bd845e7f5" => :catalina
-    sha256 "45226a0320842d8e3d717ffdf6e8828b9d1b5f52609757670f4d542fd722ee68" => :mojave
-    sha256 "b34f789eefdbb6312b05e4e55a71e9deaf889fe740e2d976cdf4279a0d74dd36" => :high_sierra
-    sha256 "31abf08f56dc906ec882cb4d7dc167424177c8849b8de8ecb71098afb249fc84" => :sierra
-    sha256 "e1d04616371d4c7147f884886d2e61df3bdea48c388dc50a684434f89b417792" => :el_capitan
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "a8422f7b43bf55f8347cd022673713948fe720f78372cd8ceace8f839cc3b6e3"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "ae09bf61be5ff851a68b0d3fd458db3e299c071b44c1774cf37cfcbe5fed117f"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "36fe403ec9ee419b4ea90a2511f82d4a6032654bb74896d35932c31e23c45ab3"
+    sha256 cellar: :any_skip_relocation, ventura:        "1cc8a4c30dfd88eacb8993defb1adde1ad7bdc519d765fea8cab3ae4855e57fe"
+    sha256 cellar: :any_skip_relocation, monterey:       "77f2aa7ccec6346437d6ea448528dafaae702e1aa32ad1f104ef44b52c169f10"
+    sha256 cellar: :any_skip_relocation, big_sur:        "ffea5cf4f95619b8cec885184593f96883df14bfad8734d26473cce8e30ef07f"
   end
 
   depends_on xcode: :build
+  depends_on :macos
 
   def install
     # Release builds
-    xcodebuild "SDKROOT=", "SYMROOT=build"
+    xcodebuild "-arch", Hardware::CPU.arch, "SYMROOT=build"
     bin.install "build/Release/chrome-cli"
 
-    # Canary builds; see:
-    # https://github.com/prasmussen/chrome-cli/issues/15
-    rm_rf "build"
-    inreplace "chrome-cli/App.m", "com.google.Chrome", "com.google.Chrome.canary"
-    xcodebuild "SDKROOT=", "SYMROOT=build"
-    bin.install "build/Release/chrome-cli" => "chrome-canary-cli"
-
-    # Chromium builds; see:
-    # https://github.com/prasmussen/chrome-cli/issues/31
-    rm_rf "build"
-    inreplace "chrome-cli/App.m", "com.google.Chrome.canary", "org.Chromium.chromium"
-    xcodebuild "SDKROOT=", "SYMROOT=build"
-    bin.install "build/Release/chrome-cli" => "chromium-cli"
+    # Install wrapper scripts for chrome compatible browsers
+    bin.install "scripts/chrome-canary-cli"
+    bin.install "scripts/chromium-cli"
+    bin.install "scripts/brave-cli"
+    bin.install "scripts/vivaldi-cli"
+    bin.install "scripts/edge-cli"
   end
 
   test do

@@ -7,11 +7,23 @@ class Terraforming < Formula
   license "MIT"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "5b1a20c820982585fdad1e588ab6ac171e8d3f963da62b50a598e3002635331b" => :catalina
-    sha256 "e4997ba46e6e796833c2f881f68b20cd52006510371ede211d422190a5223454" => :mojave
-    sha256 "59001edf7447dbab2dd760fcec4fc0a77d711ec43e7d95658aa9c663f7baf44d" => :high_sierra
-    sha256 "f1d900508e9b2a38a1e417ee9f0faa050c89332cf9eff1a3de83c96eebead164" => :sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "ff41576476519a7db277ff96dda8e2c3783ad6d169b49c032745248469d5452d"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "a999cfb15e43d21fccbed4c7ac4f570c192f7921f1948edd8e7da11ca7971ef9"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "c9b5cf64c7ba61284462a250ad49d2a397a67efa3c43d2d60b43bae20a9dbd92"
+    sha256 cellar: :any_skip_relocation, ventura:        "5149f875c2e6aac73ce744238efc751156b80ca1c5e0129568f9b6350e49caf0"
+    sha256 cellar: :any_skip_relocation, monterey:       "a999cfb15e43d21fccbed4c7ac4f570c192f7921f1948edd8e7da11ca7971ef9"
+    sha256 cellar: :any_skip_relocation, big_sur:        "c9b5cf64c7ba61284462a250ad49d2a397a67efa3c43d2d60b43bae20a9dbd92"
+    sha256 cellar: :any_skip_relocation, catalina:       "c9b5cf64c7ba61284462a250ad49d2a397a67efa3c43d2d60b43bae20a9dbd92"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "eff0a68d600af8a5176b41a04c443da66ae1b27884d31547c7c7010a7aa7704e"
+  end
+
+  # Upstream declared project "no longer actively maintained" on 2021-12-11.
+  # https://github.com/dtan4/terraforming#project-status-2021-12-11-no-longer-actively-maintained
+  deprecate! date: "2022-08-16", because: :unmaintained
+
+  on_linux do
+    depends_on "ruby@2.7"
   end
 
   resource "aws-sdk-autoscaling" do

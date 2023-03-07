@@ -1,16 +1,20 @@
 class Pgbadger < Formula
   desc "Log analyzer for PostgreSQL"
   homepage "https://pgbadger.darold.net/"
-  url "https://github.com/darold/pgbadger/archive/v11.3.tar.gz"
-  sha256 "533f92a9cca460bde60aecad404497e1d7a28cf724b1af085e14352431c3bda3"
+  url "https://github.com/darold/pgbadger/archive/v12.0.tar.gz"
+  sha256 "aaac57a573cf769e56d521bfe51c292a1290cb896f67a8751ffaa4db12f1f843"
   license "PostgreSQL"
-  head "https://github.com/darold/pgbadger.git"
+  head "https://github.com/darold/pgbadger.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "ff048cb1c48cef7b760583ccf2e1aa4edf2f2d6df5545d094baf20c6a84122a4" => :catalina
-    sha256 "ff048cb1c48cef7b760583ccf2e1aa4edf2f2d6df5545d094baf20c6a84122a4" => :mojave
-    sha256 "a9350663298d12192751ea780e97581a2d715a0ee90295f12a8abf3e8ba84995" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "6bcd3b8f62218ce246438b4db5cc1de58e1a867ee686ed9c3eed58dd5adbf385"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "6bcd3b8f62218ce246438b4db5cc1de58e1a867ee686ed9c3eed58dd5adbf385"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "2be5e5aef3f6d2e8e857bc51dfa13bd6fe17298230f331f8f12c0dabae5e0072"
+    sha256 cellar: :any_skip_relocation, ventura:        "b327496a367e2b1052aea29d39331a2eebbdc5da9fc50dbefc5816ce108fdd7d"
+    sha256 cellar: :any_skip_relocation, monterey:       "b327496a367e2b1052aea29d39331a2eebbdc5da9fc50dbefc5816ce108fdd7d"
+    sha256 cellar: :any_skip_relocation, big_sur:        "d3c2cf996a8c2d629aa0007a9e28fe1eea673718dab9da7f2a14d88f751064c3"
+    sha256 cellar: :any_skip_relocation, catalina:       "bc4167d80d7d0f517ebda656f587b73eeb8e7bbe7ea134c06f4e3e9f521cd1e8"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "ed28021e95bfa1b63956a894e5ed31fe18b17c96f7dcf9ade29a954505ec9f66"
   end
 
   def install
@@ -18,8 +22,13 @@ class Pgbadger < Formula
     system "make"
     system "make", "install"
 
+    man_dir = if OS.mac?
+      "share/man/man1"
+    else
+      "man/man1"
+    end
     bin.install "usr/local/bin/pgbadger"
-    man1.install "usr/local/share/man/man1/pgbadger.1p"
+    man1.install "usr/local/#{man_dir}/pgbadger.1p"
   end
 
   def caveats

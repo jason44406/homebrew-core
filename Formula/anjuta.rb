@@ -1,15 +1,26 @@
 class Anjuta < Formula
   desc "GNOME Integrated Development Environment"
-  homepage "http://anjuta.org"
+  homepage "https://gitlab.gnome.org/Archive/anjuta"
   url "https://download.gnome.org/sources/anjuta/3.34/anjuta-3.34.0.tar.xz"
   sha256 "42a93130ed3ee02d064a7094e94e1ffae2032b3f35a87bf441e37fc3bb3a148f"
-  revision 3
+  license "GPL-2.0-or-later"
+  revision 4
 
   bottle do
-    sha256 "05830ff66d220192bfbe20dab94d811c3214ff10bd558188c366cbc217f14925" => :catalina
-    sha256 "e8fa87f3a3cf6e9bacda5796029462c31efacc0e9ccd2890d36e5a549321e688" => :mojave
-    sha256 "27181dd2e3c4a31c7ec552385d9c4036bb22ae9ac4428d1c52a4c8ccda70ee5a" => :high_sierra
+    sha256 arm64_ventura:  "9ab3731f66aa831996d36434373d215e5245cdd48ef2c7681f3d12132cea9db9"
+    sha256 arm64_monterey: "f94220711948d150b55bd7fb45b7d0ed6b22074cce634196cefe563280eda75c"
+    sha256 arm64_big_sur:  "185ac50d99816b00213f7e3a6430c06dcef89408d92b0b8285772789ed600dde"
+    sha256 ventura:        "426d1cb1c2e98e6dd5ddae29cfd0153f4b0c2dffe9cf26408bd2f3394dd7a245"
+    sha256 monterey:       "896ca7644a4dd62f90461343097932c1b64974def062add7296c5f265f6bfdb0"
+    sha256 big_sur:        "cb89537f1f0f79d74b348604fdf02a0d8c7e48a8b9211aade1a18e2d4eb1d70b"
+    sha256 catalina:       "2b2f88450c12c599e2c730bafabd678006b75ab74eee017743ba9a34338e1f3c"
+    sha256 mojave:         "1c63382333afdfbcb3cc0c9b2c75f2dff445bbdc749464252067ab707dab7e85"
+    sha256 x86_64_linux:   "9d232f13f3f221cd68ea362c23b2c7b236eae999fa1186c0223c2ba9abc345c2"
   end
+
+  # Repo has been archived: https://gitlab.gnome.org/Archive/anjuta.git
+  # Original deprecation date: 2022-09-21
+  disable! date: "2022-12-31", because: :unmaintained
 
   depends_on "intltool" => :build
   depends_on "itstool" => :build
@@ -17,26 +28,32 @@ class Anjuta < Formula
   depends_on "adwaita-icon-theme"
   depends_on "autogen"
   depends_on "gdl"
-  depends_on "gnome-themes-standard"
   depends_on "gnutls"
   depends_on "gtksourceview3"
   depends_on "hicolor-icon-theme"
   depends_on "libgda"
   depends_on "libxml2"
-  depends_on "python@3.8"
+  depends_on "python@3.9"
   depends_on "shared-mime-info"
   depends_on "vala"
   depends_on "vte3"
 
+  uses_from_macos "bison" => :build
+  uses_from_macos "flex" => :build
+  uses_from_macos "perl" => :build
+
   def install
+    ENV["PYTHON"] = which("python3")
+    ENV.append "LDFLAGS", "-Wl,-undefined,dynamic_lookup" if OS.mac?
+    ENV.prepend_path "PERL5LIB", Formula["intltool"].libexec/"lib/perl5" unless OS.mac?
+
     system "./configure", "--disable-debug",
                           "--disable-dependency-tracking",
                           "--disable-silent-rules",
                           "--prefix=#{prefix}",
                           "--disable-schemas-compile"
 
-    xy = Language::Python.major_minor_version Formula["python@3.8"].opt_bin/"python3"
-    ENV.append_path "PYTHONPATH", "#{Formula["libxml2"].opt_lib}/python#{xy}/site-packages"
+    ENV.append_path "PYTHONPATH", Formula["libxml2"].opt_prefix/Language::Python.site_packages("python3")
     system "make", "install"
   end
 
@@ -53,6 +70,7 @@ class Anjuta < Formula
   end
 
   test do
-    system "#{bin}/anjuta", "--version"
+    # Disable this part of the test on Linux because a display is not available.
+    system "#{bin}/anjuta", "--version" if OS.mac?
   end
 end

@@ -1,19 +1,26 @@
 class Mlkit < Formula
   desc "Compiler for the Standard ML programming language"
   homepage "https://melsman.github.io/mlkit"
-  url "https://github.com/melsman/mlkit/archive/mlkit-4.4.3.tar.gz"
-  sha256 "51ee5ced1dc639f2c58556dca0dec5c3243dba4705e1cdb91247fa9644b16625"
-  license "GPL-2.0"
-  head "https://github.com/melsman/mlkit.git"
+  url "https://github.com/melsman/mlkit/archive/v4.7.3.tar.gz"
+  sha256 "903cbda07290297e87c62cbdc99b38c281311887858ef07f2f71f71de8c8839a"
+  license "GPL-2.0-or-later"
+  head "https://github.com/melsman/mlkit.git", branch: "master"
+
+  livecheck do
+    url :stable
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
+  end
 
   bottle do
-    sha256 "52ac5d00915774111535053f287c05a63976c83ed7a5a900bbc263f030ea6900" => :mojave
-    sha256 "79694e15c915cb2c08b680b2b4404cfbbb6fff56e8f6b5f0196fcc485466d41b" => :high_sierra
-    sha256 "5df6b95fad69e10b31352824433251d3306a42c55c5e7164b0c47b986ea1009d" => :sierra
+    sha256 ventura:      "a47a41ec1f94ff22c5cc6b9dee485f0f2ed6602d982e06468ed44610d7126671"
+    sha256 monterey:     "bae121b30c127fac985501f34c6fd5eda0a419ae1c4f1e7f7a3f2a8e39e21c8c"
+    sha256 big_sur:      "8755678ad2f8f363e8552d0acb42030e8b43bf10230a05c9f84607acb4c703fe"
+    sha256 x86_64_linux: "ea0e8ce12fefec3a60774c400ce2de68f1be29ca0848e47332ada13be6dfc96f"
   end
 
   depends_on "autoconf" => :build
   depends_on "mlton" => :build
+  depends_on arch: :x86_64
   depends_on "gmp"
 
   def install

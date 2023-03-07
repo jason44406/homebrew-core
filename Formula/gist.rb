@@ -1,19 +1,17 @@
 class Gist < Formula
   desc "Command-line utility for uploading Gists"
   homepage "https://github.com/defunkt/gist"
-  url "https://github.com/defunkt/gist/archive/v5.1.0.tar.gz"
-  sha256 "843cea035c137d23d786965688afc9ee70610ac6c3d6f6615cb958d6c792fbb2"
+  url "https://github.com/defunkt/gist/archive/v6.0.0.tar.gz"
+  sha256 "ddfb33c039f8825506830448a658aa22685fc0c25dbe6d0240490982c4721812"
   license "MIT"
-  head "https://github.com/defunkt/gist.git"
+  head "https://github.com/defunkt/gist.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "7eb37c0514203306a3e5be9176acca230014a30e07d43d0e9ba72afcc3dc3203" => :catalina
-    sha256 "7eb37c0514203306a3e5be9176acca230014a30e07d43d0e9ba72afcc3dc3203" => :mojave
-    sha256 "7eb37c0514203306a3e5be9176acca230014a30e07d43d0e9ba72afcc3dc3203" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, all: "0158ab83b42d17104b9dc5bf56f76fea7ec1b2c83e453dbcefc2c2d1d474392a"
   end
 
-  depends_on "ruby" if MacOS.version <= :sierra
+  uses_from_macos "ruby", since: :high_sierra
 
   def install
     system "rake", "install", "prefix=#{prefix}"

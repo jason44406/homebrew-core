@@ -3,118 +3,105 @@ class Gdbgui < Formula
 
   desc "Modern, browser-based frontend to gdb (gnu debugger)"
   homepage "https://www.gdbgui.com/"
-  url "https://files.pythonhosted.org/packages/8a/2e/312578e89423a483303d9e24cfee47ece0454a508f7090dcf5ead57e230e/gdbgui-0.14.0.0.tar.gz"
-  sha256 "a14a59828a36016928d9bdf8423e6902266daa2ccab3df0142c6388afe3fe7bc"
+  url "https://files.pythonhosted.org/packages/d2/95/1a5d6fff8e4c8458b314dd5175944579a0f6233f963c657bc5d3c6b2f3b2/gdbgui-0.15.1.0.tar.gz"
+  sha256 "61c0f7a26ecdeb275d9b4d88b7afdf8d70ec5471b40ace3a7dd1a87f43cc2573"
   license "GPL-3.0-only"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "2eb005f159e9ca80ae77045bfa4b6239a60465d1f285d216ef97a22cbf231065" => :catalina
-    sha256 "f2b8c46cff1b3a4024d50aaea965e945c70b633b3ee758b7d19ffddc9b3c88ff" => :mojave
-    sha256 "53c8876e691ab6a0298a3fcd7f32b3e0d9d49bb4141c97b201c8ef4342653ec5" => :high_sierra
+    sha256 cellar: :any_skip_relocation, ventura:      "7915addb6621ba98e5b8a0eadf4d8ad92f9325cc04eba623cead0170f47fdc37"
+    sha256 cellar: :any_skip_relocation, monterey:     "119f67831a4f28de8a5ff9b5fbba32600912386178b46b0f9e309cd7d651b4a9"
+    sha256 cellar: :any_skip_relocation, big_sur:      "4c4ca02744a6f4a82bed16ccb7c117bdadb2890b93e0b74db1e0b3c13952b146"
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "0f8e35829f3e228ddbc5c3965eb3b1f103d18e934e95700f51f80afb8d106235"
   end
 
+  depends_on arch: :x86_64 # gdb is not supported on macOS ARM
   depends_on "gdb"
-  depends_on "python@3.8"
+  depends_on "python@3.11"
+  depends_on "six"
+
+  resource "bidict" do
+    url "https://files.pythonhosted.org/packages/f2/be/b31e6ea9c94096a323e7a0e2c61480db01f07610bb7e7ea72a06fd1a23a8/bidict-0.22.1.tar.gz"
+    sha256 "1e0f7f74e4860e6d0943a05d4134c63a2fad86f3d4732fb265bd79e4e856d81d"
+  end
 
   resource "Brotli" do
-    url "https://files.pythonhosted.org/packages/cd/9c/7955895f5672ecc85270244582c6b53ff95bb4c24bf77bd9271d42351635/Brotli-1.0.7.zip"
-    sha256 "0538dc1744fd17c314d2adc409ea7d1b779783b89fd95bcfb0c2acc93a6ea5a7"
+    url "https://files.pythonhosted.org/packages/2a/18/70c32fe9357f3eea18598b23aa9ed29b1711c3001835f7cf99a9818985d0/Brotli-1.0.9.zip"
+    sha256 "4d1b810aa0ed773f81dceda2cc7b403d01057458730e309856356d4ef4188438"
   end
 
   resource "click" do
-    url "https://files.pythonhosted.org/packages/27/6f/be940c8b1f1d69daceeb0032fee6c34d7bd70e3e649ccac0951500b4720e/click-7.1.2.tar.gz"
-    sha256 "d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a"
+    url "https://files.pythonhosted.org/packages/21/83/308a74ca1104fe1e3197d31693a7a2db67c2d4e668f20f43a2fca491f9f7/click-8.0.1.tar.gz"
+    sha256 "8c04c11192119b1ef78ea049e0a6f0463e4c48ef00a30160c704337586f3ad7a"
   end
 
   resource "dnspython" do
-    url "https://files.pythonhosted.org/packages/67/d0/639a9b5273103a18c5c68a7a9fc02b01cffa3403e72d553acec444f85d5b/dnspython-2.0.0.zip"
-    sha256 "044af09374469c3a39eeea1a146e8cac27daec951f1f1f157b1962fc7cb9d1b7"
+    url "https://files.pythonhosted.org/packages/91/8b/522301c50ca1f78b09c2ca116ffb0fd797eadf6a76085d376c01f9dd3429/dnspython-2.3.0.tar.gz"
+    sha256 "224e32b03eb46be70e12ef6d64e0be123a64e621ab4c0822ff6d450d52a540b9"
   end
 
   resource "eventlet" do
-    url "https://files.pythonhosted.org/packages/2a/df/943d5aa7029b47dd3eb41e1ea48f843d3441d24b7e0b76a0b3af4df35a83/eventlet-0.25.2.tar.gz"
-    sha256 "4c8ab42c51bff55204fef43cff32616558bedbc7538d876bb6a96ce820c7f9ed"
+    url "https://files.pythonhosted.org/packages/81/0c/5e0bcf715a2bae9169c77bfdcbc460a4aeeb0bb1067cf8071cf14d7d1b39/eventlet-0.33.3.tar.gz"
+    sha256 "722803e7eadff295347539da363d68ae155b8b26ae6a634474d0a920be73cfda"
   end
 
   resource "Flask" do
-    url "https://files.pythonhosted.org/packages/32/57/3c33fe153ea008e9e0202eb028972178337c55777686aac03f41ade671f8/Flask-0.12.5.tar.gz"
-    sha256 "fac2b9d443e49f7e7358a444a3db5950bdd0324674d92ba67f8f1f15f876b14f"
+    url "https://files.pythonhosted.org/packages/69/b6/53cfa30eed5aa7343daff36622843688ba8c6fe9829bb2b92e193ab1163f/Flask-2.2.2.tar.gz"
+    sha256 "642c450d19c4ad482f96729bd2a8f6d32554aa1e231f4f6b4e7e5264b16cca2b"
   end
 
   resource "Flask-Compress" do
-    url "https://files.pythonhosted.org/packages/a0/96/cd684c1ffe97b513303b5bfd4bbfb4114c5f4a5ea8a737af6fd813273df8/Flask-Compress-1.5.0.tar.gz"
-    sha256 "f367b2b46003dd62be34f7fb1379938032656dca56377a9bc90e7188e4289a7c"
+    url "https://files.pythonhosted.org/packages/ba/8f/85eac7b4ac5c05fd6cb9e2c9fbc592be33265053095b860c809967532c18/Flask-Compress-1.10.1.tar.gz"
+    sha256 "28352387efbbe772cfb307570019f81957a13ff718d994a9125fa705efb73680"
   end
 
   resource "Flask-SocketIO" do
-    url "https://files.pythonhosted.org/packages/5d/94/6f55de2fd72f1d7f7eb17cd6045a50581e7c66d53580fc93fd607a5cd630/Flask-SocketIO-2.9.6.tar.gz"
-    sha256 "f49edfd3a44458fbb9f7a04a57069ffc0c37f000495194f943a25d370436bb69"
-  end
-
-  resource "gevent" do
-    url "https://files.pythonhosted.org/packages/5a/79/2c63d385d017b5dd7d70983a463dfd25befae70c824fedb857df6e72eff2/gevent-1.5.0.tar.gz"
-    sha256 "b2814258e3b3fb32786bb73af271ad31f51e1ac01f33b37426b66cb8491b4c29"
-  end
-
-  resource "gevent-websocket" do
-    url "https://files.pythonhosted.org/packages/98/d2/6fa19239ff1ab072af40ebf339acd91fb97f34617c2ee625b8e34bf42393/gevent-websocket-0.10.1.tar.gz"
-    sha256 "7eaef32968290c9121f7c35b973e2cc302ffb076d018c9068d2f5ca8b2d85fb0"
+    url "https://files.pythonhosted.org/packages/5f/a5/5c03d62fdbdf0343345c8cca19d4961d8958eba54449230df2b0080b7011/Flask-SocketIO-5.1.1.tar.gz"
+    sha256 "1efdaacc7a26e94f2b197a80079b1058f6aa644a6094c0a322349e2b9c41f6b1"
   end
 
   resource "greenlet" do
-    url "https://files.pythonhosted.org/packages/20/5e/b989a19f4597b825f44125345cd8a8574216fae7fafe69e2cb1238ebd18a/greenlet-0.4.16.tar.gz"
-    sha256 "6e06eac722676797e8fce4adb8ad3dc57a1bb3adfb0dd3fdf8306c055a38456c"
+    url "https://files.pythonhosted.org/packages/1e/1e/632e55a04d732c8184201238d911207682b119c35cecbb9a573a6c566731/greenlet-2.0.2.tar.gz"
+    sha256 "e7c8dc13af7db097bed64a051d2dd49e9f0af495c26995c00a9ee842690d34c0"
   end
 
   resource "itsdangerous" do
-    url "https://files.pythonhosted.org/packages/68/1a/f27de07a8a304ad5fa817bbe383d1238ac4396da447fa11ed937039fa04b/itsdangerous-1.1.0.tar.gz"
-    sha256 "321b033d07f2a4136d3ec762eac9f16a10ccd60f53c0c91af90217ace7ba1f19"
+    url "https://files.pythonhosted.org/packages/7f/a1/d3fb83e7a61fa0c0d3d08ad0a94ddbeff3731c05212617dff3a94e097f08/itsdangerous-2.1.2.tar.gz"
+    sha256 "5dbbc68b317e5e42f327f9021763545dc3fc3bfe22e6deb96aaf1fc38874156a"
   end
 
   resource "Jinja2" do
-    url "https://files.pythonhosted.org/packages/64/a7/45e11eebf2f15bf987c3bc11d37dcc838d9dc81250e67e4c5968f6008b6c/Jinja2-2.11.2.tar.gz"
-    sha256 "89aab215427ef59c34ad58735269eb58b1a5808103067f7bb9d5836c651b3bb0"
+    url "https://files.pythonhosted.org/packages/7a/ff/75c28576a1d900e87eb6335b063fab47a8ef3c8b4d88524c4bf78f670cce/Jinja2-3.1.2.tar.gz"
+    sha256 "31351a702a408a9e7595a8fc6150fc3f43bb6bf7e319770cbc0db9df9437e852"
   end
 
   resource "MarkupSafe" do
-    url "https://files.pythonhosted.org/packages/b9/2e/64db92e53b86efccfaea71321f597fa2e1b2bd3853d8ce658568f7a13094/MarkupSafe-1.1.1.tar.gz"
-    sha256 "29872e92839765e546828bb7754a68c418d927cd064fd4708fab9fe9c8bb116b"
-  end
-
-  resource "monotonic" do
-    url "https://files.pythonhosted.org/packages/19/c1/27f722aaaaf98786a1b338b78cf60960d9fe4849825b071f4e300da29589/monotonic-1.5.tar.gz"
-    sha256 "23953d55076df038541e648a53676fb24980f7a1be290cdda21300b3bc21dfb0"
+    url "https://files.pythonhosted.org/packages/95/7e/68018b70268fb4a2a605e2be44ab7b4dd7ce7808adae6c5ef32e34f4b55a/MarkupSafe-2.1.2.tar.gz"
+    sha256 "abcabc8c2b26036d62d4c746381a6f7cf60aafcc653198ad678306986b09450d"
   end
 
   resource "pygdbmi" do
-    url "https://files.pythonhosted.org/packages/5d/3e/ccd97d572f9b80851742a3d30551bc8b11be203b43545418afffbcf2cd59/pygdbmi-0.10.0.0b0.tar.gz"
-    sha256 "8a02cec223e4ed8bead9c4a5859017df822eb2fa80e90d59a463749336139bff"
+    url "https://files.pythonhosted.org/packages/f5/74/67e1d69287950e527798db40a4478a4a5cd7da08130de29a74c3433a016d/pygdbmi-0.10.0.2.tar.gz"
+    sha256 "81dfc9e7ffd49f5006685a243905cee72216303e5ea42f6588793dfb8c8407ab"
   end
 
   resource "Pygments" do
-    url "https://files.pythonhosted.org/packages/6e/4d/4d2fe93a35dfba417311a4ff627489a947b01dc0cc377a3673c00cf7e4b2/Pygments-2.6.1.tar.gz"
-    sha256 "647344a061c249a3b74e230c739f434d7ea4d8b1d5f3721bc0f3558049b38f44"
+    url "https://files.pythonhosted.org/packages/da/6a/c427c06913204e24de28de5300d3f0e809933f376e0b7df95194b2bb3f71/Pygments-2.14.0.tar.gz"
+    sha256 "b3ed06a9e8ac9a9aae5a6f5dbe78a8a58655d17b43b93c078f094ddc476ae297"
   end
 
   resource "python-engineio" do
-    url "https://files.pythonhosted.org/packages/e7/f5/64651d4ef2fc8921de33c010a8531916a5bdabd87cd0da66ea6b56c52239/python-engineio-3.13.2.tar.gz"
-    sha256 "36b33c6aa702d9b6a7f527eec6387a2da1a9a24484ec2f086d76576413cef04b"
+    url "https://files.pythonhosted.org/packages/7e/ff/970c5d084f513fb38108cd7c90497489d7cff8666f9bfabae00a3f4e13d4/python-engineio-4.3.4.tar.gz"
+    sha256 "d8d8b072799c36cadcdcc2b40d2a560ce09797ab3d2d596b2ad519a5e4df19ae"
   end
 
   resource "python-socketio" do
-    url "https://files.pythonhosted.org/packages/6e/e2/515be319ec39bdf9d3344fb591b60f787b52e413fbb0cb3b5362d83bf037/python-socketio-4.6.0.tar.gz"
-    sha256 "358d8fbbc029c4538ea25bcaa283e47f375be0017fcba829de8a3a731c9df25a"
-  end
-
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/6b/34/415834bfdafca3c5f451532e8a8d9ba89a21c9743a0c59fbd0205c7f9426/six-1.15.0.tar.gz"
-    sha256 "30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"
+    url "https://files.pythonhosted.org/packages/ee/56/294629986bf6cea96e0edb3933a7f2fac7a079d12909e893903a2effc670/python-socketio-5.7.2.tar.gz"
+    sha256 "92395062d9db3c13d30e7cdedaa0e1330bba78505645db695415f9a3c628d097"
   end
 
   resource "Werkzeug" do
-    url "https://files.pythonhosted.org/packages/c3/1d/1c0761d9365d166dc9d882a48c437111d22b0df564d6d5768045d9a51fd0/Werkzeug-0.16.1.tar.gz"
-    sha256 "b353856d37dec59d6511359f97f6a4b2468442e454bd1c98298ddce53cac1f04"
+    url "https://files.pythonhosted.org/packages/f8/c1/1c8e539f040acd80f844c69a5ef8e2fccdf8b442dabb969e497b55d544e1/Werkzeug-2.2.2.tar.gz"
+    sha256 "7ea2d48322cc7c0f8b3a215ed73eabd7b5d75d0b50e31ab006286ccff9e00b8f"
   end
 
   def install

@@ -1,27 +1,39 @@
 class Gloox < Formula
   desc "C++ Jabber/XMPP library that handles the low-level protocol"
   homepage "https://camaya.net/gloox/"
-  url "https://camaya.net/download/gloox-1.0.23.tar.bz2"
-  sha256 "97cb6a0c07e320ffa4a7c66e8ab06b2361086271dc87ed2398befef4e8435f8a"
+  url "https://camaya.net/download/gloox-1.0.24.tar.bz2"
+  sha256 "ae1462be2a2eb8fe5cd054825143617c53c2c9c7195606cb5a5ba68c0f68f9c9"
+  license "GPL-3.0-only" => { with: "openvpn-openssl-exception" }
+
+  livecheck do
+    url :homepage
+    regex(/Latest stable version.*?href=.*?gloox[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "ae614fa73c886d568e4bb6916438affd3b081bccfc4904fef4a4110417f41e9d" => :catalina
-    sha256 "eea355a755180f72c719f06d0eae5c7b03223c35f39aae6379a007f0a6333ffe" => :mojave
-    sha256 "730858e264fc531556d60fd93f971614e9ce22ee1db1391f651a8fba2b257198" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "46eab221247ef01010c6b159feb6e2f0fc1355c53d1aaa3cbf144c3e5b825f61"
+    sha256 cellar: :any,                 arm64_monterey: "5c9ba1c56bf72838684beaf32e452e20bb7e003151e69d7e2beb9ed06d57af3b"
+    sha256 cellar: :any,                 arm64_big_sur:  "3a074b66d0c8b73f75842fcb350da30d5c1dfa4babc0f63134d01156c577c3eb"
+    sha256 cellar: :any,                 ventura:        "704e1f7fcbfeea920fd04cc51b4e0a986ef51874c352cd66e060ed1fe5b57243"
+    sha256 cellar: :any,                 monterey:       "6507e5a77b70a01cfb5d86a7f4ec8bd71755c33bd533b3f726ba293c492155a2"
+    sha256 cellar: :any,                 big_sur:        "ff6c2d2cc04577792e75b187f62c6243eeefe6dc715b0d3ebc5d1397dd557861"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "6a520a0278c099ab8d34b6a01354846be465efba2a04e0463c9b7b9baaadb027"
   end
 
   depends_on "pkg-config" => :build
   depends_on "libidn"
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
 
   uses_from_macos "zlib"
 
   def install
-    system "./configure", "--prefix=#{prefix}",
+    system "./configure", *std_configure_args,
+                          "--disable-silent-rules",
                           "--with-zlib",
-                          "--disable-debug",
-                          "--with-openssl=#{Formula["openssl@1.1"].opt_prefix}"
+                          "--with-openssl=#{Formula["openssl@3"].opt_prefix}",
+                          "--without-tests",
+                          "--without-examples"
     system "make", "install"
   end
 

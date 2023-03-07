@@ -1,29 +1,36 @@
 class Libmpc < Formula
   desc "C library for the arithmetic of high precision complex numbers"
   homepage "http://www.multiprecision.org/mpc/"
-  url "https://ftp.gnu.org/gnu/mpc/mpc-1.2.0.tar.gz"
-  mirror "https://ftpmirror.gnu.org/mpc/mpc-1.2.0.tar.gz"
-  sha256 "e90f2d99553a9c19911abdb4305bf8217106a957e3994436428572c8dfe8fda6"
+  url "https://ftp.gnu.org/gnu/mpc/mpc-1.3.1.tar.gz"
+  mirror "https://ftpmirror.gnu.org/mpc/mpc-1.3.1.tar.gz"
+  sha256 "ab642492f5cf882b74aa0cb730cd410a81edcdbec895183ce930e706c1c759b8"
+  license "LGPL-3.0-or-later"
 
   bottle do
-    cellar :any
-    sha256 "94f1002674d74f582bf3d87079c2b3ddbb4b6add13d4bd7b522acd7bda419bba" => :catalina
-    sha256 "5896218dabc22de4582cde53ce464263a6675eece309f52c6a262b02e5b6dc60" => :mojave
-    sha256 "b48ea39caa145b937b7158c73218e2d98f045bbb6186b48eb1873f45e6a51dea" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "da4ff781bc469c82af17f98f0bdbf20932e222d0520ab784cd1b322b789ad7a5"
+    sha256 cellar: :any,                 arm64_monterey: "dd3994160b3625b1f14e34abf632b90bf49e71db1cc85c12e9ab529d4cae2a87"
+    sha256 cellar: :any,                 arm64_big_sur:  "43bbe994c7bbb40f7172ef7a750bc6d2687275a76a25f67fc2d53ef00728d912"
+    sha256 cellar: :any,                 ventura:        "aa4ddb0e50ace93746e6af2e6185493698b501e9359cf73ce41cfbb70369db09"
+    sha256 cellar: :any,                 monterey:       "c32f2c3fe7ab06e308e6fa74874e1d4d92ff6eb3598da6e0f8e6fa7a333350f5"
+    sha256 cellar: :any,                 big_sur:        "47b50c3df6a35ea3c876397eac4a7dc157b5f4109247671a16599a9a41b9c035"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "f6542ae5bcf643ca0c980c7000cde1585922e76be080b3cc3422dac0d4a50904"
+  end
+
+  head do
+    url "https://gitlab.inria.fr/mpc/mpc.git", branch: "master"
+    depends_on "autoconf" => :build
+    depends_on "automake" => :build
+    depends_on "libtool" => :build
   end
 
   depends_on "gmp"
   depends_on "mpfr"
 
   def install
-    args = %W[
-      --prefix=#{prefix}
-      --disable-dependency-tracking
-      --with-gmp=#{Formula["gmp"].opt_prefix}
-      --with-mpfr=#{Formula["mpfr"].opt_prefix}
-    ]
-
-    system "./configure", *args
+    system "autoreconf", "--force", "--install", "--verbose" if build.head?
+    system "./configure", *std_configure_args,
+                          "--with-gmp=#{Formula["gmp"].opt_prefix}",
+                          "--with-mpfr=#{Formula["mpfr"].opt_prefix}"
     system "make"
     system "make", "check"
     system "make", "install"

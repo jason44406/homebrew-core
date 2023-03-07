@@ -3,97 +3,93 @@ class C7n < Formula
 
   desc "Rules engine for cloud security, cost optimization, and governance"
   homepage "https://github.com/cloud-custodian/cloud-custodian"
-  url "https://github.com/cloud-custodian/cloud-custodian/archive/0.9.4.0.tar.gz"
-  sha256 "f875fb72a827a2e088018f4b58fa1553e1e1325d9b57b9bbfb79e51ef13c31ec"
+  url "https://github.com/cloud-custodian/cloud-custodian/archive/0.9.23.0.tar.gz"
+  sha256 "531b54c437c34f061dc3df694b2915d60b59ac51a7858654ba50f0d7507af53d"
   license "Apache-2.0"
 
-  bottle do
-    cellar :any_skip_relocation
-    sha256 "c48133a39b5fb930c9c9dc3bb9ee6700e70f6f962adde471404617a097b8c8a3" => :catalina
-    sha256 "739bf0cca1ca213f61610d3b33257c1b9b9f3da7eba8dc717eb814953bd81c7c" => :mojave
-    sha256 "a846f1c6d5de2e10be2d737b7dd9973860f59b37d88f20267a02412660a288ae" => :high_sierra
+  livecheck do
+    url :stable
+    strategy :github_latest
   end
 
-  depends_on "python@3.8"
+  bottle do
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "9d583455e7c5eb02b31a748d8527626c2abdb8cb3ddfbaf0154df588aaf1fa56"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "adeb8046bcf5161b310cbb6f28b0dbea5627178c755bc09f8f1496ce6fe1c792"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "97d0cfad658587e6a96ffb8409c2ec7d544784462e24625547bb48b1ece59243"
+    sha256 cellar: :any_skip_relocation, ventura:        "483951c6973ba508374759a41b13cd4846720966c54ff7b1295f304642cd7a3a"
+    sha256 cellar: :any_skip_relocation, monterey:       "3f823be6d71af6a8c5cefe608c02a43e82bc32c23d2627fb291f43166045a8a6"
+    sha256 cellar: :any_skip_relocation, big_sur:        "0dfd6e9b9297cfd6d71c5ce524305b93d2e28aa2dfe6e1b6c5115f481624e043"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "284b8b7932e17e5a14ef95870f16615cc4d768821233901623aa0d6cc05aea81"
+  end
+
+  depends_on "python-tabulate"
+  depends_on "python@3.11"
+  depends_on "pyyaml"
+  depends_on "six"
 
   resource "argcomplete" do
-    url "https://files.pythonhosted.org/packages/df/a0/3544d453e6b80792452d71fdf45aac532daf1c2b2d7fc6cb712e1c3daf11/argcomplete-1.12.0.tar.gz"
-    sha256 "2fbe5ed09fd2c1d727d4199feca96569a5b50d44c71b16da9c742201f7cc295c"
+    url "https://files.pythonhosted.org/packages/05/f8/67851ae4fe5396ba6868c5d84219b81ea6a5d53991a6853616095c30adc0/argcomplete-2.0.0.tar.gz"
+    sha256 "6372ad78c89d662035101418ae253668445b391755cfe94ea52f1b9d22425b20"
   end
 
   resource "attrs" do
-    url "https://files.pythonhosted.org/packages/98/c3/2c227e66b5e896e15ccdae2e00bbc69aa46e9a8ce8869cc5fa96310bf612/attrs-19.3.0.tar.gz"
-    sha256 "f7b7ce16570fe9965acd6d30101a28f62fb4a7f9e926b3bbc9b61f8b04247e72"
+    url "https://files.pythonhosted.org/packages/21/31/3f468da74c7de4fcf9b25591e682856389b3400b4b62f201e65f15ea3e07/attrs-22.2.0.tar.gz"
+    sha256 "c9227bfc2f01993c03f68db37d1d15c9690188323c067c641f1a35ca58185f99"
   end
 
   resource "boto3" do
-    url "https://files.pythonhosted.org/packages/71/ae/98f3cadaa11566e4f81d702157913bffde32dead29d5bafcd6e14a0f2567/boto3-1.14.35.tar.gz"
-    sha256 "df19f35e2d73e77c72f756f98805785f45dd26c608b704b105e9f8fec6992c1e"
+    url "https://files.pythonhosted.org/packages/27/77/d3ff0ad78cc0e7b37175c9002ad60ebeb5e6dabc5a358d03577c155d8869/boto3-1.26.72.tar.gz"
+    sha256 "5d6e19d148c4a9d5d85f0d96570d11264f23db610f1e3c9a8b7e8b6898424691"
   end
 
   resource "botocore" do
-    url "https://files.pythonhosted.org/packages/41/f4/2e18f6346cbdc5bd0e0a7c49f8095d1c99559bb05b6fa9402a3eaa0585e6/botocore-1.17.35.tar.gz"
-    sha256 "0f69698a59e7829d34851ea5025338bddc4352300ba7df619842eac173bc4a4e"
+    url "https://files.pythonhosted.org/packages/85/d8/b3ed4e4176bb7fa3d6e08b94a9b94a13315478162d55ac61b785a6233cb1/botocore-1.29.72.tar.gz"
+    sha256 "8710f53af0e20f08f36a3bf434d18bc7ceba5d9835495b02aedbedd35df5de9a"
   end
 
   resource "docutils" do
-    url "https://files.pythonhosted.org/packages/93/22/953e071b589b0b1fee420ab06a0d15e5aa0c7470eb9966d60393ce58ad61/docutils-0.15.2.tar.gz"
-    sha256 "a2aeea129088da402665e92e0b25b04b073c04b2dce4ab65caaa38b7ce2e1a99"
+    url "https://files.pythonhosted.org/packages/4c/17/559b4d020f4b46e0287a2eddf2d8ebf76318fd3bd495f1625414b052fdc9/docutils-0.17.1.tar.gz"
+    sha256 "686577d2e4c32380bb50cbb22f575ed742d58168cee37e99117a854bcd88f125"
   end
 
   resource "importlib-metadata" do
-    url "https://files.pythonhosted.org/packages/e2/ae/0b037584024c1557e537d25482c306cf6327b5a09b6c4b893579292c1c38/importlib_metadata-1.7.0.tar.gz"
-    sha256 "90bb658cdbbf6d1735b6341ce708fc7024a3e14e99ffdc5783edea9f9b077f83"
+    url "https://files.pythonhosted.org/packages/90/07/6397ad02d31bddf1841c9ad3ec30a693a3ff208e09c2ef45c9a8a5f85156/importlib_metadata-6.0.0.tar.gz"
+    sha256 "e354bedeb60efa6affdcc8ae121b73544a7aa74156d047311948f6d711cd378d"
   end
 
   resource "jmespath" do
-    url "https://files.pythonhosted.org/packages/3c/56/3f325b1eef9791759784aa5046a8f6a1aff8f7c898a2e34506771d3b99d8/jmespath-0.10.0.tar.gz"
-    sha256 "b85d0567b8666149a93172712e68920734333c0ce7e89b78b3e987f71e5ed4f9"
+    url "https://files.pythonhosted.org/packages/00/2a/e867e8531cf3e36b41201936b7fa7ba7b5702dbef42922193f05c8976cd6/jmespath-1.0.1.tar.gz"
+    sha256 "90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe"
   end
 
   resource "jsonschema" do
-    url "https://files.pythonhosted.org/packages/69/11/a69e2a3c01b324a77d3a7c0570faa372e8448b666300c4117a516f8b1212/jsonschema-3.2.0.tar.gz"
-    sha256 "c8a85b28d377cc7737e46e2d9f2b4f44ee3c0e1deac6bf46ddefc7187d30797a"
+    url "https://files.pythonhosted.org/packages/36/3d/ca032d5ac064dff543aa13c984737795ac81abc9fb130cd2fcff17cfabc7/jsonschema-4.17.3.tar.gz"
+    sha256 "0f864437ab8b6076ba6707453ef8f98a6a0d512a80e93f8abdb676f737ecb60d"
   end
 
   resource "pyrsistent" do
-    url "https://files.pythonhosted.org/packages/9f/0d/cbca4d0bbc5671822a59f270e4ce3f2195f8a899c97d0d5abb81b191efb5/pyrsistent-0.16.0.tar.gz"
-    sha256 "28669905fe725965daa16184933676547c5bb40a5153055a8dee2a4bd7933ad3"
+    url "https://files.pythonhosted.org/packages/bf/90/445a7dbd275c654c268f47fa9452152709134f61f09605cf776407055a89/pyrsistent-0.19.3.tar.gz"
+    sha256 "1a2994773706bbb4995c31a97bc94f1418314923bd1048c6d964837040376440"
   end
 
   resource "python-dateutil" do
-    url "https://files.pythonhosted.org/packages/be/ed/5bbc91f03fa4c839c4c7360375da77f9659af5f7086b7a7bdda65771c8e0/python-dateutil-2.8.1.tar.gz"
-    sha256 "73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"
-  end
-
-  resource "PyYAML" do
-    url "https://files.pythonhosted.org/packages/64/c2/b80047c7ac2478f9501676c988a5411ed5572f35d1beff9cae07d321512c/PyYAML-5.3.1.tar.gz"
-    sha256 "b8eac752c5e14d3eca0e6dd9199cd627518cb5ec06add0de9d32baeee6fe645d"
+    url "https://files.pythonhosted.org/packages/4c/c4/13b4776ea2d76c115c1d1b84579f3764ee6d57204f6be27119f13a61d0a9/python-dateutil-2.8.2.tar.gz"
+    sha256 "0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"
   end
 
   resource "s3transfer" do
-    url "https://files.pythonhosted.org/packages/50/de/2b688c062107942486c81a739383b1432a72717d9a85a6a1a692f003c70c/s3transfer-0.3.3.tar.gz"
-    sha256 "921a37e2aefc64145e7b73d50c71bb4f26f46e4c9f414dc648c6245ff92cf7db"
-  end
-
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/6b/34/415834bfdafca3c5f451532e8a8d9ba89a21c9743a0c59fbd0205c7f9426/six-1.15.0.tar.gz"
-    sha256 "30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"
-  end
-
-  resource "tabulate" do
-    url "https://files.pythonhosted.org/packages/57/6f/213d075ad03c84991d44e63b6516dd7d185091df5e1d02a660874f8f7e1e/tabulate-0.8.7.tar.gz"
-    sha256 "db2723a20d04bcda8522165c73eea7c300eda74e0ce852d9022e0159d7895007"
+    url "https://files.pythonhosted.org/packages/e1/eb/e57c93d5cd5edf8c1d124c831ef916601540db70acd96fa21fe60cef1365/s3transfer-0.6.0.tar.gz"
+    sha256 "2ed07d3866f523cc561bf4a00fc5535827981b117dd7876f036b0c1aca42c947"
   end
 
   resource "urllib3" do
-    url "https://files.pythonhosted.org/packages/81/f4/87467aeb3afc4a6056e1fe86626d259ab97e1213b1dfec14c7cb5f538bf0/urllib3-1.25.10.tar.gz"
-    sha256 "91056c15fa70756691db97756772bb1eb9678fa585d9184f24534b100dc60f4a"
+    url "https://files.pythonhosted.org/packages/c5/52/fe421fb7364aa738b3506a2d99e4f3a56e079c0a798e9f4fa5e14c60922f/urllib3-1.26.14.tar.gz"
+    sha256 "076907bf8fd355cde77728471316625a4d2f7e713c125f51953bb5b3eecf4f72"
   end
 
   resource "zipp" do
-    url "https://files.pythonhosted.org/packages/ce/8c/2c5f7dc1b418f659d36c04dec9446612fc7b45c8095cc7369dd772513055/zipp-3.1.0.tar.gz"
-    sha256 "c599e4d75c98f6798c509911d08a22e6c021d074469042177c8c86fb92eefd96"
+    url "https://files.pythonhosted.org/packages/d1/2f/ba544a8a6ad5ad9dcec1b00f536bb9fb078f5f50d1a1408876de18a9151b/zipp-3.13.0.tar.gz"
+    sha256 "23f70e964bc11a34cef175bc90ba2914e1e4545ea1e3e2f67c079671883f9cb6"
   end
 
   def install
@@ -123,7 +119,7 @@ class C7n < Formula
             tag: CreatorName
             principal_id_tag: CreatorId
     EOF
-    output = shell_output("custodian validate --verbose #{testpath}/good-policy.yml 2>&1")
+    output = shell_output("#{bin}/custodian validate --verbose #{testpath}/good-policy.yml 2>&1")
     assert_match "valid", output
     # has invalid "action" key instead of "actions"
     (testpath/"bad-policy.yml").write <<~EOF
@@ -137,7 +133,7 @@ class C7n < Formula
             tag: CreatorName
             principal_id_tag: CreatorId
     EOF
-    output = shell_output("custodian validate --verbose #{testpath}/bad-policy.yml 2>&1", 1)
+    output = shell_output("#{bin}/custodian validate --verbose #{testpath}/bad-policy.yml 2>&1", 1)
     assert_match "invalid", output
   end
 end

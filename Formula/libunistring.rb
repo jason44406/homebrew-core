@@ -1,18 +1,20 @@
 class Libunistring < Formula
   desc "C string library for manipulating Unicode strings"
   homepage "https://www.gnu.org/software/libunistring/"
-  url "https://ftp.gnu.org/gnu/libunistring/libunistring-0.9.10.tar.xz"
-  mirror "https://ftpmirror.gnu.org/libunistring/libunistring-0.9.10.tar.xz"
-  sha256 "eb8fb2c3e4b6e2d336608377050892b54c3c983b646c561836550863003c05d7"
-  license "GPL-3.0"
+  url "https://ftp.gnu.org/gnu/libunistring/libunistring-1.1.tar.gz"
+  mirror "https://ftpmirror.gnu.org/libunistring/libunistring-1.1.tar.gz"
+  mirror "http://ftp.gnu.org/gnu/libunistring/libunistring-1.1.tar.gz"
+  sha256 "a2252beeec830ac444b9f68d6b38ad883db19919db35b52222cf827c385bdb6a"
+  license any_of: ["GPL-2.0-only", "LGPL-3.0-or-later"]
 
   bottle do
-    cellar :any
-    sha256 "ce746662b98d93511b86920011b5cafcd2eecbce4c9c40d8c52a143cdf708456" => :catalina
-    sha256 "1d0c8e266acddcebeef3d9f6162d6f7fa0b193f5f71837174fb2ef0b39d324f3" => :mojave
-    sha256 "5eeec8fdede3d6ae2c1082179879a41d3b600a36e7d83acc5ea0587ad85d5a9d" => :high_sierra
-    sha256 "3a7a0e8737c19995bc8a263724a90a26b418b177deee90b4e6746c353b348e12" => :sierra
-    sha256 "df01e794e8d11926ea023798f9f95d516a6c28009cbdfd29ea1d1a9107812d66" => :el_capitan
+    sha256 cellar: :any,                 arm64_ventura:  "c78e7b0af88bef155ad7f12d63ad60f0c87e5a8cccb8f40ec5d9304f8fdfaee7"
+    sha256 cellar: :any,                 arm64_monterey: "4224b6d2525c68567fba97103f44fe6f95e62990bddab83e4849d048f3799cda"
+    sha256 cellar: :any,                 arm64_big_sur:  "91c48a9bed24806ed74c964ac39010de737a83ca8a4f2b29e07180902112985e"
+    sha256 cellar: :any,                 ventura:        "10dbdabb2d2fd8465ee4b89196dda6fc80e80fbb61425d42f0bf1e3ee3476145"
+    sha256 cellar: :any,                 monterey:       "73ef01fda8958a495f4d7031cb8d270432d4ae2f11760190676762b95ac7c0f4"
+    sha256 cellar: :any,                 big_sur:        "55a30f8d2ad0058a9869751ccb9b7e949469cf20f29810e70ff2b7eff63a6762"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "252f3716191a8c08f8d10e2c20b84cf9645e2c264f409f58d3255d9a4edce77f"
   end
 
   def install

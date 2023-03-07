@@ -1,20 +1,24 @@
 class Libspiro < Formula
   desc "Library to simplify the drawing of curves"
   homepage "https://github.com/fontforge/libspiro"
-  url "https://github.com/fontforge/libspiro/releases/download/20200505/libspiro-dist-20200505.tar.gz"
-  sha256 "06c69a1e8dcbcabcf009fd96fd90b1a244d0257246e376c2c4d57c4ea4af0e49"
-  license "GPL-3.0"
+  url "https://github.com/fontforge/libspiro/releases/download/20221101/libspiro-dist-20221101.tar.gz"
+  sha256 "5984fb5af3e4e1f927f3a74850b705a711fb86284802a5e6170b09786440e8be"
+  license "GPL-3.0-or-later"
   version_scheme 1
 
   bottle do
-    cellar :any
-    sha256 "238761be2cd640f6c3f59f0461ce7f5b73dc71c9613236e180bc55f4231e167b" => :catalina
-    sha256 "fb1b2e548eddc684a5b615cedabc2c6403e0c87409fdb419369ca40e2b70aa52" => :mojave
-    sha256 "b7155fe14b9909a06a9044ca2d3275f5b2cbcd9aac23583b3819ba53898ff120" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "51c8921af221ce78f184e95a55a79e81d38fc1fa84abe2dc46625a57788e6b0e"
+    sha256 cellar: :any,                 arm64_monterey: "1e90fd585fcaa84a166d7a77c2ae5aeb97fd8692c98dc5b2f6952d9d9033bf9a"
+    sha256 cellar: :any,                 arm64_big_sur:  "d2d54755d2a1a15ab93350e6a74697357a7e7478f9a53e78d7c40b2c47fd9651"
+    sha256 cellar: :any,                 ventura:        "5721b7e65026b5a86e387c4f648925b6e9166825b158226fbfb6a4ce2387c2f4"
+    sha256 cellar: :any,                 monterey:       "946ef3d6e92c177e4456421353ed3090128d8eebca4630bcd8f1ee1cd4bb9b49"
+    sha256 cellar: :any,                 big_sur:        "f95068a1f9cb22591a2e37cb2b061199f8f624cbab15d743b1176438020fb119"
+    sha256 cellar: :any,                 catalina:       "a4487593a91bce4bdd4456bee4f3a31219d03ed1c6960e6d998d551e50e186df"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "b4dfa30c267a3b79aa235c9569a0289ebce4cd3d8f0a570c4fc48fea840d9ff3"
   end
 
   head do
-    url "https://github.com/fontforge/libspiro.git"
+    url "https://github.com/fontforge/libspiro.git", branch: "master"
 
     depends_on "autoconf" => :build
     depends_on "automake" => :build

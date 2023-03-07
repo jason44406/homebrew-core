@@ -1,28 +1,35 @@
 class Tepl < Formula
   desc "GNOME Text Editor Product Line"
-  homepage "https://wiki.gnome.org/Projects/Tepl"
-  url "https://download.gnome.org/sources/tepl/4.4/tepl-4.4.0.tar.xz"
-  sha256 "e6f6673a8a27e8f280725db8fbacec79b20676ae0558755239d15a9808faa256"
-  license "LGPL-2.1"
+  homepage "https://gitlab.gnome.org/swilmet/tepl"
+  url "https://gitlab.gnome.org/swilmet/tepl.git",
+      tag:      "6.4.0",
+      revision: "d1e9cc2e4a0738f68d9002f13724b7239f075844"
+  license "LGPL-2.1-or-later"
   revision 1
 
   bottle do
-    sha256 "a2d1a1d30b9016bc41d778bfd7aa01a71c63fbd2131c7c783a693c33c290260e" => :catalina
-    sha256 "4a8c3e0c79c27b2abb1043caf8984d452307cd9b4814b6996f040eaeec53ab75" => :mojave
-    sha256 "7a482ab7709b77c410a8d2a11d7caa32c965dbdbaed301d3de6eb3944edb1746" => :high_sierra
+    sha256 arm64_ventura:  "c1f4deb31e9f3b9e268809b60fe33ffe84f1e07aa13a4be2e52e0c63bab43ecf"
+    sha256 arm64_monterey: "48465cb9e278da6d098bef4f140fb4bfae6c4b07cfe4a49ae6f6658d9793288b"
+    sha256 arm64_big_sur:  "2e6e64936fb82c70aa0facdff1e2775659acc0f3ee8aa96062d8c41f6cdc6213"
+    sha256 ventura:        "e2878978ee1f7caeb5eaedb453f761c29a9a3d51de92d589cefb780cb715339b"
+    sha256 monterey:       "0b9626e24201eb636eda4178b0ec21ac4b15c83b7f45f5fdbe77146b0dad8f94"
+    sha256 big_sur:        "d7639d7f7ad349c7dcf8534f2a5fb9a81f9554a60d876d1185c52ff378a27023"
+    sha256 x86_64_linux:   "c790748f0d700a100da671e93a64e46204b8604a560a05ebb7516f0a8846bf12"
   end
 
   depends_on "gobject-introspection" => :build
+  depends_on "meson" => :build
+  depends_on "ninja" => :build
   depends_on "pkg-config" => :build
   depends_on "amtk"
   depends_on "gtksourceview4"
+  depends_on "icu4c"
   depends_on "uchardet"
 
   def install
-    system "./configure", "--disable-dependency-tracking",
-                          "--disable-silent-rules",
-                          "--prefix=#{prefix}"
-    system "make", "install"
+    system "meson", *std_meson_args, "build", "-Dgtk_doc=false"
+    system "meson", "compile", "-C", "build", "-v"
+    system "meson", "install", "-C", "build"
   end
 
   test do
@@ -67,7 +74,7 @@ class Tepl < Formula
       -I#{gtksourceview4.opt_include}/gtksourceview-4
       -I#{gtkx3.opt_include}/gtk-3.0
       -I#{harfbuzz.opt_include}/harfbuzz
-      -I#{include}/tepl-4
+      -I#{include}/tepl-#{version.major}
       -I#{libepoxy.opt_include}
       -I#{libpng.opt_include}/libpng16
       -I#{pango.opt_include}/pango-1.0
@@ -86,7 +93,7 @@ class Tepl < Formula
       -L#{lib}
       -L#{pango.opt_lib}
       -latk-1.0
-      -lamtk-5.0
+      -lamtk-5
       -lcairo
       -lcairo-gobject
       -lgdk-3
@@ -94,13 +101,13 @@ class Tepl < Formula
       -lgio-2.0
       -lglib-2.0
       -lgobject-2.0
-      -ltepl-4
+      -ltepl-6
       -lgtk-3
-      -lgtksourceview-4.0
-      -lintl
+      -lgtksourceview-4
       -lpango-1.0
       -lpangocairo-1.0
     ]
+    flags << "-lintl" if OS.mac?
     system ENV.cc, "test.c", "-o", "test", *flags
     system "./test"
   end

@@ -1,31 +1,33 @@
 class IkeScan < Formula
   desc "Discover and fingerprint IKE hosts"
   homepage "https://github.com/royhills/ike-scan"
-  url "https://github.com/royhills/ike-scan/archive/1.9.4.tar.gz"
-  sha256 "2865014185c129ac443beb7bf80f3c5eb93adb504cd307c5b6709199abf7c121"
-  license "GPL-3.0"
-  revision 1
-
-  head "https://github.com/royhills/ike-scan.git"
+  url "https://github.com/royhills/ike-scan/archive/1.9.5.tar.gz"
+  sha256 "5152bf06ac82d0cadffb93a010ffb6bca7efd35ea169ca7539cf2860ce2b263f"
+  license "GPL-3.0-or-later" => { with: "openvpn-openssl-exception" }
+  head "https://github.com/royhills/ike-scan.git", branch: "master"
 
   bottle do
-    sha256 "11f8717a655e0279957d3b4464b5074e1b75b17d0b882a93c9375b116f513deb" => :catalina
-    sha256 "684cd449c88f873dec2719d9423f42732006631b923aec133c5c2a447895b241" => :mojave
-    sha256 "9be05676d382198f99911601aa83008e5a27371669728c4d70cc98e9564bd2f3" => :high_sierra
-    sha256 "cd6e8435040dd728e6dbd62c161d0c6b48d19e0f5fe69ce9bef48991cccb91f1" => :sierra
+    rebuild 1
+    sha256 arm64_ventura:  "4962babb485008c4ca7365744527389c7f100c26a37e286f4131f554d8d30e76"
+    sha256 arm64_monterey: "2cdc49f704f821bd0aaa51534c4d9b8b73524fae1737ca302308b026c4d48db9"
+    sha256 arm64_big_sur:  "e3e644f24b55009f2acb78739cd2504f72800c07d3faac4fe2f8af7256b119a4"
+    sha256 ventura:        "d75a804e64246fb47fa55b2b96cfe9ad00659b29f11c35b14eb182dd0dd0a298"
+    sha256 monterey:       "a75856c7333e0bdfd2668348ed6abfbee95361f1e3645998c7730f84eecf45a1"
+    sha256 big_sur:        "43fb51d3ef205224920eee1e85861d8957159684d86d3de76c925b3e14b22c87"
+    sha256 catalina:       "a158c41e25fa99aaca6bf29573b4b6e77775be3402973bd016ee3ef4f9d6c8cc"
+    sha256 x86_64_linux:   "2b7b0f9ab06373c381c2133befa3d9524bcdb27c6ccd0f44acdc52d5497cee24"
   end
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
   depends_on "libtool" => :build
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
 
   def install
-    system "autoreconf", "-fvi"
-    system "./configure", "--disable-dependency-tracking",
-                          "--prefix=#{prefix}",
+    system "autoreconf", "--force", "--install", "--verbose"
+    system "./configure", *std_configure_args,
                           "--mandir=#{man}",
-                          "--with-openssl=#{Formula["openssl@1.1"].opt_prefix}"
+                          "--with-openssl=#{Formula["openssl@3"].opt_prefix}"
     system "make", "install"
   end
 

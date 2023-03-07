@@ -1,86 +1,44 @@
 class Pcb2gcode < Formula
   desc "Command-line tool for isolation, routing and drilling of PCBs"
   homepage "https://github.com/pcb2gcode/pcb2gcode"
-  url "https://github.com/pcb2gcode/pcb2gcode/archive/v2.1.0.tar.gz"
-  sha256 "ee546f0e002e83434862c7a5a2171a2276038d239909a09adb36e148e7d7319a"
-  license "GPL-3.0"
-  head "https://github.com/pcb2gcode/pcb2gcode.git"
+  url "https://github.com/pcb2gcode/pcb2gcode/archive/v2.5.0.tar.gz"
+  sha256 "96f1b1b4fd58e86f152b691202a15593815949dc9250fab9ab02f2346f5c2c52"
+  license "GPL-3.0-or-later"
+  revision 2
+  head "https://github.com/pcb2gcode/pcb2gcode.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "f061b44896db47c40e3ff5d58434aa701c7ba974b22a82f82b0206338181a200" => :catalina
-    sha256 "dae5016ae6634dda64d1ddc9ead1cd1dba55d8ef23f74dd2b9e848248bfdfee6" => :mojave
-    sha256 "bc556eccf6a7eb74ffaf14ce4396c5d311f8961cc035638692193009dda195f5" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "41ee077ad873fa09513b7acf48f7371ad10ff1090e70cbb41a1d5821a8a08bb7"
+    sha256 cellar: :any,                 arm64_monterey: "aed173e2abea2a17c9752522ea184df44f105b848055caeecfcdacb5e882a115"
+    sha256 cellar: :any,                 arm64_big_sur:  "1ddd17e10af11ae52aed1a7cc9ce9712d5d0574f361d1d8b66bd87369f971231"
+    sha256 cellar: :any,                 ventura:        "d0a3481c48fb8a419906776c0facee2b596bd7f2b18a636d18cce01b9466ae1b"
+    sha256 cellar: :any,                 monterey:       "669e3b8e956e5181f563a88025db9352665d409213d24a3e92b09405f1a83669"
+    sha256 cellar: :any,                 big_sur:        "52bb94aec6e947d03ab5e76606c19bfbf24f3e6f496966f341ad9327fa9b30ae"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "9bbe8640a6fe185e179184aa2095d67b7c88649c45aca57c121b20e0230a262d"
   end
 
   # Release 2.0.0 doesn't include an autoreconfed tarball
+  # glibmm, gtkmm and librsvg are used only in unittests,
+  # and are therefore not needed at runtime.
+  depends_on "atkmm@2.28" => :build
   depends_on "autoconf" => :build
   depends_on "automake" => :build
+  depends_on "cairomm@1.14" => :build
+  depends_on "glibmm@2.66" => :build
+  depends_on "gtkmm" => :build
+  depends_on "librsvg" => :build
+  depends_on "libsigc++@2" => :build
   depends_on "libtool" => :build
+  depends_on "pangomm@2.46" => :build
   depends_on "pkg-config" => :build
+  depends_on "boost"
   depends_on "gerbv"
-  depends_on "gtkmm"
-  depends_on "librsvg"
 
-  # Upstream maintainer claims that the geometry library from boost >= 1.67
-  # is severely broken. Remove the vendoring once fixed.
-  # See https://github.com/Homebrew/homebrew-core/pull/30914#issuecomment-411662760
-  # and https://svn.boost.org/trac10/ticket/13645
-  resource "boost" do
-    url "https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.tar.bz2"
-    sha256 "5721818253e6a0989583192f96782c4a98eb6204965316df9f5ad75819225ca9"
-
-    # Fix build on Xcode 11.4
-    patch do
-      url "https://github.com/boostorg/build/commit/b3a59d265929a213f02a451bb63cea75d668a4d9.patch?full_index=1"
-      sha256 "04a4df38ed9c5a4346fbb50ae4ccc948a1440328beac03cb3586c8e2e241be08"
-      directory "tools/build"
-    end
-  end
+  fails_with gcc: "5"
 
   def install
-    resource("boost").stage do
-      # Force boost to compile with the desired compiler
-      open("user-config.jam", "a") do |file|
-        file.write "using darwin : : #{ENV.cxx} ;\n"
-      end
-
-      bootstrap_args = %W[
-        --prefix=#{buildpath}/boost
-        --libdir=#{buildpath}/boost/lib
-        --with-libraries=program_options
-        --without-icu
-      ]
-
-      args = %W[
-        --prefix=#{buildpath}/boost
-        --libdir=#{buildpath}/boost/lib
-        -d2
-        -j#{ENV.make_jobs}
-        --ignore-site-config
-        --layout=tagged
-        --user-config=user-config.jam
-        install
-        threading=multi
-        link=static
-        optimization=space
-        variant=release
-        cxxflags=-std=c++11
-      ]
-
-      args << "cxxflags=-stdlib=libc++" << "linkflags=-stdlib=libc++" if ENV.compiler == :clang
-
-      system "./bootstrap.sh", *bootstrap_args
-      system "./b2", "headers"
-      system "./b2", *args
-    end
-
-    system "autoreconf", "-fvi"
-    system "./configure", "--disable-dependency-tracking",
-                          "--disable-silent-rules",
-                          "--prefix=#{prefix}",
-                          "--with-boost=#{buildpath}/boost",
-                          "--enable-static-boost"
+    system "autoreconf", "--force", "--install", "--verbose"
+    system "./configure", *std_configure_args, "--disable-silent-rules"
     system "make", "install"
   end
 

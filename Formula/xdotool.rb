@@ -1,26 +1,37 @@
 class Xdotool < Formula
   desc "Fake keyboard/mouse input and window management for X"
   homepage "https://www.semicomplete.com/projects/xdotool/"
-  url "https://github.com/jordansissel/xdotool/archive/v3.20160805.1.tar.gz"
-  sha256 "ddafca1239075c203769c17a5a184587731e56fbe0438c09d08f8af1704e117a"
-  revision 1
+  url "https://github.com/jordansissel/xdotool/releases/download/v3.20211022.1/xdotool-3.20211022.1.tar.gz"
+  sha256 "96f0facfde6d78eacad35b91b0f46fecd0b35e474c03e00e30da3fdd345f9ada"
+  license "BSD-3-Clause"
+  head "https://github.com/jordansissel/xdotool.git", branch: "master"
 
   bottle do
-    sha256 "8dbfb2b1c32176c7cba00aaa2365f3cd438619dc0286e668e5d87412c3717d53" => :catalina
-    sha256 "860e5e7f2ca2ae88c86e8a979eba543f544960894bb4d8ec59d98cbba9805614" => :mojave
-    sha256 "9de15325d8ed42b629a94e34ff710672e96c1570dc51a6544aff0d0445de5e9c" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "e97b772870557f47e08a218f6d5b799e4ed39ab167b5701c137f2219c1426275"
+    sha256 cellar: :any,                 arm64_monterey: "2e59d046b4cb7d97f989a022c0775cbf3ab9f5929cd05650d50a9eed62b162c2"
+    sha256 cellar: :any,                 arm64_big_sur:  "cdf3234a474044e88dcf18b5cb5e8da2c2af6da4d85eb04e8be737802baeae16"
+    sha256 cellar: :any,                 ventura:        "3990de3d762214cd1a8c4f6c0412b745728e8ca3509e6cd62040c111e38a3ec9"
+    sha256 cellar: :any,                 monterey:       "ded3a6fc9f7ddc4e307a48744d2c25f2a60a752311628822c69d9f141d17ee34"
+    sha256 cellar: :any,                 big_sur:        "f33aa5be05e49f700d166a13a36ecf5a1f8da3059e36f67e0cc9d7f26c3bf088"
+    sha256 cellar: :any,                 catalina:       "21276c0386840d584e70f5425578b5184e56ef7649e6992f191a6c7a3cf8a30e"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "ffe41af3fe21135efdee19b3fabf9f459d850946dd592858a50b4cd46035f35e"
   end
 
   depends_on "pkg-config" => :build
+  depends_on "libx11"
+  depends_on "libxinerama"
   depends_on "libxkbcommon"
+  depends_on "libxtst"
 
-  depends_on :x11
+  # Disable clock_gettime() workaround since the real API is available on macOS >= 10.12
+  # Note that the PR from this patch was actually closed originally because of problems
+  # caused on pre-10.12 environments, but that is no longer a concern.
+  patch do
+    url "https://github.com/jordansissel/xdotool/commit/dffc9a1597bd96c522a2b71c20301f97c130b7a8.patch?full_index=1"
+    sha256 "447fa42ec274eb7488bb4aeeccfaaba0df5ae747f1a7d818191698035169a5ef"
+  end
 
   def install
-    # Work around an issue with Xcode 8 on El Capitan, which
-    # errors out with `typedef redefinition with different types`
-    ENV.delete("SDKROOT") if MacOS.version == :el_capitan && MacOS::Xcode.version >= "8.0"
-
     system "make", "PREFIX=#{prefix}", "INSTALLMAN=#{man}", "install"
   end
 

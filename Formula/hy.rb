@@ -3,42 +3,25 @@ class Hy < Formula
 
   desc "Dialect of Lisp that's embedded in Python"
   homepage "https://github.com/hylang/hy"
-  url "https://files.pythonhosted.org/packages/e2/a8/d2118cf14aab7652d54283e6a9a199177f528610348e3712509a8596c0d0/hy-0.19.0.tar.gz"
-  sha256 "3a5a1d76ddeb2f1d5de71ad1b1167799850db955b5eb0258e351fb182b2e6016"
+  url "https://files.pythonhosted.org/packages/c5/6d/f23bcf595dc806f43af43853aa89614e5f30b046365c0639e84777606879/hy-0.26.0.tar.gz"
+  sha256 "07d2cd59f2b6ee6207fa94048a27ed45c5db0bae5a3893335cfa7dc74efc97a9"
   license "MIT"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "dde477be6e4a681568b5cbc06e5c3ce042f2043ca2572610df998a851468d131" => :catalina
-    sha256 "f3a62d0d0ac1eff081d28617a970217871fe6b6324dfa95707392c549026c9cd" => :mojave
-    sha256 "7b73de653a54d353ccc18f7e31b34275b6e7931b9f3c21f1b18cfb48a870199c" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "358f2a4bcd2af450a9c31c03b7c3b7b1f6db6f418a986e0e369b104a4cded045"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "991786bb1d03492a126cf05ee8c117a0799048e9bcf95d1b3f9923176ed3fea7"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "d2d9fa5bded872112d217cabff691a9f24cdf5deab5aecb9a64ace08d0f82e93"
+    sha256 cellar: :any_skip_relocation, ventura:        "2fae5d8f74ff09e7546c245d1f831e2fca91ba0a86734a8f783d9c82485f38a1"
+    sha256 cellar: :any_skip_relocation, monterey:       "d66e6e631ad4d79873d47f66d153bf7bc7dfd6030b0e7836981370320af16d2e"
+    sha256 cellar: :any_skip_relocation, big_sur:        "b67bd5a34d9366292c77f3354befff4c2cb8853b99d8572e71807ab643235a23"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "41870e64b014870af2ddc4f4a1e2262e152ce33034944b2824a72d9850f990c7"
   end
 
-  depends_on "python@3.8"
-
-  resource "appdirs" do
-    url "https://files.pythonhosted.org/packages/d7/d8/05696357e0311f5b5c316d7b95f46c669dd9c15aaeecbb48c7d0aeb88c40/appdirs-1.4.4.tar.gz"
-    sha256 "7d5d0167b2b1ba821647616af46a749d1c653740dd0d2415100fe26e27afdf41"
-  end
-
-  resource "astor" do
-    url "https://files.pythonhosted.org/packages/5a/21/75b771132fee241dfe601d39ade629548a9626d1d39f333fde31bc46febe/astor-0.8.1.tar.gz"
-    sha256 "6a6effda93f4e1ce9f618779b2dd1d9d84f1e32812c23a29b3fff6fd7f63fa5e"
-  end
-
-  resource "colorama" do
-    url "https://files.pythonhosted.org/packages/82/75/f2a4c0c94c85e2693c229142eb448840fba0f9230111faa889d1f541d12d/colorama-0.4.3.tar.gz"
-    sha256 "e96da0d330793e2cb9485e9ddfd918d456036c7149416295932478192f4436a1"
-  end
+  depends_on "python@3.11"
 
   resource "funcparserlib" do
-    url "https://files.pythonhosted.org/packages/cb/f7/b4a59c3ccf67c0082546eaeb454da1a6610e924d2e7a2a21f337ecae7b40/funcparserlib-0.3.6.tar.gz"
-    sha256 "b7992eac1a3eb97b3d91faa342bfda0729e990bd8a43774c1592c091e563c91d"
-  end
-
-  resource "rply" do
-    url "https://files.pythonhosted.org/packages/71/04/e52242871e606389f232f07042747567fb354a91d9449cad7fa9febbe3b3/rply-0.7.7.tar.gz"
-    sha256 "4d6d25703efd28fb3d5707f7b3bd4fe66c306159a5c25af10ba26d206a66d00d"
+    url "https://files.pythonhosted.org/packages/93/44/a21dfd9c45ad6909257e5186378a4fedaf41406824ce1ec06bc2a6c168e7/funcparserlib-1.0.1.tar.gz"
+    sha256 "a2c4a0d7942f7a0e7635c369d921066c8d4cae7f8b5bf7914466bec3c69837f4"
   end
 
   def install
@@ -46,9 +29,12 @@ class Hy < Formula
   end
 
   test do
+    python3 = "python3.11"
+    ENV.prepend_path "PYTHONPATH", libexec/Language::Python.site_packages(python3)
+
     (testpath/"test.hy").write "(print (+ 2 2))"
     assert_match "4", shell_output("#{bin}/hy test.hy")
     (testpath/"test.py").write shell_output("#{bin}/hy2py test.hy")
-    assert_match "4", shell_output("#{Formula["python@3.8"].bin}/python3 test.py")
+    assert_match "4", shell_output("#{python3} test.py")
   end
 end

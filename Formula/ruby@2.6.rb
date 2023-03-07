@@ -1,18 +1,22 @@
 class RubyAT26 < Formula
   desc "Powerful, clean, object-oriented scripting language"
   homepage "https://www.ruby-lang.org/"
-  url "https://cache.ruby-lang.org/pub/ruby/2.6/ruby-2.6.6.tar.xz"
-  sha256 "5db187882b7ac34016cd48d7032e197f07e4968f406b0690e20193b9b424841f"
+  url "https://cache.ruby-lang.org/pub/ruby/2.6/ruby-2.6.10.tar.xz"
+  sha256 "5fd8ded51321b88fdc9c1b4b0eb1b951d2eddbc293865da0151612c2e814c1f2"
   license "Ruby"
-  revision 1
 
   bottle do
-    sha256 "b9618a3e2b84a8364e2a9db594c8def107996030155908d1d2f932c97720ef46" => :catalina
-    sha256 "e14b839ac8de2cbca1b7f67803a2cfd085159045102c2c073d8d90e7bbeaf81d" => :mojave
-    sha256 "6be9583785d94e62384bb4642a5dd514653dbaab7acf77a6873b4e654c355ce9" => :high_sierra
+    sha256 arm64_monterey: "74f876ed5b99df4aac83e9493f1e35b9acd5caa40d455d74409dbb50da0e484e"
+    sha256 arm64_big_sur:  "5ddd0ae653c7fb59b23b2fe4c9d009e18f3c2c747c9bc0d912ac71bb90f0f9ca"
+    sha256 monterey:       "aba04d15f44c56b143076f4287067b7ee5a36b9ffe060291d21117412e637512"
+    sha256 big_sur:        "e0fac9dca78403a5963836b7f31261c831fb36fb568a75da05ab8e7fb93aa374"
+    sha256 catalina:       "b0b42c392235f47b3a697b51e02cb6cc2b1a628a689cac02d4c166bd22a109fa"
+    sha256 x86_64_linux:   "8aa297f5ccd7dd3956911e6b09b475a791e90c8a928b101744dd8988e366eeb8"
   end
 
   keg_only :versioned_formula
+
+  deprecate! date: "2022-04-12", because: :unsupported
 
   depends_on "pkg-config" => :build
   depends_on "libyaml"
@@ -43,10 +47,10 @@ class RubyAT26 < Formula
       --with-opt-dir=#{paths.join(":")}
       --without-gmp
     ]
-    args << "--disable-dtrace" unless MacOS::CLT.installed?
+    args << "--disable-dtrace" if OS.mac? && !MacOS::CLT.installed?
 
     # Correct MJIT_CC to not use superenv shim
-    args << "MJIT_CC=/usr/bin/clang"
+    args << "MJIT_CC=/usr/bin/#{DevelopmentTools.default_compiler}"
 
     system "./configure", *args
 

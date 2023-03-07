@@ -4,18 +4,44 @@ class Exiftran < Formula
   url "https://www.kraxel.org/releases/fbida/fbida-2.14.tar.gz"
   sha256 "95b7c01556cb6ef9819f358b314ddfeb8a4cbe862b521a3ed62f03d163154438"
   license "GPL-2.0"
+  revision 1
+
+  livecheck do
+    url "https://www.kraxel.org/releases/fbida/"
+    regex(/href=.*?fbida[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "155e492e4c82c7e06be60966dcf343832e456bbc47cd1293ec1805dd3e47e42c" => :high_sierra
-    sha256 "11c7c1d5a5e5a16b7cfd9cf8004cb1fd3f141974462df036ce09539083eb3d60" => :sierra
-    sha256 "8ad9b01ec63c6ebb4488dada2d973b47756ed839fe96b083a9b49ec85c0eeb12" => :el_capitan
+    sha256 cellar: :any,                 arm64_ventura:  "501742a3d0ffef91bd7551c924f5073b0c001c8c8b7618e2a7db7d9ffdfdfd82"
+    sha256 cellar: :any,                 arm64_monterey: "cdbebc6e9ea054a40e6c9d9ecd8265d62dfff2b9da689748ff8a87fb8defb9b1"
+    sha256 cellar: :any,                 arm64_big_sur:  "e16c172257b1786e0d0186336c8c35b16efab57c919598df0bc920999c2905f1"
+    sha256 cellar: :any,                 ventura:        "d425c26a0bcc36d4427e9612f963755421676559ea3b5519294bfeadc7ac6f6d"
+    sha256 cellar: :any,                 monterey:       "af336311bf9e98d1d5569496463b9b0a7c4efc2e5aedf3f6778e71cf34e45349"
+    sha256 cellar: :any,                 big_sur:        "b8b303e6e7ae7ef407882e37bf67865253cce06924c4efe18b1a817dd1178ec4"
+    sha256 cellar: :any,                 catalina:       "3585d1c19e27eb8510476b8c89b2a97546071c817ab6dc5e1ec77a0f36bb4e6c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "068ea42ed133bda1659d3de1d61185616377568d8284bab223dcb0e023b2aba9"
   end
 
   depends_on "pkg-config" => :build
-  depends_on "jpeg"
+  depends_on "jpeg-turbo"
   depends_on "libexif"
   depends_on "pixman"
+
+  on_linux do
+    depends_on "cairo"
+    depends_on "fontconfig"
+    depends_on "freetype"
+    depends_on "ghostscript"
+    depends_on "libdrm"
+    depends_on "libepoxy"
+    depends_on "libpng"
+    depends_on "libtiff"
+    depends_on "libxpm"
+    depends_on "mesa"
+    depends_on "openmotif"
+    depends_on "poppler"
+    depends_on "webp"
+  end
 
   # Fix build on Darwin
   patch do
@@ -25,7 +51,7 @@ class Exiftran < Formula
 
   def install
     system "make"
-    system "make", "prefix=#{prefix}", "install"
+    system "make", "prefix=#{prefix}", "RESDIR=#{share}", "install"
   end
 
   test do

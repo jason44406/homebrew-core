@@ -1,16 +1,25 @@
 class Acpica < Formula
   desc "OS-independent implementation of the ACPI specification"
   homepage "https://www.acpica.org/"
-  url "https://acpica.org/sites/acpica/files/acpica-unix-20200717.tar.gz"
-  sha256 "cb99903ef240732f395af40c23b9b19c7899033f48840743544eebb6da72a828"
+  # https://acpica.org/sites/acpica/files/acpica-unix-20221022.tar.gz is not available
+  # upstream issue report, https://github.com/acpica/acpica/issues/823
+  url "https://github.com/acpica/acpica/archive/refs/tags/R10_20_22.tar.gz"
+  version "20221022"
+  sha256 "1aa17eb1779cd171110074ce271a65c06046eacbba7be7ce5ee71df1b31c3b86"
   license any_of: ["Intel-ACPI", "GPL-2.0-only", "BSD-3-Clause"]
-  head "https://github.com/acpica/acpica.git"
+  head "https://github.com/acpica/acpica.git", branch: "master"
+
+  livecheck do
+    url "https://acpica.org/downloads"
+    regex(/href=.*?acpica-unix[._-]v?(\d+(?:\.\d+)*)\.t/i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "e32d0376e072bbe080c114842b0a19b300ad8bd844a046fdd4eeb3894363672f" => :catalina
-    sha256 "4c61d40a957465fd9d3a90caff51051458beeccf5bac1371c3d1974d0dfeddeb" => :mojave
-    sha256 "3a1b395d0c4085f054626a808d059317d23614eec01fb011981a9f546366e438" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "e69b188caca07beac560141ef4d9519109383eef13813d23d99d508e82ea765e"
+    sha256 cellar: :any_skip_relocation, ventura:       "275be697f6fc4add94fec360407398b70d259a757e654a819843d393de8a54c8"
+    sha256 cellar: :any_skip_relocation, monterey:      "6a4f3736eee30b72c57d76719ded526c0db20b176f710f3eedd6586bc3b3d59b"
+    sha256 cellar: :any_skip_relocation, big_sur:       "0689b9e9e35b3e59caaef23c74a315bb012108d11a29bd103385150d4cf245e8"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "30d8fec0a2b421723e0ba234512fff5352f96ba355564b38670a5c92c548da08"
   end
 
   uses_from_macos "bison" => :build
@@ -18,7 +27,6 @@ class Acpica < Formula
   uses_from_macos "m4" => :build
 
   def install
-    ENV.deparallelize
     system "make", "PREFIX=#{prefix}"
     system "make", "install", "PREFIX=#{prefix}"
   end

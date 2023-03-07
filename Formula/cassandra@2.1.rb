@@ -8,13 +8,15 @@ class CassandraAT21 < Formula
   revision 1
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "ba43927921cfc8c4540736eec7472dcb5fb78efbd0fb7e948df64cedc243d2b5" => :catalina
-    sha256 "cbe96bf658b154f84a1ad7188ca3ea667f3f3201e46452f2e95f8d4a1c946af8" => :mojave
-    sha256 "7a0183c65df7ad2f04c6d53f781150af2540d52a80d4f349e59087d35c418399" => :high_sierra
+    sha256 cellar: :any_skip_relocation, catalina:    "ba43927921cfc8c4540736eec7472dcb5fb78efbd0fb7e948df64cedc243d2b5"
+    sha256 cellar: :any_skip_relocation, mojave:      "cbe96bf658b154f84a1ad7188ca3ea667f3f3201e46452f2e95f8d4a1c946af8"
+    sha256 cellar: :any_skip_relocation, high_sierra: "7a0183c65df7ad2f04c6d53f781150af2540d52a80d4f349e59087d35c418399"
   end
 
   keg_only :versioned_formula
+
+  # Original deprecation date: 2022-03-01
+  disable! date: "2022-11-03", because: :unsupported
 
   depends_on :macos # Due to Python 2 (does not support Python 3)
 
@@ -64,8 +66,8 @@ class CassandraAT21 < Formula
     inreplace "conf/cassandra.yaml", "/var/lib/cassandra", "#{var}/lib/cassandra"
     inreplace "conf/cassandra-env.sh", "/lib/", "/"
 
-    inreplace "bin/cassandra", "-Dcassandra.logdir\=$CASSANDRA_HOME/logs",
-                               "-Dcassandra.logdir\=#{var}/log/cassandra"
+    inreplace "bin/cassandra", "-Dcassandra.logdir=$CASSANDRA_HOME/logs",
+                               "-Dcassandra.logdir=#{var}/log/cassandra"
     inreplace "bin/cassandra.in.sh" do |s|
       s.gsub! "CASSANDRA_HOME=\"`dirname \"$0\"`/..\"",
               "CASSANDRA_HOME=\"#{libexec}\""
@@ -79,8 +81,8 @@ class CassandraAT21 < Formula
       s.gsub! "JAVA_AGENT=\"$JAVA_AGENT -javaagent:$CASSANDRA_HOME/lib/jamm-",
               "JAVA_AGENT=\"$JAVA_AGENT -javaagent:$CASSANDRA_HOME/jamm-"
       # Storage path
-      s.gsub! "cassandra_storagedir\=\"$CASSANDRA_HOME/data\"",
-              "cassandra_storagedir\=\"#{var}/lib/cassandra\""
+      s.gsub! "cassandra_storagedir=\"$CASSANDRA_HOME/data\"",
+              "cassandra_storagedir=\"#{var}/lib/cassandra\""
     end
 
     rm Dir["bin/*.bat", "bin/*.ps1"]

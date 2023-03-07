@@ -1,15 +1,24 @@
 class Mgba < Formula
   desc "Game Boy Advance emulator"
   homepage "https://mgba.io/"
-  url "https://github.com/mgba-emu/mgba/archive/0.8.3.tar.gz"
-  sha256 "63045d0815e15e963d90b15d5a10edf31a5d72d0ddb5e028e42ba38b0d4368c9"
+  url "https://github.com/mgba-emu/mgba/archive/0.10.1.tar.gz"
+  sha256 "5fc1d7ac139fe51ef71782d5de12d11246563cdebd685354b6188fdc82a84bdf"
   license "MPL-2.0"
-  head "https://github.com/mgba-emu/mgba.git"
+  head "https://github.com/mgba-emu/mgba.git", branch: "master"
+
+  livecheck do
+    url :stable
+    strategy :github_latest
+  end
 
   bottle do
-    sha256 "c50ed180ffa0e36df07915aa62fecfa586c5ba2225be460fbd84ff09a8842803" => :catalina
-    sha256 "fc0c39c89c6c6dddc8dff172371264c55968c8ea7436da91352f98e558e8bb90" => :mojave
-    sha256 "349b00ebf36aab83875dfa08b516611f79608afaec4ce52060ff8df73f2a336c" => :high_sierra
+    sha256 arm64_ventura:  "584bde4b0f0d0baa337a4fceedaff49e7f234d41d6b8aaed8e036571abed575c"
+    sha256 arm64_monterey: "4aaeb726cf6617932f74a21f955ddb10d64ef5cdb299054f4926f39f013143e6"
+    sha256 arm64_big_sur:  "c0b2a3a4aa9e1de968df9e8f1503b7ee81fecfd37bc44389f58cb4072494fb0c"
+    sha256 ventura:        "fea6b0f43e41647bd8e3bf94d2d311e133fd56bfb0a264a599f9e6a5d6cec688"
+    sha256 monterey:       "9932d3d66de37e3c724860551764ce5c19e89bfc97e823b36f32cbd8d411089b"
+    sha256 big_sur:        "4989c70fecfe563140e844a04ce126c5e25a6faf7b2f76474bbfde876a08bbbc"
+    sha256 x86_64_linux:   "ba11dc52534a5970901684e57fe58a07871c6fcee7b8c644075101c2e7ddce2b"
   end
 
   depends_on "cmake" => :build
@@ -18,14 +27,21 @@ class Mgba < Formula
   depends_on "libepoxy"
   depends_on "libpng"
   depends_on "libzip"
-  depends_on "qt"
+  depends_on "lua"
+  depends_on "qt@5"
   depends_on "sdl2"
 
-  def install
-    # Fix "error: 'future<void>' is unavailable: introduced in macOS 10.8"
-    # Reported 11 Dec 2017 https://github.com/mgba-emu/mgba/issues/944
-    ENV["MACOSX_DEPLOYMENT_TARGET"] = MacOS.version if MacOS.version <= :el_capitan
+  uses_from_macos "sqlite"
 
+  on_macos do
+    depends_on "libelf" => :build
+  end
+
+  on_linux do
+    depends_on "elfutils"
+  end
+
+  def install
     # Install .app bundle into prefix, not prefix/Applications
     inreplace "src/platform/qt/CMakeLists.txt", "Applications", "."
 
@@ -35,7 +51,11 @@ class Mgba < Formula
     # Replace SDL frontend binary with a script for running Qt frontend
     # -DBUILD_SDL=OFF would be easier, but disable joystick support in Qt frontend
     rm bin/"mgba"
-    bin.write_exec_script "#{prefix}/mGBA.app/Contents/MacOS/mGBA"
+    if OS.mac?
+      bin.write_exec_script "#{prefix}/mGBA.app/Contents/MacOS/mGBA"
+    else
+      mv bin/"mgba-qt", bin/"mGBA"
+    end
   end
 
   test do

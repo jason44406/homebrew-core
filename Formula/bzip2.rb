@@ -5,12 +5,20 @@ class Bzip2 < Formula
   sha256 "ab5a03176ee106d3f0fa90e381da478ddae405918153cca248e682cd0c4a2269"
   license "bzip2-1.0.6"
 
+  livecheck do
+    url "https://sourceware.org/pub/bzip2/"
+    regex(/href=.*?bzip2[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
+
   bottle do
-    cellar :any_skip_relocation
-    sha256 "b4fd6d4e72285e422d385623273ccd7967f4a3f475335cd49aa61e22c3e7d3d6" => :catalina
-    sha256 "b8683b824f4cc702d06031c3762ba079e8bc1ea27413f6d08f10e93c539d89fd" => :mojave
-    sha256 "c7f2266c2d354c706de5163c23bb7b7204f1f15a85027ea486877a0c5d253336" => :high_sierra
-    sha256 "1f11350ccb9a3bd1dd250b5e440d68a5ea65408d4b91f9eae2aa7628e899b7c5" => :sierra
+    rebuild 2
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "52f70f97b2f8f2c6bc309e55970ed03ccd1b8110cf5f15fc16c2a930180a99f7"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "bcc8f2e728b154d43e76e8e81f77e934d905b8868b7be69e3b9b40b5868f7c34"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "12f184d77bb72cc7d9278af9bd34fd74c610f7aa144559e2aa2d9f4a4b09bd76"
+    sha256 cellar: :any_skip_relocation, ventura:        "2cf2591f8865d9a806736a6f1b74f0905477b5520dd730f025aa12d4c5e0749b"
+    sha256 cellar: :any_skip_relocation, monterey:       "fc4dd056738e20b1c850c6834405e27071a992f7671137306c1764c7c0eef350"
+    sha256 cellar: :any_skip_relocation, big_sur:        "d222e089bf7b4ab714b150ad754cb76b88b548f57c4bdbbaa4857d6e0541a096"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "a731afa70daaafec28359b4f10f1c68455c1955ae66cdbb6b6d52eee277bbd3e"
   end
 
   keg_only :provided_by_macos
@@ -19,6 +27,30 @@ class Bzip2 < Formula
     inreplace "Makefile", "$(PREFIX)/man", "$(PREFIX)/share/man"
 
     system "make", "install", "PREFIX=#{prefix}"
+    return if OS.mac?
+
+    # Install shared libraries
+    system "make", "-f", "Makefile-libbz2_so", "clean"
+    system "make", "-f", "Makefile-libbz2_so"
+    lib.install "libbz2.so.#{version}", "libbz2.so.#{version.major_minor}"
+    lib.install_symlink "libbz2.so.#{version}" => "libbz2.so.#{version.major}"
+    lib.install_symlink "libbz2.so.#{version}" => "libbz2.so"
+
+    # Create pkgconfig file based on 1.1.x repository.
+    # https://gitlab.com/bzip2/bzip2/-/blob/master/bzip2.pc.in
+    (lib/"pkgconfig/bzip2.pc").write <<~EOS
+      prefix=#{opt_prefix}
+      exec_prefix=${prefix}
+      bindir=${exec_prefix}/bin
+      libdir=${exec_prefix}/lib
+      includedir=${prefix}/include
+
+      Name: bzip2
+      Description: Lossless, block-sorting data compression
+      Version: #{version}
+      Libs: -L${libdir} -lbz2
+      Cflags: -I${includedir}
+    EOS
   end
 
   test do

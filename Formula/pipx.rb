@@ -1,71 +1,65 @@
 class Pipx < Formula
+  include Language::Python::Virtualenv
+
   desc "Execute binaries from Python packages in isolated environments"
-  homepage "https://github.com/pipxproject/pipx"
-  url "https://files.pythonhosted.org/packages/ad/a9/aac6a9d43f33fe42236b56f523ff9d7ac3503838234d1d0cc5b32d060918/pipx-0.15.5.0.tar.gz"
-  sha256 "3363a9625d786b6effafaecaec9a569971639371d2afb32378788b3aee2538bf"
+  homepage "https://pypa.github.io/pipx"
+  url "https://files.pythonhosted.org/packages/cf/3c/df5a75794cfb58cc58329823d766da51decdfc76f6942bedfd7e0d06275b/pipx-1.1.0.tar.gz"
+  sha256 "4d2f70daf15f121e90b7394b0730ee82fc39d7da514e50a7bbf8066be88883bb"
   license "MIT"
-  head "https://github.com/pipxproject/pipx.git"
+  head "https://github.com/pypa/pipx.git", branch: "main"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "50218cb346ef4915a59fe41beeec69e54390653092b778361579cd3d4024e432" => :catalina
-    sha256 "a1e0d0a72975e179f74e759b2b9598948df9aaafef7d5335d25acbc73ff792b4" => :mojave
-    sha256 "190d9c705cc4250db93a306374cbc1eef891a3298015f50c17b204f223e0fd4a" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "336cdb8afe16eed64fbdcab33fe1d3adf6ea683ccd214154570ac6a03c3cec3f"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "20ff1598043d947aa679b8a87bc0125ac04d8599e4e6e389c9f0f436f6fbd0fe"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "a4f9211b8b3de7400bb86828fb9be542ddaef75666e346f2f46cc16b58416013"
+    sha256 cellar: :any_skip_relocation, ventura:        "409a12592d278e000b95e1a047d69fffdc147d35ec63feb223ea65da4e2df2de"
+    sha256 cellar: :any_skip_relocation, monterey:       "414563e8da0d2aa2084683eb7f303cacee4b3b1f43f72ef3992995cf4ee96a4a"
+    sha256 cellar: :any_skip_relocation, big_sur:        "d92b440ed9159e4a2930348dd25d1e523dee2c8ba12f56c3499a7b6cfae51c61"
+    sha256 cellar: :any_skip_relocation, catalina:       "90a008b483418a511f6ab9c84ea4d1b6ac8c6caa2be8c1a5a2e9f16d7fa0d83c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "d43fabbed1f3101bce7f698f5caf1cdff2e954e3531ff180b437f6a26979fbf5"
   end
 
-  depends_on "python@3.8"
+  depends_on "python@3.11"
 
   resource "argcomplete" do
-    url "https://files.pythonhosted.org/packages/df/a0/3544d453e6b80792452d71fdf45aac532daf1c2b2d7fc6cb712e1c3daf11/argcomplete-1.12.0.tar.gz"
-    sha256 "2fbe5ed09fd2c1d727d4199feca96569a5b50d44c71b16da9c742201f7cc295c"
+    url "https://files.pythonhosted.org/packages/05/f8/67851ae4fe5396ba6868c5d84219b81ea6a5d53991a6853616095c30adc0/argcomplete-2.0.0.tar.gz"
+    sha256 "6372ad78c89d662035101418ae253668445b391755cfe94ea52f1b9d22425b20"
   end
 
   resource "click" do
-    url "https://files.pythonhosted.org/packages/27/6f/be940c8b1f1d69daceeb0032fee6c34d7bd70e3e649ccac0951500b4720e/click-7.1.2.tar.gz"
-    sha256 "d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a"
+    url "https://files.pythonhosted.org/packages/59/87/84326af34517fca8c58418d148f2403df25303e02736832403587318e9e8/click-8.1.3.tar.gz"
+    sha256 "7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e"
   end
 
   resource "packaging" do
-    url "https://files.pythonhosted.org/packages/55/fd/fc1aca9cf51ed2f2c11748fa797370027babd82f87829c7a8e6dbe720145/packaging-20.4.tar.gz"
-    sha256 "4357f74f47b9c12db93624a82154e9b120fa8293699949152b22065d556079f8"
+    url "https://files.pythonhosted.org/packages/df/9e/d1a7217f69310c1db8fdf8ab396229f55a699ce34a203691794c5d1cad0c/packaging-21.3.tar.gz"
+    sha256 "dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb"
   end
 
   resource "pyparsing" do
-    url "https://files.pythonhosted.org/packages/c1/47/dfc9c342c9842bbe0036c7f763d2d6686bcf5eb1808ba3e170afdb282210/pyparsing-2.4.7.tar.gz"
-    sha256 "c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1"
-  end
-
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/6b/34/415834bfdafca3c5f451532e8a8d9ba89a21c9743a0c59fbd0205c7f9426/six-1.15.0.tar.gz"
-    sha256 "30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"
+    url "https://files.pythonhosted.org/packages/71/22/207523d16464c40a0310d2d4d8926daffa00ac1f5b1576170a32db749636/pyparsing-3.0.9.tar.gz"
+    sha256 "2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb"
   end
 
   resource "userpath" do
-    url "https://files.pythonhosted.org/packages/86/2b/0a443e7978ea0f6bc1baece1de35545fa12f6d9fc5451aa90529db41db70/userpath-1.4.1.tar.gz"
-    sha256 "211544ea02d8715fdc06f429cf66cd18c9877a31751d966d6de11b24faaed255"
+    url "https://files.pythonhosted.org/packages/85/ee/820c8e5f0a5b4b27fdbf6f40d6c216b6919166780128b6714adf3c201644/userpath-1.8.0.tar.gz"
+    sha256 "04233d2fcfe5cff911c1e4fb7189755640e1524ff87a4b82ab9d6b875fee5787"
   end
 
   def install
-    xy = Language::Python.major_minor_version "python3"
-    ENV.prepend_create_path "PYTHONPATH", libexec/"lib/python#{xy}/site-packages"
+    virtualenv_install_with_resources
+    bin.install_symlink libexec/"bin/register-python-argcomplete"
 
-    resources.each do |r|
-      r.stage do
-        system "python3", *Language::Python.setup_install_args(libexec)
-      end
-    end
-
-    system "python3", *Language::Python.setup_install_args(libexec)
-    (bin/"pipx").write_env_script(libexec/"bin/pipx", PYTHONPATH: ENV["PYTHONPATH"])
-    (bin/"register-python-argcomplete").write_env_script(libexec/"bin/register-python-argcomplete",
-      PYTHONPATH: ENV["PYTHONPATH"])
+    generate_completions_from_executable(libexec/"bin/register-python-argcomplete", "pipx", "--shell",
+                                         shells: [:bash, :fish])
   end
 
   test do
     assert_match "PIPX_HOME", shell_output("#{bin}/pipx --help")
-    system "#{bin}/pipx", "install", "csvkit"
-    assert_true FileTest.exist?("#{testpath}/.local/bin/csvjoin")
-    system "#{bin}/pipx", "uninstall", "csvkit"
-    assert_no_match Regexp.new("csvjoin"), shell_output("#{bin}/pipx list")
+    system bin/"pipx", "install", "csvkit"
+    assert_predicate testpath/".local/bin/csvjoin", :exist?
+    system bin/"pipx", "uninstall", "csvkit"
+    refute_match "csvjoin", shell_output("#{bin}/pipx list")
   end
 end

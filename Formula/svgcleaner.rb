@@ -4,15 +4,21 @@ class Svgcleaner < Formula
   url "https://github.com/RazrFalcon/svgcleaner/archive/v0.9.5.tar.gz"
   sha256 "dcf8dbc8939699e2e82141cb86688b6cd09da8cae5e18232ef14085c2366290c"
   license "GPL-2.0"
-  head "https://github.com/RazrFalcon/svgcleaner.git"
+  head "https://github.com/RazrFalcon/svgcleaner.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    rebuild 1
-    sha256 "43533727baf2ed09cdce9fe64357c1bc1f70fed57d70f37cfd824b664ab1266f" => :catalina
-    sha256 "bf18c353316b7a46ed2cecad188a638e359ce77acdcf501f578e5f96149ed667" => :mojave
-    sha256 "7e6df86bb8f994b157ff6de9bb7f43605b813a6a476f6f2d3af4d3483c1b6483" => :high_sierra
+    rebuild 2
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "a7d1ee246dc48406e261ac3ab4043f35f653d3973d738aecde6c9bf9fdcf85c3"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "9cba5273a6c44bc5257f11a1de3d7302872396d184aaa05128ad3a0903b34735"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "af01e1a22b3edaaf33aeca10080cd50ba097531e72cde15a0ced468758df8aa4"
+    sha256 cellar: :any_skip_relocation, ventura:        "8645b2e59ac28b20504c4a9b3b19c72da2fa7a4248218ee6a3c128d872ed755e"
+    sha256 cellar: :any_skip_relocation, monterey:       "06aabee9050ad9a8882623cb4f2b20e537e7c56387eb428fa7e7800f513f14fb"
+    sha256 cellar: :any_skip_relocation, big_sur:        "9d2c263f4774a4c646576e2beb78adbddc67d966d8fad9fcbe43d5cae8b737d7"
+    sha256 cellar: :any_skip_relocation, catalina:       "13ccddae8456f69bda812f89ab5657f23f27940a8b9e32a13f34e0d5f41f7ae8"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "8ad0a9020b3aa287c3d3ad908c7cbc625aceef02a0cfc559d817a6b1f2acc064"
   end
+
+  disable! date: "2022-12-30", because: :repo_archived
 
   depends_on "rust" => :build
 
@@ -36,6 +42,6 @@ class Svgcleaner < Formula
            style="fill:#0000ff;fill-opacity:0.75;stroke:#000000"/>
       </svg>
     EOS
-    system "#{bin}/svgcleaner", "in.svg", "out.svg"
+    system bin/"svgcleaner", "in.svg", "out.svg"
   end
 end

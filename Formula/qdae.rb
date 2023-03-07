@@ -3,23 +3,36 @@ class Qdae < Formula
   homepage "https://www.seasip.info/Unix/QDAE/"
   url "https://www.seasip.info/Unix/QDAE/qdae-0.0.10.tar.gz"
   sha256 "780752c37c9ec68dd0cd08bd6fe288a1028277e10f74ef405ca200770edb5227"
-  license "GPL-2.0"
+  license "GPL-2.0-or-later"
+  revision 2
 
   bottle do
-    rebuild 1
-    sha256 "d951231205b4f4faf3e4f829665d25c82d236f3f52339dd5664fb8adb46e68eb" => :catalina
-    sha256 "290d931e61684c53227e0a16d808427eb7218fbec76c57eb250c03dbf15bb6b8" => :mojave
-    sha256 "945b28c4354053f3ebd81bb868ef6a14d8fef1c32d6cebd73455bd17f17332ae" => :high_sierra
+    sha256 arm64_ventura:  "8a65baa3a3b7a91e50b9b6887e944b365e3fb8675aedae3e5496bdd9dec8a8c9"
+    sha256 arm64_monterey: "e8bb72388f0c79baa7bc75a5820a3a77a6f61c2466c0b6d0ca0cf06073d4eb71"
+    sha256 arm64_big_sur:  "4f51ec56064ae77144a38e80e7bf98cf19399101448f0c5278df2bb292bae59b"
+    sha256 ventura:        "c77cebe85e83aa1ee97945035a55c81aef2210653981cc4688a23cbb6ef71bdd"
+    sha256 monterey:       "6dc2007e7f4cd389c81fcfccdbaec02b12956133e6250614edf374c8ca5c6ebf"
+    sha256 big_sur:        "b2a572238e037b46c2765c32bf92180e1370bd1ba4fae123966d715f2b07f796"
+    sha256 catalina:       "9b52e69dfcbeed51cacae5189cd2833da3bafda73ebb155b7d6a3c57eb8152fd"
+    sha256 x86_64_linux:   "db3a6068e466987b92397d842c2b3ecde2bded442094c3f913333f128758d0c6"
   end
 
-  depends_on "libxml2"
-  depends_on "sdl"
+  deprecate! date: "2022-09-23", because: :unmaintained
+
+  depends_on "sdl12-compat"
+
+  uses_from_macos "libxml2"
 
   def install
-    system "./configure", "--disable-debug",
-                          "--disable-dependency-tracking",
-                          "--disable-silent-rules",
-                          "--prefix=#{prefix}"
+    # Fix build failure with newer glibc:
+    # /usr/bin/ld: ../lib/.libs/libdsk.a(drvlinux.o): in function `linux_open':
+    # drvlinux.c:(.text+0x168): undefined reference to `major'
+    # /usr/bin/ld: ../lib/.libs/libdsk.a(compress.o): in function `comp_open':
+    # compress.c:(.text+0x268): undefined reference to `major'
+    ENV.append_to_cflags "-include sys/sysmacros.h" if OS.linux?
+
+    ENV.cxx11
+    system "./configure", *std_configure_args, "--disable-silent-rules"
     system "make", "install"
   end
 

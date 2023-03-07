@@ -1,11 +1,17 @@
 class Fastqc < Formula
   desc "Quality control tool for high throughput sequence data"
   homepage "https://www.bioinformatics.babraham.ac.uk/projects/fastqc/"
-  url "https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.11.9.zip"
-  sha256 "15510a176ef798e40325b717cac556509fb218268cfdb9a35ea6776498321369"
-  revision 1
+  url "https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.12.1.zip"
+  sha256 "5f4dba8780231a25a6b8e11ab2c238601920c9704caa5458d9de559575d58aa7"
 
-  bottle :unneeded
+  livecheck do
+    url "https://www.bioinformatics.babraham.ac.uk/projects/download.html"
+    regex(/href=.*?fastqc[._-]v?(\d+(?:\.\d+)+)\.zip/i)
+  end
+
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "98115fa6cc5acc2f8ac59e42843802c5e4d1484be2b030edbeafc32ccdac89f6"
+  end
 
   depends_on "openjdk"
 

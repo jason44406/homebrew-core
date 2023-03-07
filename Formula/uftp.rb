@@ -1,51 +1,41 @@
 class Uftp < Formula
   desc "Secure, reliable, efficient multicast file transfer program"
   homepage "https://uftp-multicast.sourceforge.io/"
-  url "https://downloads.sourceforge.net/project/uftp-multicast/source-tar/uftp-5.0.tar.gz"
-  sha256 "562f71ea5a24b615eb491f5744bad01e9c2e58244c1d6252d5ae98d320d308e0"
-  license "GPL-3.0"
+  url "https://downloads.sourceforge.net/project/uftp-multicast/source-tar/uftp-5.0.1.tar.gz"
+  sha256 "f0435fbc8e9ffa125e05600cb6c7fc933d7d587f5bae41b257267be4f2ce0e61"
+  license "GPL-3.0-or-later" => { with: "openvpn-openssl-exception" }
 
-  bottle do
-    cellar :any
-    sha256 "7df0c64b08cd3377837185003849b7d86d11021dc34546f78eedcac3e73a46c6" => :catalina
-    sha256 "618dc8e47d069f19c4aeb1c18cdc12317196ebcfbe6e7c9d1be8b30472e19c92" => :mojave
-    sha256 "35b999e28214d336f0e6224fd92dfa824874c1e08ab520b9643d3fbc75c33b4a" => :high_sierra
+  livecheck do
+    url :stable
+    regex(%r{url=.*?/uftp[._-]v?(\d+(?:\.\d+)+)\.t}i)
   end
 
-  depends_on "openssl@1.1"
+  bottle do
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "e62bde780e31b0969be51009065d1538dcd0005faa72b5763d6377f73c9806c3"
+    sha256 cellar: :any,                 arm64_monterey: "419327bcf6a91fd632ae4760b3a2d6106c38faa9c88b531af321a4ada30c8c10"
+    sha256 cellar: :any,                 arm64_big_sur:  "1637d53cf74b59de04fb159100a40a68e0f2eb697d5d762cb4fed3910c64b724"
+    sha256 cellar: :any,                 ventura:        "fae25917793047496dc4cffcc9c56a3d3adfb6095d9bf9e43052c7aa83b3b27e"
+    sha256 cellar: :any,                 monterey:       "46c192edc8c39d3d42a255d1bfce9e6a4caecbdb2a8a973b7796caed331a8e64"
+    sha256 cellar: :any,                 big_sur:        "19cbee73d08382f5d52e5fa3c4dc5f2b227653bd17427d9dfe7ebcc531fc0eb5"
+    sha256 cellar: :any,                 catalina:       "f6a4cbcb1b447a5477eb21984fdf0d05394a9a9b16e07c36e3f04dbbfc6065e0"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "6b7469a4e9370f1f60272d22187d80419d90f52302b7d87923a1f54e6694ced3"
+  end
+
+  depends_on "openssl@3"
 
   def install
-    system "make", "OPENSSL=#{Formula["openssl@1.1"].opt_prefix}", "DESTDIR=#{prefix}", "install"
+    system "make", "OPENSSL=#{Formula["openssl@3"].opt_prefix}", "DESTDIR=#{prefix}", "install"
     # the makefile installs into DESTDIR/usr/..., move everything up one and remove usr
     # the project maintainer was contacted via sourceforge on 12-Feb, he responded WONTFIX on 13-Feb
-    prefix.install Dir["#{prefix}/usr/*"]
+    prefix.install (prefix/"usr").children
     (prefix/"usr").unlink
   end
 
-  plist_options manual: "uftpd"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-      <dict>
-        <key>KeepAlive</key>
-        <true/>
-        <key>Label</key>
-        <string>#{plist_name}</string>
-        <key>ProgramArguments</key>
-        <array>
-          <string>#{opt_sbin}/uftpd</string>
-          <string>-d</string>
-        </array>
-        <key>RunAtLoad</key>
-        <true/>
-        <key>WorkingDirectory</key>
-        <string>#{var}</string>
-      </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"uftpd", "-d"]
+    keep_alive true
+    working_dir var
   end
 
   test do

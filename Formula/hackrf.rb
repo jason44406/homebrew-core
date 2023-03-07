@@ -1,18 +1,24 @@
 class Hackrf < Formula
   desc "Low cost software radio platform"
-  homepage "https://github.com/mossmann/hackrf"
-  url "https://github.com/mossmann/hackrf/archive/v2018.01.1.tar.gz"
-  sha256 "84dbb5536d3aa5bd6b25d50df78d591e6c3431d752de051a17f4cb87b7963ec3"
-  license "GPL-2.0"
-  head "https://github.com/mossmann/hackrf.git"
+  homepage "https://github.com/greatscottgadgets/hackrf"
+  url "https://github.com/greatscottgadgets/hackrf/releases/download/v2023.01.1/hackrf-2023.01.1.tar.xz"
+  sha256 "32a03f943a30be4ba478e94bf69f14a5b7d55be6761007f4a4f5453418206a11"
+  license "GPL-2.0-or-later"
+  head "https://github.com/greatscottgadgets/hackrf.git", branch: "master"
+
+  livecheck do
+    url :stable
+    strategy :github_latest
+  end
 
   bottle do
-    cellar :any
-    sha256 "4004e867109e43fb7f9613c01a99ffd3d8dee0949d6f27232b06bf740d1e1776" => :catalina
-    sha256 "9c0610e7d8fe8f1e840b38d3ce6eeab741842a95f227025fbca24c417ae30549" => :mojave
-    sha256 "430173362cc05912520a38f41ce465a0966f1c8d849fd492f0b40074425c3f88" => :high_sierra
-    sha256 "f33bc6bde41e6522d587bc574c01e1402ccbde6759dec5e9d1a1e5f593e189b3" => :sierra
-    sha256 "909a5a9aca6f81cbab08bb7c063f3ee0e666bb5b44af86ebbec62cbdaf3e3b33" => :el_capitan
+    sha256 cellar: :any,                 arm64_ventura:  "5e3a08883caa11b3efc07014bb53cac7f5de322b2eb2a6e3e27bade295b1e6f7"
+    sha256 cellar: :any,                 arm64_monterey: "ec83b7be635e119651ee1715f6efa57c72d4d98f560e27fbfd4456598ab805e7"
+    sha256 cellar: :any,                 arm64_big_sur:  "60831932de8d4499a1f1c54f1810d001ab3b7e3af0732735dd5e3df5a93ab935"
+    sha256 cellar: :any,                 ventura:        "99bd5f158dbb6d6ceeafa5eb0c53b7bf91cdad7ace7bdd2c3102022b130c6cd5"
+    sha256 cellar: :any,                 monterey:       "b21f730ddf1a1a8b117585bbf9beb271c73767fe3c69d0a7bd84812cb0256bfd"
+    sha256 cellar: :any,                 big_sur:        "0c8b55d2e955787afeccdbee0ce02e168d35c3d72be0b7c627f9e9dc693c0f4e"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "fb0ddaecf5f1a3b3422c029113568f8fc5f04a5a3b72a0dae20b47da8e210a2b"
   end
 
   depends_on "cmake" => :build
@@ -22,9 +28,17 @@ class Hackrf < Formula
 
   def install
     cd "host" do
-      system "cmake", ".", *std_cmake_args
+      args = std_cmake_args
+
+      if OS.linux?
+        args << "-DUDEV_RULES_GROUP=plugdev"
+        args << "-DUDEV_RULES_PATH=#{lib}/udev/rules.d"
+      end
+
+      system "cmake", ".", *args
       system "make", "install"
     end
+    pkgshare.install "firmware-bin/"
   end
 
   test do

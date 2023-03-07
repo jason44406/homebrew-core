@@ -1,23 +1,28 @@
 class Gmt < Formula
   desc "Tools for manipulating and plotting geographic and Cartesian data"
   homepage "https://www.generic-mapping-tools.org/"
-  url "https://github.com/GenericMappingTools/gmt/releases/download/6.1.0/gmt-6.1.0-src.tar.xz"
-  mirror "https://mirrors.ustc.edu.cn/gmt/gmt-6.1.0-src.tar.xz"
-  sha256 "ad02780153c53a1116ae0cc7945b6f533f066af44c30d7f95ff138cfede1867c"
-  license "LGPL-3.0"
-  head "https://github.com/GenericMappingTools/gmt.git"
+  url "https://github.com/GenericMappingTools/gmt/releases/download/6.4.0/gmt-6.4.0-src.tar.xz"
+  mirror "https://mirrors.ustc.edu.cn/gmt/gmt-6.4.0-src.tar.xz"
+  sha256 "b46effe59cf96f50c6ef6b031863310d819e63b2ed1aa873f94d70c619490672"
+  license "LGPL-3.0-or-later"
+  revision 5
+  head "https://github.com/GenericMappingTools/gmt.git", branch: "master"
 
   bottle do
-    sha256 "cd6f1812723ff16468641ab3574c929b555e1ecb6b6e328be9952711d53d3823" => :catalina
-    sha256 "6ba6b23540ca9730012d24ab1d910b4308a2092d9e28d088febbd0a1fd0e4fe5" => :mojave
-    sha256 "dbd89446b661b2cd72fa90fa57316aa38f2d6a8c18cc1ab430713c2da44d862e" => :high_sierra
+    sha256 arm64_ventura:  "fef46f4de1c3f752d063310d346eb609479fea6cd04d6727533734f703aae778"
+    sha256 arm64_monterey: "630974184d2ae106d0c3cbca312086a6ecfb3f716988a006422d454f541d6d41"
+    sha256 arm64_big_sur:  "f701e8d961581f7fc71ea2e1fd944fca6e7d0fb40006c6631c161fdef105978a"
+    sha256 ventura:        "909621edde7e0269f38d195b4f85a190b91f0f2aafeb5eb9ef76aaf62d9e2932"
+    sha256 monterey:       "f36d0d0ff4c70b7f2d8a6adcb2061b687187620839350ef58b9f4758763f8c67"
+    sha256 big_sur:        "594113edd85dc420fe01d2dc5ac69a9e0902e70db918bd921024ae329198a5aa"
+    sha256 x86_64_linux:   "c788ac81e850a5431399b58095cc35fb3bf5036709b455bbdda2d64aab66c3c7"
   end
 
   depends_on "cmake" => :build
   depends_on "fftw"
   depends_on "gdal"
   depends_on "netcdf"
-  depends_on "pcre"
+  depends_on "pcre2"
 
   resource "gshhg" do
     url "https://github.com/GenericMappingTools/gshhg-gmt/releases/download/2.3.7/gshhg-gmt-2.3.7.tar.gz"
@@ -26,9 +31,9 @@ class Gmt < Formula
   end
 
   resource "dcw" do
-    url "https://github.com/GenericMappingTools/dcw-gmt/releases/download/1.1.4/dcw-gmt-1.1.4.tar.gz"
-    mirror "https://mirrors.ustc.edu.cn/gmt/dcw-gmt-1.1.4.tar.gz"
-    sha256 "8d47402abcd7f54a0f711365cd022e4eaea7da324edac83611ca035ea443aad3"
+    url "https://github.com/GenericMappingTools/dcw-gmt/releases/download/2.1.1/dcw-gmt-2.1.1.tar.gz"
+    mirror "https://mirrors.ustc.edu.cn/gmt/dcw-gmt-2.1.1.tar.gz"
+    sha256 "d4e208dca88fbf42cba1bb440fbd96ea2f932185c86001f327ed0c7b65d27af1"
   end
 
   def install
@@ -36,29 +41,28 @@ class Gmt < Formula
     (buildpath/"dcw").install resource("dcw")
 
     # GMT_DOCDIR and GMT_MANDIR must be relative paths
-    args = std_cmake_args.concat %W[
-      -DCMAKE_INSTALL_PREFIX=#{prefix}
+    args = %W[
       -DGMT_DOCDIR=share/doc/gmt
       -DGMT_MANDIR=share/man
       -DGSHHG_ROOT=#{buildpath}/gshhg
       -DCOPY_GSHHG:BOOL=TRUE
       -DDCW_ROOT=#{buildpath}/dcw
       -DCOPY_DCW:BOOL=TRUE
+      -DPCRE_ROOT=FALSE
       -DFFTW3_ROOT=#{Formula["fftw"].opt_prefix}
       -DGDAL_ROOT=#{Formula["gdal"].opt_prefix}
       -DNETCDF_ROOT=#{Formula["netcdf"].opt_prefix}
-      -DPCRE_ROOT=#{Formula["pcre"].opt_prefix}
+      -DPCRE2_ROOT=#{Formula["pcre2"].opt_prefix}
       -DFLOCK:BOOL=TRUE
       -DGMT_INSTALL_MODULE_LINKS:BOOL=FALSE
       -DGMT_INSTALL_TRADITIONAL_FOLDERNAMES:BOOL=FALSE
       -DLICENSE_RESTRICTED:BOOL=FALSE
     ]
 
-    mkdir "build" do
-      system "cmake", "..", *args
-      system "make", "install"
-    end
-    inreplace bin/"gmt-config", "#{HOMEBREW_LIBRARY}/Homebrew/shims/mac/super/clang", "/usr/bin/clang"
+    system "cmake", "-S", ".", "-B", "build", *args, *std_cmake_args
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
+    inreplace bin/"gmt-config", Superenv.shims_path/ENV.cc, DevelopmentTools.locate(ENV.cc)
   end
 
   def caveats

@@ -1,25 +1,28 @@
 class Duckdb < Formula
   desc "Embeddable SQL OLAP Database Management System"
   homepage "https://www.duckdb.org"
-  url "https://github.com/cwida/duckdb/archive/v0.2.0.tar.gz"
-  sha256 "5ed30486f7f9877f5e5d2fd7047347b86fa9ca105e1ed41e53e1fcb4b3f7bc0c"
+  url "https://github.com/duckdb/duckdb.git",
+      tag:      "v0.7.1",
+      revision: "b00b93f0b14bfff869e1facfd86a6b556a6f1c6e"
   license "MIT"
 
   bottle do
-    cellar :any
-    sha256 "ac85f387cef72b578652256af88e96a959413e537f0b06ed21ea83cf04c62733" => :catalina
-    sha256 "038284bb668179934e71572118c0e06140418bf6cac2318ba0a9c5d7374c59ae" => :mojave
-    sha256 "1298a14fca854438e7e2c8882c986a8e7805dfd359ae021d2441e39b52e32a00" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "4c9561b82d613ed2eb59716d5f99ad7a7a24011eedb2c21234d1f47985376cb7"
+    sha256 cellar: :any,                 arm64_monterey: "38edf75cac22b89858013b3735c6d84b0e185e58d168e18a35d4b9b2eb076b72"
+    sha256 cellar: :any,                 arm64_big_sur:  "599848c4bdae7f847bb6e383ff7f9dc558893789540babae0d76927b391403ae"
+    sha256 cellar: :any,                 ventura:        "bbf0b3048b3cea604ca700876c4d77431debaaf3c2ef3b417737a88b374a26bc"
+    sha256 cellar: :any,                 monterey:       "ff875bdebba7d54eb0a5935f70c8813d816980f364f47b3e073d8544bbcaebc2"
+    sha256 cellar: :any,                 big_sur:        "fc6c046a7ac940a57e540314c4ffc0baa2075694e2cd948afc9833956f287745"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "91001b67511feeda3325d193dee4c5947e9096e22a7c649faa6779d0225c2e08"
   end
 
   depends_on "cmake" => :build
-  depends_on "python@3.8" => :build
 
   def install
-    mkdir "build/amalgamation"
-    system Formula["python@3.8"].opt_bin/"python3", "scripts/amalgamation.py"
-    cd "build/amalgamation" do
-      system "cmake", "../..", *std_cmake_args, "-DAMALGAMATION_BUILD=ON"
+    mkdir "build"
+    cd "build" do
+      system "cmake", "..", *std_cmake_args, "-DBUILD_ICU_EXTENSION=1", "-DBUILD_JSON_EXTENSION=1",
+             "-DBUILD_PARQUET_EXTENSION=1"
       system "make"
       system "make", "install"
       bin.install "duckdb"
@@ -36,6 +39,16 @@ class Duckdb < Formula
       INSERT INTO weather (temp) VALUES (40), (45), (50);
       SELECT AVG(temp) FROM weather;
     EOS
-    assert_equal "45.0", shell_output("#{bin}/duckdb_cli < #{path}").strip
+
+    expected_output = <<~EOS
+      ┌─────────────┐
+      │ avg("temp") │
+      │   double    │
+      ├─────────────┤
+      │        45.0 │
+      └─────────────┘
+    EOS
+
+    assert_equal expected_output, shell_output("#{bin}/duckdb_cli < #{path}")
   end
 end

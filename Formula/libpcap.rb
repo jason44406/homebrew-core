@@ -1,16 +1,24 @@
 class Libpcap < Formula
   desc "Portable library for network traffic capture"
   homepage "https://www.tcpdump.org/"
-  url "https://www.tcpdump.org/release/libpcap-1.9.1.tar.gz"
-  sha256 "635237637c5b619bcceba91900666b64d56ecb7be63f298f601ec786ce087094"
+  url "https://www.tcpdump.org/release/libpcap-1.10.3.tar.gz"
+  sha256 "2a8885c403516cf7b0933ed4b14d6caa30e02052489ebd414dc75ac52e7559e6"
   license "BSD-3-Clause"
-  head "https://github.com/the-tcpdump-group/libpcap.git"
+  head "https://github.com/the-tcpdump-group/libpcap.git", branch: "master"
+
+  livecheck do
+    url "https://www.tcpdump.org/release/"
+    regex(/href=.*?libpcap[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "3a85693ff5d241ccdc689af9fa1281434ddf6ae3d0887cd679d07bbc1730ec29" => :catalina
-    sha256 "57ec7b7a786335d818c7eaca81a834c5ca9f4865a91df78b621d6b5d586cf859" => :mojave
-    sha256 "26028b66ea5395a0eee75ebd5790e9d3a688e83698631aec328224bb7baa6037" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "3df35be270b8bd17d0cd91e43c10b66870c45034e75707d6b6cdf7d5dd38a72b"
+    sha256 cellar: :any,                 arm64_monterey: "0483ea9943b771c1844e3e889b09bd786b796e615905516f28a20fab44bb41e7"
+    sha256 cellar: :any,                 arm64_big_sur:  "04e430f3cac412855961560d189ff362e089de0800849a5bcc89ca195a292337"
+    sha256 cellar: :any,                 ventura:        "e13d617d00b48e6f37bbf66e50f99d02f3770373456c4c4a16422c1eb84474b3"
+    sha256 cellar: :any,                 monterey:       "8809d53d2864fead641bffa8183b51166a25a177b88fc555fe0176f2e1d3afc9"
+    sha256 cellar: :any,                 big_sur:        "0b4f05d3e0fd1b56de4e31f7f5f66f3e1ddbf62d779d4bbadce5d19f39eaff51"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "62b980944a6b87ca058b5dd77fccb7032b3762df6bf64d2311a93365a581e2ce"
   end
 
   keg_only :provided_by_macos
@@ -26,6 +34,6 @@ class Libpcap < Formula
   end
 
   test do
-    assert_match /lpcap/, shell_output("#{bin}/pcap-config --libs")
+    assert_match "lpcap", shell_output("#{bin}/pcap-config --libs")
   end
 end

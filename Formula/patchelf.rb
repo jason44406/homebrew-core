@@ -1,28 +1,48 @@
 class Patchelf < Formula
   desc "Modify dynamic ELF executables"
   homepage "https://github.com/NixOS/patchelf"
-  url "https://github.com/NixOS/patchelf/archive/0.11.tar.gz"
-  sha256 "e9dc4dbed842e475176ef60531c2805ed37a71c34cc6dc5d1b9ad68d889aeb6b"
+  url "https://github.com/NixOS/patchelf/releases/download/0.17.2/patchelf-0.17.2.tar.bz2"
+  sha256 "bae2ea376072e422c196218dd9bdef0548ccc08da4de9f36b4672df84ea2d8e2"
   license "GPL-3.0-or-later"
-  head "https://github.com/NixOS/patchelf.git"
 
-  bottle do
-    cellar :any_skip_relocation
-    sha256 "91944c42c39963a6a4c39fa330062ed1d269b0a2be0b5010ae6bac61cff16e53" => :catalina
-    sha256 "8a5e731cb4724804c386ffd3218b47a4adb06a86003929d03d24ae8d388c7722" => :mojave
-    sha256 "7646ae37a16d2e63594a7ebefb482884f3e60fc7089acb72e0b2aea49659bdf0" => :high_sierra
+  livecheck do
+    url :stable
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
   end
 
-  depends_on "autoconf" => :build
-  depends_on "automake" => :build
+  bottle do
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "0df237f718647a8c248b2112f0b989ffdf5ac1d3261354cef4b5d0fef9425696"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "bb45ccc30e36a71c817a3c2729300193830cb1dacd7ec169008421290a4d2c15"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "ff06f5e48778635bb7376d3f1f331f21a656dfa450d374fdd608cf0d759ee6ce"
+    sha256 cellar: :any_skip_relocation, ventura:        "7c3ccbd8364e10beb8fc36547fe9464f647301e2aea2d47754e6cbcf56b9f0c7"
+    sha256 cellar: :any_skip_relocation, monterey:       "0c4b905a8aa52108d722867b528317001a2cc70a81661ee0f4828a5be6c260d4"
+    sha256 cellar: :any_skip_relocation, big_sur:        "26a100a5ed000ffa714c4c8442e5d2786014b7ece03d30be1564fa00b2e4eacd"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "39f33251bdcfc18e7cd0113bd8c1080c6f868e64f10f9bb5d0a9afb3f66c64e5"
+  end
 
-  resource "helloworld" do
+  head do
+    url "https://github.com/NixOS/patchelf.git", branch: "master"
+
+    depends_on "autoconf" => :build
+    depends_on "automake" => :build
+  end
+
+  fails_with gcc: "5" # Needs std::optional
+
+  resource "homebrew-helloworld" do
     url "http://timelessname.com/elfbin/helloworld.tar.gz"
     sha256 "d8c1e93f13e0b7d8fc13ce75d5b089f4d4cec15dad91d08d94a166822d749459"
   end
 
   def install
-    system "./bootstrap.sh"
+    if OS.linux?
+      # Fix ld.so path and rpath
+      # see https://github.com/Homebrew/linuxbrew-core/pull/20548#issuecomment-672061606
+      ENV["HOMEBREW_DYNAMIC_LINKER"] = File.readlink("#{HOMEBREW_PREFIX}/lib/ld.so")
+      ENV["HOMEBREW_RPATH_PATHS"] = nil
+    end
+
+    system "./bootstrap.sh" if build.head?
     system "./configure", "--prefix=#{prefix}",
                           "--disable-dependency-tracking",
                           "--disable-silent-rules"
@@ -30,7 +50,7 @@ class Patchelf < Formula
   end
 
   test do
-    resource("helloworld").stage do
+    resource("homebrew-helloworld").stage do
       assert_equal "/lib/ld-linux.so.2\n", shell_output("#{bin}/patchelf --print-interpreter chello")
       assert_equal "libc.so.6\n", shell_output("#{bin}/patchelf --print-needed chello")
       assert_equal "\n", shell_output("#{bin}/patchelf --print-rpath chello")

@@ -1,35 +1,43 @@
 class Osc < Formula
   include Language::Python::Virtualenv
 
-  desc "The command-line interface to work with an Open Build Service"
-  homepage "https://github.com/openSUSE/osc"
-  url "https://github.com/openSUSE/osc/archive/0.170.0.tar.gz"
-  sha256 "137d199fd2dad149eda2263155a800459f8553a5162fd7aaa947175e399272df"
-  license "GPL-2.0"
-  head "https://github.com/openSUSE/osc.git"
+  desc "Command-line interface to work with an Open Build Service"
+  homepage "https://openbuildservice.org"
+  url "https://github.com/openSUSE/osc/archive/0.182.0.tar.gz"
+  sha256 "aafbc66f114ffcabd1c25c7f3754895a5c26608c4d8193de02382221e68403c7"
+  license "GPL-2.0-or-later"
+  head "https://github.com/openSUSE/osc.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "6f7b7924a56578ae1a1b414da03835554903cd10737f5c4c21c932880254cfca" => :catalina
-    sha256 "5cb73eaa794a8bc687a42d5d19c768d59e9fdfb28e44c05d30425cc4867555aa" => :mojave
-    sha256 "7b413c1f238bd4f33df5a80e6b63de2005024e1e854fd07ff158d8a8644ec1f2" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "93144cf2161710eeee9aa2b5cf676c50e318e59231514e457144c96eb41d87d0"
+    sha256 cellar: :any,                 arm64_monterey: "a83119ef9487123848841600f40ca303748c6a43362e078b874b44bbb15f3c51"
+    sha256 cellar: :any,                 arm64_big_sur:  "af95c49efddcd1b3ba387e91217142cf4c768bc643ada25367aa688d22c096dd"
+    sha256 cellar: :any,                 ventura:        "d1749b2dc0164cdfcf5b3cb87145ad9a9c1015fa87565363104c3f9db1e4428a"
+    sha256 cellar: :any,                 monterey:       "51d26b7ba92aca0563e9a89650b5e76796dc5fbec1bcbedd726d32f02ca65b14"
+    sha256 cellar: :any,                 big_sur:        "28074a56f1b8dc3d81031cbec687e95be2ca122efd7d749de4f5c179f3868a64"
+    sha256 cellar: :any,                 catalina:       "b95acc4edb4e58a810dd7767acb69ad7f97b622aed911a682b8b9728ea6313f7"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "2d5d40cb379b04526e1b974bf1c727a5b74f8bdacc9e568950f249e075fcece4"
   end
 
   depends_on "swig" => :build
   depends_on "openssl@1.1"
-  depends_on "python@3.8"
+  depends_on "python@3.11"
 
   uses_from_macos "curl"
 
   resource "chardet" do
-    url "https://files.pythonhosted.org/packages/fc/bb/a5768c230f9ddb03acc9ef3f0d4a3cf93462473795d18e9535498c8f929d/chardet-3.0.4.tar.gz"
-    sha256 "84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae"
+    url "https://files.pythonhosted.org/packages/31/a2/12c090713b3d0e141f367236d3a8bdc3e5fca0d83ff3647af4892c16c205/chardet-5.0.0.tar.gz"
+    sha256 "0368df2bfd78b5fc20572bb4e9bb7fb53e2c094f60ae9993339e8671d0afb8aa"
   end
 
   resource "M2Crypto" do
-    url "https://files.pythonhosted.org/packages/74/18/3beedd4ac48b52d1a4d12f2a8c5cf0ae342ce974859fba838cbbc1580249/M2Crypto-0.35.2.tar.gz"
-    sha256 "4c6ad45ffb88670c590233683074f2440d96aaccb05b831371869fc387cbd127"
+    url "https://files.pythonhosted.org/packages/2c/52/c35ec79dd97a8ecf6b2bbd651df528abb47705def774a4a15b99977274e8/M2Crypto-0.38.0.tar.gz"
+    sha256 "99f2260a30901c949a8dc6d5f82cd5312ffb8abc92e76633baf231bbbcb2decb"
   end
+
+  # upstream issue tracker, https://github.com/openSUSE/osc/issues/1101
+  patch :DATA
 
   def install
     openssl = Formula["openssl@1.1"]
@@ -44,3 +52,25 @@ class Osc < Formula
     system bin/"osc", "--version"
   end
 end
+
+__END__
+diff --git a/osc/util/git_version.py b/osc/util/git_version.py
+index 69022cf..67a12e4 100644
+--- a/osc/util/git_version.py
++++ b/osc/util/git_version.py
+@@ -3,6 +3,7 @@ import subprocess
+
+
+ def get_git_archive_version():
++    return None
+     """
+     Return version that is set by git during `git archive`.
+     The returned format is equal to what `git describe --tags` returns.
+@@ -18,6 +19,7 @@ def get_git_archive_version():
+
+
+ def get_git_version():
++    return None
+     """
+     Determine version from git repo by calling `git describe --tags`.
+     """

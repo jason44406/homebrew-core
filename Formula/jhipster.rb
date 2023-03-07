@@ -3,24 +3,32 @@ require "language/node"
 class Jhipster < Formula
   desc "Generate, develop and deploy Spring Boot + Angular/React applications"
   homepage "https://www.jhipster.tech/"
-  url "https://registry.npmjs.org/generator-jhipster/-/generator-jhipster-6.10.1.tgz"
-  sha256 "65304b03bb52f8a7501e4074475b386c8c6e57692e30c878f49335e1d1dd9afd"
+  url "https://registry.npmjs.org/generator-jhipster/-/generator-jhipster-7.9.3.tgz"
+  sha256 "c76f39732ed3594d07d03a51c3724f10a40c6343f385ddb48caa2ba7ef0a66cd"
   license "Apache-2.0"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "fdcadb5944ca4be17d94e7d1fbefea22aa7957458e3224e9ad72366004aac4f7" => :catalina
-    sha256 "16cd02713525c612bec9231ae73a05a9390c6f520710847e14d00043ca5c0761" => :mojave
-    sha256 "5631dcc3e065ad2e7b3df58534a89175688358c5482b7133f5410dc7ea11c353" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "e5023ca884b48c2c31472f38182176581b76b453f604280bc8cf065bf44bd9e2"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "e5023ca884b48c2c31472f38182176581b76b453f604280bc8cf065bf44bd9e2"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "e5023ca884b48c2c31472f38182176581b76b453f604280bc8cf065bf44bd9e2"
+    sha256 cellar: :any_skip_relocation, ventura:        "1a870835098f2a8ce7957000f69ec7c5ed93cfdee6d28279f781b10d646f2dbf"
+    sha256 cellar: :any_skip_relocation, monterey:       "1a870835098f2a8ce7957000f69ec7c5ed93cfdee6d28279f781b10d646f2dbf"
+    sha256 cellar: :any_skip_relocation, big_sur:        "1a870835098f2a8ce7957000f69ec7c5ed93cfdee6d28279f781b10d646f2dbf"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "e5023ca884b48c2c31472f38182176581b76b453f604280bc8cf065bf44bd9e2"
   end
 
   depends_on "node"
   depends_on "openjdk"
 
   def install
+    # Bump dependent package yeoman-environment to 3.11.0 to work around
+    # `ERR_PACKAGE_PATH_NOT_EXPORTED` error. Remove on next release.
+    inreplace "package.json",
+      '"yeoman-environment": "3.10.0"',
+      '"yeoman-environment": "3.11.0"'
     system "npm", "install", *Language::Node.std_npm_install_args(libexec)
     bin.install Dir["#{libexec}/bin/*"]
-    bin.env_script_all_files libexec/"bin", JAVA_HOME: "${JAVA_HOME:-#{Formula["openjdk"].opt_prefix}}"
+    bin.env_script_all_files libexec/"bin", Language::Java.overridable_java_home_env
   end
 
   test do

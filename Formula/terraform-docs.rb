@@ -1,23 +1,33 @@
 class TerraformDocs < Formula
   desc "Tool to generate documentation from Terraform modules"
   homepage "https://github.com/terraform-docs/terraform-docs"
-  url "https://github.com/terraform-docs/terraform-docs/archive/v0.9.1.tar.gz"
-  sha256 "2af0da7256dc73cb67787f81237bd44859ea959d63c9d974b572ed71755cb148"
+  url "https://github.com/terraform-docs/terraform-docs/archive/v0.16.0.tar.gz"
+  sha256 "e370fd106ca74caebc8632834cc28412a3a6a160952392da71f213515bba2085"
   license "MIT"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "07e6bc6850459581f65fc59b0bc1152fbd917c7a760fc2e7203c55bc581bcbc7" => :catalina
-    sha256 "a91bb362006421c48eb1f6c251b5515bce6930f9611d116469fea0390966531d" => :mojave
-    sha256 "27b5477a3af7c8cdd53ba80fbf86309a65deeb8668dc010cd88cb0cb872272fb" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "668f0822b31d0bff7505929546b63d2402cf5dd827798a0fe7e74b5e7252a0cd"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "6fddc004ce8b2d291af3be852071361f4c08c9c15e9b427c63eded1f86cf989b"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "ee06989a498ca1ee3f94fade88adcfc96d4d6d833b6ea3582bb6aaeda15b5279"
+    sha256 cellar: :any_skip_relocation, ventura:        "d90a3a70220aca39b2be6df347ae77f051ea697be474bb0283289cd9f9108fce"
+    sha256 cellar: :any_skip_relocation, monterey:       "35bbce206ca1a1ee152ac0248f21016de5465076d56bd625043a38a02e7358d6"
+    sha256 cellar: :any_skip_relocation, big_sur:        "ec8e73ce93f2e026c762c2a27809e964c81300d4555889ca54c7aa490ab986cc"
+    sha256 cellar: :any_skip_relocation, catalina:       "c6d9da269af431f70956ea73cbf2a5d6ac98418a5cabc7b40d85f01c3f228ab4"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "fa3db94146d5bae501b11fc6e35c27ca8468ccc32ebc4c60cd36fc1c7fa667b1"
   end
 
   depends_on "go" => :build
 
   def install
     system "make", "build"
-    bin.install "bin/darwin-amd64/terraform-docs"
+    cpu = Hardware::CPU.intel? ? "amd64" : Hardware::CPU.arch.to_s
+    os = OS.kernel_name.downcase
+
+    bin.install "bin/#{os}-#{cpu}/terraform-docs"
     prefix.install_metafiles
+
+    generate_completions_from_executable(bin/"terraform-docs", "completion", shells: [:bash, :zsh])
   end
 
   test do

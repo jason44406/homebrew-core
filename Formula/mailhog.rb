@@ -4,11 +4,11 @@ class Mailhog < Formula
   desc "Web and API based SMTP testing tool"
   homepage "https://github.com/mailhog/MailHog"
   license "MIT"
-  head "https://github.com/mailhog/MailHog.git"
+  head "https://github.com/mailhog/MailHog.git", branch: "master"
 
   stable do
-    url "https://github.com/mailhog/MailHog/archive/v1.0.0.tar.gz"
-    sha256 "472bf0895f33d49ec8f9bf665fdbda317e57855e846e38e6a6b8dcecdacd7bc5"
+    url "https://github.com/mailhog/MailHog/archive/v1.0.1.tar.gz"
+    sha256 "6227b566f3f7acbfee0011643c46721e20389eba4c8c2d795c0d2f4d2905f282"
 
     go_resource "github.com/gorilla/context" do
       url "https://github.com/gorilla/context.git",
@@ -112,11 +112,14 @@ class Mailhog < Formula
   end
 
   bottle do
-    cellar :any_skip_relocation
-    rebuild 1
-    sha256 "e127d4cd9bc97838be1586912d0fa14370062f9f98f901ce0de9faf6c9d4fba4" => :catalina
-    sha256 "58b7a9427521adeb1f65aa961e7548532c3d2c1141bd167deba8ff031d90d2c9" => :mojave
-    sha256 "de3accd2587eb597e92b31fcf6dd93e78b0c0e52511680a6354d17d066ed776f" => :high_sierra
+    rebuild 2
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "ced5d8a79864ec2e24dd10244c8f8c02ea877f5039cebbc52d67008878a90384"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "a5b089cb4b0b631510bd8454442227cc126847626f414c3607bba679aa98f10a"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "a2cd7cb1b3d603d1696ffe8f6ff7704e7cf5a46fce3989160f66bf552fd1d754"
+    sha256 cellar: :any_skip_relocation, ventura:        "6a45f9cc5d9d2de936cc8d045927ab623c87afbad9616ddf3e6e5b09c6f55dda"
+    sha256 cellar: :any_skip_relocation, monterey:       "0e54558a9977b4e4106dd96395cb854253af643661089c0523cd26dbf77bca65"
+    sha256 cellar: :any_skip_relocation, big_sur:        "427f2af18b97af3d6b99e5d311b663a52ef85f6c2b04a6952ba691247e65df3b"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "1b66c1a2cbd67663bd1046ec584e8a9fd8518b7b68a3907ded7b6225d55774da"
   end
 
   depends_on "go" => :build
@@ -124,6 +127,7 @@ class Mailhog < Formula
   def install
     ENV["GOPATH"] = buildpath
     ENV["GOBIN"] = bin
+    ENV["GO111MODULE"] = "auto"
 
     path = buildpath/"src/github.com/mailhog/MailHog"
     path.install buildpath.children
@@ -137,31 +141,19 @@ class Mailhog < Formula
     end
   end
 
-  plist_options manual: "MailHog"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-      <dict>
-        <key>KeepAlive</key>
-        <true/>
-        <key>Label</key>
-        <string>#{plist_name}</string>
-        <key>ProgramArguments</key>
-        <array>
-          <string>#{opt_bin}/MailHog</string>
-        </array>
-        <key>RunAtLoad</key>
-        <true/>
-        <key>StandardErrorPath</key>
-        <string>#{var}/log/mailhog.log</string>
-        <key>StandardOutPath</key>
-        <string>#{var}/log/mailhog.log</string>
-      </dict>
-      </plist>
-    EOS
+  service do
+    run [
+      opt_bin/"MailHog",
+      "-api-bind-addr",
+      "127.0.0.1:8025",
+      "-smtp-bind-addr",
+      "127.0.0.1:1025",
+      "-ui-bind-addr",
+      "127.0.0.1:8025",
+    ]
+    keep_alive true
+    log_path var/"log/mailhog.log"
+    error_log_path var/"log/mailhog.log"
   end
 
   test do

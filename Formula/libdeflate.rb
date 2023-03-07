@@ -1,27 +1,26 @@
 class Libdeflate < Formula
   desc "Heavily optimized DEFLATE/zlib/gzip compression and decompression"
   homepage "https://github.com/ebiggers/libdeflate"
-  url "https://github.com/ebiggers/libdeflate/archive/v1.6.tar.gz"
-  sha256 "60748f3f7b22dae846bc489b22a4f1b75eab052bf403dd8e16c8279f16f5171e"
+  url "https://github.com/ebiggers/libdeflate/archive/v1.17.tar.gz"
+  sha256 "fa4615af671513fa2a53dc2e7a89ff502792e2bdfc046869ef35160fcc373763"
   license "MIT"
-  revision 1
 
   bottle do
-    cellar :any
-    sha256 "cda21372c1a5a131c1bff0f56db0bcede77fc33b7d7993a2d10c942a687a12fa" => :catalina
-    sha256 "73e0789c105bca4c823f90d4e299fa92033a3420efbde58f173cd09a469ad3a2" => :mojave
-    sha256 "841ca895ade3760d2ded53aa4734a2919ca1f74cdf8acfb8cc63c9f3aa4d1165" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "fbdd26e8167677d0ee5ee7f18cc94a98872044715f077b1d8e9bd9216cd37f5d"
+    sha256 cellar: :any,                 arm64_monterey: "5116d8574dbe9f484c777033dafa9eb13232affd31398419f4ca2ac431b395c3"
+    sha256 cellar: :any,                 arm64_big_sur:  "3a3a2550934d65a7cafdbd6271480418797d6d5814d98941a4ef64d299b37bba"
+    sha256 cellar: :any,                 ventura:        "7229977b7c53d87560d1083e62add965f7fa0d9cec3b9e910529a95ef3b63a55"
+    sha256 cellar: :any,                 monterey:       "e675068af0ccfc0e3a406e7cfacfeb38d8b6f263cd0cae6846d1057a3d3c5bb6"
+    sha256 cellar: :any,                 big_sur:        "0a5189b08de91223c396a8a5917402bf071f11337f00cb90b0f220dc66dffc9e"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "7296fdcdfd35bf16b31f76d703746c0d6c67c9597cd29278ddbae18548614b38"
   end
 
-  # Install shared lib symlink as dylib on macOS
-  # https://github.com/ebiggers/libdeflate/pull/74
-  patch do
-    url "https://github.com/ebiggers/libdeflate/commit/061282f1c1e22cf9372835ca163bbe1819b892b9.patch?full_index=1"
-    sha256 "ed1ccd205f3d070aa2a50755e6c27a530fc8273de09e6d9a4a3ea79d529ccdbe"
-  end
+  depends_on "cmake" => :build
 
   def install
-    system "make", "install", "PREFIX=#{prefix}"
+    system "cmake", "-S", ".", "-B", "build", *std_cmake_args
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
   end
 
   test do

@@ -1,46 +1,64 @@
 class VowpalWabbit < Formula
   desc "Online learning algorithm"
   homepage "https://github.com/VowpalWabbit/vowpal_wabbit"
-  # pull from git tag to get submodules
-  url "https://github.com/VowpalWabbit/vowpal_wabbit.git",
-    tag:      "8.8.1",
-    revision: "5ff219ec0ff28af5d35e452f5f18e6808993e08a"
-  revision 1
-  head "https://github.com/VowpalWabbit/vowpal_wabbit.git"
+  url "https://github.com/VowpalWabbit/vowpal_wabbit/archive/9.7.0.tar.gz"
+  sha256 "213a9386f35aa958475fa9fc54785353a8180623442eef2876867463efcfefe8"
+  license "BSD-3-Clause"
+  head "https://github.com/VowpalWabbit/vowpal_wabbit.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "67b1a1ff72db3a4fb3a8feecf372999b09a9c0eb429d449fe3038aaf1c866a52" => :catalina
-    sha256 "420d53c0004628986811ad2c7e0b83fd20bad1db5bac9b8775e40daf788b0a9b" => :mojave
-    sha256 "ff5920ae1294c66d9b4752326818d4b9aa88f6ecfdffbd740691f13b99b4e6e7" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "b35b651a934888e7b76851c5564c83e5e02f71d22050696834a5fc329206bacf"
+    sha256 cellar: :any,                 arm64_monterey: "eaef2c65a2af0081644e537a79c35f5d0e9cfe70281e1c6a6f14d96ba1a9e16f"
+    sha256 cellar: :any,                 arm64_big_sur:  "21515c2b3d24862b37456e33d57da611f43f8210a267972d26eb25fadcadcd9c"
+    sha256 cellar: :any,                 ventura:        "d43ad2bf7a6f87d6e2aebdda2a0f235cf8fa45551e72c5da973ef30b1f8f9ad4"
+    sha256 cellar: :any,                 monterey:       "ee72120341717bd3117bde59e1e361434ed7d66bb135819b39e8e3a35a1bc1f2"
+    sha256 cellar: :any,                 big_sur:        "6161c55b3dffa3fe7ac98808d6520fd8d1ace45ff87db803bc1021c2aeba4786"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "fdaa6d5fd78c6a6e0057f97ec4e09a19aa0b9d340e3fd60d3943c25798bffc50"
   end
 
   depends_on "cmake" => :build
   depends_on "rapidjson" => :build
+  depends_on "spdlog" => :build
   depends_on "boost"
+  depends_on "eigen"
+  depends_on "fmt"
 
-  # Support using brewed rapidjson
-  patch do
-    url "https://github.com/VowpalWabbit/vowpal_wabbit/commit/9aea63874e70eee477b9b281ef12515f70f5d1bd.patch?full_index=1"
-    sha256 "e69037901f0027dbcd21204822875efb98c676805d383818483fbe7badc3d6b4"
+  uses_from_macos "zlib"
+
+  on_arm do
+    depends_on "sse2neon" => :build
   end
+
+  patch :DATA
 
   def install
     ENV.cxx11
+
+    args = %w[
+      -DBUILD_TESTING=OFF
+      -DRAPIDJSON_SYS_DEP=ON
+      -DFMT_SYS_DEP=ON
+      -DSPDLOG_SYS_DEP=ON
+      -DVW_BOOST_MATH_SYS_DEP=On
+      -DVW_EIGEN_SYS_DEP=On
+      -DVW_SSE2NEON_SYS_DEP=On
+      -DVW_INSTALL=On
+    ]
+
     # The project provides a Makefile, but it is a basic wrapper around cmake
     # that does not accept *std_cmake_args.
     # The following should be equivalent, while supporting Homebrew's standard args.
-    mkdir "build" do
-      system "cmake", "..", *std_cmake_args,
-                            "-DBUILD_TESTS=OFF",
-                            "-DRAPIDJSON_SYS_DEP=ON"
-      system "make", "install"
-    end
+    system "cmake", "-S", ".", "-B", "build", *args, *std_cmake_args
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
+
     bin.install Dir["utl/*"]
     rm bin/"active_interactor.py"
-    rm bin/"new_version"
     rm bin/"vw-validate.html"
-    rm bin/"clang-format"
+    rm bin/"clang-format.sh"
+    rm bin/"release_blog_post_template.md"
+    rm_r bin/"flatbuffer"
+    rm_r bin/"dump_options"
   end
 
   test do
@@ -90,3 +108,31 @@ class VowpalWabbit < Formula
     system bin/"vw", "-t", "-i", "cb.model", "-d", "test.dat", "-p", "cb.predict"
   end
 end
+
+__END__
+diff --git a/ext_libs/ext_libs.cmake b/ext_libs/ext_libs.cmake
+index 1ef57fe..20972fc 100644
+--- a/ext_libs/ext_libs.cmake
++++ b/ext_libs/ext_libs.cmake
+@@ -107,7 +107,7 @@ endif()
+ 
+ add_library(sse2neon INTERFACE)
+ if(VW_SSE2NEON_SYS_DEP)
+-  find_path(SSE2NEON_INCLUDE_DIRS "sse2neon/sse2neon.h")
++  find_path(SSE2NEON_INCLUDE_DIRS "sse2neon.h")
+   target_include_directories(sse2neon SYSTEM INTERFACE "${SSE2NEON_INCLUDE_DIRS}")
+ else()
+   # This submodule is placed into a nested subdirectory since it exposes its
+diff --git a/vowpalwabbit/core/src/reductions/lda_core.cc b/vowpalwabbit/core/src/reductions/lda_core.cc
+index f078d9c..ede5e06 100644
+--- a/vowpalwabbit/core/src/reductions/lda_core.cc
++++ b/vowpalwabbit/core/src/reductions/lda_core.cc
+@@ -33,7 +33,7 @@ VW_WARNING_STATE_POP
+ #include "vw/io/logger.h"
+ 
+ #if defined(__ARM_NEON)
+-#  include <sse2neon/sse2neon.h>
++#  include <sse2neon.h>
+ #endif
+ 
+ #include <algorithm>

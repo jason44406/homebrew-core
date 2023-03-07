@@ -1,21 +1,21 @@
 class GitExtras < Formula
   desc "Small git utilities"
   homepage "https://github.com/tj/git-extras"
-  url "https://github.com/tj/git-extras/archive/6.0.0.tar.gz"
-  sha256 "a823c12e4bf74e2f07ee80e597500e5f5120dcd8fa345e67e2c03544fd706ffe"
+  url "https://github.com/tj/git-extras/archive/6.5.0.tar.gz"
+  sha256 "eace7a0659749c72abf1cee68c03ea0a77715870d5e321c729e4a231ee359b61"
   license "MIT"
-  head "https://github.com/tj/git-extras.git"
+  head "https://github.com/tj/git-extras.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    rebuild 1
-    sha256 "6bec6d92d79cabaac6e99d15c8bf1542cf97dcb190b7e77ad4eaa8e381cff055" => :catalina
-    sha256 "6bec6d92d79cabaac6e99d15c8bf1542cf97dcb190b7e77ad4eaa8e381cff055" => :mojave
-    sha256 "6bec6d92d79cabaac6e99d15c8bf1542cf97dcb190b7e77ad4eaa8e381cff055" => :high_sierra
+    sha256 cellar: :any_skip_relocation, all: "59dcbbb3d96e0aa5bb4fd5e7bb6e86383b9bbd5b3e752f1366fd70ba42b2e884"
   end
 
-  conflicts_with "git-utils",
-    because: "both install a `git-pull-request` script"
+  on_linux do
+    depends_on "util-linux" # for `column`
+  end
+
+  conflicts_with "git-sync",
+    because: "both install a `git-sync` binary"
 
   def install
     system "make", "PREFIX=#{prefix}", "INSTALL_VIA=brew", "install"

@@ -2,16 +2,20 @@ require "language/node"
 
 class Nativefier < Formula
   desc "Wrap web apps natively"
-  homepage "https://github.com/jiahaog/nativefier"
-  url "https://registry.npmjs.org/nativefier/-/nativefier-9.2.0.tgz"
-  sha256 "2d0964cbebde6a4a1fe1d8bb467677700c05f751b296ddd1181d1c93769f35d4"
+  homepage "https://github.com/nativefier/nativefier"
+  url "https://registry.npmjs.org/nativefier/-/nativefier-50.0.1.tgz"
+  sha256 "b4abb72acba7c5801636cfea82b7a69562ef12f86819bdf2d6fbd189e5ae8b1c"
   license "MIT"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "9af138aa796efacc377de35b1020091e48a7c3c1ffca3ca32b7ed603dba00a93" => :catalina
-    sha256 "95e4333fe5aa40f5fa0bfc004b902454547e4ddadceb16903fb310fbba28e537" => :mojave
-    sha256 "3de61007eb5af8c64c52362fa540d098c169c8433fc689edfa0a7075e5b03756" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "9d35b4c8a58305360a32266850adff76701962951fada138568e184fe7ad4b9f"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "9d35b4c8a58305360a32266850adff76701962951fada138568e184fe7ad4b9f"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "9d35b4c8a58305360a32266850adff76701962951fada138568e184fe7ad4b9f"
+    sha256 cellar: :any_skip_relocation, ventura:        "feb5380635bc94c205bddd2f8ad3930333446c4357858baa1df7eb6e50663c30"
+    sha256 cellar: :any_skip_relocation, monterey:       "f3b285e09cb0671206fb6f640c34ec19ac0978b5ed75445a1e9250ac2473bd1e"
+    sha256 cellar: :any_skip_relocation, big_sur:        "f3b285e09cb0671206fb6f640c34ec19ac0978b5ed75445a1e9250ac2473bd1e"
+    sha256 cellar: :any_skip_relocation, catalina:       "f3b285e09cb0671206fb6f640c34ec19ac0978b5ed75445a1e9250ac2473bd1e"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "9d35b4c8a58305360a32266850adff76701962951fada138568e184fe7ad4b9f"
   end
 
   depends_on "node"
@@ -22,6 +26,6 @@ class Nativefier < Formula
   end
 
   test do
-    system bin/"nativefier", "--version"
+    assert_match version.to_s, shell_output("#{bin}/nativefier --version")
   end
 end

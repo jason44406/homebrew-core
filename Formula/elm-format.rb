@@ -2,40 +2,43 @@ class ElmFormat < Formula
   desc "Elm source code formatter, inspired by gofmt"
   homepage "https://github.com/avh4/elm-format"
   url "https://github.com/avh4/elm-format.git",
-      tag:      "0.8.3",
-      revision: "b97e3593d564a1e069c0a022da8cbd98ca2c5a4b"
+      tag:      "0.8.6",
+      revision: "7e80dd48dd9b30994e43f4804b2ea7118664e8e0"
   license "BSD-3-Clause"
-  head "https://github.com/avh4/elm-format.git"
+  head "https://github.com/avh4/elm-format.git", branch: "main"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "5a325127c11c78285bfc7c68812dc6c0425c9c3305e32312c10c39e2dc2c1ce9" => :catalina
-    sha256 "b785f70ac7b4cb766f7d09e6263268ed2d3934331c65b6f5fde4829a530d5fa3" => :mojave
-    sha256 "e1807b5063dd15258a1fd041bdc21faea8f598e7c0c8a3f39557e880fc22ec2c" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "4e30b1ced1e42be3d4f7b2881876f7e2c4f85e4fbb867fba93bc78334c1200e2"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "45548670240e259970da0af18431383b0ac2ddb99e0daf4d925eedee9707cdc7"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "74b60c47df474cfa31de21ef623cd9fb8c30e45c8e144b3f12d958757b935ffe"
+    sha256 cellar: :any_skip_relocation, ventura:        "31d555e9c93a0319cf969800588be60792b3eb8455c0a3847c11af27cbdfd2fe"
+    sha256 cellar: :any_skip_relocation, monterey:       "52bee1af1d269f3f77c53076189e43108c1b6942a733aad8fdb9a4cb3b34f987"
+    sha256 cellar: :any_skip_relocation, big_sur:        "096b137beeb4bd16c4fa03dcc4d6c103a321e59aa201cd862c6973cf19d2b1fd"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "f29eef6c114fad1b9aabece7232e56b18f5cdde3a05b7bd4b69557f225442635"
   end
 
   depends_on "cabal-install" => :build
-  depends_on "ghc@8.6" => :build
+  depends_on "haskell-stack" => :build
 
-  def build_elm_format_conf
-    <<~EOS
-      module Build_elm_format where
+  uses_from_macos "xz" => :build # for `haskell-stack` to unpack ghc
 
-      gitDescribe :: String
-      gitDescribe = "#{version}"
-    EOS
+  on_linux do
+    depends_on "gmp" # for `haskell-stack` to configure ghc
   end
 
   def install
-    defaults = buildpath/"generated/Build_elm_format.hs"
-    defaults.write(build_elm_format_conf)
+    # Currently, dependency constraints require an older `ghc` patch version than available
+    # in Homebrew. Try using Homebrew `ghc` on update. Optionally, consider adding `ghcup`
+    # as a lighter-weight alternative to `haskell-stack` for installing particular ghc version.
+    jobs = ENV.make_jobs
+    ENV.deparallelize { system "stack", "-j#{jobs}", "setup", "9.2.5", "--stack-root", buildpath/".stack" }
+    ENV.prepend_path "PATH", Dir[buildpath/".stack/programs/*/ghc-*/bin"].first
+    system "cabal", "v2-update"
 
-    (buildpath/"elm-format").install Dir["*"]
-
-    cd "elm-format" do
-      system "cabal", "v2-update"
-      system "cabal", "v2-install", *std_cabal_v2_args
-    end
+    # Directly running `cabal v2-install` fails: Invalid file name in tar archive: "avh4-lib-0.0.0.1/../"
+    # Instead, we can use the upstream's build.sh script, which utilizes the Shake build system.
+    system "./dev/build.sh", "--", "build"
+    bin.install "_build/elm-format"
   end
 
   test do
@@ -47,5 +50,7 @@ class ElmFormat < Formula
 
     system bin/"elm-format", "--elm-version=0.18", testpath/"Hello.elm", "--yes"
     system bin/"elm-format", "--elm-version=0.19", testpath/"Hello.elm", "--yes"
+
+    assert_match version.to_s, shell_output("#{bin}/elm-format --help")
   end
 end

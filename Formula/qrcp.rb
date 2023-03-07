@@ -1,21 +1,27 @@
 class Qrcp < Formula
   desc "Transfer files to and from your computer by scanning a QR code"
   homepage "https://claudiodangelis.com/qrcp"
-  url "https://github.com/claudiodangelis/qrcp/archive/0.6.3.tar.gz"
-  sha256 "2d39ba661aad9c60b816bc06f53ef4f3d8747e11d5fc27c104d3687d1e77204c"
+  url "https://github.com/claudiodangelis/qrcp/archive/0.9.1.tar.gz"
+  sha256 "1ee0d1b04222fb2a559d412b144a49051c3315cbc99c7ea1f281bdd4f13f07bf"
   license "MIT"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "857aa5ad50a7a2124a1c37f7f206b25a65d9f3c76bae0ec9223945238c83d0eb" => :catalina
-    sha256 "5a1bede14f849cd49815b351325d5f375a9d7dc4d7ae8abd4053505f3fc1b6b0" => :mojave
-    sha256 "aba7e5ceb1c788d2eeae3e117e6dcae5c14530e5b759832adac7a6f4296565cd" => :high_sierra
+    rebuild 2
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "38d90c6db412242ad80b6757e322b01ef67950ab05515c30acf8e66f9e378ad3"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "c78211f9d68f2d3cd87480480e1bbd77d41c1bb901cb8a3de9a485f33daf0586"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "a9e802476922a3b2838bf05a8e94ee9499c9c80178f1a269b6ab6cb09506506c"
+    sha256 cellar: :any_skip_relocation, ventura:        "7a9f8ec7bf540c48a95566c06d6619ad4bd7452f53b34a09b8729ffda68eabcb"
+    sha256 cellar: :any_skip_relocation, monterey:       "f48c800a4db6a665e865152fd0aa73341c23e445c6c4343175af56a4e88c0bc9"
+    sha256 cellar: :any_skip_relocation, big_sur:        "688fd46790df307ab1bf1b52fd8c65b3af682c55aaa4a210d49aba3e32bb3707"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "9ccd045ad89452ab621622c1aca81888f9d57242a4f8360284b77580eee2efe8"
   end
 
   depends_on "go" => :build
 
   def install
     system "go", "build", *std_go_args
+
+    generate_completions_from_executable(bin/"qrcp", "completion")
   end
 
   test do

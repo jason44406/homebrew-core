@@ -1,54 +1,75 @@
+require "language/node"
+
 class Octant < Formula
   desc "Kubernetes introspection tool for developers"
   homepage "https://octant.dev"
   url "https://github.com/vmware-tanzu/octant.git",
-      tag:      "v0.15.0",
-      revision: "97a507c2b071764933bb479007822672d5fa19f5"
+      tag:      "v0.25.1",
+      revision: "f16cbb951905f1f8549469dfc116ca16cf679d46"
   license "Apache-2.0"
-  head "https://github.com/vmware-tanzu/octant.git"
+  head "https://github.com/vmware-tanzu/octant.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "045c41be854cf5f2ec83304604cfd15999c6388acf1dcd75aac9ae1e853fe49b" => :catalina
-    sha256 "296b65276242af120db56456c2ace8e2055d14bef0a098a87d4ff1bdd4d182f0" => :mojave
-    sha256 "9451ccb5b446694ac3d1c0f7053e01fade89337ee9aad425e3b1de64d645febe" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "d15cb0eed642b761f16c0b15af9cd2840abccdd01a9b396b2fc562285bf882c0"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "788d92a1207ad2adc9c6646feba0dd95fb0fc676bd847d712655b7cf90649a5e"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "051bd42c57e7e0b2bee8654780c4e933d8573c5be2fa9d2b56cc2dad887a731b"
+    sha256 cellar: :any_skip_relocation, ventura:        "26f041666fd4f320f045d6d2b15e5e5e49cb2bec9597ba0ff818cb59513fa4e1"
+    sha256 cellar: :any_skip_relocation, monterey:       "c3727d1b1e5bc15b1bf9871fea589b463f035cb92ad9898a00cffb5752e9a55e"
+    sha256 cellar: :any_skip_relocation, big_sur:        "71c030c4adb0923f6b1c6956aa7888e5a89382bf32fb9139423867b3ae2a5b8e"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "4df389cca7e8d7586332ee36bf529a8e6aaf70f94acd2ba567c99445e8874bd3"
   end
 
+  # "VMware has ended active development of this project, this repository
+  # will no longer be updated."
+  deprecate! date: "2023-02-07", because: :repo_archived
+
   depends_on "go" => :build
-  depends_on "node" => :build
+  depends_on "node@14" => :build
+
+  uses_from_macos "python" => :build
+
+  on_linux do
+    depends_on "pkg-config" => :build
+  end
 
   def install
-    ENV["GOPATH"] = buildpath
     ENV["GOFLAGS"] = "-mod=vendor"
 
-    ENV.append_path "PATH", HOMEBREW_PREFIX/"bin"
+    Language::Node.setup_npm_environment
 
-    dir = buildpath/"src/github.com/vmware-tanzu/octant"
-    dir.install buildpath.children
-
-    cd "src/github.com/vmware-tanzu/octant" do
-      system "go", "run", "build.go", "go-install"
-      ENV.prepend_path "PATH", buildpath/"bin"
-
-      system "go", "generate", "./pkg/plugin/plugin.go"
-      system "go", "run", "build.go", "web-build"
-
-      commit = Utils.safe_popen_read("git", "rev-parse", "HEAD").chomp
-      build_time = Utils.safe_popen_read("date -u +'%Y-%m-%dT%H:%M:%SZ' 2> /dev/null").chomp
-      ldflags = ["-X \"main.version=#{version}\"",
-                 "-X \"main.gitCommit=#{commit}\"",
-                 "-X \"main.buildTime=#{build_time}\""]
-
-      system "go", "build", "-o", bin/"octant", "-ldflags", ldflags.join(" "),
-              "-v", "./cmd/octant"
+    # Work around build error: "npm ERR! Invalid Version: ^3.0.8"
+    # Issue is due to `npm-force-resolutions` not working with
+    # npm>=8.6, which is used in node>=16 formulae.
+    #
+    # PR ref: https://github.com/vmware-tanzu/octant/pull/3311
+    # Issue ref: https://github.com/vmware-tanzu/octant/issues/3329
+    # Issue ref: https://github.com/rogeriochaves/npm-force-resolutions/issues/56
+    ENV.prepend_path "PATH", Formula["node@14"].opt_bin
+    cd "web" do
+      system "npm", "install", *Language::Node.local_npm_install_args
     end
+
+    system "go", "run", "build.go", "go-install"
+    system "go", "run", "build.go", "web-build"
+
+    ldflags = ["-X main.version=#{version}",
+               "-X main.gitCommit=#{Utils.git_head}",
+               "-X main.buildTime=#{time.iso8601}"].join(" ")
+
+    tags = "embedded exclude_graphdriver_devicemapper exclude_graphdriver_btrfs containers_image_openpgp"
+
+    system "go", "build", *std_go_args(ldflags: ldflags),
+           "-tags", tags, "-v", "./cmd/octant"
+
+    generate_completions_from_executable(bin/"octant", "completion")
   end
 
   test do
     fork do
       exec bin/"octant", "--kubeconfig", testpath/"config", "--disable-open-browser"
     end
-    sleep 2
+    sleep 5
 
     output = shell_output("curl -s http://localhost:7777")
     assert_match "<title>Octant</title>", output, "Octant did not start"

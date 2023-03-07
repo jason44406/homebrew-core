@@ -4,17 +4,34 @@ class HttpLoad < Formula
   url "https://www.acme.com/software/http_load/http_load-09Mar2016.tar.gz"
   version "20160309"
   sha256 "5a7b00688680e3fca8726dc836fd3f94f403fde831c71d73d9a1537f215b4587"
+  license "BSD-2-Clause"
   revision 2
 
-  bottle do
-    cellar :any
-    sha256 "36fada1e1b8cbe35a9eb1fb2374c175a003d750f0560565c6bfaf6b90a17f748" => :catalina
-    sha256 "d0d672723564b758fc3ef0721239e108ec063a395e183db033071200d5d9ee48" => :mojave
-    sha256 "22e21275c49121c174024104f9b99c5f55d37e032ff7cae42bba89746c26bd88" => :high_sierra
-    sha256 "a949ed2040faf49c7cdb6bf0110dfbbff465641c811e78a035998a4160170a05" => :sierra
+  livecheck do
+    url :homepage
+    regex(/href=.*?http_load[._-]v?(\d+[a-z]+\d+)\.t/i)
+    strategy :page_match do |page, regex|
+      # Convert date-based version from 09Mar2016 format to 20160309
+      page.scan(regex).map do |match|
+        date_str = match&.first
+        date_str ? Date.parse(date_str)&.strftime("%Y%m%d") : nil
+      end
+    end
   end
 
-  depends_on "openssl@1.1"
+  bottle do
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "4349eea05cac8aef36a6243f8051208cddfda24966252b1ca079c3a89855b913"
+    sha256 cellar: :any,                 arm64_monterey: "b4a5b7e79f524a59d414c14ff40ea8ad5a0871a6c98606e721c8f83320cdd230"
+    sha256 cellar: :any,                 arm64_big_sur:  "f8ad486c4e8c9eb7f5204584c74de6e366e3e2ab1452682dc9904badec75e4d5"
+    sha256 cellar: :any,                 ventura:        "a6416934e52f12730249f9175afefb89dda92f939aa880961b48613561eeb124"
+    sha256 cellar: :any,                 monterey:       "03949d76fa9a565a4e52e3219a097eef0453bb082a77674a16a66e407f6bba24"
+    sha256 cellar: :any,                 big_sur:        "04650d6cbf5dce7109ed1ce45a1bad45ae6d2706d3b5dd2baf411b198a3c5e27"
+    sha256 cellar: :any,                 catalina:       "6989c80f8d5213ed9e9586707e8ce2ab503b5d7bf6d10fadddd8bc310575f452"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "5172c491fea4e76a68983d8fe6563a97e2ed2bef73b6bb0c95f5290282343116"
+  end
+
+  depends_on "openssl@3"
 
   def install
     bin.mkpath
@@ -25,7 +42,7 @@ class HttpLoad < Formula
       LIBDIR=#{lib}
       MANDIR=#{man1}
       CC=#{ENV.cc}
-      SSL_TREE=#{Formula["openssl@1.1"].opt_prefix}
+      SSL_TREE=#{Formula["openssl@3"].opt_prefix}
     ]
 
     inreplace "Makefile", "#SSL_", "SSL_"

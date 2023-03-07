@@ -1,23 +1,43 @@
 class SNail < Formula
   desc "Fork of Heirloom mailx"
   homepage "https://www.sdaoden.eu/code.html"
-  url "https://www.sdaoden.eu/downloads/s-nail-14.9.19.tar.xz"
-  sha256 "84f249a233a4592cf0c0bda9644c5b2d12e63a4807c0e292c13ef5068d3ca2bd"
+  url "https://www.sdaoden.eu/downloads/s-nail-14.9.24.tar.xz"
+  sha256 "2714d6b8fb2af3b363fc7c79b76d058753716345d1b6ebcd8870ecd0e4f7ef8c"
+  license all_of: [
+    "BSD-2-Clause", # file-dotlock.h
+    "BSD-3-Clause",
+    "BSD-4-Clause",
+    "ISC",
+    "HPND-sell-variant", # GSSAPI code
+    "RSA-MD", # MD5 code
+  ]
+  revision 1
 
-  bottle do
-    sha256 "8884e726df98985c8e48a64f7ba54396a15c28f4018b9a00c40c05e42eb706c9" => :catalina
-    sha256 "a49ee56f5b20d5d40a4c1575032402c51ef1fb111d138aeec0d046ba85600c0d" => :mojave
-    sha256 "130bbb9f47467f2b3d5def07ef845eee58a63a2308f13fab71c57ed7d76bb56a" => :high_sierra
+  livecheck do
+    url :homepage
+    regex(/href=.*?s-nail[._-]v?(\d+(?:\.\d+)+)\.t/i)
   end
 
-  depends_on "awk" => :build
-  depends_on "libidn"
-  depends_on "openssl@1.1"
+  bottle do
+    sha256 arm64_ventura:  "5fce8e0d81ee4477b193583816d90a6ed5ff11a021dff0043876ac29f03e3593"
+    sha256 arm64_monterey: "e3fb2f1ca5f3d34113dd5a7bd1b522675dc6f37c0c3280d8a8473690d691ab07"
+    sha256 arm64_big_sur:  "0379b8cbc70eb8dc659d0af3713d23b306d42b2a150180eb403ce49509fa1ea5"
+    sha256 ventura:        "d6f83963c68229932e83310ab2c54a48bd322c73286e12b219cf3f9b686aa4c3"
+    sha256 monterey:       "997aaf6c68ace33c677e89c7de50c75fb8a2a9d1c768cda79d5147c7fb1de70e"
+    sha256 big_sur:        "e54132e6af33629def0c0d3982205e0d3da4f2605be5a4b8443361de66d66159"
+    sha256 catalina:       "affc68fc50f6079a85bdb6f23c54f795c9d1e57ac9c681913d85e3fc32eafe3d"
+    sha256 x86_64_linux:   "bc6d7e78241ea5f8c869094ae74d37b092739e4d7d230888dfbdea7443a29642"
+  end
+
+  depends_on "libidn2"
+  depends_on "openssl@3"
+
+  uses_from_macos "ncurses"
 
   def install
     system "make", "CC=#{ENV.cc}",
-                   "C_INCLUDE_PATH=#{Formula["openssl@1.1"].opt_include}",
-                   "LDFLAGS=-L#{Formula["openssl@1.1"].opt_lib}",
+                   "C_INCLUDE_PATH=#{Formula["openssl@3"].opt_include}",
+                   "LDFLAGS=-L#{Formula["openssl@3"].opt_lib}",
                    "VAL_PREFIX=#{prefix}",
                    "OPT_DOTLOCK=no",
                    "config"
@@ -26,10 +46,11 @@ class SNail < Formula
   end
 
   test do
-    ENV["SOURCE_DATE_EPOCH"] = "844221007"
+    timestamp = 844_221_007
+    ENV["SOURCE_DATE_EPOCH"] = timestamp.to_s
 
-    date1 = shell_output("date -r 844221007 '+%a %b %e %T %Y'")
-    date2 = shell_output("date -r 844221007 '+%a, %d %b %Y %T %z'")
+    date1 = Time.at(timestamp).strftime("%a %b %e %T %Y")
+    date2 = Time.at(timestamp).strftime("%a, %d %b %Y %T %z")
 
     expected = <<~EOS
       From reproducible_build #{date1.chomp}

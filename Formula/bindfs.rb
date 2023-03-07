@@ -1,26 +1,25 @@
 class Bindfs < Formula
   desc "FUSE file system for mounting to another location"
   homepage "https://bindfs.org/"
-  url "https://bindfs.org/downloads/bindfs-1.14.7.tar.gz"
-  sha256 "2826e7c01928c9c260e7d1fc20ce8e820432b2de1a0f0c6c0193bdbb13f378d1"
-  license "GPL-2.0"
+  url "https://bindfs.org/downloads/bindfs-1.17.2.tar.gz"
+  sha256 "5f2c50a70b8d58c025b81fbf364fad432d154936630ce0023cc88baa8d5ca1d0"
+  license "GPL-2.0-or-later"
 
   bottle do
-    cellar :any
-    sha256 "1b6004bba2060be73c1bb139ce3ebd5edf33fbb542a91672b5e98ac149126775" => :catalina
-    sha256 "eba7a033496208341d5ce0fb59e3871cbb7503b7d2f6c73922bb9764f539b3b2" => :mojave
-    sha256 "b18a684fe8e4bff83e37e1a36eefd66ea24e1a8ebf31bcc2f0c3c5b7e4348402" => :high_sierra
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "10a28033bad3c35be2156fac80b911e209fdb98009aba5f454d285e84343a885"
   end
 
   head do
-    url "https://github.com/mpartel/bindfs.git"
+    url "https://github.com/mpartel/bindfs.git", branch: "master"
+
     depends_on "autoconf" => :build
     depends_on "automake" => :build
     depends_on "libtool" => :build
   end
 
   depends_on "pkg-config" => :build
-  depends_on :osxfuse
+  depends_on "libfuse"
+  depends_on :linux # on macOS, requires closed-source macFUSE
 
   def install
     args = %W[

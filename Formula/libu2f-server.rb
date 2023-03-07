@@ -6,11 +6,21 @@ class Libu2fServer < Formula
   license "BSD-2-Clause"
   revision 3
 
+  livecheck do
+    url "https://developers.yubico.com/libu2f-server/Releases/"
+    regex(/href=.*?libu2f-server[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
+
   bottle do
-    cellar :any
-    sha256 "3a5038a64a9820c04a4ad1067ebcf8076936474cc5c18a0d93f7c986adcf0169" => :catalina
-    sha256 "a1d26284fa87629ecf5bf965433cd6eeba9eb151e064e22a47ca42a115d5e15c" => :mojave
-    sha256 "03e06751297ad4aab253d7b1f742fd5c2ad8d79b35836eb132c3c82c20b485e6" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "3ee5815ba1a374c9a85206466bd83b20f5de894ede219927281bf17cf4a1f415"
+    sha256 cellar: :any,                 arm64_monterey: "78d60a35c880f7f993f07eb38dc6d1944082ca6325d88c6ee4f22a34fe9cb50f"
+    sha256 cellar: :any,                 arm64_big_sur:  "8e294e52f4bc809affacf5a39d61eda94851600d345c946c942bbeda202dc607"
+    sha256 cellar: :any,                 ventura:        "e69be1150f198f72d7ed21bef98e94ae97eb893b68d09cd09b0f8673f5b800e6"
+    sha256 cellar: :any,                 monterey:       "d45bdb7ea77081757ae316157db4dea008f06a2998345f6e3c64c98f46830535"
+    sha256 cellar: :any,                 big_sur:        "f22956d7adce96f3e73bf0e6584f864f2f2aec7137398f5e6a151965f30655fd"
+    sha256 cellar: :any,                 catalina:       "33ecd6fbd1b611fec3ef7cdf3aeb90ddfce9be4cfb70211add5540faa79556ff"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "c7e4dfb9db89bfc5720aba123638286a77d5d76d9bb108a1bf7b2c1bf01ffa6e"
   end
 
   depends_on "check" => :build
@@ -18,7 +28,7 @@ class Libu2fServer < Formula
   depends_on "help2man" => :build
   depends_on "pkg-config" => :build
   depends_on "json-c"
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
 
   # Compatibility with json-c 0.14. Remove with the next release.
   patch do
@@ -31,7 +41,7 @@ class Libu2fServer < Formula
     ENV["LIBCRYPTO_LIBS"] = "-lcrypto -lz"
     ENV["PKG_CONFIG"] = "#{Formula["pkg-config"].opt_bin}/pkg-config"
 
-    system "./configure", "--prefix=#{prefix}"
+    system "./configure", *std_configure_args, "--disable-silent-rules"
     system "make", "install"
   end
 

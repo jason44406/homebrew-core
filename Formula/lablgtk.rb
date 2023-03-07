@@ -1,16 +1,25 @@
 class Lablgtk < Formula
   desc "Objective Caml interface to gtk+"
   homepage "http://lablgtk.forge.ocamlcore.org"
-  url "https://github.com/garrigue/lablgtk/archive/2.18.11.tar.gz"
-  sha256 "ff3c551df4e220b0c0fb9a3da6429413bff14f8fc93f4dd6807a35463982c863"
+  url "https://github.com/garrigue/lablgtk/archive/2.18.12.tar.gz"
+  sha256 "43b2640b6b6d6ba352fa0c4265695d6e0b5acb8eb1da17290493e99ae6879b18"
   license "LGPL-2.1"
+  revision 1
 
   bottle do
-    cellar :any
-    sha256 "5b78b8453ba24346aa344c059f2fecf115818e84c61d688164d423de5b0351be" => :catalina
-    sha256 "2e0cfbc7bbb653c2f757de7847712a0fb334f404225f1c1836266ae67c253844" => :mojave
-    sha256 "1d8a6f6da14b92e38b4fe9c999c43ae05ee3d355c58d77ef6ad04161004a7880" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any, arm64_ventura:  "7cb01bef4d60ce7f596ad6f3adc5923d749ead4b59588b543138b1f66b74a2a6"
+    sha256 cellar: :any, arm64_monterey: "2c21ec6b8830ee50288760db11028d09ae3b044f3c13b88ff994d4216b1f0ed9"
+    sha256 cellar: :any, arm64_big_sur:  "65cfbb0af55509b9b7510f326f5b88f63f9d3a3df0977d93f065d9ef043c7425"
+    sha256 cellar: :any, ventura:        "2201dac36a46692e3528faeb8b13bddbf211bac47751ee78a129292eb6a48e51"
+    sha256 cellar: :any, monterey:       "1e26236878d78e09830714ac7367843aa0de50aaee48946958dbb795e6d27e2e"
+    sha256 cellar: :any, big_sur:        "b934fef88127a297467f7dcb144fe7e3c60d169da70c45e7ac63cccf03dc2a6e"
+    sha256               x86_64_linux:   "1e5f02345d7be4fdfa1ab57097b866248c0e9f8465f751a526909870cbeb926b"
   end
+
+  # GTK 2 is EOL: https://blog.gtk.org/2020/12/16/gtk-4-0/
+  # GTK 3 supported package is named `lablgtk3` so may be better as separate formula
+  deprecate! date: "2023-01-18", because: :unmaintained
 
   depends_on "pkg-config" => :build
   depends_on "gtk+"
@@ -34,7 +43,7 @@ class Lablgtk < Formula
         GtkMain.Main.init ()
     EOS
     ENV["CAML_LD_LIBRARY_PATH"] = "#{lib}/ocaml/stublibs"
-    system "ocamlc", "-I", "#{opt_lib}/ocaml/lablgtk2", "lablgtk.cma", "gtkInit.cmo", "test.ml", "-o", "test",
+    cclibs = [
       "-cclib", "-latk-1.0",
       "-cclib", "-lcairo",
       "-cclib", "-lgdk-quartz-2.0",
@@ -44,9 +53,13 @@ class Lablgtk < Formula
       "-cclib", "-lgobject-2.0",
       "-cclib", "-lgtk-quartz-2.0",
       "-cclib", "-lgtksourceview-2.0",
-      "-cclib", "-lintl",
       "-cclib", "-lpango-1.0",
       "-cclib", "-lpangocairo-1.0"
-    system "./test"
+    ]
+    cclibs += ["-cclib", "-lintl"] if OS.mac?
+    system "ocamlc", "-I", "#{opt_lib}/ocaml/lablgtk2", "lablgtk.cma", "gtkInit.cmo", "test.ml",
+           "-o", "test", *cclibs
+    # Disable this part of the test because display is not available on Linux.
+    system "./test" if OS.mac?
   end
 end

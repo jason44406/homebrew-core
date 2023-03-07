@@ -1,22 +1,28 @@
 class Faad2 < Formula
   desc "ISO AAC audio decoder"
-  homepage "https://www.audiocoding.com/faad2.html"
-  url "https://downloads.sourceforge.net/project/faac/faad2-src/faad2-2.8.0/faad2-2.8.8.tar.gz"
-  sha256 "985c3fadb9789d2815e50f4ff714511c79c2710ac27a4aaaf5c0c2662141426d"
+  homepage "https://sourceforge.net/projects/faac/"
+  url "https://github.com/knik0/faad2/archive/refs/tags/2.10.1.tar.gz"
+  sha256 "4c16c71295ca0cbf7c3dfe98eb11d8fa8d0ac3042e41604cfd6cc11a408cf264"
+  license "GPL-2.0-or-later"
 
   bottle do
-    cellar :any
-    sha256 "f12e1d6b2b8bb7e49bbb681711c5da2a45ad7d3957c72105ab6b13c194d9e33d" => :catalina
-    sha256 "a896f898d36455dbb65b19efcc1f574be76c22dca981e3361be08ef234fd6e5d" => :mojave
-    sha256 "e8872363a2fda9a3c9872ef697e517c638e54e2af5238d9e94b30e34ecdc505e" => :high_sierra
-    sha256 "f05989cbd9630fc37c962fc28ff29ec48a5fa7b71fe4ff9e520db6add1d0f09e" => :sierra
-    sha256 "94205432c0187c2ccef411b05934b8db57512bd80b53c8f9c00f3792ee478684" => :el_capitan
+    sha256 cellar: :any,                 arm64_ventura:  "be936a4a08251f0d708e5a470d4af401a5b0f683dc0cb82fc428b29e9d3754ca"
+    sha256 cellar: :any,                 arm64_monterey: "ed24e5dd89144695008089fc3f8de7031db3906cd64391e99eb67ba440056dad"
+    sha256 cellar: :any,                 arm64_big_sur:  "90f7a0219e6f512686cb37c39c7436c3572d19822c5687dfe6244a4deea1bc4a"
+    sha256 cellar: :any,                 ventura:        "555671b7420b43ac310ff7a5a135bc122a66a848cd7c903b66afef51189506d6"
+    sha256 cellar: :any,                 monterey:       "b749443a3607f7c18ac3dce49432d684f0446df8bc21173ab89b280bedaa5d7d"
+    sha256 cellar: :any,                 big_sur:        "23ce45f3f6c3fc6959e0b09595e129411d8b45443888a1f1c272f5645805cca1"
+    sha256 cellar: :any,                 catalina:       "9ff6536a2a0fa6b561750fa3d8886192de865edad71029e4ad68a27af18abe4b"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "300156e7a30d3e2b449f78f6671d1769f559a659241a55d9f074c8026193ab99"
   end
 
+  depends_on "autoconf" => :build
+  depends_on "automake" => :build
+  depends_on "libtool" => :build
+
   def install
-    system "./configure", "--disable-dependency-tracking",
-                          "--disable-silent-rules",
-                          "--prefix=#{prefix}"
+    system "./bootstrap"
+    system "./configure", *std_configure_args
     system "make", "install"
   end
 

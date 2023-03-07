@@ -1,16 +1,25 @@
 class GitSubrepo < Formula
   desc "Git Submodule Alternative"
   homepage "https://github.com/ingydotnet/git-subrepo"
-  url "https://github.com/ingydotnet/git-subrepo/archive/0.4.1.tar.gz"
-  sha256 "64cc2490c54fe1e5396bb14f6bbf0aa8378085f3b8847fd8ed171e5ddd886065"
+  url "https://github.com/ingydotnet/git-subrepo/archive/0.4.5.tar.gz"
+  sha256 "bb2f139222cfecb85fe9983cd8f9d572942f60097d6d736e2e6b01d1292e0a8a"
   license "MIT"
-  head "https://github.com/ingydotnet/git-subrepo.git"
+  head "https://github.com/ingydotnet/git-subrepo.git", branch: "master"
+
+  livecheck do
+    url :stable
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "499beadca28680001847d8ee797f15595b629017a4b434e775ae4d3309277002" => :catalina
-    sha256 "499beadca28680001847d8ee797f15595b629017a4b434e775ae4d3309277002" => :mojave
-    sha256 "499beadca28680001847d8ee797f15595b629017a4b434e775ae4d3309277002" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "1a39768821ddd16240f8a467ef1a90b4e59ad609ae14f36ea4dedc81438ac8cf"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "1a39768821ddd16240f8a467ef1a90b4e59ad609ae14f36ea4dedc81438ac8cf"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "1a39768821ddd16240f8a467ef1a90b4e59ad609ae14f36ea4dedc81438ac8cf"
+    sha256 cellar: :any_skip_relocation, ventura:        "1980304e4b65652e9ffd9b211844698ecf19b5a963819616681733fb98302b3a"
+    sha256 cellar: :any_skip_relocation, monterey:       "1980304e4b65652e9ffd9b211844698ecf19b5a963819616681733fb98302b3a"
+    sha256 cellar: :any_skip_relocation, big_sur:        "1980304e4b65652e9ffd9b211844698ecf19b5a963819616681733fb98302b3a"
+    sha256 cellar: :any_skip_relocation, catalina:       "1980304e4b65652e9ffd9b211844698ecf19b5a963819616681733fb98302b3a"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "1a39768821ddd16240f8a467ef1a90b4e59ad609ae14f36ea4dedc81438ac8cf"
   end
 
   depends_on "bash"
@@ -19,11 +28,6 @@ class GitSubrepo < Formula
     libexec.mkpath
     system "make", "PREFIX=#{prefix}", "INSTALL_LIB=#{libexec}", "install"
     bin.install_symlink libexec/"git-subrepo"
-
-    # Remove test for $GIT_SUBREPO_ROOT in completion script
-    # https://github.com/ingydotnet/git-subrepo/issues/183
-    inreplace "share/zsh-completion/_git-subrepo",
-              /^if [[ -z $GIT_SUBREPO_ROOT ]].*?^fi$/m, ""
 
     mv "share/completion.bash", "share/git-subrepo"
     bash_completion.install "share/git-subrepo"

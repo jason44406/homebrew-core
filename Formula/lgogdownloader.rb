@@ -1,15 +1,25 @@
 class Lgogdownloader < Formula
   desc "Unofficial downloader for GOG.com games"
   homepage "https://sites.google.com/site/gogdownloader/"
-  url "https://sites.google.com/site/gogdownloader/lgogdownloader-3.7.tar.gz"
-  sha256 "984859eb2e0802cfe6fe76b1fe4b90e7354e95d52c001b6b434e0a9f5ed23bf0"
-  revision 2
+  url "https://github.com/Sude-/lgogdownloader/releases/download/v3.9/lgogdownloader-3.9.tar.gz"
+  sha256 "d0b3b6198e687f811294abb887257c5c28396b5af74c7f3843347bf08c68e3d0"
+  license "WTFPL"
+  revision 3
+  head "https://github.com/Sude-/lgogdownloader.git", branch: "master"
+
+  livecheck do
+    url :homepage
+    regex(/href=.*?lgogdownloader[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "88fff1ac2d05e20e302ad14f31ac73871b3ff26d2b54c781da39dc0a97f4cd52" => :catalina
-    sha256 "76aea029305b9895f01a1caf899323f728a9a97c3c7274c8574ad3acd83b00e7" => :mojave
-    sha256 "82185cd04819b89b35d6b7736c75fb07d12edb269ba08d7df7bfa2a15000d040" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "5b7309454be5bb9ebcf3d0e8406b7f443e7abb71f2b49bdc7e08bc5aa32e3d49"
+    sha256 cellar: :any,                 arm64_monterey: "cf59cafe7b2b7c27613daef308d55ccae6727cd71d2627bfdbb309bbfb244166"
+    sha256 cellar: :any,                 arm64_big_sur:  "e2b28d2bde8295b152315d22445fafc85eaebad79288d32340212909f2f8c598"
+    sha256 cellar: :any,                 ventura:        "0b31fd256677a4ebb84474367c3a8faaf6fee81e0d49148855daddb9707543af"
+    sha256 cellar: :any,                 monterey:       "21d77cf72d41e155c7afa10bd1907c611aee00c640c6bf37c2b11dec882d179e"
+    sha256 cellar: :any,                 big_sur:        "0bfd430cabfaeaa893e3a6733f7193832d61e34a991e346c0db8097347d9c181"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "c9b780d368e3deeac346ed9e580fd9758bb3c897a5e93ff7b11f93111dedb659"
   end
 
   depends_on "cmake" => :build
@@ -21,6 +31,8 @@ class Lgogdownloader < Formula
   depends_on "liboauth"
   depends_on "rhash"
   depends_on "tinyxml2"
+
+  uses_from_macos "curl"
 
   def install
     system "cmake", ".", *std_cmake_args, "-DJSONCPP_INCLUDE_DIR=#{Formula["jsoncpp"].opt_include}"
@@ -38,7 +50,13 @@ class Lgogdownloader < Formula
       secret
     EOS
     writer.close
-    assert_equal "HTTP: Login failed", reader.read.lines.last.chomp
+    lastline = ""
+    begin
+      reader.each_line { |line| lastline = line }
+    rescue Errno::EIO
+      # GNU/Linux raises EIO when read is done on closed pty
+    end
+    assert_equal "HTTP: Login failed", lastline.chomp
     reader.close
   end
 end

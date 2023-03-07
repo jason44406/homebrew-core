@@ -1,37 +1,54 @@
 class Dpkg < Formula
   desc "Debian package management system"
   homepage "https://wiki.debian.org/Teams/Dpkg"
-  # Please always keep the Homebrew mirror as the primary URL as the
+  # Please use a mirror as the primary URL as the
   # dpkg site removes tarballs regularly which means we get issues
   # unnecessarily and older versions of the formula are broken.
-  url "https://dl.bintray.com/homebrew/mirror/dpkg-1.20.5.tar.xz"
-  mirror "https://deb.debian.org/debian/pool/main/d/dpkg/dpkg_1.20.5.tar.xz"
-  sha256 "f2f23f3197957d89e54b87cf8fc42ab00e1b74f3a32090efe9acd08443f3e0dd"
-  license "GPL-2.0"
+  url "https://deb.debian.org/debian/pool/main/d/dpkg/dpkg_1.21.21.tar.xz"
+  sha256 "985073817aa0512122f1a7e77598a6b0be168d6c71ac56a3383927eb0813e089"
+  license "GPL-2.0-only"
+
+  livecheck do
+    url "https://deb.debian.org/debian/pool/main/d/dpkg/"
+    regex(/href=.*?dpkg[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    sha256 "32ae6083fd4207f4cecd58087b68afc43a22d6020bd7a89184a0af20ecc9a2fb" => :catalina
-    sha256 "ec0d8e85f436bc6394de1f261c1c0e791ed72797d7ae20e6fb8f1cda016a7b43" => :mojave
-    sha256 "483c5e48a18dd401638399670aff9fd1a2800a243a37f208235777e9fc140986" => :high_sierra
+    sha256 arm64_ventura:  "97d9ced4de6aaa94c5b67ad734c8f8eeac862e226f9eee19a67b0832576de84c"
+    sha256 arm64_monterey: "7fc0c8d6bb7d3fbc9ed3c81eb64807aa4fb69ea1af9a2dc496c88628a4f5f0b2"
+    sha256 arm64_big_sur:  "ff4b8d5dc01021e0b9c0b008183e781deac816fba7a11089e457ba7af2b92ad3"
+    sha256 ventura:        "73bfb0beab763c40e4a1cfd2e98c955cbfbc551d843f34dacdcc3eefe25b2181"
+    sha256 monterey:       "6d8b10fc5c2a3237963bea8da8df81cee7df7a00643b43cf9493fe53b54340d7"
+    sha256 big_sur:        "da95dd886913de7ecbff3b8c4a53cd51c6c8358f2fad98a0354d993c63081df5"
+    sha256 x86_64_linux:   "64fa09b2550a07aee3279ed5a9395c70c604062809a952c05f47a366b4e7eb64"
   end
 
   depends_on "pkg-config" => :build
+  depends_on "po4a" => :build
   depends_on "gettext"
   depends_on "gnu-tar"
   depends_on "gpatch"
+  depends_on "libmd" # for md5.h
   depends_on "perl"
-  depends_on "po4a"
   depends_on "xz" # For LZMA
 
   uses_from_macos "bzip2"
   uses_from_macos "zlib"
+
+  on_linux do
+    keg_only "not linked to prevent conflicts with system dpkg"
+  end
 
   patch :DATA
 
   def install
     # We need to specify a recent gnutar, otherwise various dpkg C programs will
     # use the system "tar", which will fail because it lacks certain switches.
-    ENV["TAR"] = Formula["gnu-tar"].opt_bin/"gtar"
+    ENV["TAR"] = if OS.mac?
+      Formula["gnu-tar"].opt_bin/"gtar"
+    else
+      Formula["gnu-tar"].opt_bin/"tar"
+    end
 
     # Since 1.18.24 dpkg mandates the use of GNU patch to prevent occurrences
     # of the CVE-2017-8283 vulnerability.

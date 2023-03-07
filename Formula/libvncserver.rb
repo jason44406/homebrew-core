@@ -1,36 +1,42 @@
 class Libvncserver < Formula
   desc "VNC server and client libraries"
   homepage "https://libvnc.github.io"
-  url "https://github.com/LibVNC/libvncserver/archive/LibVNCServer-0.9.13.tar.gz"
-  sha256 "0ae5bb9175dc0a602fe85c1cf591ac47ee5247b87f2bf164c16b05f87cbfa81a"
-  license "GPL-2.0"
+  url "https://github.com/LibVNC/libvncserver/archive/LibVNCServer-0.9.14.tar.gz"
+  sha256 "83104e4f7e28b02f8bf6b010d69b626fae591f887e949816305daebae527c9a5"
+  license "GPL-2.0-or-later"
+  revision 1
+  head "https://github.com/LibVNC/libvncserver.git", branch: "master"
+
+  livecheck do
+    url :stable
+    regex(/^LibVNCServer[._-]v?(\d+(?:\.\d+)+)$/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "c667ff09ee40d2ab0e8db25a51697ae62edd14496c1075f07015bf0ed372695e" => :catalina
-    sha256 "7e5799814cd2077d39c8d4c95806fa23c408d8a26c92140ba64f852b6a53567f" => :mojave
-    sha256 "f331a9fc3ba043f0febe78df7551630a5a28f9adb362a58384901192476dff89" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "5212065cfd69a225a5daa89fe45a7677d2a2716970f69d7015b4206b6b90b633"
+    sha256 cellar: :any,                 arm64_monterey: "44455a6842335f99c4722e9fb89da75c1ce7af49778ee66bb08670e3ece665ab"
+    sha256 cellar: :any,                 arm64_big_sur:  "fb8f83791e2207e227b625710686602862a6fd9cd8ca88940e6c21a63fdd9435"
+    sha256 cellar: :any,                 ventura:        "fce52496a16dacb10b307481ce5faff96613aa9329cb63850f7f05be37909d79"
+    sha256 cellar: :any,                 monterey:       "35af138621f6415eec78d4e2e6e2f8bc5f74dd22bf38cb0f3c34fd2bd32c84df"
+    sha256 cellar: :any,                 big_sur:        "2f83240c0b85bdcf83c84cc6ba18ab00c8eb097520eea08133df3ab1d3c91ad9"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "96d783c095df406689824ecfdcb6ee757526b6a5cf7b7951ef268d6ee8a6243f"
   end
 
   depends_on "cmake" => :build
   depends_on "jpeg-turbo"
   depends_on "libgcrypt"
   depends_on "libpng"
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
 
   def install
-    args = std_cmake_args + %W[
-      -DJPEG_INCLUDE_DIR=#{Formula["jpeg-turbo"].opt_include}
-      -DJPEG_LIBRARY=#{Formula["jpeg-turbo"].opt_lib}/libjpeg.dylib
-      -DOPENSSL_ROOT_DIR=#{Formula["openssl@1.1"].opt_prefix}
-    ]
-
-    mkdir "build" do
-      system "cmake", "..", *args
-      system "cmake", "--build", "."
-      system "ctest", "-V"
-      system "make", "install"
-    end
+    system "cmake", "-S", ".", "-B", "build",
+                    "-DJPEG_INCLUDE_DIR=#{Formula["jpeg-turbo"].opt_include}",
+                    "-DJPEG_LIBRARY=#{Formula["jpeg-turbo"].opt_lib/shared_library("libjpeg")}",
+                    "-DOPENSSL_ROOT_DIR=#{Formula["openssl@3"].opt_prefix}",
+                    *std_cmake_args
+    system "cmake", "--build", "build"
+    system "ctest", "--test-dir", "build", "--verbose"
+    system "cmake", "--install", "build"
   end
 
   test do
@@ -45,7 +51,7 @@ class Libvncserver < Formula
     EOS
 
     system ENV.cc, "server.cpp", "-I#{include}", "-L#{lib}",
-                   "-lvncserver", "-lc++", "-o", "server"
+                   "-lvncserver", "-o", "server"
     system "./server"
   end
 end

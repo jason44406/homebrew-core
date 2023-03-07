@@ -1,62 +1,72 @@
 class Teleport < Formula
   desc "Modern SSH server for teams managing distributed infrastructure"
   homepage "https://gravitational.com/teleport"
-  url "https://github.com/gravitational/teleport/archive/v4.3.5.tar.gz"
-  sha256 "7a4081117e4a13bfbea0d1cc64aef6e8103c360551523b2abef0971712beb5a9"
+  url "https://github.com/gravitational/teleport/archive/v12.1.0.tar.gz"
+  sha256 "b19708b41898050557e967362674d6625a9066fac6b5fad3744209cc9b3ad518"
   license "Apache-2.0"
-  head "https://github.com/gravitational/teleport.git"
+  head "https://github.com/gravitational/teleport.git", branch: "master"
+
+  # We check the Git tags instead of using the `GithubLatest` strategy, as the
+  # "latest" version can be incorrect. As of writing, two major versions of
+  # `teleport` are being maintained side by side and the "latest" tag can point
+  # to a release from the older major version.
+  livecheck do
+    url :stable
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "25f58c4d14b1276df4b957b51edebb9cfae56083f6084cc831c29ea5e79720e6" => :catalina
-    sha256 "0b5c412839bf5f27fd70a752a2a28ffd1408dc30a5dd489e2aaf1ad7275d538c" => :mojave
-    sha256 "3c5f65eb7952139861314f3a7a571b66d03defb883e963d15746d78d5926b723" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "3bbafbc0bc2b676d0853b6ce60b4882825561d41da6b0f9a0e844c3c74a8cb01"
+    sha256 cellar: :any,                 arm64_monterey: "ad41ad8dca1b4810bb3cfc428c74042b22fc1c1ed1f7c14427c0cc1c768fe5c7"
+    sha256 cellar: :any,                 arm64_big_sur:  "3d3e1cac18cd5b4b5c4b99cc9209e2334ba4d597baaefcc6f37c53d8dbd78323"
+    sha256 cellar: :any,                 ventura:        "58ff9ab53d14bfe03ba674f0fbf9134220061f696ad758b4114016d5474f17bf"
+    sha256 cellar: :any,                 monterey:       "3e0aec94b3030cb487d9bfb41f128b10f0067b17546220f839bca02c510509dd"
+    sha256 cellar: :any,                 big_sur:        "b7190d91ee064bb2f797e787332bba056e443755e01ed74aed8118edadf95b08"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "c113a3b897edad6c432d20d36410856587dc35f7742b52506a58444471d2507e"
   end
 
   depends_on "go" => :build
+  depends_on "pkg-config" => :build
+  depends_on "yarn" => :build
+  depends_on "libfido2"
+  depends_on "node"
 
   uses_from_macos "curl" => :test
+  uses_from_macos "netcat" => :test
   uses_from_macos "zip"
-
-  on_linux do
-    depends_on "netcat" => :test
-  end
 
   conflicts_with "etsh", because: "both install `tsh` binaries"
 
-  resource "webassets" do
-    url "https://github.com/gravitational/webassets/archive/72412062d6d55ec7faa9707abf500d703e7d09da.tar.gz"
-    sha256 "c84767bea0a723f406e3b6566a0a48892758b2e5f3a9e9b453d22171315fd29d"
-  end
-
   def install
-    ENV["GOPATH"] = buildpath
-    ENV["GOROOT"] = Formula["go"].opt_libexec
-
-    (buildpath/"webassets").install resource("webassets")
-    (buildpath/"src/github.com/gravitational/teleport").install buildpath.children
-    cd "src/github.com/gravitational/teleport" do
-      ENV.deparallelize { system "make", "full" }
-      bin.install Dir["build/*"]
-    end
+    ENV.deparallelize { system "make", "full", "FIDO2=dynamic" }
+    bin.install Dir["build/*"]
   end
 
   test do
     assert_match version.to_s, shell_output("#{bin}/teleport version")
-    (testpath/"config.yml").write shell_output("#{bin}/teleport configure")
-      .gsub("0.0.0.0", "127.0.0.1")
-      .gsub("/var/lib/teleport", testpath)
-      .gsub("/var/run", testpath)
-      .gsub(/https_(.*)/, "")
-    begin
-      pid = spawn("#{bin}/teleport start -c #{testpath}/config.yml")
-      sleep 5
-      system "/usr/bin/curl", "--insecure", "https://localhost:3080"
-      system "/usr/bin/nc", "-z", "localhost", "3022"
-      system "/usr/bin/nc", "-z", "localhost", "3023"
-      system "/usr/bin/nc", "-z", "localhost", "3025"
-    ensure
-      Process.kill(9, pid)
+    assert_match version.to_s, shell_output("#{bin}/tsh version")
+    assert_match version.to_s, shell_output("#{bin}/tctl version")
+
+    mkdir testpath/"data"
+    (testpath/"config.yml").write <<~EOS
+      version: v2
+      teleport:
+        nodename: testhost
+        data_dir: #{testpath}/data
+        log:
+          output: stderr
+          severity: WARN
+    EOS
+
+    fork do
+      exec "#{bin}/teleport start --roles=proxy,node,auth --config=#{testpath}/config.yml"
     end
+
+    sleep 10
+    system "curl", "--insecure", "https://localhost:3080"
+
+    status = shell_output("#{bin}/tctl --config=#{testpath}/config.yml status")
+    assert_match(/Cluster\s*testhost/, status)
+    assert_match(/Version\s*#{version}/, status)
   end
 end

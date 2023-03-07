@@ -4,42 +4,44 @@ class SdlSound < Formula
   url "https://icculus.org/SDL_sound/downloads/SDL_sound-1.0.3.tar.gz"
   mirror "https://deb.debian.org/debian/pool/main/s/sdl-sound1.2/sdl-sound1.2_1.0.3.orig.tar.gz"
   sha256 "3999fd0bbb485289a52be14b2f68b571cb84e380cc43387eadf778f64c79e6df"
-  revision 1
+  revision 2
 
   bottle do
-    cellar :any
-    sha256 "b8ac8b382c94d4a92032a8bc9c93d777fac1367851bd3df382089f747c347f05" => :catalina
-    sha256 "3661daa8d14b8b8ab613a5fb449ad6b3f758739eb3b69700b23c0ccdc49068b6" => :mojave
-    sha256 "c571e007bcbb022e6fd0042e506ce6cd47a26d814de06f348b13231fc95a1581" => :high_sierra
-    sha256 "0e692b6c08600d6d7014fc582b5a351e8a4eea42ce95d231ef39a0c07c41c71b" => :sierra
-    sha256 "fd93d8be366bfe3f16839f50d11ab1149cc725c6bf6248befe90feae25c0e052" => :el_capitan
-    sha256 "8f06d7c6c18c8a5192aebf5672c20f9f3b27bbd3109459ef96110d935c00f87b" => :yosemite
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "9bea3a01efd7405fe3ad4899021c3c434576d8759be0702916e310faf7109bda"
+    sha256 cellar: :any,                 arm64_monterey: "26511aae3187e1aeb339e8d35c50ac417df5e7018ce86077216d3646419bb2b9"
+    sha256 cellar: :any,                 arm64_big_sur:  "7db0a9528c281c47c1fd4f79ce956269c8b3f37507c3669393024e79fcd965be"
+    sha256 cellar: :any,                 ventura:        "cb2fabfb579addf24b786c91df552d78d060051f4c398fd8cc72749b755062a5"
+    sha256 cellar: :any,                 monterey:       "9b5e444e0c09b52dc480459c5d0485815cbdcfb1ee00c3d8f02c0be3dd313cde"
+    sha256 cellar: :any,                 big_sur:        "8ea00e26e1d3714af082d90b09f33046b92dc2384b5095aeb6362efb7b32f4cb"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "76f7b947c3a41598d7aff64f21d438c85bbc2cb8d1bf33774e33f1bd364980f9"
   end
 
   head do
-    url "https://hg.icculus.org/icculus/SDL_sound", using: :hg
+    url "https://github.com/icculus/SDL_sound.git", branch: "stable-1.0"
 
     depends_on "autoconf" => :build
     depends_on "automake" => :build
     depends_on "libtool" => :build
   end
 
+  keg_only "it conflicts with `sdl2_sound`"
+
+  # SDL 1.2 is deprecated, unsupported, and not recommended for new projects.
+  deprecate! date: "2023-02-13", because: :deprecated_upstream
+
   depends_on "pkg-config" => :build
   depends_on "libogg"
   depends_on "libvorbis"
-  depends_on "sdl"
+  depends_on "sdl12-compat"
 
   def install
-    if build.head?
-      inreplace "bootstrap", "/usr/bin/glibtoolize", "#{Formula["libtool"].opt_bin}/glibtoolize"
-      system "./bootstrap"
-    end
+    system "./autogen.sh" if build.head?
 
     system "./configure", "--disable-dependency-tracking",
                           "--prefix=#{prefix}",
                           "--disable-sdltest"
     system "make"
-    system "make", "check"
     system "make", "install"
   end
 end

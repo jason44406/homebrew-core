@@ -2,16 +2,25 @@ class CfrDecompiler < Formula
   desc "Yet Another Java Decompiler"
   homepage "https://www.benf.org/other/cfr/"
   url "https://github.com/leibnitz27/cfr.git",
-      tag:      "0.150",
-      revision: "1361cd7fa74f25f30a6bbf72c825d83647d2cdaf"
+      tag:      "0.152",
+      revision: "68477be3ff7171ee17ddd1a26064b9b253f1604f"
   license "MIT"
-  head "https://github.com/leibnitz27/cfr.git"
+  head "https://github.com/leibnitz27/cfr.git", branch: "master"
+
+  livecheck do
+    url :homepage
+    regex(/href=.*?cfr[._-]v?(\d+(?:\.\d+)+)\.jar/i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "05d1bff6093077a4f9789606c7b8d77d26f66f341aa491a9412da3e85669c932" => :catalina
-    sha256 "0235b4a3204736079b3790db8de5bb02f99162318bff390aea45168f2bd1ea48" => :mojave
-    sha256 "c6866f8e6b6c8e849936d2b5a45c3827dda9acacfe49ca2e831041e633617ac5" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "f7759d5fd2f4f74e7d467314638779081b4d5da9e17ec4fb571b6e762ba6e7e9"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "f0860e5883c6453777bcb7dfa447f99639c3bebfc281baa83ba31fca83f0d80a"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "87ac8a8345d70e1a9c7e6d8f5d0c6d2c53f41d54c4099895d3133dace7fd19fc"
+    sha256 cellar: :any_skip_relocation, ventura:        "64800a8949222ab780a6d37a7d5407ff70b5818a5ea5804a05855d7585f7da2b"
+    sha256 cellar: :any_skip_relocation, monterey:       "e8cbec43262bb913ebc307a19fddaf983ac149fdc32fd3cf09da6c1585afbf50"
+    sha256 cellar: :any_skip_relocation, big_sur:        "bb5d9c8ecdeef4e8e950d8b752f85dceb8cd4cf4b97b538f62d63be5c8ed7dff"
+    sha256 cellar: :any_skip_relocation, catalina:       "31565bced5fabda93b658abf71ef43c2a5658c02ae226e385373001dba6503f8"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "9dc91498cbc8dbaacfed2b9c33aa0e8a290322ea108e4649c977cf8d7b17956e"
   end
 
   depends_on "maven" => :build
@@ -31,7 +40,7 @@ class CfrDecompiler < Formula
       if build.head?
         lib_jar = Dir["cfr-*-SNAPSHOT.jar"]
         doc_jar = Dir["cfr-*-SNAPSHOT-javadoc.jar"]
-        odie "Unexpected number of artifacts!" unless (lib_jar.length == 1) && (doc_jar.length == 1)
+        odie "Unexpected number of artifacts!" if (lib_jar.length != 1) || (doc_jar.length != 1)
         lib_jar = lib_jar[0]
         doc_jar = doc_jar[0]
       else
@@ -59,11 +68,14 @@ class CfrDecompiler < Formula
 
   test do
     fixture = <<~EOS
+      /*
+       * Decompiled with CFR #{version}.
+       */
       class T {
           T() {
           }
 
-          public static void main(String[] arrstring) {
+          public static void main(String[] stringArray) {
               System.out.println("Hello brew!");
           }
       }

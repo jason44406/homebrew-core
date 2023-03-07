@@ -1,25 +1,41 @@
 class Minicom < Formula
   desc "Menu-driven communications program"
   homepage "https://packages.debian.org/sid/minicom"
-  url "https://deb.debian.org/debian/pool/main/m/minicom/minicom_2.7.1.orig.tar.gz"
-  sha256 "532f836b7a677eb0cb1dca8d70302b73729c3d30df26d58368d712e5cca041f1"
+  url "https://deb.debian.org/debian/pool/main/m/minicom/minicom_2.8.orig.tar.bz2"
+  sha256 "38cea30913a20349326ff3f1763ee1512b7b41601c24f065f365e18e9db0beba"
+  license "GPL-2.0-or-later"
+
+  livecheck do
+    url "https://deb.debian.org/debian/pool/main/m/minicom/"
+    regex(/href=.*?minicom[._-]v?(\d+(?:\.\d+)+)\.orig\.t/i)
+  end
 
   bottle do
-    sha256 "9a95136e2a0176a25874a996fd93ff2e77da00b17e450fc532c85bbdc80edfd3" => :catalina
-    sha256 "77cc043be40a99634caa99d5f309741d85309fed07c1c21f313c6d99c4732966" => :mojave
-    sha256 "ec4beca9c9816db86a3bb7a11d7507fe0740feb62461341232a425a5156cd4a1" => :high_sierra
-    sha256 "63584b5ee8463dfb6cef69ad32308c51a4e83778dd44b80fc4c1e7c40cb48b2e" => :sierra
-    sha256 "820aae10f1c298350f51f7571d4d6becb4b0cfc876fb77126ea1e43bec8466e4" => :el_capitan
-    sha256 "5f17b6f15c2417acbda3a91b64f7df166b29fd2389adc52f011e2541f1fdbcb9" => :yosemite
+    sha256 arm64_ventura:  "2846c9012370f9e0d674adddb25fb5ade25175bc3c09f4e3e5c458ff958bf58c"
+    sha256 arm64_monterey: "12256c7a67eeb793ee71b419a2319c80038bf20b24a583a9f09ba36dc9c5b75e"
+    sha256 arm64_big_sur:  "396aa4bed62d6a9162d061ff1b97a1c5fe25e5a890141d4f39c1849564e3521f"
+    sha256 ventura:        "e54b71e10799dd92bd3bf337a9a0ccab6d6fc6b3f93b119652dc05b48bad0fda"
+    sha256 monterey:       "e0b91adbcbaa88015cc339c7a9cd9b7f02c155b392229a93ece0baf48d798cff"
+    sha256 big_sur:        "ac0a7c58888a3eeb78bbc24d8a47fa707d7e3761c4b28f46527434d49e254b55"
+    sha256 catalina:       "9cee8e5839a3e19aa732307ee70246b1567ddc3a643ef39aa91b6d888301f6e5"
+    sha256 mojave:         "e2b702dec206101120ce947ca2a999c9f5fe7e8c62f95b65091146b865acb268"
+    sha256 x86_64_linux:   "7d1b0aae1f169968d42e4dea644dff5a4f18010b59b334439aa2bd276c6e913a"
   end
+
+  head do
+    url "https://salsa.debian.org/minicom-team/minicom.git", branch: "master"
+    depends_on "autoconf" => :build
+    depends_on "automake" => :build
+  end
+
+  uses_from_macos "ncurses"
 
   def install
     # There is a silly bug in the Makefile where it forgets to link to iconv. Workaround below.
-    ENV["LIBS"] = "-liconv"
+    ENV["LIBS"] = "-liconv" if OS.mac?
 
-    system "./configure", "--disable-dependency-tracking",
-                          "--prefix=#{prefix}",
-                          "--mandir=#{man}"
+    system "./autogen.sh" if build.head?
+    system "./configure", *std_configure_args, "--mandir=#{man}"
     system "make", "install"
 
     (prefix/"etc").mkdir

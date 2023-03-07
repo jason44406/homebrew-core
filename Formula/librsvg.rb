@@ -1,14 +1,27 @@
 class Librsvg < Formula
   desc "Library to render SVG files using Cairo"
   homepage "https://wiki.gnome.org/Projects/LibRsvg"
-  url "https://download.gnome.org/sources/librsvg/2.48/librsvg-2.48.8.tar.xz"
-  sha256 "f480a325bbdf26d1874eb6fb330ebc5920ba64e3e08de61931bb4506dfef2692"
-  license "LGPL-2.1"
+  url "https://download.gnome.org/sources/librsvg/2.55/librsvg-2.55.1.tar.xz"
+  sha256 "6baf48a9d3a56fd13bbfbb9f1f76759b240b70a1fa220fd238474d66a926f98c"
+  license "LGPL-2.1-or-later"
+
+  # librsvg doesn't use GNOME's "even-numbered minor is stable" version scheme.
+  # This regex matches any version that doesn't have a 90+ patch version, as
+  # those are development releases.
+  livecheck do
+    url :stable
+    regex(/librsvg[._-]v?(\d+\.\d+\.(?:\d|[1-8]\d+)(?:\.\d+)*)\.t/i)
+  end
 
   bottle do
-    sha256 "cca0be741d91cb6dc402ef77cffa673787df7e2304ec3f78bf7a1af9cecb54f3" => :catalina
-    sha256 "9c8662f8b3b9ac49c3bb16f6677b204d8758440622ecece7c180a1e118c464de" => :mojave
-    sha256 "76da5967635d2036124733b11496af9bb6b66a898a35897b5ad37c6f978c2ac3" => :high_sierra
+    sha256                               arm64_ventura:  "ab87ef72c0f3772c7073f34cd88138ae60a9a6d1da7e9200ba4f1596c0715eee"
+    sha256                               arm64_monterey: "7677c86c5a390ef740e1ecc43ed9dd5aac71942181d444d09d68420bf140cbb0"
+    sha256                               arm64_big_sur:  "94df281def54411823fae7dd450a7befd8f2bfb1d23fd02c3c75379abbf82a4f"
+    sha256                               ventura:        "31d0589c5cd74542298c0c95da64e0a8e09d2bd101dd1083d0d5fdf15cceb53a"
+    sha256                               monterey:       "a60462f0695f53a813c1c1f68a38a48fcf8d55c94ee80c6992a169bf775b0d26"
+    sha256                               big_sur:        "a8d34f5378591f386148ad96a8f6a359a525483383c4894d93791a58460490fc"
+    sha256                               catalina:       "491d993ed584eb8c4e2c7e3818ff871b38783fa6ed076233fc93d5546e55f038"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "93be523ec2aa4953ce6965abbfd46097fb73e1fe224649bcc8ea277da3c97a19"
   end
 
   depends_on "gobject-introspection" => :build
@@ -20,9 +33,6 @@ class Librsvg < Formula
   depends_on "pango"
 
   def install
-    # https://gitlab.gnome.org/GNOME/librsvg/issues/545#note_753842
-    ENV.append "LDFLAGS", "-lobjc"
-
     args = %W[
       --disable-dependency-tracking
       --prefix=#{prefix}
@@ -91,10 +101,10 @@ class Librsvg < Formula
       -lgio-2.0
       -lglib-2.0
       -lgobject-2.0
-      -lintl
       -lm
       -lrsvg-2
     ]
+    flags << "-lintl" if OS.mac?
     system ENV.cc, "test.c", "-o", "test", *flags
     system "./test"
   end

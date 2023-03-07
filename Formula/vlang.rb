@@ -1,16 +1,26 @@
 class Vlang < Formula
   desc "V programming language"
   homepage "https://vlang.io"
-  # Note: Keep this in sync with V compiler below when updating
-  url "https://github.com/vlang/v/archive/0.1.29.tar.gz"
-  sha256 "5111d04663d8454c9e8bcbd7e3544dcbd6abc54eb5034e31649417af6e8418a6"
+  # NOTE: Keep this in sync with V compiler below when updating
+  url "https://github.com/vlang/v/archive/0.2.4.tar.gz"
+  sha256 "8cdbc32fb928051ce7959dd943af3efee26bddc4ed3700a1cb365be73a306bf9"
   license "MIT"
 
+  livecheck do
+    url :stable
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
+  end
+
   bottle do
-    cellar :any_skip_relocation
-    sha256 "584ea22b4d50d0da4f08cae22b8f59f4a9fe4b789a2c070d22d0b7dc36be864a" => :catalina
-    sha256 "a67724f8d35b90f3ebc4f385bd2eb6658e340a1d38a42f7328fd545324e35935" => :mojave
-    sha256 "33a9a5f5ece4ab6088e08b5d6e4d31c34a041a5b2cc006eb5270b332c5d6ee25" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "c081325dfa17516e4d8bc5cfca8c610208c15e5d84938ca5a3a75c72a0bbca80"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "bd921f6a5fececa1d04ad1361ba19c1da4ae361b88d3862fa02f7747bb87b0cb"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "9fc0d5fea246584518fc01c59483f07ad89274c78606a70cb4623be28380f7d0"
+    sha256 cellar: :any_skip_relocation, ventura:        "664f602968c98de14dfa5f92f106c2016dc8a0517c2928336ad38e3404502940"
+    sha256 cellar: :any_skip_relocation, monterey:       "4fcb57b3de12ecd576bc4495d7446872ae68218200ec3e32c7889f59f1e8e2c2"
+    sha256 cellar: :any_skip_relocation, big_sur:        "19266863aa98b5a45d9b423db1924fd03470453ed9e5b8ca958fc4abecf6f88c"
+    sha256 cellar: :any_skip_relocation, catalina:       "60e0f440e473d751fdc8ad1704105f8c1ac870a742740d7f7335e39c47a8929f"
+    sha256 cellar: :any_skip_relocation, mojave:         "03d594231e0e381fe454dfde377062e9b1d77f1845e3863896027fc856455829"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "6a9db9337867f25273de9744c53e8956245e6c17531fde5cc57bf39520ef4763"
   end
 
   resource "vc" do
@@ -18,7 +28,7 @@ class Vlang < Formula
     # "[v:master] {short SHA of the vlang release commit} - {vlang version number}".
     # The sources of this V compiler commit need to be used here
     url "https://github.com/vlang/vc.git",
-      revision: "b01d0fcda4b55861baa4be82e307cca4834b1641"
+        revision: "fd5f57740ff6d7a8566b774318df54c2fa460f92"
   end
 
   def install

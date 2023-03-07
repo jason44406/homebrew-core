@@ -1,26 +1,31 @@
 class Lightgbm < Formula
   desc "Fast, distributed, high performance gradient boosting framework"
   homepage "https://github.com/microsoft/LightGBM"
-  url "https://github.com/microsoft/LightGBM/archive/v2.3.1.tar.gz"
-  sha256 "b2b8ed5e06be21444c4e9defd66877510d1800a650543f75bfc1b28f77745b84"
+  url "https://github.com/microsoft/LightGBM.git",
+      tag:      "v3.3.5",
+      revision: "ca035b2ee0c2be85832435917b1e0c8301d2e0e0"
   license "MIT"
 
   bottle do
-    cellar :any
-    sha256 "b8b078e8458186a058a47ba94d302dfb3688cae329112594bbbb125712c5c79a" => :catalina
-    sha256 "eefdb9c1c9749755431ac7fafc09bc9d3d31d73d6d9077f4e0a9d6d89ae4d032" => :mojave
-    sha256 "afaa412201c008a88980e9ecd9967d4ccfacdaa967229f084457e3780cba3b78" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "7d94dc1085f6834d2d38ae1d6155333d56c0862bb45a9bb51cb6fedee8d26d2d"
+    sha256 cellar: :any,                 arm64_monterey: "ae03ad63f5ae164e1cd92eda00b6af59edd4a3cbb6d1e32dafd3b4a8e7c38ace"
+    sha256 cellar: :any,                 arm64_big_sur:  "0b9a840386e5ae60ec7b0a5b727ef4bf4bc889e7fcd4d2842727d1cc2288ce4c"
+    sha256 cellar: :any,                 ventura:        "515f6e0358450ecf2b8d1980c9f95879f79a6ed4bb17f87fdc6d4603a86234fd"
+    sha256 cellar: :any,                 monterey:       "fcaab8c7cc809659bcbb7cd706fd7ce736fed68e50da11e43c4a11e53e11cd19"
+    sha256 cellar: :any,                 big_sur:        "d48012904a9b82656108d8f40101864bfe4df0fe7f05ec3695287fe4b812450f"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "780b9b26acd666842f6f031ca321a67ba9979751f19daa2c39725950e87b1f97"
   end
 
   depends_on "cmake" => :build
-  depends_on "libomp"
+
+  on_macos do
+    depends_on "libomp"
+  end
 
   def install
-    mkdir "build" do
-      system "cmake", *std_cmake_args, "-DAPPLE_OUTPUT_DYLIB=ON", ".."
-      system "make"
-      system "make", "install"
-    end
+    system "cmake", "-S", ".", "-B", "build", *std_cmake_args, "-DAPPLE_OUTPUT_DYLIB=ON"
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
     pkgshare.install "examples"
   end
 

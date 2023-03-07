@@ -1,28 +1,27 @@
-require "language/haskell"
-
 class Texmath < Formula
-  include Language::Haskell::Cabal
-
   desc "Haskell library for converting LaTeX math to MathML"
   homepage "https://johnmacfarlane.net/texmath.html"
-  url "https://hackage.haskell.org/package/texmath-0.12.0.2/texmath-0.12.0.2.tar.gz"
-  sha256 "2fec285a2266e56bba17914c122045f31b38de3efcd202dcf32a4f8b830bd184"
-  license "GPL-2.0"
+  url "https://hackage.haskell.org/package/texmath-0.12.6/texmath-0.12.6.tar.gz"
+  sha256 "6fc38a9e876650e3466e4167f7aa5242fbbe5a5f636528af1d6e607da913fe98"
+  license "GPL-2.0-or-later"
+  head "https://github.com/jgm/texmath.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "5d87a2122991899db8297059dad21aef07d3d74f21659ffb49387b4f8d5f7670" => :catalina
-    sha256 "76ee2dc264cb8697ceb21c7a52132af5fd2fa46c1340055e7e778a98047cf807" => :mojave
-    sha256 "c73f655501e17551219bf6bd028aedaa09b40464b3706db4d1a0d12b673c824e" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "9218cbb4dee29a13455b7fabe79be153b26fcada3a9c16f612cac20514d66fd2"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "7fae42feba2ef59284fb037baf2cbe62bd8832bca0a69c6d0c7de263014b4615"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "af950c39d0f977e1416185f9285db85c993dba170622cb033c3b79ca4e3f1fa9"
+    sha256 cellar: :any_skip_relocation, ventura:        "94dd539ab8a939fe2abd94b930c9b53e2348ab43351c72eb20495abcef033a89"
+    sha256 cellar: :any_skip_relocation, monterey:       "ae03f1c26d684b8f385966ec3917729c1be50f1eaa27af8146eedc144ed62f80"
+    sha256 cellar: :any_skip_relocation, big_sur:        "552ad82f0a98f93e5c1e4f5962701b0d4d63d19d4f6f0f243046156990c0a2d7"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "89f39d3b4a56e86ecc23777744f53f5ee287dd8566a0743ec3f197be3edeca80"
   end
 
   depends_on "cabal-install" => :build
   depends_on "ghc" => :build
 
   def install
-    install_cabal_package "--enable-tests", flags: ["executable"] do
-      system "cabal", "test"
-    end
+    system "cabal", "v2-update"
+    system "cabal", "v2-install", *std_cabal_v2_args, "-fexecutable"
   end
 
   test do

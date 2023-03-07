@@ -2,26 +2,28 @@ class Zydis < Formula
   desc "Fast and lightweight x86/x86_64 disassembler library"
   homepage "https://zydis.re"
   url "https://github.com/zyantific/zydis.git",
-    tag:      "v3.1.0",
-    revision: "bfee99f49274a0eec3ffea16ede3a5bda9cda88f",
-    shallow:  false
+      tag:      "v4.0.0",
+      revision: "1ba75aeefae37094c7be8eba07ff81d4fe0f1f20"
   license "MIT"
-  head "https://github.com/zyantific/zydis.git"
+  head "https://github.com/zyantific/zydis.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "ceffe3459006c374498e06809f8d75e9f512d5a43482d9b4d3973bbe4b2e3944" => :catalina
-    sha256 "a51c744f89ed204c66e0699a960a3c58625a5f46f16f3710e68a4746bbc0fb7e" => :mojave
-    sha256 "cefab7b097b79ae4c04616c235e572ffc5416296eba2a10bd7b07c6f18148313" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "b70bb8aec9d6f049046a37de51972c220408f747dde8881bddde7006f54d4371"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "151c4579826dace15babff8ee96994a477927c84dcf0345064c4af5e6f796fd1"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "cfda85213ebb2135914d60fb36c82f401ee463f8adb6142a6e5d8a930724f3f8"
+    sha256 cellar: :any_skip_relocation, ventura:        "fef2143f964ad8a5ffba4e7ba1c1905060bb312f94a7832042ab54c98c0936a6"
+    sha256 cellar: :any_skip_relocation, monterey:       "a22ba879337f31e0f67b0938567b80e6c84c6db2fdfb4b6024399029862bebe5"
+    sha256 cellar: :any_skip_relocation, big_sur:        "6bfc2b206264de685d541f6f83c735d2dc1e98bf854884415b07e7cc23eba8c9"
+    sha256 cellar: :any_skip_relocation, catalina:       "01e219ba0e015f596bcd44ebec6a1b9311b3db6108db23ab9329ffb32bde08b4"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "70750d47ee38a79417d6a490ac7ee63c7e66911f29d185698e7467ab730da8bf"
   end
 
   depends_on "cmake" => :build
 
   def install
-    mkdir "build" do
-      system "cmake", "..", *std_cmake_args
-      system "make", "install"
-    end
+    system "cmake", "-S", ".", "-B", "build", *std_cmake_args
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
   end
 
   test do

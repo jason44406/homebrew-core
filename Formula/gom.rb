@@ -3,29 +3,35 @@ class Gom < Formula
   homepage "https://wiki.gnome.org/Projects/Gom"
   url "https://download.gnome.org/sources/gom/0.4/gom-0.4.tar.xz"
   sha256 "68d08006aaa3b58169ce7cf1839498f45686fba8115f09acecb89d77e1018a9d"
-  revision 1
+  revision 3
 
   bottle do
-    cellar :any
-    sha256 "2d41e90512e737bfd112ba64278fda9c0dbaf1ab7dbd00732ed6ebb644da31e0" => :catalina
-    sha256 "619f71c318e02d8c33e4d827aedfaad09d6f349d92408bb9a40097dba99eb65e" => :mojave
-    sha256 "7566dd0ded406861960ebd556ce0d7f7e6e48eac4e72ab88aa9934d554ad638b" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any, arm64_ventura:  "1db9a445a9ca871063b486b13569c1d40294fbc61bce2830b92bb464454a88fd"
+    sha256 cellar: :any, arm64_monterey: "b0d9c5cdb6be395f3a219b0a507a33083af49b45d67b09f53fd2a1f1854bd974"
+    sha256 cellar: :any, arm64_big_sur:  "177ec20f055b4dd60a520964535dda64c7ee7b398b01659b61b9c23044b0ff89"
+    sha256 cellar: :any, ventura:        "9e4fbb963c63ea9ce7eb29bcc44b92c0190bd0a4acdb33dce184cf25835ad7a7"
+    sha256 cellar: :any, monterey:       "8f54d9de185474a26c57d6252ded258e5964e51e4577409ab9dffa23c11d9f44"
+    sha256 cellar: :any, big_sur:        "ecf4e4b467ea8911a19be1f22291ca193e7733490a1dcce5641becc10979a63b"
+    sha256               x86_64_linux:   "985855caecd2a4af195101d0bf98fcb14553d83fbd490d40f29112b74d4394e9"
   end
 
   depends_on "gobject-introspection" => :build
   depends_on "meson" => :build
   depends_on "ninja" => :build
   depends_on "pkg-config" => :build
-  depends_on "python@3.8" => :build
+  depends_on "python@3.11" => :build
   depends_on "gdk-pixbuf"
   depends_on "gettext"
   depends_on "glib"
 
+  uses_from_macos "sqlite"
+
   def install
-    pyver = Language::Python.major_minor_version Formula["python@3.8"].opt_bin/"python3"
+    site_packages = prefix/Language::Python.site_packages("python3.11")
 
     mkdir "build" do
-      system "meson", *std_meson_args, "-Dpygobject-override-dir=#{lib}/python#{pyver}/site-packages", ".."
+      system "meson", *std_meson_args, "-Dpygobject-override-dir=#{site_packages}", ".."
       system "ninja"
       system "ninja", "install"
     end
@@ -53,8 +59,8 @@ class Gom < Formula
       -lglib-2.0
       -lgobject-2.0
       -lgom-1.0
-      -lintl
     ]
+    flags << "-lintl" if OS.mac?
     system ENV.cc, "test.c", "-o", "test", *flags
     system "./test"
   end

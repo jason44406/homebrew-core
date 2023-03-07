@@ -1,22 +1,26 @@
 class Terragrunt < Formula
   desc "Thin wrapper for Terraform e.g. for locking state"
-  homepage "https://github.com/gruntwork-io/terragrunt"
-  url "https://github.com/gruntwork-io/terragrunt/archive/v0.23.34.tar.gz"
-  sha256 "72467616719a3b5379af91f89de5a4766bd40b1c996c4e44dafdfb9f5f25e5ee"
+  homepage "https://terragrunt.gruntwork.io/"
+  url "https://github.com/gruntwork-io/terragrunt/archive/v0.44.4.tar.gz"
+  sha256 "dd6d81ad8251e4beb63e791507afe4f332e6a4e5e6729ce0910be7105b3e2022"
   license "MIT"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "6418d53a1512e6999c1e7cd4749d33f2b42a423dd41b2e89c5892b419b835f98" => :catalina
-    sha256 "29f7a355fdefadffdb2c00addd5a7306bc14012195c16cdbca3c601b5fda806d" => :mojave
-    sha256 "8f1b83c91d84861606cdc8c783da6670dd7a5915ef823572408599aadc687593" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "d92a1fe6197fa84419060292b46cfae216c9165b9fdc1f49b28479cc70f4fe43"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "d92a1fe6197fa84419060292b46cfae216c9165b9fdc1f49b28479cc70f4fe43"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "d92a1fe6197fa84419060292b46cfae216c9165b9fdc1f49b28479cc70f4fe43"
+    sha256 cellar: :any_skip_relocation, ventura:        "a1bc84ffe02fa7699457d247ded3830fdc76d060227b5a657dcc034cc236b600"
+    sha256 cellar: :any_skip_relocation, monterey:       "a1bc84ffe02fa7699457d247ded3830fdc76d060227b5a657dcc034cc236b600"
+    sha256 cellar: :any_skip_relocation, big_sur:        "a1bc84ffe02fa7699457d247ded3830fdc76d060227b5a657dcc034cc236b600"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "ac5be9e2e32123845277043dca229ead1aad0c22b0c559d0390d8a34fa8e34af"
   end
 
   depends_on "go" => :build
-  depends_on "terraform"
+
+  conflicts_with "tgenv", because: "tgenv symlinks terragrunt binaries"
 
   def install
-    system "go", "build", "-ldflags", "-X main.VERSION=v#{version}", *std_go_args
+    system "go", "build", *std_go_args(ldflags: "-s -w -X main.VERSION=v#{version}")
   end
 
   test do

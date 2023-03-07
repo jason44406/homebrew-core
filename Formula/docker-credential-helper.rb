@@ -1,38 +1,51 @@
 class DockerCredentialHelper < Formula
-  desc "macOS Credential Helper for Docker"
+  desc "Platform keystore credential helper for Docker"
   homepage "https://github.com/docker/docker-credential-helpers"
-  url "https://github.com/docker/docker-credential-helpers/archive/v0.6.3.tar.gz"
-  sha256 "441684cf1d2434aa1024aa2f8455e11502c44858e93ea171b19caa656dd2b2e2"
+  url "https://github.com/docker/docker-credential-helpers/archive/v0.7.0.tar.gz"
+  sha256 "c2c4f9161904a2c4fb8e3d2ac8730b8d83759f5e4e44ce293e8e60d8ffae7eef"
   license "MIT"
-  head "https://github.com/docker/docker-credential-helpers.git"
+  head "https://github.com/docker/docker-credential-helpers.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "6b29ba43b81fd4cbd72defa6c9ed49d730b520555b2d5dd16e35c4da2835896d" => :catalina
-    sha256 "a4553f6ca40dd3c012a0ddc910b7ceb4b819ee89d1366613c9205f356f5a2a69" => :mojave
-    sha256 "71b6622a61da363350ca6065c5683a7a157b4ec404c8e11f66752ac2f0e09063" => :high_sierra
-    sha256 "3810d91647e6385bb9d57da3c800d1107603551285a94643f0d530bb63821a2d" => :sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "e227291ef57cdb472f6eed72ec07b40d22e387eb5cdadc3fed1e4595e2f65dfe"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "289b614d11f5be30833ae352b2b99e597eb45f47a29a30c4987365fc15040a49"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "8f86bc14a4ddf9a628e08754c1cf1cf38db28a2d0482e812ec93ebf06f2aee8f"
+    sha256 cellar: :any_skip_relocation, ventura:        "345caa27a81588869193b928c05b75c0eff80fad18145d49e2a93c48305f6d0c"
+    sha256 cellar: :any_skip_relocation, monterey:       "33be1634548456c862edcdb50dd46af5e0a915e4e303ac29be3af9b19dac9a07"
+    sha256 cellar: :any_skip_relocation, big_sur:        "1e83b1f364f9c22cd561abed9bfaf7adb449f4d4c6c803b8ad7a6e4665dbc2f8"
+    sha256 cellar: :any_skip_relocation, catalina:       "b1be0b36fc51ebb6a85e262c339f36bad7774b65d6216072582b100524f33762"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "90cc037600eb7e5cb3ca9828625447cb02b5e2ba00dd6442d6910257727c0a09"
   end
 
   depends_on "go" => :build
 
-  def install
-    ENV["GOPATH"] = buildpath
-    dir = buildpath/"src/github.com/docker/docker-credential-helpers"
-    dir.install buildpath.children - [buildpath/".brew_home"]
+  on_linux do
+    depends_on "pkg-config" => :build
+    depends_on "libsecret"
+  end
 
-    cd dir do
-      system "make", "vet_osx"
+  def install
+    if OS.mac?
       system "make", "osxkeychain"
-      bin.install "bin/docker-credential-osxkeychain"
-      prefix.install_metafiles
+      bin.install "bin/build/docker-credential-osxkeychain"
+    else
+      system "make", "pass"
+      system "make", "secretservice"
+      bin.install "bin/build/docker-credential-pass"
+      bin.install "bin/build/docker-credential-secretservice"
     end
   end
 
   test do
-    # A more complex test isn't possible as this tool operates using the macOS
-    # user keychain (incompatible with CI).
-    run_output = shell_output("#{bin}/docker-credential-osxkeychain", 1)
-    assert_match %r{^Usage: .*/docker-credential-osxkeychain.*}, run_output
+    if OS.mac?
+      run_output = shell_output("#{bin}/docker-credential-osxkeychain", 1)
+      assert_match %r{^Usage: .*/docker-credential-osxkeychain.*}, run_output
+    else
+      run_output = shell_output("#{bin}/docker-credential-pass list")
+      assert_match "{}", run_output
+
+      run_output = shell_output("#{bin}/docker-credential-secretservice list", 1)
+      assert_match "Cannot autolaunch D-Bus without X11", run_output
+    end
   end
 end

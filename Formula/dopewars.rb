@@ -1,33 +1,37 @@
 class Dopewars < Formula
   desc 'Free rewrite of a game originally based on "Drug Wars"'
   homepage "https://dopewars.sourceforge.io"
-  url "https://downloads.sourceforge.net/project/dopewars/dopewars/1.5.12/dopewars-1.5.12.tar.gz"
-  sha256 "23059dcdea96c6072b148ee21d76237ef3535e5be90b3b2d8239d150feee0c19"
-  revision 1
+  url "https://downloads.sourceforge.net/project/dopewars/dopewars/1.6.2/dopewars-1.6.2.tar.gz"
+  sha256 "623b9d1d4d576f8b1155150975308861c4ec23a78f9cc2b24913b022764eaae1"
+  license "GPL-2.0-or-later"
 
   bottle do
-    sha256 "f2e1a3e2e6199fc550af9afc8204b0292a34976f85ec2448fee549b434048c34" => :catalina
-    sha256 "8bb4cbd11a3db0bbdbdd283d531742c9485dc1d86b57b9986f3b86da01947807" => :mojave
-    sha256 "3808bf43bb96b796624f8ffb855b176ea2a908f3b9477fd7d07a1f960dff0ef2" => :high_sierra
-    sha256 "db1c91122cf53f166a5811595bbf84b63227818ca11877b78a21592686a975f2" => :sierra
+    sha256 arm64_ventura:  "f6c44772360736b7f1aabbee2da0371fcef2435309a4a632d870e53af1e0729b"
+    sha256 arm64_monterey: "076caa9d67e4e4f3fd0067ae16097631c0b0eaf6e243f9a78c48c70214b915f8"
+    sha256 arm64_big_sur:  "2ebf3c275304427354f21de5426b2b9a1262ad60cb6e8d53b181114e2d56156a"
+    sha256 ventura:        "4f6d47cccb1c3ac186e1292963386355f28bd865f0d957275df20a9955266a8e"
+    sha256 monterey:       "e321eb969358620d608a6021255cfc4f3a749779c2d307c09104d0f74e68613a"
+    sha256 big_sur:        "32b55701ab1ec3a70bbd9b27b7fedca2e0cecf7e78877e39338c71b6eb810f3e"
+    sha256 x86_64_linux:   "7a543edc764a62a6b9c5e9884acb00b034e4631248f9c6b44e4c0cd8483f4e50"
   end
 
   depends_on "pkg-config" => :build
   depends_on "glib"
 
+  uses_from_macos "curl"
+
   def install
     inreplace "src/Makefile.in", "$(dopewars_DEPENDENCIES)", ""
-    inreplace "ltmain.sh", "need_relink=yes", "need_relink=no"
+    inreplace "src/Makefile.in", "chmod", "true"
+    inreplace "auxbuild/ltmain.sh", "need_relink=yes", "need_relink=no"
     inreplace "src/plugins/Makefile.in", "LIBADD =", "LIBADD = -module -avoid-version"
-    system "./configure", "--disable-gui-client",
+    system "./configure", *std_configure_args,
+                          "--disable-gui-client",
                           "--disable-gui-server",
                           "--enable-plugins",
                           "--enable-networking",
-                          "--prefix=#{prefix}",
-                          "--mandir=#{man}",
-                          "--disable-debug",
-                          "--disable-dependency-tracking"
-    system "make", "install"
+                          "--mandir=#{man}"
+    system "make", "install", "chgrp=true"
   end
 
   test do

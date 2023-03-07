@@ -1,15 +1,25 @@
 class Exult < Formula
   desc "Recreation of Ultima 7"
   homepage "https://exult.sourceforge.io/"
-  url "https://github.com/exult/exult/archive/v1.6.tar.gz"
-  sha256 "6176d9feba28bdf08fbf60f9ebb28a530a589121f3664f86711ff8365c86c17a"
-  license "GPL-2.0"
-  head "https://github.com/exult/exult.git"
+  url "https://github.com/exult/exult/archive/v1.8.tar.gz"
+  sha256 "dae6b7b08925d3db1dda3aca612bdc08d934ca04de817a008f305320e667faf9"
+  license "GPL-2.0-or-later"
+  head "https://github.com/exult/exult.git", branch: "master"
+
+  livecheck do
+    url :stable
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
+  end
 
   bottle do
-    sha256 "6b3f2e032a2a04e9e3bb2101d91af3fec63195f5e66c9174b976204465a99125" => :catalina
-    sha256 "7a3891dc200ec4d01222b3ab7fbc2d4db4d94a8b91f9144fd7e6ab3a79fd8cc7" => :mojave
-    sha256 "de9329e08a29b01601a40218bd82746a122294e5322529ca1e678e0aa63ccebb" => :high_sierra
+    sha256                               arm64_ventura:  "0a7fc1d5718a8254b8adf9b7783ac85baa404d8bec3e7b490b2d7a46bb153802"
+    sha256                               arm64_monterey: "28380485157dd2a521e9c72ff3baa1f1e392694f636697478606c89eb7f0e179"
+    sha256                               arm64_big_sur:  "1ac2db0c3d8b26091435336777f22f72594b0474bdd4d13092886f4630a87479"
+    sha256                               ventura:        "b08b50df709734a618a49622be3e968aff067ef1be742190c355204b30c4a98a"
+    sha256                               monterey:       "5202bc6cd443aadfb76b48c6734f03b15c0b20d3cc13eeb7ff90e0233997ce73"
+    sha256                               big_sur:        "21159eb863130508a83690868d84c499789c12d4e84594a6156846074e97ef0d"
+    sha256                               catalina:       "fc44b27ff30145ab9647dd2336513a376fee5e2884c354697a98925b324788c8"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "8576be4d556f2f557252d541fd91efc5ca46e7d526cf014ba1a5a87d0a5a239b"
   end
 
   depends_on "autoconf" => :build
@@ -21,20 +31,18 @@ class Exult < Formula
   depends_on "sdl2"
 
   def install
-    # Use ~/Library/... instead of /Library for the games
-    inreplace "files/utils.cc" do |s|
-      s.gsub! /(gamehome_dir)\("\."\)/, '\1(home_dir)'
-      s.gsub! /(gamehome_dir) =/, '\1 +='
-    end
-
     system "./autogen.sh"
     system "./configure", "--disable-debug", "--disable-dependency-tracking",
                           "--prefix=#{prefix}"
     system "make", "EXULT_DATADIR=#{pkgshare}/data"
-    system "make", "bundle"
-    pkgshare.install "Exult.app/Contents/Resources/data"
-    prefix.install "Exult.app"
-    bin.write_exec_script "#{prefix}/Exult.app/Contents/MacOS/exult"
+    if OS.mac?
+      system "make", "bundle"
+      pkgshare.install "Exult.app/Contents/Resources/data"
+      prefix.install "Exult.app"
+      bin.write_exec_script "#{prefix}/Exult.app/Contents/MacOS/exult"
+    else
+      system "make", "install"
+    end
   end
 
   def caveats

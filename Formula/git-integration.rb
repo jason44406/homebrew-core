@@ -4,15 +4,11 @@ class GitIntegration < Formula
   url "https://github.com/johnkeeping/git-integration/archive/v0.4.tar.gz"
   sha256 "b0259e90dca29c71f6afec4bfdea41fe9c08825e740ce18409cfdbd34289cc02"
   license "GPL-2.0"
-  head "https://github.com/johnkeeping/git-integration.git"
+  head "https://github.com/johnkeeping/git-integration.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    rebuild 1
-    sha256 "fb8287c4f092454a224bcc948821610f64b790d14e8befe4db9f3d441e2caab3" => :catalina
-    sha256 "96f0e7501667f2951628535f307efe672aa51daeb8af2509e0f04d06eb22b0e6" => :mojave
-    sha256 "30757baa47338aaa0e43240237d1dfefc1b59e397b55f36d5b7176ca978d7698" => :high_sierra
-    sha256 "30757baa47338aaa0e43240237d1dfefc1b59e397b55f36d5b7176ca978d7698" => :sierra
+    rebuild 2
+    sha256 cellar: :any_skip_relocation, all: "bfa4ce1e4125c40f4667b65cc123b62c4572f82ad515bcd9223da4a6ef632a07"
   end
 
   def install
@@ -22,7 +18,10 @@ class GitIntegration < Formula
   end
 
   test do
+    system "git", "config", "--global", "init.defaultBranch", "master"
     system "git", "init"
+    system "git", "config", "user.name", "BrewTestBot"
+    system "git", "config", "user.email", "BrewTestBot@test.com"
     system "git", "commit", "--allow-empty", "-m", "An initial commit"
     system "git", "checkout", "-b", "branch-a", "master"
     system "git", "commit", "--allow-empty", "-m", "A commit on branch-a"

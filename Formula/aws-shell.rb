@@ -3,38 +3,46 @@ class AwsShell < Formula
 
   desc "Integrated shell for working with the AWS CLI"
   homepage "https://github.com/awslabs/aws-shell"
-  url "https://files.pythonhosted.org/packages/46/5a/c01bbff96fcbe8051e0b59e6191e07f5917f7f2cf667557c7dcbb85f62c3/aws-shell-0.2.1.tar.gz"
-  sha256 "2044b0ef78c7542c392f2cee4b74a4439545c63dda0a3e28b712fff53e8e5823"
+  url "https://files.pythonhosted.org/packages/01/31/ee166a91c865a855af4f15e393974eadf57762629fc2a163a3eb3f470ac5/aws-shell-0.2.2.tar.gz"
+  sha256 "fd1699ea5f201e7cbaacaeb34bf1eb88c8fe6dc6b248bce1b3d22b3e099a41e5"
   license "Apache-2.0"
   revision 2
 
   bottle do
-    cellar :any
-    sha256 "80649fd9dfb5ef9c0506db4f74e0a4ff275617a718249cbc12d2c62efb46657f" => :catalina
-    sha256 "174cce4bc60dfa38babc3bae1dd3b1ab8614c2339340eaaf438012724ebc3646" => :mojave
-    sha256 "e59a26cea8549c99c0f6586db2f85d9400b53911902ec9ebdac1e6379d2518ac" => :high_sierra
+    rebuild 3
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "a38a8a5307e9e702bba4a8fa6167ae4fc0e104c7ad6fea062d6d0cdfce9a1212"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "a4c650eed807b6a1323b90a07663e5fa966d8e512ae2610431f79954f3549a95"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "30954708665c5ca2f39d5c2943504479d7bfab8a6c778f497e9f2481ec8bcfa6"
+    sha256 cellar: :any_skip_relocation, ventura:        "ac71c0c95b7ebe0012063a8f48603813d78c3421871b6f40cd696f8c641a2843"
+    sha256 cellar: :any_skip_relocation, monterey:       "891cdde98f362c286d1fb2af7f3c32c683ae30be0ebf7c1eab7b497eb0391a32"
+    sha256 cellar: :any_skip_relocation, big_sur:        "147e16067c51e5b6362d0409252385dedad44bae66ddb2cb92dda1b6cb649716"
+    sha256 cellar: :any_skip_relocation, catalina:       "d9ff1065eac4653fe94effd49746a53133eda425aea71a38be2512e76725701e"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "7677437bea5b5f2b365af4449b05417cfe82ee0ef9b5ba5d31b013bdc0071f24"
   end
 
-  depends_on "python@3.8"
+  depends_on "docutils"
+  depends_on "pygments"
+  depends_on "python@3.11"
+  depends_on "six"
 
   resource "awscli" do
-    url "https://files.pythonhosted.org/packages/71/2f/8f9a58eac96d48bb1496596e64bebada636b0178b8f117498d313b13b0a2/awscli-1.16.313.tar.gz"
-    sha256 "a2b26db6afea30ce3a4b6706515b5342294eea28ed5888430986256324f95fe4"
+    url "https://files.pythonhosted.org/packages/aa/3e/e4edeef9621068e27ce1d4cd10b847f00ef7de1c337ee70fb2ed67b32449/awscli-1.27.4.tar.gz"
+    sha256 "e43ecfaa173d7af6d557f746b41827b831908b3c5db3572b352df0c0ab514dc3"
   end
 
   resource "boto3" do
-    url "https://files.pythonhosted.org/packages/60/43/960fa147d3c2b700350ed1dae385d96cc3adfc1ee2dfafc13fb69f907554/boto3-1.10.49.tar.gz"
-    sha256 "a2e40aecbda5ebf669089851f67962baf70fc6a1745c28ea157e4463cbee2a0d"
+    url "https://files.pythonhosted.org/packages/df/e4/893fc4af6ee0c801725b48ba4d3120705126edab71e0fe84f8eb4850c427/boto3-1.26.4.tar.gz"
+    sha256 "244fd0776fc1f69c3ed34f359db7a90a6108372486abc999ce8515a79bbfc86e"
   end
 
   resource "botocore" do
-    url "https://files.pythonhosted.org/packages/70/c9/b8a18dcd6e444ff6b198dd09e733b446404de4d3d0d2cad628e85f744264/botocore-1.13.49.tar.gz"
-    sha256 "9b060954865fbad2f143253eef3cf38b1b68eb0675212413b8f0b1342026310c"
+    url "https://files.pythonhosted.org/packages/32/c1/3a3cbbdc58a71c1dfafbeeb79dd09b68a030ff5c52df7ad8e87d5ed57c10/botocore-1.29.4.tar.gz"
+    sha256 "fa86747f5092723c0dc7f201a48cdfac3ad8d03dd6cb7abc189abc708be43269"
   end
 
   resource "colorama" do
-    url "https://files.pythonhosted.org/packages/76/53/e785891dce0e2f2b9f4b4ff5bc6062a53332ed28833c7afede841f46a5db/colorama-0.4.1.tar.gz"
-    sha256 "05eed71e2e327246ad6b38c540c4a3117230b19679b875190486ddd2d721422d"
+    url "https://files.pythonhosted.org/packages/1f/bb/5d3246097ab77fa083a61bd8d3d527b7ae063c7d8e8671b1cf8c4ec10cbe/colorama-0.4.4.tar.gz"
+    sha256 "5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b"
   end
 
   resource "configobj" do
@@ -42,14 +50,9 @@ class AwsShell < Formula
     sha256 "a2f5650770e1c87fb335af19a9b7eb73fc05ccf22144eb68db7d00cd2bcb0902"
   end
 
-  resource "docutils" do
-    url "https://files.pythonhosted.org/packages/93/22/953e071b589b0b1fee420ab06a0d15e5aa0c7470eb9966d60393ce58ad61/docutils-0.15.2.tar.gz"
-    sha256 "a2aeea129088da402665e92e0b25b04b073c04b2dce4ab65caaa38b7ce2e1a99"
-  end
-
   resource "jmespath" do
-    url "https://files.pythonhosted.org/packages/2c/30/f0162d3d83e398c7a3b70c91eef61d409dea205fb4dc2b47d335f429de32/jmespath-0.9.4.tar.gz"
-    sha256 "bde2aef6f44302dfb30320115b17d030798de8c4110e28d5cf6cf91a7a31074c"
+    url "https://files.pythonhosted.org/packages/00/2a/e867e8531cf3e36b41201936b7fa7ba7b5702dbef42922193f05c8976cd6/jmespath-1.0.1.tar.gz"
+    sha256 "90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe"
   end
 
   resource "prompt-toolkit" do
@@ -62,48 +65,43 @@ class AwsShell < Formula
     sha256 "aef77c9fb94a3ac588e87841208bdec464471d9871bd5050a287cc9a475cd0ba"
   end
 
-  resource "Pygments" do
-    url "https://files.pythonhosted.org/packages/cb/9f/27d4844ac5bf158a33900dbad7985951e2910397998e85712da03ce125f0/Pygments-2.5.2.tar.gz"
-    sha256 "98c8aa5a9f778fcd1026a17361ddaf7330d1b7c62ae97c3bb0ae73e0b9b6b0fe"
-  end
-
   resource "python-dateutil" do
-    url "https://files.pythonhosted.org/packages/be/ed/5bbc91f03fa4c839c4c7360375da77f9659af5f7086b7a7bdda65771c8e0/python-dateutil-2.8.1.tar.gz"
-    sha256 "73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"
+    url "https://files.pythonhosted.org/packages/4c/c4/13b4776ea2d76c115c1d1b84579f3764ee6d57204f6be27119f13a61d0a9/python-dateutil-2.8.2.tar.gz"
+    sha256 "0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"
   end
 
   resource "PyYAML" do
-    url "https://files.pythonhosted.org/packages/8d/c9/e5be955a117a1ac548cdd31e37e8fd7b02ce987f9655f5c7563c656d5dcb/PyYAML-5.2.tar.gz"
-    sha256 "c0ee8eca2c582d29c3c2ec6e2c4f703d1b7f1fb10bc72317355a746057e7346c"
+    url "https://files.pythonhosted.org/packages/a0/a4/d63f2d7597e1a4b55aa3b4d6c5b029991d3b824b5bd331af8d4ab1ed687d/PyYAML-5.4.1.tar.gz"
+    sha256 "607774cbba28732bfa802b54baa7484215f530991055bb562efbed5b2f20a45e"
   end
 
   resource "rsa" do
-    url "https://files.pythonhosted.org/packages/14/89/adf8b72371e37f3ca69c6cb8ab6319d009c4a24b04a31399e5bd77d9bb57/rsa-3.4.2.tar.gz"
-    sha256 "25df4e10c263fb88b5ace923dd84bf9aa7f5019687b5e55382ffcdb8bede9db5"
+    url "https://files.pythonhosted.org/packages/db/b5/475c45a58650b0580421746504b680cd2db4e81bc941e94ca53785250269/rsa-4.7.2.tar.gz"
+    sha256 "9d689e6ca1b3038bc82bf8d23e944b6b6037bc02301a574935b2dd946e0353b9"
   end
 
   resource "s3transfer" do
-    url "https://files.pythonhosted.org/packages/39/12/150cd55c606ebca6725683642a8e7068cd6af10f837ce5419a9f16b7fb55/s3transfer-0.2.1.tar.gz"
-    sha256 "6efc926738a3cd576c2a79725fed9afde92378aa5c6a957e3af010cb019fac9d"
-  end
-
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/94/3e/edcf6fef41d89187df7e38e868b2dd2182677922b600e880baad7749c865/six-1.13.0.tar.gz"
-    sha256 "30f610279e8b2578cab6db20741130331735c781b56053c59c4076da27f06b66"
+    url "https://files.pythonhosted.org/packages/e1/eb/e57c93d5cd5edf8c1d124c831ef916601540db70acd96fa21fe60cef1365/s3transfer-0.6.0.tar.gz"
+    sha256 "2ed07d3866f523cc561bf4a00fc5535827981b117dd7876f036b0c1aca42c947"
   end
 
   resource "urllib3" do
-    url "https://files.pythonhosted.org/packages/ad/fc/54d62fa4fc6e675678f9519e677dfc29b8964278d75333cf142892caf015/urllib3-1.25.7.tar.gz"
-    sha256 "f3c5fd51747d450d4dcf6f923c81f78f811aab8205fda64b0aba34a4e48b0745"
+    url "https://files.pythonhosted.org/packages/b2/56/d87d6d3c4121c0bcec116919350ca05dc3afd2eeb7dc88d07e8083f8ea94/urllib3-1.26.12.tar.gz"
+    sha256 "3fa96cf423e6987997fc326ae8df396db2a8b7c667747d47ddd8ecba91f4a74e"
   end
 
   resource "wcwidth" do
-    url "https://files.pythonhosted.org/packages/5e/33/92333eb80be0c96385dee338f30b53e24a8b415d5785e225d789b3f90feb/wcwidth-0.1.8.tar.gz"
-    sha256 "f28b3e8a6483e5d49e7f8949ac1a78314e740333ae305b4ba5defd3e74fb37a8"
+    url "https://files.pythonhosted.org/packages/89/38/459b727c381504f361832b9e5ace19966de1a235d73cdbdea91c771a1155/wcwidth-0.2.5.tar.gz"
+    sha256 "c4d647b99872929fdb7bdcaa4fbe7f01413ed3d98077df798530e5b04f116c83"
   end
 
   def install
-    virtualenv_install_with_resources
+    # setuptools>=60 prefers its own bundled distutils, which is incompatabile with docutils~=0.15
+    # Force the previous behavior of using distutils from the stdlib
+    # Remove when fixed upstream: https://github.com/aws/aws-cli/pull/6011
+    with_env(SETUPTOOLS_USE_DISTUTILS: "stdlib") do
+      virtualenv_install_with_resources
+    end
   end
 
   test do

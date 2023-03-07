@@ -1,21 +1,28 @@
 class Gammaray < Formula
   desc "Examine and manipulate Qt application internals at runtime"
   homepage "https://www.kdab.com/gammaray"
-  url "https://github.com/KDAB/GammaRay/releases/download/v2.11.1/gammaray-2.11.1.tar.gz"
-  sha256 "87a1d72ad1ad6d1a0156c54a85b0976ab38c6a64136458ca7c4ee491566d25d0"
-  license "GPL-2.0"
-  head "https://github.com/KDAB/GammaRay.git"
+  url "https://github.com/KDAB/GammaRay/releases/download/v2.11.3/gammaray-2.11.3.tar.gz"
+  sha256 "03d7ca7bd5eb600c9c389d0cf071960330592f1f392a783b7fec5f9eaa5df586"
+  license "GPL-2.0-or-later"
+  head "https://github.com/KDAB/GammaRay.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "d43f04f5d9d8f0f26ff7ec8164b8a6a6397174e56476a60abf7f592a5e8ef2d8" => :catalina
-    sha256 "daaad613868d4159d40b7c954dfca613ac68a6cbd75e1471d35e04958ff5ae16" => :mojave
-    sha256 "652ed0574b07f8e0bffa9b7927c718295cbc4d1e5b69148101923d8edebcf406" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "d6c6176b66638be42f13801d7656142157daffdfbf384bd39033851b3a48cafb"
+    sha256 cellar: :any,                 arm64_monterey: "e84fc150dc66a7e32b44546f038cb32bb156aae65688f14055f4182fa9cba79d"
+    sha256 cellar: :any,                 arm64_big_sur:  "7de52e10f8bbe77f1104f358602c4b25613c8f9d874d5ab2fa53828941cb1e23"
+    sha256 cellar: :any,                 ventura:        "ce96ecccdb25b4e68292d30ae7f78deb57fa744f42f5f5c28cfff0ad990952a0"
+    sha256 cellar: :any,                 monterey:       "f7e0316e417b5e6518acf88f61615cc274a7724bff18e5a7c923fd0af1684c49"
+    sha256 cellar: :any,                 big_sur:        "0d62f89cc2cd25a325d136fe6d2989d449265b01c023369da60b94955bafa58f"
+    sha256 cellar: :any,                 catalina:       "355dff5be6e35a6d5e4bb182d63eb88813c6db74b196b49109513612a7406b84"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "4872f5bb91e7ecc4589bcad43a2cabef330548c52e89413fd0d9c8e8c0676ab2"
   end
 
   depends_on "cmake" => :build
   depends_on "graphviz"
-  depends_on "qt"
+  depends_on "qt@5"
+
+  fails_with gcc: "5"
 
   def install
     # For Mountain Lion
@@ -28,6 +35,7 @@ class Gammaray < Formula
   end
 
   test do
-    assert_predicate prefix/"GammaRay.app/Contents/MacOS/gammaray", :executable?
+    gammaray = OS.mac? ? prefix/"GammaRay.app/Contents/MacOS/gammaray" : bin/"gammaray"
+    assert_predicate gammaray, :executable?
   end
 end

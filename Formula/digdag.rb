@@ -1,18 +1,30 @@
 class Digdag < Formula
   desc "Workload Automation System"
   homepage "https://www.digdag.io/"
-  url "https://dl.digdag.io/digdag-0.9.42.jar"
-  sha256 "71071424a5beeb881cb4ccb06067a556a3673caf3dc8850dd584357e99134b21"
+  url "https://dl.digdag.io/digdag-0.10.5.jar"
+  sha256 "97b50ae37dd5f96e44e9557846ba7b5cddfea0b1b927d7597886dc604f9387b6"
+  license "Apache-2.0"
 
-  bottle :unneeded
+  livecheck do
+    url "https://github.com/treasure-data/digdag.git"
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
+  end
 
-  depends_on java: "1.8"
+  bottle do
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "e37d28f1924c0650e7cdb521183d22ac6121ed56369108ed95ad3fe59a29646e"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "e37d28f1924c0650e7cdb521183d22ac6121ed56369108ed95ad3fe59a29646e"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "e37d28f1924c0650e7cdb521183d22ac6121ed56369108ed95ad3fe59a29646e"
+    sha256 cellar: :any_skip_relocation, ventura:        "e37d28f1924c0650e7cdb521183d22ac6121ed56369108ed95ad3fe59a29646e"
+    sha256 cellar: :any_skip_relocation, monterey:       "e37d28f1924c0650e7cdb521183d22ac6121ed56369108ed95ad3fe59a29646e"
+    sha256 cellar: :any_skip_relocation, big_sur:        "e37d28f1924c0650e7cdb521183d22ac6121ed56369108ed95ad3fe59a29646e"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "b90e288ab66481212d6aa5e095300b1b769eee3b5e8ef20a1b334977bed073e5"
+  end
+
+  depends_on "openjdk@11"
 
   def install
     libexec.install "digdag-#{version}.jar"
-    (libexec/"bin").write_jar_script libexec/"digdag-#{version}.jar", "digdag"
-    (libexec/"bin/digdag").chmod 0755
-    (bin/"digdag").write_env_script libexec/"bin/digdag", Language::Java.java_home_env("1.8")
+    bin.write_jar_script libexec/"digdag-#{version}.jar", "digdag", java_version: "11"
   end
 
   test do

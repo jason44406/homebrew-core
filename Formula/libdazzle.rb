@@ -1,15 +1,19 @@
 class Libdazzle < Formula
   desc "GNOME companion library to GObject and Gtk+"
   homepage "https://gitlab.gnome.org/GNOME/libdazzle"
-  url "https://download.gnome.org/sources/libdazzle/3.36/libdazzle-3.36.0.tar.xz"
-  sha256 "82b31bbf550fc62970c78bf7f9d55e5fae5b8ea13b24fe2d13c8c6039409d958"
-  revision 2
+  url "https://download.gnome.org/sources/libdazzle/3.44/libdazzle-3.44.0.tar.xz"
+  sha256 "3cd3e45eb6e2680cb05d52e1e80dd8f9d59d4765212f0e28f78e6c1783d18eae"
+  license "GPL-3.0-or-later"
 
   bottle do
-    cellar :any
-    sha256 "c5ef0fe994d0c84792d0d6eb1e55152b0aab5de0f26b1fb1a264a78dcafcc7da" => :catalina
-    sha256 "9ea4201e473688716ec21feb50eb76e6dc4fad93a5d93de78bb9b3978ab0998b" => :mojave
-    sha256 "8a595bba2bb9ae664b6a784e74b73d7d6b8538f9929384203149612c98c0ef0b" => :high_sierra
+    sha256 arm64_ventura:  "2cc26886bfeaa4f330ce3115ec2283b3b4a3edb86f2b1214b93311532eab992f"
+    sha256 arm64_monterey: "fd00728bb05e73562b642a2a36bb24562f97c867710642e08bcc522fbd06ea5e"
+    sha256 arm64_big_sur:  "03413be24801e4b02bf0b72e4900463908267c62849277bcdcd006409ca73dc4"
+    sha256 ventura:        "5fafa8436fae20fdb7d1d9ab1c82c6d6804050c342e4d378a237948b8c2c4b80"
+    sha256 monterey:       "df1d41d43c5d86024ba7d83b13272f324f42ecc555a4cd9670c13e95b027d1ba"
+    sha256 big_sur:        "2ed5d0fad6b1e2b7f8ac25d274aa6e8a5e28924f6b20e08da8fdbc796f2481fd"
+    sha256 catalina:       "aa728a5d7ac88a8c22cb9f022e292c0f121cbe2085f69128df9e4e2e5e862bf3"
+    sha256 x86_64_linux:   "37dc86c031ab20df01037021b776f53af623ceab915e06a7bb8693ad3853d283"
   end
 
   depends_on "gobject-introspection" => :build
@@ -91,12 +95,14 @@ class Libdazzle < Formula
       -lglib-2.0
       -lgobject-2.0
       -lgtk-3
-      -lintl
       -lpango-1.0
       -lpangocairo-1.0
-      -Wl,-framework
-      -Wl,CoreFoundation
     ]
+    if OS.mac?
+      flags << "-lintl"
+      flags << "-Wl,-framework"
+      flags << "-Wl,CoreFoundation"
+    end
     system ENV.cc, "test.c", "-o", "test", *flags
     system "./test"
   end

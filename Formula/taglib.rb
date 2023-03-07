@@ -1,22 +1,25 @@
 class Taglib < Formula
   desc "Audio metadata library"
-  homepage "https://taglib.github.io/"
-  url "https://taglib.github.io/releases/taglib-1.11.1.tar.gz"
-  sha256 "b6d1a5a610aae6ff39d93de5efd0fdc787aa9e9dc1e7026fa4c961b26563526b"
+  homepage "https://taglib.org/"
+  url "https://taglib.github.io/releases/taglib-1.13.tar.gz"
+  sha256 "58f08b4db3dc31ed152c04896ee9172d22052bc7ef12888028c01d8b1d60ade0"
   license "LGPL-2.1"
-  head "https://github.com/taglib/taglib.git"
+  head "https://github.com/taglib/taglib.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "678392b9ac6fbc17a70433b5a98630ccbfa0b71eb1475402d826e4052086f246" => :catalina
-    sha256 "98f103a3174694dd9ff58661cb83c08180049681ac1768b55b447dd99874150d" => :mojave
-    sha256 "14e9be9fd1d5a86615d8b2b6ac51893eb6fab0eb6100f44547d297ccadc4497e" => :high_sierra
-    sha256 "a0a374439cbf94a6fb57d791abf0bc6fb974eef1cf21f66c2731d1fc83d2428d" => :sierra
-    sha256 "edaf79d2a2ec72ae32d9b46621697626a27299226a6b4d963431da8c37d3af52" => :el_capitan
-    sha256 "bfda081fd34cb47bcdfd41e814612dbdf330166e30e69867cf43fcac60e5ed1a" => :yosemite
+    sha256 cellar: :any,                 arm64_ventura:  "296ce5ae39a55c3fc0ea418c848949dafc688c54b9979175cf6a861e3ded3190"
+    sha256 cellar: :any,                 arm64_monterey: "468e48c903a73adfdd4aed556791e20920ffced6148781e85ba17bed80276102"
+    sha256 cellar: :any,                 arm64_big_sur:  "922c49278c55189998db81aa9f43e4a894c81d608824dd99231450ec6a657e1f"
+    sha256 cellar: :any,                 ventura:        "6c6fb57e24337ce19713254391e91c5d3ce20d4b4c058ac2d55801fee52b0f80"
+    sha256 cellar: :any,                 monterey:       "e7324317ad232da4eccfb794cbf7d29fe105116932200b26ee1dfd1915eba6db"
+    sha256 cellar: :any,                 big_sur:        "456c785f52b5d19c621495e31fe4dde36168f6ef5b0ef377d866ba1867000c78"
+    sha256 cellar: :any,                 catalina:       "9a828d637c0f66c3ab0c5180b897e34d37ad671bcf1447d8b3c76436967a8b0f"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "72b61dd6278d2efbbfe344821c77907b39d8454349b371d4898443b1037e79fb"
   end
 
   depends_on "cmake" => :build
+
+  uses_from_macos "zlib"
 
   def install
     system "cmake", "-DWITH_MP4=ON", "-DWITH_ASF=ON", "-DBUILD_SHARED_LIBS=ON",

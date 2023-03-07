@@ -1,29 +1,44 @@
 class Kcov < Formula
   desc "Code coverage tester for compiled programs, Python, and shell scripts"
   homepage "https://simonkagstrom.github.io/kcov/"
-  url "https://github.com/SimonKagstrom/kcov/archive/38.tar.gz"
-  sha256 "b37af60d81a9b1e3b140f9473bdcb7975af12040feb24cc666f9bb2bb0be68b4"
-  license "GPL-2.0"
-  head "https://github.com/SimonKagstrom/kcov.git"
+  url "https://github.com/SimonKagstrom/kcov/archive/v41.tar.gz"
+  sha256 "13cddde0c6c97dc78ece23f7adcad7a8f2b5ae3c84193020e7edd9bf44e5997c"
+  license "GPL-2.0-or-later"
+  head "https://github.com/SimonKagstrom/kcov.git", branch: "master"
+
+  # We check the Git tags because, as of writing, the "latest" release on GitHub
+  # is a prerelease version (`pre-v40`), so we can't rely on it being correct.
+  livecheck do
+    url :stable
+    regex(/^v?(\d+(?:\.\d+)*)$/i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "7a3af28e85c85c6f1dc684086884c724dfdbcf72efca48add536c5dd08bda4c0" => :catalina
-    sha256 "833750a5d75e99a392010b305841daca6d0007e5a9b2ccd2ab5d54f18c01b6ad" => :mojave
-    sha256 "e5c6cc5b5ed21b5609107cb80ac67dec4ffc9b9227e272464b9eeade66932bd3" => :high_sierra
+    sha256 arm64_ventura:  "b56293d52b8d2b3591baccec7f8143aec6fe9b8dc832c5accf5c92fd92f6f3c5"
+    sha256 arm64_monterey: "68a6853a5064d77b60aa89e7b1767b9be1505a5c848e9012be017c6d11d55272"
+    sha256 arm64_big_sur:  "f9d812f5775df049096ab757479b152f7fc3ccedf25ed18fdec9e027f7210712"
+    sha256 ventura:        "d7a061859b7948722c56dd458509476340eee62d4aacd5c496cc8d2514e559e5"
+    sha256 monterey:       "3a4aa6158fcf675c5246ae2b45dba40e5054692cb26c6eeabae907293a016ad1"
+    sha256 big_sur:        "8ab0e4c6e2716dbf7d8ee4382c06af38d2312e9f877366a05e2529913592747c"
+    sha256 x86_64_linux:   "aa3efcf2ba34eb00534fe3a16c8d1dd3e53476dca3819744b9b3f1e8f826df66"
   end
 
   depends_on "cmake" => :build
   depends_on "pkg-config" => :build
-  depends_on "python@3.8" => :build
-  depends_on :macos # Due to Python 2
+  depends_on "python@3.11" => :build
+  depends_on "openssl@3"
+
+  uses_from_macos "curl"
+  uses_from_macos "zlib"
+
+  on_linux do
+    depends_on "elfutils"
+  end
 
   def install
-    mkdir "build" do
-      system "cmake", "-DSPECIFY_RPATH=ON", *std_cmake_args, ".."
-      system "make"
-      system "make", "install"
-    end
+    system "cmake", "-S", ".", "-B", "build", *std_cmake_args, "-DSPECIFY_RPATH=ON"
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
   end
 
   test do

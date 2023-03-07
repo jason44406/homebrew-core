@@ -1,14 +1,18 @@
 class Fplll < Formula
   desc "Lattice algorithms using floating-point arithmetic"
   homepage "https://github.com/fplll/fplll"
-  url "https://github.com/fplll/fplll/releases/download/5.3.3/fplll-5.3.3.tar.gz"
-  sha256 "5e7c46c30623795feeac19cf607583b7c82b0490ceb91498f0f712789be20ccd"
-  license "LGPL-2.1"
+  url "https://github.com/fplll/fplll/releases/download/5.4.4/fplll-5.4.4.tar.gz"
+  sha256 "0fd9d378f04ff886d8864728baf5d90b8b0b82c1e541e92550644fb54f75691d"
+  license "LGPL-2.1-or-later"
 
   bottle do
-    sha256 "9201144fd0ef7be11fd0f2ee3f860fc62efa4202c46be0f47540198b11f8202a" => :catalina
-    sha256 "099b4cc18fe92f4a19d0ba8113190524bd24814dc967addb6c149aca32ec90c7" => :mojave
-    sha256 "6f73bbf1c544b88e525c1fbd17594d4a77c5dc10b283d5308b6f816fcac9cfc9" => :high_sierra
+    sha256                               arm64_ventura:  "1ba1a1085084572ef340831e6a3ac9bde2cf6cda68e71075ccd8e1ee05dfa5ec"
+    sha256                               arm64_monterey: "f6b54eef42956eb6d47951a5050fe5b38a420fc160086d20e38751d113b896ef"
+    sha256                               arm64_big_sur:  "ce9be65f08ef8ecb291ae15916ca0d1cb6f160b09629649739754b93300f7717"
+    sha256                               ventura:        "2b19d4550c1ba260b0a4d8809d9ad6e4db767d53243ed4b974020628fb693070"
+    sha256                               monterey:       "3c4eb9b7a09063287a71ffae596ddbd13d515e3cd13e4253e6bc7dd082f7935d"
+    sha256                               big_sur:        "c63834cc0c9dd96522545abbe3e68459b019910e59cc42692c053f56991d8098"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "4550c39058db9b126338325f9ee65a93e13bc39336a96c5a5805d08d740d930f"
   end
 
   depends_on "automake" => :build
@@ -35,6 +39,7 @@ class Fplll < Formula
       #include <fplll.h>
       #include <vector>
       #include <stdio.h>
+      using namespace fplll;
       int main(int c, char **v) {
         ZZ_mat<mpz_t> b;
         std::vector<Z_NR<mpz_t>> sol_coord;

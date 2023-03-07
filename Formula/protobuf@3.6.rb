@@ -4,23 +4,25 @@ class ProtobufAT36 < Formula
   url "https://github.com/protocolbuffers/protobuf/archive/v3.6.1.3.tar.gz"
   sha256 "73fdad358857e120fd0fa19e071a96e15c0f23bb25f85d3f7009abfd4f264a2a"
   license "BSD-3-Clause"
-  revision 2
+  revision 4
 
   bottle do
-    cellar :any
-    rebuild 1
-    sha256 "6d2da9252d93ab92e216192a91e71445325e82a660580a63867820d013eb849c" => :catalina
-    sha256 "4bf947fba8c49983858b40906e8cb56adca645d645bc3a5f3561c6fc76e9f5eb" => :mojave
-    sha256 "b58011315d7163fcb54491c60f7151cf79eb71bca9c78395d9d2a365ed374626" => :high_sierra
+    sha256 cellar: :any, arm64_monterey: "d11ab752acbd8e1159b2f108ad40d16561823f437e6abe959120500be5513c58"
+    sha256 cellar: :any, arm64_big_sur:  "1d9c4d6468e946de5f244b4abe034366e0764f3281d7624db491434e5390a19c"
+    sha256 cellar: :any, monterey:       "ee5925f1f3a9dad2c0255e48ac51da352d57145188902c4f285221418bf7a648"
+    sha256 cellar: :any, big_sur:        "589ae9de9ebaa86aa06361f03d69389ca86a98d04426b839b5269fa2849861b5"
+    sha256 cellar: :any, catalina:       "f05eb7347a6f3912890524a093284a023d0a97a5c283940e8f39e03e5bb60dc5"
   end
 
   keg_only :versioned_formula
+
+  disable! date: "2022-07-14", because: :versioned_formula
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
   depends_on "cmake" => :build
   depends_on "libtool" => :build
-  depends_on "python@3.8"
+  depends_on "python@3.10"
 
   resource "six" do
     url "https://files.pythonhosted.org/packages/dd/bf/4138e7bfb757de47d1f4b6994648ec67a51efe58fa907c1e11e350cddfca/six-1.12.0.tar.gz"
@@ -59,16 +61,16 @@ class ProtobufAT36 < Formula
     ENV.append_to_cflags "-I#{include}"
     ENV.append_to_cflags "-L#{lib}"
 
+    python3 = "python3.10"
     resource("six").stage do
-      system Formula["python@3.8"].opt_bin/"python3", *Language::Python.setup_install_args(libexec)
+      system Formula["python@3.10"].opt_bin/python3, *Language::Python.setup_install_args(libexec, python3)
     end
     chdir "python" do
-      system Formula["python@3.8"].opt_bin/"python3", *Language::Python.setup_install_args(libexec),
-                                                      "--cpp_implementation"
+      system Formula["python@3.10"].opt_bin/python3, *Language::Python.setup_install_args(libexec, python3),
+                                                     "--cpp_implementation"
     end
 
-    version = Language::Python.major_minor_version Formula["python@3.8"].opt_bin/"python3"
-    site_packages = "lib/python#{version}/site-packages"
+    site_packages = Language::Python.site_packages(python3)
     pth_contents = "import site; site.addsitedir('#{libexec/site_packages}')\n"
     (prefix/site_packages/"homebrew-protobuf.pth").write pth_contents
   end

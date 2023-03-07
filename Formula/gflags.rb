@@ -6,19 +6,22 @@ class Gflags < Formula
   license "BSD-3-Clause"
 
   bottle do
-    cellar :any
-    rebuild 1
-    sha256 "ebc7b6a9b5c14419f01a763f8b5d178525231d0fb4f5a4768673745a893f3b0b" => :catalina
-    sha256 "e3176e449321b1e2070a9fabc796e6820f2f0f1f4db1c3916f58e6cdd52e510e" => :mojave
-    sha256 "4beffa84f47bdfd9a1a90d9e591d9af4616db464d63046018ef0c58936d58366" => :high_sierra
-    sha256 "6f06466ca55f2174daecbc935e0bca1f2aed9bfb94a92f21d52fb4db1e07cd4a" => :sierra
+    rebuild 2
+    sha256 cellar: :any,                 arm64_ventura:  "9ff5d9da1a4c1d22229f1fb75293a2e115bb431b498dac7c4a42f52378353c50"
+    sha256 cellar: :any,                 arm64_monterey: "09ec6001e46f675b1e2bf64ed3ffd6ee8072d36facf38791d1ceeed0c2472daf"
+    sha256 cellar: :any,                 arm64_big_sur:  "e1d58af2280acd284f60e87ba07a66ad190188c0a5356ac2a8045799e390c435"
+    sha256 cellar: :any,                 ventura:        "6b24b7f057edb2c37d9f423d29ead9a1ebf14e07217f43e0fb7bbf8393b0821c"
+    sha256 cellar: :any,                 monterey:       "0436095f47bef8a2165b1829eb8ee6e77c8aa14553ef982bd3c6ecf5c7e9d47b"
+    sha256 cellar: :any,                 big_sur:        "4702020c64f73c2e3e23997055a49711600a1af7834652be3923a1edb43a750c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "f11fa1aff8e21d32012f8fbb78a2f954241f4e026b8518a6c874e2d537201629"
   end
 
-  depends_on "cmake" => :build
+  depends_on "cmake" => [:build, :test]
 
   def install
     mkdir "buildroot" do
-      system "cmake", "..", *std_cmake_args, "-DBUILD_SHARED_LIBS=ON"
+      system "cmake", "..", *std_cmake_args, "-DBUILD_SHARED_LIBS=ON", "-DBUILD_STATIC_LIBS=ON",
+                                             "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
       system "make", "install"
     end
   end
@@ -48,8 +51,19 @@ class Gflags < Formula
         return 0;
       }
     EOS
-    system ENV.cxx, "-L#{lib}", "-lgflags", "test.cpp", "-o", "test"
+    system ENV.cxx, "test.cpp", "-L#{lib}", "-lgflags", "-o", "test"
     assert_match "Hello world!", shell_output("./test")
     assert_match "Foo bar!", shell_output("./test --message='Foo bar!'")
+
+    (testpath/"CMakeLists.txt").write <<~EOS
+      cmake_minimum_required(VERSION 2.8)
+      project(cmake_test)
+      add_executable(${PROJECT_NAME} test.cpp)
+      find_package(gflags REQUIRED COMPONENTS static)
+      target_link_libraries(${PROJECT_NAME} PRIVATE ${GFLAGS_LIBRARIES})
+    EOS
+    system "cmake", testpath.to_s
+    system "cmake", "--build", testpath.to_s
+    assert_match "Hello world!", shell_output("./cmake_test")
   end
 end

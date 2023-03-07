@@ -3,15 +3,18 @@ class Dspdfviewer < Formula
   homepage "https://dspdfviewer.danny-edel.de/"
   url "https://github.com/dannyedel/dspdfviewer/archive/v1.15.1.tar.gz"
   sha256 "c5b6f8c93d732e65a27810286d49a4b1c6f777d725e26a207b14f6b792307b03"
-  license "GPL-2.0"
-  revision 8
-  head "https://github.com/dannyedel/dspdfviewer.git"
+  license "GPL-2.0-or-later"
+  revision 16
+  head "https://github.com/dannyedel/dspdfviewer.git", branch: "master"
 
   bottle do
-    sha256 "110de35c2516b74d0c6af47be2b1417f81a8805aae1a019b448e27e8dc03c362" => :catalina
-    sha256 "f6063bf108432e891c5ec13665cde11d30498e99cf4d130236b78ea3a894c32c" => :mojave
-    sha256 "93406709c843244b5c55b9f6167d67290899ac1aaa32bd32faa530fab66daae9" => :high_sierra
-    sha256 "ec6ea81aaa5e037a27803b830a6bb8c7100b003a0095dec2dd3b1e217d1a6a30" => :sierra
+    sha256 cellar: :any,                 arm64_ventura:  "7ee081442cc15d6b6cb3c1c8791db4e1ac99caddf9e19b9a3e7da8f42c3fd6cd"
+    sha256 cellar: :any,                 arm64_monterey: "1720055b7850161f0ff6b09a678d597b9357ae0bea2db05d2651f0c46d80197b"
+    sha256 cellar: :any,                 arm64_big_sur:  "5d53db9ce37e910f71a0aaad82d1b26344d08decce5485751632cd05601f8c76"
+    sha256 cellar: :any,                 ventura:        "834c422d0aa8a96cc77d1036e4793d3f8fdfdc79fcbf6c6a7da79f0c269459fe"
+    sha256 cellar: :any,                 monterey:       "586e860f2c06b995132b35653a6c14403c012421cd9cf32baa1b379824e27015"
+    sha256 cellar: :any,                 big_sur:        "0b551ba47aa6287fb0a94750a9ab85afa3e1d715d22d602dc98cdef34ac1b8f9"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "940e18745c5787e8ec2ce8a961283e44d148b45b4fc7370480057b6c15c3df6b"
   end
 
   depends_on "cmake" => :build
@@ -23,69 +26,28 @@ class Dspdfviewer < Formula
   depends_on "freetype"
   depends_on "gettext"
   depends_on "glib"
-  depends_on "jpeg"
+  depends_on "jpeg-turbo"
   depends_on "libpng"
   depends_on "libtiff"
   depends_on "openjpeg"
-  depends_on "qt"
+  depends_on "poppler-qt5"
+  depends_on "qt@5"
 
-  resource "poppler" do
-    url "https://poppler.freedesktop.org/poppler-0.65.0.tar.xz"
-    sha256 "89c8cf73f83efda78c5a9bd37c28f4593ad0e8a51556dbe39ed81e1ae2dd8f07"
-  end
-
-  resource "font-data" do
-    url "https://poppler.freedesktop.org/poppler-data-0.4.9.tar.gz"
-    sha256 "1f9c7e7de9ecd0db6ab287349e31bf815ca108a5a175cf906a90163bdbe32012"
-  end
+  fails_with gcc: "5"
 
   def install
-    ENV.cxx11
-
-    resource("poppler").stage do
-      system "cmake", ".", *std_cmake_args,
-                           "-DCMAKE_INSTALL_PREFIX=#{libexec}",
-                           "-DBUILD_GTK_TESTS=OFF",
-                           "-DENABLE_CMS=none",
-                           "-DENABLE_GLIB=ON",
-                           "-DENABLE_QT5=ON",
-                           "-DWITH_GObjectIntrospection=ON",
-                           "-DENABLE_XPDF_HEADERS=ON"
-      system "make", "install"
-
-      libpoppler = (libexec/"lib/libpoppler.dylib").readlink
-      to_fix = ["#{libexec}/lib/libpoppler-cpp.dylib", "#{libexec}/lib/libpoppler-glib.dylib",
-                "#{libexec}/lib/libpoppler-qt5.dylib", *Dir["#{libexec}/bin/*"]]
-
-      to_fix.each do |f|
-        macho = MachO.open(f)
-        macho.change_dylib("@rpath/#{libpoppler}", "#{libexec}/lib/#{libpoppler}")
-        macho.write!
-      end
-
-      resource("font-data").stage do
-        system "make", "install", "prefix=#{libexec}"
-      end
-    end
-
-    ENV.prepend_path "PKG_CONFIG_PATH", "#{libexec}/lib/pkgconfig"
-    ENV.prepend "LDFLAGS", "-L#{libexec}/lib"
-
-    mkdir "build" do
-      system "cmake", "..", *std_cmake_args,
-                            "-DRunDualScreenTests=OFF",
-                            "-DUsePrerenderedPDF=ON",
-                            "-DUseQtFive=ON"
-      system "make", "install"
-    end
-
-    libpoppler = (libexec/"lib/libpoppler-qt5.dylib").readlink
-    macho = MachO.open(bin/"dspdfviewer")
-    macho.change_dylib("@rpath/#{libpoppler}", "#{libexec}/lib/#{libpoppler}")
-    macho.write!
+    system "cmake", "-S", ".", "-B", "build", *std_cmake_args,
+                    "-DRunDualScreenTests=OFF",
+                    "-DUsePrerenderedPDF=ON",
+                    "-DUseQtFive=ON",
+                    "-DCMAKE_CXX_STANDARD=14",
+                    "-DCMAKE_CXX_FLAGS=-Wno-deprecated-declarations"
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
   end
 
   test do
-    system bin/"dspdfviewer", "--help"
+    ENV["QT_QPA_PLATFORM"] = "minimal" if OS.linux?
+    system "#{bin}/dspdfviewer", "--help"
   end
 end

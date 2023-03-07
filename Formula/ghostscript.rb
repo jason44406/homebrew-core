@@ -1,19 +1,33 @@
 class Ghostscript < Formula
   desc "Interpreter for PostScript and PDF"
   homepage "https://www.ghostscript.com/"
-  url "https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs952/ghostpdl-9.52.tar.gz"
-  sha256 "8f6e48325c106ae033bbae3e55e6c0b9ee5c6b57e54f7cd24fb80a716a93b06a"
-  license "AGPL-3.0"
+  url "https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs1000/ghostpdl-10.0.0.tar.xz"
+  sha256 "8f2b7941f60df694b4f5c029b739007f7c4e0d43858471ae481e319a967d5d8b"
+  license "AGPL-3.0-or-later"
+
+  # The GitHub tags omit delimiters (e.g. `gs9533` for version 9.53.3). The
+  # `head` repository tags are formatted fine (e.g. `ghostpdl-9.53.3`) but a
+  # version may be tagged before the release is available on GitHub, so we
+  # check the version from the first-party website instead.
+  livecheck do
+    url "https://www.ghostscript.com/json/settings.json"
+    regex(/["']GS_VER["']:\s*?["']v?(\d+(?:\.\d+)+)["']/i)
+  end
 
   bottle do
-    sha256 "8cd0efa1e5525f849be3ee1e50e1635b99667cb4d1eb6c3002a45378346882f4" => :catalina
-    sha256 "8906a4dbf2513963a4710f351e3426622c259bd888c760e4c08a9436860b4014" => :mojave
-    sha256 "cd5e55d0429d7e88ba2d580e79934c157d5bd2981d71a7f40db4573abe79af67" => :high_sierra
+    sha256 arm64_ventura:  "a698c53fbc3a1117c204bf7e20122c3469cd46548f908bdf3c805b61a1620f66"
+    sha256 arm64_monterey: "07becfb977ec79a7cdd2b6c5298fbb3d24ba61599106d903a7e1ea51d23b3df3"
+    sha256 arm64_big_sur:  "6d71b98737f6113d18b963ca01d454e46218458b7b6eb8e2a5ae4c59359c5d30"
+    sha256 ventura:        "b8a4f24fd3d10ef89a53af4d9793efde9b9ce019247a398614fcba87b6d6ec9f"
+    sha256 monterey:       "c61d7421c9835d33d293fd0d496ce8fb983d8ee9351a6c59e3efbd621a4bec30"
+    sha256 big_sur:        "eaf18fcce3a87ea2513439b58733a675c96a650ec91c4302293927e0054b43c6"
+    sha256 catalina:       "0a200d59567de71739729720e96e9012961e1149c3a8cfe4ff79ca44b6a24a43"
+    sha256 x86_64_linux:   "95c5e86cc3e8d68e61b7c7c7659aa75b6673d399f67e99ab815418d9f165ce22"
   end
 
   head do
     # Can't use shallow clone. Doing so = fatal errors.
-    url "https://git.ghostscript.com/ghostpdl.git", shallow: false
+    url "https://git.ghostscript.com/ghostpdl.git", branch: "master"
 
     depends_on "autoconf" => :build
     depends_on "automake" => :build
@@ -21,12 +35,20 @@ class Ghostscript < Formula
   end
 
   depends_on "pkg-config" => :build
+  depends_on "fontconfig"
+  depends_on "freetype"
+  depends_on "jbig2dec"
+  depends_on "jpeg-turbo"
+  depends_on "libidn"
+  depends_on "libpng"
   depends_on "libtiff"
+  depends_on "little-cms2"
+  depends_on "openjpeg"
 
-  on_linux do
-    depends_on "fontconfig"
-    depends_on "libidn"
-  end
+  uses_from_macos "expat"
+  uses_from_macos "zlib"
+
+  fails_with gcc: "5"
 
   # https://sourceforge.net/projects/gs-fonts/
   resource "fonts" do
@@ -34,29 +56,32 @@ class Ghostscript < Formula
     sha256 "0eb6f356119f2e49b2563210852e17f57f9dcc5755f350a69a46a0d641a0c401"
   end
 
-  patch :DATA # Uncomment macOS-specific make vars
+  # fmemopen is only supported from 10.13 onwards (https://news.ycombinator.com/item?id=25968777).
+  # For earlier versions of MacOS, needs to be excluded.
+  # This should be removed once patch added to next release of leptonica (which is incorporated by ghostscript in
+  # tarballs).
+  patch do
+    url "https://github.com/DanBloomberg/leptonica/commit/848df62ff7ad06965dd77ac556da1b2878e5e575.patch?full_index=1"
+    sha256 "7de1c4e596aad5c3d2628b309cea1e4fc1ff65e9c255fe64de1922b3fd2d60fc"
+    directory "leptonica"
+  end
 
   def install
-    args = %W[
-      --prefix=#{prefix}
-      --disable-cups
-      --disable-compile-inits
-      --disable-gtk
-      --disable-fontconfig
-      --without-libidn
-      --with-system-libtiff
-      --without-x
-    ]
+    # Delete local vendored sources so build uses system dependencies
+    libs = %w[expat freetype jbig2dec jpeg lcms2mt libpng openjpeg tiff zlib]
+    libs.each { |l| (buildpath/l).rmtree }
 
-    if build.head?
-      system "./autogen.sh", *args
-    else
-      system "./configure", *args
-    end
+    configure = build.head? ? "./autogen.sh" : "./configure"
+    system configure, *std_configure_args,
+                      "--disable-compile-inits",
+                      "--disable-cups",
+                      "--disable-gtk",
+                      "--with-system-libtiff",
+                      "--without-x"
 
     # Install binaries and libraries
     system "make", "install"
-    system "make", "install-so"
+    ENV.deparallelize { system "make", "install-so" }
 
     (pkgshare/"fonts").install resource("fonts")
     (man/"de").rmtree
@@ -64,51 +89,6 @@ class Ghostscript < Formula
 
   test do
     ps = test_fixtures("test.ps")
-    assert_match /Hello World!/, shell_output("#{bin}/ps2ascii #{ps}")
+    assert_match "Hello World!", shell_output("#{bin}/ps2ascii #{ps}")
   end
 end
-
-__END__
-diff --git i/base/unix-dll.mak w/base/unix-dll.mak
-index f50c09c00adb..8855133b400c 100644
---- i/base/unix-dll.mak
-+++ w/base/unix-dll.mak
-@@ -89,18 +89,33 @@ GPDL_SONAME_MAJOR_MINOR=$(GPDL_SONAME_BASE)$(GS_SOEXT)$(SO_LIB_VERSION_SEPARATOR
- # similar linkers it must containt the trailing "="
- # LDFLAGS_SO=-shared -Wl,$(LD_SET_DT_SONAME)$(LDFLAGS_SO_PREFIX)$(GS_SONAME_MAJOR)
-
-
- # MacOS X
--#GS_SOEXT=dylib
--#GS_SONAME=$(GS_SONAME_BASE).$(GS_SOEXT)
--#GS_SONAME_MAJOR=$(GS_SONAME_BASE).$(GS_VERSION_MAJOR).$(GS_SOEXT)
--#GS_SONAME_MAJOR_MINOR=$(GS_SONAME_BASE).$(GS_VERSION_MAJOR).$(GS_VERSION_MINOR).$(GS_SOEXT)
-+GS_SOEXT=dylib
-+GS_SONAME=$(GS_SONAME_BASE).$(GS_SOEXT)
-+GS_SONAME_MAJOR=$(GS_SONAME_BASE).$(GS_VERSION_MAJOR).$(GS_SOEXT)
-+GS_SONAME_MAJOR_MINOR=$(GS_SONAME_BASE).$(GS_VERSION_MAJOR).$(GS_VERSION_MINOR).$(GS_SOEXT)
- #LDFLAGS_SO=-dynamiclib -flat_namespace
--#LDFLAGS_SO_MAC=-dynamiclib -install_name $(GS_SONAME_MAJOR_MINOR)
-+GS_LDFLAGS_SO=-dynamiclib -install_name $(GS_SONAME_MAJOR_MINOR)
- #LDFLAGS_SO=-dynamiclib -install_name $(FRAMEWORK_NAME)
-
-+PCL_SONAME=$(PCL_SONAME_BASE).$(GS_SOEXT)
-+PCL_SONAME_MAJOR=$(PCL_SONAME_BASE).$(GS_VERSION_MAJOR).$(GS_SOEXT)
-+PCL_SONAME_MAJOR_MINOR=$(PCL_SONAME_BASE).$(GS_VERSION_MAJOR).$(GS_VERSION_MINOR).$(GS_SOEXT)
-+PCL_LDFLAGS_SO=-dynamiclib -install_name $(PCL_SONAME_MAJOR_MINOR)
-+
-+XPS_SONAME=$(XPS_SONAME_BASE).$(GS_SOEXT)
-+XPS_SONAME_MAJOR=$(XPS_SONAME_BASE).$(GS_VERSION_MAJOR).$(GS_SOEXT)
-+XPS_SONAME_MAJOR_MINOR=$(XPS_SONAME_BASE).$(GS_VERSION_MAJOR).$(GS_VERSION_MINOR).$(GS_SOEXT)
-+XPS_LDFLAGS_SO=-dynamiclib -install_name $(XPS_SONAME_MAJOR_MINOR)
-+
-+GPDL_SONAME=$(GPDL_SONAME_BASE).$(GS_SOEXT)
-+GPDL_SONAME_MAJOR=$(GPDL_SONAME_BASE).$(GS_VERSION_MAJOR).$(GS_SOEXT)
-+GPDL_SONAME_MAJOR_MINOR=$(GPDL_SONAME_BASE).$(GS_VERSION_MAJOR).$(GS_VERSION_MINOR).$(GS_SOEXT)
-+GPDL_LDFLAGS_SO=-dynamiclib -install_name $(GPDL_SONAME_MAJOR_MINOR)
-+
- GS_SO=$(BINDIR)/$(GS_SONAME)
- GS_SO_MAJOR=$(BINDIR)/$(GS_SONAME_MAJOR)
- GS_SO_MAJOR_MINOR=$(BINDIR)/$(GS_SONAME_MAJOR_MINOR)
-
- PCL_SO=$(BINDIR)/$(PCL_SONAME)

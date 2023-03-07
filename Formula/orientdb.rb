@@ -1,14 +1,23 @@
 class Orientdb < Formula
   desc "Graph database"
-  homepage "https://orientdb.com/"
-  url "https://s3.us-east-2.amazonaws.com/orientdb3/releases/3.1.1/orientdb-3.1.1.zip"
-  sha256 "1538bfcc5d1a83e8a686be37950a69a2466d19eb824f754367a7b254c56b748f"
+  homepage "https://orientdb.org/"
+  url "https://search.maven.org/remotecontent?filepath=com/orientechnologies/orientdb-community/3.2.16/orientdb-community-3.2.16.zip"
+  sha256 "dd662d99b49e7adea4b605b7e02dccffbfca6fed696c01e1f5d3929b522cdce2"
+  license "Apache-2.0"
+
+  livecheck do
+    url "https://orientdb.org/download"
+    regex(/href=.*?orientdb(?:-community)?[._-]v?(\d+(?:\.\d+)+)\.zip/i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "4dd8ac529ac0d88ebe0924e4c67ab6ec12e516286a503997061586e1c4a19164" => :catalina
-    sha256 "4dd8ac529ac0d88ebe0924e4c67ab6ec12e516286a503997061586e1c4a19164" => :mojave
-    sha256 "4dd8ac529ac0d88ebe0924e4c67ab6ec12e516286a503997061586e1c4a19164" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "23ea3d242c26807b35f21cd98f06c67232cafb0650ec284c17f9f4040b05f1e1"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "e4094ff9c1ef0a9190d49afe3959f96150ef20d31afb0979c144ed23272de50b"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "1a934f970e6c7ed37843fb7941bb3100a86ed5c18480430b4faae1506cfb349a"
+    sha256 cellar: :any_skip_relocation, ventura:        "69ba3d78b6c4be0a44fc989cb515856cb7ffbfd0d25105a31ef7468f1684b133"
+    sha256 cellar: :any_skip_relocation, monterey:       "09ca0c2110d4527773a3bb39a6ba1574bac12b9cb95208516fca2fea918fbff0"
+    sha256 cellar: :any_skip_relocation, big_sur:        "994a94d8d76be5c6b3a62c0d23b88e671d9eb45c9a3eee3aa00aec4281459c97"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "67da92d722ec6a5490eae769868c51b384b51ee916104fe356701db0977c12c0"
   end
 
   depends_on "maven" => :build
@@ -57,40 +66,16 @@ class Orientdb < Formula
   def caveats
     <<~EOS
       The OrientDB root password was set to 'orientdb'. To reset it:
-        https://orientdb.com/docs/last/security/Server-Security.html#restoring-the-servers-user-root
+        https://orientdb.org/docs/3.1.x/security/Server-Security.html#restoring-the-servers-user-root
     EOS
   end
 
-  plist_options manual: "orientdb start"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>KeepAlive</key>
-            <dict>
-              <key>SuccessfulExit</key>
-              <false/>
-            </dict>
-          <key>Label</key>
-          <string>homebrew.mxcl.orientdb</string>
-          <key>ProgramArguments</key>
-          <array>
-            <string>/usr/local/opt/orientdb/libexec/bin/server.sh</string>
-          </array>
-          <key>RunAtLoad</key>
-          <true/>
-          <key>WorkingDirectory</key>
-          <string>/usr/local/var</string>
-          <key>StandardErrorPath</key>
-          <string>/usr/local/var/log/orientdb/serror.log</string>
-          <key>StandardOutPath</key>
-          <string>/usr/local/var/log/orientdb/sout.log</string>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run opt_libexec/"bin/server.sh"
+    keep_alive true
+    working_dir var
+    log_path var/"log/orientdb/sout.log"
+    error_log_path var/"log/orientdb/serror.log"
   end
 
   test do
@@ -101,8 +86,6 @@ class Orientdb < Formula
     inreplace "#{testpath}/orientdb-server-config.xml", "</properties>",
       "  <entry name=\"server.database.path\" value=\"#{testpath}\" />\n    </properties>"
 
-    begin
-      assert_match "OrientDB console v.#{version}", pipe_output("#{bin}/orientdb-console \"exit;\"")
-    end
+    assert_match "OrientDB console v.#{version}", pipe_output("#{bin}/orientdb-console \"exit;\"")
   end
 end

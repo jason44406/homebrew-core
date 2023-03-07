@@ -3,24 +3,27 @@ class Scour < Formula
 
   desc "SVG file scrubber"
   homepage "https://www.codedread.com/scour/"
-  url "https://github.com/scour-project/scour/archive/v0.38.tar.gz"
-  sha256 "565d52331b40793f038a2725fcc3ee53539d9ef287d582b7c305789cb1d503eb"
+  url "https://files.pythonhosted.org/packages/75/19/f519ef8aa2f379935a44212c5744e2b3a46173bf04e0110fb7f4af4028c9/scour-0.38.2.tar.gz"
+  sha256 "6881ec26660c130c5ecd996ac6f6b03939dd574198f50773f2508b81a68e0daf"
   license "Apache-2.0"
-  head "https://github.com/scour-project/scour.git"
+  revision 1
+  version_scheme 1
+  head "https://github.com/scour-project/scour.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "84629567f4b45c48075377da17b3d42fc2bb69d0efab99ba9206e8b8c6dec288" => :catalina
-    sha256 "d5b86454772f6d417a926e938f821ff8a06eec689d982ed2a3673e9079fbec84" => :mojave
-    sha256 "f247ee0a9b64cd1febf86830f6aeed5492c09b651e3459973f87d532762aff61" => :high_sierra
+    rebuild 2
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "281cc65233bf8de758ea2a034b28ac6f062731fd5777f0039c302ce6b0a9be9f"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "281cc65233bf8de758ea2a034b28ac6f062731fd5777f0039c302ce6b0a9be9f"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "281cc65233bf8de758ea2a034b28ac6f062731fd5777f0039c302ce6b0a9be9f"
+    sha256 cellar: :any_skip_relocation, ventura:        "e9a2c2597476cc5d8b127fa7c7d6b6ec086ad922b1098e9635140d107b0aca16"
+    sha256 cellar: :any_skip_relocation, monterey:       "e9a2c2597476cc5d8b127fa7c7d6b6ec086ad922b1098e9635140d107b0aca16"
+    sha256 cellar: :any_skip_relocation, big_sur:        "e9a2c2597476cc5d8b127fa7c7d6b6ec086ad922b1098e9635140d107b0aca16"
+    sha256 cellar: :any_skip_relocation, catalina:       "e9a2c2597476cc5d8b127fa7c7d6b6ec086ad922b1098e9635140d107b0aca16"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "2e19831a0e171a39afba264fb8dec3ffbb825a9c6128c0ecf406f939253dd9f6"
   end
 
-  depends_on "python@3.8"
-
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/6b/34/415834bfdafca3c5f451532e8a8d9ba89a21c9743a0c59fbd0205c7f9426/six-1.15.0.tar.gz"
-    sha256 "30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"
-  end
+  depends_on "python@3.11"
+  depends_on "six"
 
   def install
     virtualenv_install_with_resources

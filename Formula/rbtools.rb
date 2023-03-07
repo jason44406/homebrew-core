@@ -3,42 +3,51 @@ class Rbtools < Formula
 
   desc "CLI and API for working with code and document reviews on Review Board"
   homepage "https://www.reviewboard.org/downloads/rbtools/"
-  url "https://files.pythonhosted.org/packages/04/98/10d5f67470c48e000cf9c95fb748f6a302eb01c0cb006d3ec37ff2f1e7c1/RBTools-1.0.3.tar.gz"
-  sha256 "ff4cea3ad7b2d1b1666b811021cf5047f1fbe9417428fb5133a40ede81e3e83c"
+  url "https://files.pythonhosted.org/packages/d2/ce/363101545b7a61dac2ab94f5a718ac9e2120d1dda3b2bc5acb40f8034eef/RBTools-4.0.tar.gz"
+  sha256 "67556ba8ce2e9977c4a4a5e14c4785cbe9215be56d04f8167fd703a4ae0f266f"
   license "MIT"
-  head "https://github.com/reviewboard/rbtools.git"
+  head "https://github.com/reviewboard/rbtools.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "5a748911d650da054e85d6c78c208664b64c9c78a22c6a44ad33959317893b2c" => :catalina
-    sha256 "cedc380f26e21667b91379462b7108f231c81a736650412f322c5256bb55a2cb" => :mojave
-    sha256 "6aa5f77cc2368f5e442635294a6878d1e3d738a0ac27083ba3856b255c0b3ba2" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "b0c78646c9b3f5bf3901902122d0835e00c8adbeb34886d765888a34c6505960"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "259be5e7eac1be107f3ab7f0cd97e39a48376ab4ebb6f4e08f0e56b6d21a01ba"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "57bc64193f6c2b156e719f5d60779693a487060279542274b4142ae33251eb1c"
+    sha256 cellar: :any_skip_relocation, ventura:        "3e19b6d11c68dce31cac490b0c41c366eb7f2fbe76cd1bae0fcf6fa86a0fc07b"
+    sha256 cellar: :any_skip_relocation, monterey:       "2f2aac7ec3b8ee6cb675a780d4d75e758f302948c7ab72a335969d356d5f683c"
+    sha256 cellar: :any_skip_relocation, big_sur:        "5ad603c0a25683d3350949e6796beab8f558138bd31521d04617df17ad542203"
+    sha256 cellar: :any_skip_relocation, catalina:       "e6616acfb3f1df1b2896644a3c5f9e9bdd9e41e12ce9a8d977a15630861b424a"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "e9a2e1211ddb4c3a444602a0977e6d00cc7b9acad2a0676c5771cbaae8ad89c0"
   end
 
-  depends_on "python@3.8"
+  depends_on "python-typing-extensions"
+  depends_on "python@3.11"
+  depends_on "six"
 
   resource "colorama" do
-    url "https://files.pythonhosted.org/packages/76/53/e785891dce0e2f2b9f4b4ff5bc6062a53332ed28833c7afede841f46a5db/colorama-0.4.1.tar.gz"
-    sha256 "05eed71e2e327246ad6b38c540c4a3117230b19679b875190486ddd2d721422d"
+    url "https://files.pythonhosted.org/packages/d8/53/6f443c9a4a8358a93a6792e2acffb9d9d5cb0a5cfd8802644b7b1c9a02e4/colorama-0.4.6.tar.gz"
+    sha256 "08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"
   end
 
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/dd/bf/4138e7bfb757de47d1f4b6994648ec67a51efe58fa907c1e11e350cddfca/six-1.12.0.tar.gz"
-    sha256 "d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73"
+  resource "pydiffx" do
+    url "https://files.pythonhosted.org/packages/d3/76/ad0677d82b7c75deb4da63151d463a9f90e97f3817b83f4e3f74034eb384/pydiffx-1.1.tar.gz"
+    sha256 "0986dbb0a87cbf79e244e2f1c0e2b696d8e86b3861ea2955757a61d38e139228"
   end
 
   resource "texttable" do
-    url "https://files.pythonhosted.org/packages/04/c6/7d2514d76fefba65bfe2fa4e1082c3adea9edef5a149a3027b8f2d5ee0eb/texttable-1.6.1.tar.gz"
-    sha256 "2b60a5304ccfbeac80ffae7350d7c2f5d7a24e9aab5036d0f82489746419d9b2"
+    url "https://files.pythonhosted.org/packages/d5/78/dbc2a5eab57a01fedaf975f2c16f04e76f09336dbeadb9994258aa0a2b1a/texttable-1.6.4.tar.gz"
+    sha256 "42ee7b9e15f7b225747c3fa08f43c5d6c83bc899f80ff9bae9319334824076e9"
   end
 
   resource "tqdm" do
-    url "https://files.pythonhosted.org/packages/d0/0a/50a145091ce0c02db89d0342a59327c1ddeee206ef2991f09158d4e52406/tqdm-4.32.2.tar.gz"
-    sha256 "25d4c0ea02a305a688e7e9c2cdc8f862f989ef2a4701ab28ee963295f5b109ab"
+    url "https://files.pythonhosted.org/packages/c1/c2/d8a40e5363fb01806870e444fc1d066282743292ff32a9da54af51ce36a2/tqdm-4.64.1.tar.gz"
+    sha256 "5f4f682a004951c1b450bc753c710e9280c5746ce6ffedee253ddbcbf54cf1e4"
   end
 
   def install
     virtualenv_install_with_resources
+    bash_completion.install "rbtools/commands/conf/rbt-bash-completion" => "rbt"
+    zsh_completion.install "rbtools/commands/conf/_rbt-zsh-completion" => "_rbt"
   end
 
   test do

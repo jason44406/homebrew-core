@@ -1,18 +1,28 @@
 class Camlp5 < Formula
   desc "Preprocessor and pretty-printer for OCaml"
   homepage "https://camlp5.github.io/"
-  url "https://github.com/camlp5/camlp5/archive/rel712.tar.gz"
-  version "7.12"
-  sha256 "fc4b50b9d917c2f844b909bdfd55735f3f658e32a415f0decc1c265bf3af42be"
+  url "https://github.com/camlp5/camlp5/archive/refs/tags/rel8.00.04.tar.gz"
+  sha256 "bddbcb5c3c2d410c9a61c4dfb6e46e3bbe984d25ac68221a7a65c82a29956b1d"
   license "BSD-3-Clause"
-  head "https://github.com/camlp5/camlp5.git"
+  head "https://github.com/camlp5/camlp5.git", branch: "master"
 
-  bottle do
-    sha256 "37dddf4bb25b87697f67da03bafce93b5ed258468e4ca3381f92a76a76c1b956" => :catalina
-    sha256 "b2fddd39a3d20529598983ab9a1b1b80c86e228111e613501a71a223bf0d5694" => :mojave
-    sha256 "ab802383d18fa5a34dc9dc1abd3d264c006693df3205a53c4be17cca6e5f223d" => :high_sierra
+  livecheck do
+    url :stable
+    regex(/^rel[._-]?v?(\d+(?:\.\d+)+)$/i)
   end
 
+  bottle do
+    sha256 arm64_ventura:  "899fe2710188efbca347817a752d5ddb8ce8288434cf2d5911611be932bcc9f3"
+    sha256 arm64_monterey: "63f83e1410d36a10a0f7878487126dcb8d1637d99c97584207d8e44dce84e10e"
+    sha256 arm64_big_sur:  "c7ca80e8ca739c8648a52da3ee4af318fe5e58de5fc8fdd7c7e08d822f44a512"
+    sha256 ventura:        "169409404579083889e4c5703bd717f19c7931b502e5b4f99e89e8d47d5af12b"
+    sha256 monterey:       "0576eff6922d5a79b3fdf401259876de4fa628bc2f14190214e47b6dc5210c47"
+    sha256 big_sur:        "2dc7634e71780ddb7bd0e6409086fd66073e3044f781dc0614daee7f31922bbb"
+    sha256 x86_64_linux:   "f749e0f60738786a289d2f5df57f6d4a82f27679353b059d9f6adf30c7b325ea"
+  end
+
+  depends_on "ocaml-findlib" => :build
+  depends_on "camlp-streams"
   depends_on "ocaml"
 
   def install

@@ -1,17 +1,20 @@
 class GnuSmalltalk < Formula
-  desc "GNU Smalltalk interpreter and image"
+  desc "Implementation of the Smalltalk language"
   homepage "https://www.gnu.org/software/smalltalk/"
   url "https://ftp.gnu.org/gnu/smalltalk/smalltalk-3.2.5.tar.xz"
   mirror "https://ftpmirror.gnu.org/smalltalk/smalltalk-3.2.5.tar.xz"
   sha256 "819a15f7ba8a1b55f5f60b9c9a58badd6f6153b3f987b70e7b167e7755d65acc"
   license "GPL-2.0"
-  revision 9
-  head "https://github.com/gnu-smalltalk/smalltalk.git"
+  revision 10
+  head "https://github.com/gnu-smalltalk/smalltalk.git", branch: "master"
 
   bottle do
-    sha256 "8a00e81f1a751efeec308de2bbf2e75a1173a636a29c27cec440c121208f0fe6" => :catalina
-    sha256 "0f569ca28ff2eaa54b36780c278a7170be42ef25e6d305852323952390be7270" => :mojave
-    sha256 "2f369eed3ac62fbe0c4c257cefa0c9477ce0a806859a18d65ba565fbfdc76786" => :high_sierra
+    rebuild 1
+    sha256 ventura:      "0d0749c9612ed7111d1e923e6cdee688f5aa2943dfbd45a62ab4701074b06fcf"
+    sha256 monterey:     "a1fc98f122660e0bcf6005eb04cdc7ab941e4e44ee888ca20de10a411f1d2938"
+    sha256 big_sur:      "3de7522ec83425a3ad683f0050298630d3a1dfe4065cd5f57c8e18e266e434d8"
+    sha256 catalina:     "b389791ed3f702f317883b54421e9a47122326607b603a592dd5903a057ff344"
+    sha256 x86_64_linux: "d10915dea08be1b60576263f619653fca70471bfa64a07f1a0d73eac94055362"
   end
 
   depends_on "autoconf" => :build
@@ -20,15 +23,15 @@ class GnuSmalltalk < Formula
   depends_on "pkg-config" => :build
   depends_on "gdbm"
   depends_on "gnutls"
-  depends_on "libffi"
   depends_on "libsigsegv"
   depends_on "libtool"
   depends_on "readline"
 
-  def install
-    # Fix build failure "Symbol not found: _clock_gettime"
-    ENV["ac_cv_search_clock_gettime"] = "no" if MacOS.version == "10.11" && MacOS::Xcode.version >= "8.0"
+  uses_from_macos "zip" => :build
+  uses_from_macos "libffi", since: :catalina
+  uses_from_macos "zlib"
 
+  def install
     args = %W[
       --disable-debug
       --disable-dependency-tracking

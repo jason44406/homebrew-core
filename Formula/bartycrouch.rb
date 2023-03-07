@@ -1,21 +1,27 @@
 class Bartycrouch < Formula
   desc "Incrementally update/translate your Strings files"
-  homepage "https://github.com/Flinesoft/BartyCrouch"
-  url "https://github.com/Flinesoft/BartyCrouch.git",
-      tag:      "4.2.0",
-      revision: "49b4cf27d5b521abf615d4ccb7754d642205f802"
+  homepage "https://github.com/FlineDev/BartyCrouch"
+  url "https://github.com/FlineDev/BartyCrouch.git",
+      tag:      "4.14.2",
+      revision: "a81a6ab4cc5c5346f942ae1becc7dfbc4498ab57"
   license "MIT"
-  head "https://github.com/Flinesoft/BartyCrouch.git"
+  head "https://github.com/FlineDev/BartyCrouch.git", branch: "main"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "86f4e9f2e99b0e6c34756e73365228833f3ea39251cb082eff4f37b7a38dc42e" => :catalina
+    sha256 cellar: :any, arm64_ventura:  "c8c0dee7be70232eddd703a234548d9f79f751fdef1902e94337e0774d1817c3"
+    sha256 cellar: :any, arm64_monterey: "087f446c620c908fee527b89659fc7a2792fac5cf021681ea8c77ca3df3313a7"
+    sha256 cellar: :any, ventura:        "60002a56fce98fabcf4b03e154d4c9b1844fb76d79ff5316a2a3549a1f85235d"
+    sha256 cellar: :any, monterey:       "8603c26b5ab1b2541e89f0a8bb75e81f3e4a2e513f559831a29e2ba3b26c1ce7"
   end
 
-  depends_on xcode: ["11.4", :build]
+  depends_on xcode: ["14.0", :build]
+  depends_on :macos
 
   def install
     system "make", "install", "prefix=#{prefix}"
+
+    # lib_InternalSwiftSyntaxParser is taken from Xcode, so it's a universal binary.
+    deuniversalize_machos(lib/"lib_InternalSwiftSyntaxParser.dylib")
   end
 
   test do
@@ -35,7 +41,7 @@ class Bartycrouch < Formula
     EOS
 
     system bin/"bartycrouch", "update"
-    assert_match /"oldKey" = "/, File.read("en.lproj/Localizable.strings")
-    assert_match /"test" = "/, File.read("en.lproj/Localizable.strings")
+    assert_match '"oldKey" = "', File.read("en.lproj/Localizable.strings")
+    assert_match '"test" = "', File.read("en.lproj/Localizable.strings")
   end
 end

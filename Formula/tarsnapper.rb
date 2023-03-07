@@ -3,26 +3,27 @@ class Tarsnapper < Formula
 
   desc "Tarsnap wrapper which expires backups using a gfs-scheme"
   homepage "https://github.com/miracle2k/tarsnapper"
-  url "https://github.com/miracle2k/tarsnapper/archive/0.4.tar.gz"
-  sha256 "94ac22c3ed72e6321596f7d229b34fd21b59a00035162c5b22f2a1ee64dc6d01"
+  url "https://files.pythonhosted.org/packages/4e/c5/0a08950e5faba96e211715571c68ef64ee37b399ef4f0c4ab55e66c3c4fe/tarsnapper-0.5.0.tar.gz"
+  sha256 "b129b0fba3a24b2ce80c8a2ecd4375e36b6c7428b400e7b7ab9ea68ec9bb23ec"
   license "BSD-2-Clause"
-  revision 2
+  revision 1
 
   bottle do
-    cellar :any
-    sha256 "1a349c8831f9538426254c7bd811c5144f481728ea259dd5ad8d0af629a1d406" => :catalina
-    sha256 "a153f159001c5be37fcf8ae16e89dc6aa99d752854620d3fb289e8745795a034" => :mojave
-    sha256 "a39196665b10717c42c69bc749e35cee06736e3509e992db950ccd6b248f2e23" => :high_sierra
+    rebuild 2
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "8690c0a428a6aec75099a4074a09fec690b075b637faf4516e31689ba0895997"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "115d72f69bbae2c7d0bcb2a6fd29c6a81b4d4c396f323291260de87ec994ed69"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "68cd9c18598e426c1543864175e1750c79b3226cba74dc2407c8458bbb1f38ec"
+    sha256 cellar: :any_skip_relocation, ventura:        "491055fc9954b048f053a207620e530ccf0c9f6316165be99c68304d04276c22"
+    sha256 cellar: :any_skip_relocation, monterey:       "132423d27552e162f1559a74619216f82989b45ba6180023eab2f819de89e3cc"
+    sha256 cellar: :any_skip_relocation, big_sur:        "a1b48f1909e44f5c9e80320b4c3f3b8a73393c23aab7e6a37d35a33ff403b04d"
+    sha256 cellar: :any_skip_relocation, catalina:       "2e8d49bfaef413323218d6ef7f49e55d360d554c29abcd4e64a1b3c20198955a"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "f08e3a8c30c95c7242dd60019f249fc5de32e1b4483d403976c986d06632b4de"
   end
 
-  depends_on "libyaml"
-  depends_on "python@3.8"
+  depends_on "python@3.11"
+  depends_on "pyyaml"
+  depends_on "six"
   depends_on "tarsnap"
-
-  resource "argparse" do
-    url "https://files.pythonhosted.org/packages/18/dd/e617cfc3f6210ae183374cd9f6a26b20514bbb5a792af97949c5aacddf0f/argparse-1.4.0.tar.gz"
-    sha256 "62b089a55be1d8949cd2bc7e0df0bddb9e028faefc8c32038cc84862aefdd6e4"
-  end
 
   resource "pexpect" do
     url "https://files.pythonhosted.org/packages/e5/9b/ff402e0e930e70467a7178abb7c128709a30dfb22d8777c043e501bc1b10/pexpect-4.8.0.tar.gz"
@@ -30,23 +31,13 @@ class Tarsnapper < Formula
   end
 
   resource "ptyprocess" do
-    url "https://files.pythonhosted.org/packages/7d/2d/e4b8733cf79b7309d84c9081a4ab558c89d8c89da5961bf4ddb050ca1ce0/ptyprocess-0.6.0.tar.gz"
-    sha256 "923f299cc5ad920c68f2bc0bc98b75b9f838b93b599941a6b63ddbc2476394c0"
+    url "https://files.pythonhosted.org/packages/20/e5/16ff212c1e452235a90aeb09066144d0c5a6a8c0834397e03f5224495c4e/ptyprocess-0.7.0.tar.gz"
+    sha256 "5c5d0a3b48ceee0b48485e0c26037c0acd7d29765ca3fbb5cb3831d347423220"
   end
 
   resource "python-dateutil" do
-    url "https://files.pythonhosted.org/packages/be/ed/5bbc91f03fa4c839c4c7360375da77f9659af5f7086b7a7bdda65771c8e0/python-dateutil-2.8.1.tar.gz"
-    sha256 "73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"
-  end
-
-  resource "PyYAML" do
-    url "https://files.pythonhosted.org/packages/64/c2/b80047c7ac2478f9501676c988a5411ed5572f35d1beff9cae07d321512c/PyYAML-5.3.1.tar.gz"
-    sha256 "b8eac752c5e14d3eca0e6dd9199cd627518cb5ec06add0de9d32baeee6fe645d"
-  end
-
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/21/9f/b251f7f8a76dec1d6651be194dfba8fb8d7781d10ab3987190de8391d08e/six-1.14.0.tar.gz"
-    sha256 "236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a"
+    url "https://files.pythonhosted.org/packages/4c/c4/13b4776ea2d76c115c1d1b84579f3764ee6d57204f6be27119f13a61d0a9/python-dateutil-2.8.2.tar.gz"
+    sha256 "0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"
   end
 
   def install
@@ -54,6 +45,6 @@ class Tarsnapper < Formula
   end
 
   test do
-    assert_match /usage: tarsnapper/, shell_output("#{bin}/tarsnapper --help")
+    assert_match "usage: tarsnapper", shell_output("#{bin}/tarsnapper --help")
   end
 end

@@ -1,22 +1,34 @@
 class TerraformLs < Formula
   desc "Terraform Language Server"
   homepage "https://github.com/hashicorp/terraform-ls"
-  url "https://github.com/hashicorp/terraform-ls/archive/v0.6.1.tar.gz"
-  sha256 "9a9f10995484ad12f09d79654181f437b1a8ce17be75dbdf799a0b604e6e8375"
+  url "https://github.com/hashicorp/terraform-ls/archive/v0.30.3.tar.gz"
+  sha256 "bd4025876095d980d570c1f237cbdafe812a52e0277545493520ebf65dfaec9f"
   license "MPL-2.0"
-  head "https://github.com/hashicorp/terraform-ls.git"
+  head "https://github.com/hashicorp/terraform-ls.git", branch: "main"
+
+  livecheck do
+    url :stable
+    strategy :github_latest
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "585a5b91ccd9e1ab9238c06cf5f3a49526d8be2df05ebf58df3948afdf9b3c14" => :catalina
-    sha256 "913dba8ec8eeb9db4933520083ab1b27c49f332dc48744b089c52d2a89960c7e" => :mojave
-    sha256 "87b86cbf117c4aa3cb11be9f4be025171e510127b40bed5d6db91fa3b6f1a7f4" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "436bcbfefdaaefd3ab5bed2269f037795aca6ae4933b227a1569f340d6a385a2"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "436bcbfefdaaefd3ab5bed2269f037795aca6ae4933b227a1569f340d6a385a2"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "436bcbfefdaaefd3ab5bed2269f037795aca6ae4933b227a1569f340d6a385a2"
+    sha256 cellar: :any_skip_relocation, ventura:        "bbfd9f8f2da648f46e13a76d0e90623d6d3ed6c86481ab022f09b1086a5a7e73"
+    sha256 cellar: :any_skip_relocation, monterey:       "bbfd9f8f2da648f46e13a76d0e90623d6d3ed6c86481ab022f09b1086a5a7e73"
+    sha256 cellar: :any_skip_relocation, big_sur:        "bbfd9f8f2da648f46e13a76d0e90623d6d3ed6c86481ab022f09b1086a5a7e73"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "e65ff9b062b18a913f97991ff447bc0f6cd1abfcab0db09b44cd6c84f31c8926"
   end
 
   depends_on "go" => :build
 
   def install
-    system "go", "build", *std_go_args, "-ldflags", "-s -w"
+    ldflags = %W[
+      -s -w
+      -X main.rawVersion=#{version}+#{tap.user}
+    ]
+    system "go", "build", *std_go_args(ldflags: ldflags.join(" "))
   end
 
   test do

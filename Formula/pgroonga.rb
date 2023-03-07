@@ -1,45 +1,62 @@
 class Pgroonga < Formula
   desc "PostgreSQL plugin to use Groonga as index"
   homepage "https://pgroonga.github.io/"
-  url "https://packages.groonga.org/source/pgroonga/pgroonga-2.2.6.tar.gz"
-  sha256 "799bb56468d66e3e736759f1e19c0deb8368e07d354932f06979302309efd42a"
+  url "https://packages.groonga.org/source/pgroonga/pgroonga-2.4.4.tar.gz"
+  sha256 "e5b29bfa4a2321a0ccc14b55d5156c3cb5cc03c08f7ec2d54ccc2212186292a4"
+  license "PostgreSQL"
+
+  livecheck do
+    url "https://packages.groonga.org/source/pgroonga/"
+    regex(/href=.*?pgroonga[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "9fd0decbb8035c8b86a85a9a18c69cc18ca80343aa79142437ebc085d2e92c0c" => :catalina
-    sha256 "9a7b21ee071a28ce41b2407509801cdf526a4752f84a14e4a5931eec18f32cd2" => :mojave
-    sha256 "83504f44a4635b8e70d1505b315895bed3a94d2925c968f42f481a23afb1ab10" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "33ac3a412ecda9e790dfd3956caad5051166d99301dd473d434cff8782466955"
+    sha256 cellar: :any,                 arm64_monterey: "54f48d1f03a8987de38103e6ddb091db2221c257bff9dad69342fd3652dcac32"
+    sha256 cellar: :any,                 arm64_big_sur:  "69f0464c1fc266d33a46daeba0afc1e2b0a09370bbe8a304ec3138c166ac1671"
+    sha256 cellar: :any,                 ventura:        "016b9c9f26829718b6b54ea03c14bc892b58093944f694b6ed2136a8631b551d"
+    sha256 cellar: :any,                 monterey:       "e2b7ee533c4adf25f754894772fa77f86a72b68bae1bab270f5068d99313370e"
+    sha256 cellar: :any,                 big_sur:        "3cb4b9ef822df08f4070adabf35f2cbc3aba4d6e7c5ee8bb0b106953828d2520"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "0003684ef9e3936b1d760f369770edc801ad7e7884797c0250dce32bf19697ac"
   end
 
   depends_on "pkg-config" => :build
   depends_on "groonga"
-  depends_on "postgresql"
+  depends_on "postgresql@14"
+
+  def postgresql
+    Formula["postgresql@14"]
+  end
 
   def install
+    ENV["PG_CONFIG"] = postgresql.opt_bin/"pg_config"
+
     system "make"
     mkdir "stage"
     system "make", "install", "DESTDIR=#{buildpath}/stage"
 
-    lib.install Dir["stage/**/lib/*"]
-    (share/"postgresql/extension").install Dir["stage/**/share/postgresql/extension/*"]
+    stage_path = File.join("stage", HOMEBREW_PREFIX)
+    lib.install (buildpath/stage_path/"lib").children
+    share.install (buildpath/stage_path/"share").children
+    include.install (buildpath/stage_path/"include").children
   end
 
   test do
-    return if ENV["CI"]
+    pg_ctl = postgresql.opt_bin/"pg_ctl"
+    psql = postgresql.opt_bin/"psql"
+    port = free_port
 
-    pg_bin = Formula["postgresql"].opt_bin
-    pg_port = "55561"
-    system "#{pg_bin}/initdb", testpath/"test"
-    pid = fork { exec "#{pg_bin}/postgres", "-D", testpath/"test", "-p", pg_port }
+    system pg_ctl, "initdb", "-D", testpath/"test"
+    (testpath/"test/postgresql.conf").write <<~EOS, mode: "a+"
 
+      shared_preload_libraries = 'pgroonga'
+      port = #{port}
+    EOS
+    system pg_ctl, "start", "-D", testpath/"test", "-l", testpath/"log"
     begin
-      sleep 2
-      system "#{pg_bin}/createdb", "-p", pg_port
-      system "#{pg_bin}/psql", "-p", pg_port, "--command", "CREATE DATABASE test;"
-      system "#{pg_bin}/psql", "-p", pg_port, "-d", "test", "--command", "CREATE EXTENSION pgroonga;"
+      system psql, "-p", port.to_s, "-c", "CREATE EXTENSION \"pgroonga\";", "postgres"
     ensure
-      Process.kill 9, pid
-      Process.wait pid
+      system pg_ctl, "stop", "-D", testpath/"test"
     end
   end
 end

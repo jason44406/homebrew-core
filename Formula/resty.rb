@@ -1,19 +1,27 @@
 class Resty < Formula
+  include Language::Python::Shebang
+
   desc "Command-line REST client that can be used in pipelines"
   homepage "https://github.com/micha/resty"
   url "https://github.com/micha/resty/archive/v3.0.tar.gz"
   sha256 "9ed8f50dcf70a765b3438840024b557470d7faae2f0c1957a011ebb6c94b9dd1"
   license "MIT"
-  head "https://github.com/micha/resty.git"
+  revision 1
+  head "https://github.com/micha/resty.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "cb5ad84cbacf18282a5ad172a48471d0e7ac007e4799f358fff049b8309aa27f" => :catalina
-    sha256 "beee774062f1c32a72f203d0c8c5b0900ce85589c32b385ade712b74e5e1c73b" => :mojave
-    sha256 "e65c38b826157c35f2e3acd50846be691b6b1a6231a23c62567c24a052d0dc7e" => :high_sierra
-    sha256 "fb754eb95b4cb573eef1807f5dcddab59e021a4326022a9fb8126fb8e80ff247" => :sierra
-    sha256 "435854dd9bc54f09e46f3f895fc0801ce90a30b23b8d9f109f361f89666fcfe1" => :el_capitan
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "1a3f52cd17e22f2d66c3577cc4f097624db50b8412a7c346568b120367284518"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "1a3f52cd17e22f2d66c3577cc4f097624db50b8412a7c346568b120367284518"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "e5c7150a045b16d9a42e1a15882d3877aae7022500db56222b8ee065ac37a2b7"
+    sha256 cellar: :any_skip_relocation, ventura:        "71ee80ce7ac984d228659e5411b95f8e28331b623421a78aa7e5cd70548189ad"
+    sha256 cellar: :any_skip_relocation, monterey:       "71ee80ce7ac984d228659e5411b95f8e28331b623421a78aa7e5cd70548189ad"
+    sha256 cellar: :any_skip_relocation, big_sur:        "0bd9a42083f75c4766e0f880fae27b5a62bdc54c5ce017793f731da663571449"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "664f2cbfde2529e7749b5f9b078cf1382fd0cf8f00a984b646d0b6c710a4a3b5"
   end
+
+  uses_from_macos "perl"
+  uses_from_macos "python"
 
   conflicts_with "nss", because: "both install `pp` binaries"
 
@@ -37,17 +45,21 @@ class Resty < Formula
     bin.env_script_all_files(libexec/"bin", PERL5LIB: ENV["PERL5LIB"])
 
     bin.install "pypp"
+    if !OS.mac? || MacOS.version >= :monterey
+      rewrite_shebang detected_python_shebang(use_python_from_path: true), bin/"pypp"
+    end
   end
 
   def caveats
     <<~EOS
-      To activate the resty, add the following at the end of your #{shell_profile}:
-      source #{opt_pkgshare}/resty
+      To activate the resty, add the following to your shell profile e.g. ~/.profile
+      or ~/.zshrc:
+        source #{opt_pkgshare}/resty
     EOS
   end
 
   test do
-    cmd = "zsh -c '. #{pkgshare}/resty && resty https://api.github.com' 2>&1"
+    cmd = "bash -c '. #{pkgshare}/resty && resty https://api.github.com' 2>&1"
     assert_equal "https://api.github.com*", shell_output(cmd).chomp
     json_pretty_pypp=<<~EOS
       {

@@ -1,9 +1,18 @@
 class Ack < Formula
   desc "Search tool like grep, but optimized for programmers"
   homepage "https://beyondgrep.com/"
-  url "https://beyondgrep.com/ack-v3.4.0"
-  sha256 "e048c5e6144f5932d8672c2fade81d9073d5b3ca1517b84df006de3d25414fc1"
+  url "https://beyondgrep.com/ack-v3.7.0"
+  sha256 "dd5a7c2df81ee15d97b6bf6b3ff84ad2529c98e1571817861c7d4fd8d48af908"
   license "Artistic-2.0"
+
+  livecheck do
+    url "https://beyondgrep.com/install/"
+    regex(/href=.*?ack[._-]v?(\d+(?:\.\d+)+)["' >]/i)
+  end
+
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "a54aa4f028ef042948961ef62524557dd8afd2c05eb658bd5f6d1ec04dddc22f"
+  end
 
   head do
     url "https://github.com/beyondgrep/ack3.git", branch: "dev"
@@ -14,7 +23,9 @@ class Ack < Formula
     end
   end
 
-  bottle :unneeded
+  depends_on "pod2man" => :build
+
+  uses_from_macos "perl"
 
   def install
     if build.head?
@@ -36,7 +47,7 @@ class Ack < Formula
       man1.install "blib/man1/ack.1"
     else
       bin.install "ack-v#{version.to_s.tr("-", "_")}" => "ack"
-      system "pod2man", "#{bin}/ack", "ack.1"
+      system "#{Formula["pod2man"].opt_bin}/pod2man", "#{bin}/ack", "ack.1", "--release=ack v#{version}"
       man1.install "ack.1"
     end
   end

@@ -1,32 +1,33 @@
 class Clhep < Formula
   desc "Class Library for High Energy Physics"
   homepage "https://proj-clhep.web.cern.ch/proj-clhep/"
-  url "https://proj-clhep.web.cern.ch/proj-clhep/dist1/clhep-2.4.1.3.tgz"
-  sha256 "27c257934929f4cb1643aa60aeaad6519025d8f0a1c199bc3137ad7368245913"
-  license "GPL-3.0"
+  url "https://proj-clhep.web.cern.ch/proj-clhep/dist1/clhep-2.4.6.4.tgz"
+  sha256 "49c89330f1903ef707d3c5d79c16a7c5a6f2c90fc290e2034ee3834809489e57"
+  license "GPL-3.0-only"
+  head "https://gitlab.cern.ch/CLHEP/CLHEP.git", branch: "develop"
 
-  bottle do
-    cellar :any
-    sha256 "8c8ce7164df92c63519e8d361f341ef848796cdd4087982e507f32d06952afbf" => :catalina
-    sha256 "fda146a801791ab47ea095d0ba4d201de7fe52a23b90626e56f05aaeaf181a8f" => :mojave
-    sha256 "7cd39923fcc37640a5f8bf841252c1f914494443aa5c359a6aa68a6e57ee9282" => :high_sierra
+  livecheck do
+    url :homepage
+    regex(%r{atest release.*?<b>v?(\d+(?:\.\d+)+)</b>}im)
   end
 
-  head do
-    url "https://gitlab.cern.ch/CLHEP/CLHEP.git"
-
-    depends_on "autoconf" => :build
-    depends_on "automake" => :build
+  bottle do
+    sha256 cellar: :any,                 arm64_ventura:  "7b67d5f2126c654cc71cce550503c9ece99a096a282ee6d4c72ba1b9728a7719"
+    sha256 cellar: :any,                 arm64_monterey: "8cb9c70b5a6e2c381aeb3b90771a067b3a1c1ab4b90bebd231c83ab41960042e"
+    sha256 cellar: :any,                 arm64_big_sur:  "fd58699820df87c48947705841efbe39f3a37810b3c666490246b61b3170ecb2"
+    sha256 cellar: :any,                 ventura:        "e21bf078cd675c90ff8a54116dc0e9b2102e833eb903c9aef94c840db270167c"
+    sha256 cellar: :any,                 monterey:       "03503a7558e25c9544a7857d7c7e8bbb1a319dccda7e6aba044572a40d2ceb05"
+    sha256 cellar: :any,                 big_sur:        "1ba0050c52c6c47ce4120bcadb002afa7c4b19d1c263ad4125dd6218b0c8431c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "cd7aae44f9650430c7be0bcdd8ee71bf1044aa48a15ee4186353913e888f1fdc"
   end
 
   depends_on "cmake" => :build
 
   def install
-    mv (buildpath/"CLHEP").children, buildpath if build.stable?
-    mkdir "build" do
-      system "cmake", "..", *std_cmake_args
-      system "make", "install"
-    end
+    (buildpath/"CLHEP").install buildpath.children if build.head?
+    system "cmake", "-S", "CLHEP", "-B", "build", *std_cmake_args, "-DCMAKE_INSTALL_RPATH=#{rpath}"
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
   end
 
   test do
@@ -42,7 +43,7 @@ class Clhep < Formula
         return 0;
       }
     EOS
-    system ENV.cxx, "-L#{lib}", "-lCLHEP", "-I#{include}/CLHEP",
+    system ENV.cxx, "-std=c++11", "-L#{lib}", "-lCLHEP", "-I#{include}/CLHEP",
            testpath/"test.cpp", "-o", "test"
     assert_equal "r: 3.74166 phi: 1.10715 cos(theta): 0.801784",
                  shell_output("./test").chomp

@@ -1,21 +1,24 @@
 class Aravis < Formula
   desc "Vision library for genicam based cameras"
   homepage "https://wiki.gnome.org/Projects/Aravis"
-  url "https://download.gnome.org/sources/aravis/0.6/aravis-0.6.4.tar.xz"
-  sha256 "b595a4724da51d0fdb71f2b6e2f1e12f328e423155c3e84607ee2ce704f516bd"
+  url "https://github.com/AravisProject/aravis/releases/download/0.8.26/aravis-0.8.26.tar.xz"
+  sha256 "cb866cbcf4de2ab8fedf5d6a1213dd714347adf25d9e1812df2283230f065f80"
+  license "LGPL-2.1-or-later"
 
   bottle do
-    sha256 "1bd9c1847561b56ca3f5298e9a48f2347548387d6a677e31905df4c455cddd5a" => :catalina
-    sha256 "b851c3d06486230de2a79a57d82455029cb07890749e4525dc929a075cce1c70" => :mojave
-    sha256 "948909cbf756dc510beff0d8bb88d31f49b8d335d637b260592dff29608939f6" => :high_sierra
-    sha256 "b97fa0af26f27a4a7ff3f56b6e24b300199ad7f208343a431e8ea90a806a9d9c" => :sierra
+    sha256 arm64_ventura:  "7b8539b5c6715fbe5e1c1190729a0cafcd8c7ad2b68f9b2de3a367d2888d96a4"
+    sha256 arm64_monterey: "f1b8c71965cc30d5a0e67b74cd4e413c08f43524ee3c085947ab6f4e23dbc914"
+    sha256 arm64_big_sur:  "92c03d273363efbeddd1718d304fda597f7a90bec40ddf9841bd5b8e98e9b37b"
+    sha256 ventura:        "7c0ee991c488b3e8b47cbf0931f6da3498af1c4c9b1bc2da7aaf2e05ee2d5a29"
+    sha256 monterey:       "c1cbe8f7c81f5e6129b13939c61318769db6a5bcaa96062daee10ac2abd2e91b"
+    sha256 big_sur:        "058cf7af98f1f5b12398e7783e5fd8e0b5790e6e564af83c7b77b2e1a5a2c3cd"
+    sha256 x86_64_linux:   "191211b85ea19f09472092668492e9ba9b83979c79b2f2bb22e12b197ef63489"
   end
 
-  depends_on "autoconf" => :build
-  depends_on "automake" => :build
   depends_on "gobject-introspection" => :build
   depends_on "gtk-doc" => :build
-  depends_on "libtool" => :build
+  depends_on "meson" => :build
+  depends_on "ninja" => :build
   depends_on "pkg-config" => :build
   depends_on "adwaita-icon-theme"
   depends_on "glib"
@@ -29,15 +32,13 @@ class Aravis < Formula
   depends_on "libusb"
 
   def install
-    # icon cache update must happen in post_install
-    inreplace "viewer/Makefile.am", "install-data-hook: install-update-icon-cache", ""
+    ENV["XML_CATALOG_FILES"] = "#{etc}/xml/catalog"
 
-    system "autoreconf", "-fi"
-    system "./configure", "--disable-dependency-tracking",
-                          "--disable-silent-rules",
-                          "--enable-introspection",
-                          "--prefix=#{prefix}"
-    system "make", "install"
+    mkdir "build" do
+      system "meson", *std_meson_args, ".."
+      system "ninja"
+      system "ninja", "install"
+    end
   end
 
   def post_install
@@ -45,7 +46,8 @@ class Aravis < Formula
   end
 
   test do
-    output = shell_output("gst-inspect-1.0 #{lib}/gstreamer-1.0/libgstaravis.0.6.so")
-    assert_match /Description *Aravis Video Source/, output
+    lib_ext = OS.mac? ? "dylib" : "so"
+    output = shell_output("gst-inspect-1.0 #{lib}/gstreamer-1.0/libgstaravis.#{version.major_minor}.#{lib_ext}")
+    assert_match(/Description *Aravis Video Source/, output)
   end
 end

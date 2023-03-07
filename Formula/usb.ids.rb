@@ -1,15 +1,17 @@
 class UsbIds < Formula
   desc "Repository of vendor, device, subsystem and device class IDs used in USB devices"
   homepage "http://www.linux-usb.org/usb-ids.html"
-  url "https://deb.debian.org/debian/pool/main/u/usb.ids/usb.ids_2020.06.22.orig.tar.xz"
-  sha256 "d55befb3b8bdb5db799fb8894c4e27ef909b2975c062fa6437297902213456a7"
+  url "https://deb.debian.org/debian/pool/main/u/usb.ids/usb.ids_2023.01.16.orig.tar.xz"
+  sha256 "e3fa8aee278a02ad63759ff1db9aa556164ea42f5b098c2bc1e9f2a6c1edf390"
   license any_of: ["GPL-2.0-or-later", "BSD-3-Clause"]
 
+  livecheck do
+    url "https://deb.debian.org/debian/pool/main/u/usb.ids/"
+    regex(/href=.*?usb\.ids[._-]v?(\d+(?:\.\d+)+)\.orig\.t/i)
+  end
+
   bottle do
-    cellar :any_skip_relocation
-    sha256 "86ee1383749511bfa93b03e04b34e99f405abfbe791df50be85f992a303965c1" => :catalina
-    sha256 "9acaeabecc451f483976baeee5967a6123d4945b3227942b15ecec8bb390e44f" => :mojave
-    sha256 "cb6f7ce696f58356e9ab5679ac4dba62f66d597dd62eacdb64e94e94c10e5be8" => :high_sierra
+    sha256 cellar: :any_skip_relocation, all: "7696bf5ca3310cfc6af015d1e5d3b4c9448afbda0cf68286f8a3538b766c012c"
   end
 
   def install

@@ -1,24 +1,25 @@
 class Pegtl < Formula
   desc "Parsing Expression Grammar Template Library"
   homepage "https://github.com/taocpp/PEGTL"
-  url "https://github.com/taocpp/PEGTL/archive/2.8.3.tar.gz"
-  sha256 "88b8e4ded6ea1f3f2223cc3e37072e2db1e123b90d36c309816341ae9d966723"
-  license "MIT"
+  url "https://github.com/taocpp/PEGTL/archive/3.2.7.tar.gz"
+  sha256 "d6cd113d8bd14e98bcbe7b7f8fc1e1e33448dc359e8cd4cca30e034ec2f0642d"
+  license "BSL-1.0"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "10ad60dbc5a6c4054579b2e7529dfb053395cfd2c9bc5ddb5c2bf6b939b8f9cd" => :catalina
-    sha256 "10ad60dbc5a6c4054579b2e7529dfb053395cfd2c9bc5ddb5c2bf6b939b8f9cd" => :mojave
-    sha256 "10ad60dbc5a6c4054579b2e7529dfb053395cfd2c9bc5ddb5c2bf6b939b8f9cd" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, all: "7688f9b9cba1325c28f231fa6266c7a7c4177dfb5fe4467147878aec7b7778da"
   end
 
   depends_on "cmake" => :build
+
+  fails_with gcc: "5"
 
   def install
     mkdir "build" do
       system "cmake", "..", *std_cmake_args,
                             "-DPEGTL_BUILD_TESTS=OFF",
-                            "-DPEGTL_BUILD_EXAMPLES=OFF"
+                            "-DPEGTL_BUILD_EXAMPLES=OFF",
+                            "-DCMAKE_CXX_STANDARD=17"
       system "make", "install"
     end
     rm "src/example/pegtl/CMakeLists.txt"
@@ -26,7 +27,7 @@ class Pegtl < Formula
   end
 
   test do
-    system ENV.cxx, pkgshare/"examples/hello_world.cpp", "-std=c++11", "-o", "helloworld"
+    system ENV.cxx, pkgshare/"examples/hello_world.cpp", "-std=c++17", "-o", "helloworld"
     assert_equal "Good bye, homebrew!\n", shell_output("./helloworld 'Hello, homebrew!'")
   end
 end

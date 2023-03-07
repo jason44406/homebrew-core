@@ -5,7 +5,21 @@ class Automysqlbackup < Formula
   version "3.0-rc6"
   sha256 "889e064d086b077e213da11e937ea7242a289f9217652b9051c157830dc23cc0"
 
-  bottle :unneeded
+  livecheck do
+    url :stable
+    regex(%r{url=.*?/automysqlbackup[._-]v?(\d+(?:\.\d+)+(?:[._-]?rc\d+)?)\.t}i)
+  end
+
+  bottle do
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "452812b8437cd65781adbe94558e474283d72ba8a883250a4d141c4e8c284f8c"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "452812b8437cd65781adbe94558e474283d72ba8a883250a4d141c4e8c284f8c"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "452812b8437cd65781adbe94558e474283d72ba8a883250a4d141c4e8c284f8c"
+    sha256 cellar: :any_skip_relocation, ventura:        "97797f99e2b639017bf9dc545b3beaefcf22276a8fad76785afc96674813dcb1"
+    sha256 cellar: :any_skip_relocation, monterey:       "97797f99e2b639017bf9dc545b3beaefcf22276a8fad76785afc96674813dcb1"
+    sha256 cellar: :any_skip_relocation, big_sur:        "97797f99e2b639017bf9dc545b3beaefcf22276a8fad76785afc96674813dcb1"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "452812b8437cd65781adbe94558e474283d72ba8a883250a4d141c4e8c284f8c"
+  end
 
   def install
     inreplace "automysqlbackup" do |s|
@@ -25,40 +39,17 @@ class Automysqlbackup < Formula
         #{etc}/automysqlbackup/automysqlbackup.conf
       to set AutoMySQLBackup up to find your database and backup directory.
 
-      The included plist file will run AutoMySQLBackup every day at 04:00.
+      The included service will run AutoMySQLBackup every day at 04:00.
     EOS
   end
 
-  plist_options manual: "automysqlbackup"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>OnDemand</key>
-          <true/>
-          <key>RunAtLoad</key>
-          <true/>
-          <key>StartCalendarInterval</key>
-          <dict>
-            <key>Hour</key>
-            <integer>04</integer>
-            <key>Minute</key>
-            <integer>00</integer>
-          </dict>
-          <key>ProgramArguments</key>
-          <array>
-              <string>#{sbin}/automysqlbackup</string>
-          </array>
-          <key>WorkingDirectory</key>
-          <string>#{HOMEBREW_PREFIX}</string>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run opt_sbin/"automysqlbackup"
+    working_dir HOMEBREW_PREFIX
+    run_type :cron
+    cron "0 4 * * *"
+    log_path var/"log/automysqlbackup.log"
+    error_log_path var/"log/automysqlbackup.log"
   end
 
   test do

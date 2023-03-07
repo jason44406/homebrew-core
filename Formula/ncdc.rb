@@ -1,20 +1,28 @@
 class Ncdc < Formula
   desc "NCurses direct connect"
   homepage "https://dev.yorhel.nl/ncdc"
-  url "https://dev.yorhel.nl/download/ncdc-1.22.1.tar.gz"
-  sha256 "d15fd378aa345f423e59a38691c668f69b516cd4b8afbbcdc446007740c3afad"
+  url "https://dev.yorhel.nl/download/ncdc-1.23.1.tar.gz"
+  sha256 "95881214077a5b3c24fbbaf020ada0d084ee3b596a7c3cc1e0e68aaac4c9b5e6"
   license "MIT"
 
+  livecheck do
+    url :homepage
+    regex(/href=.*?ncdc[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
+
   bottle do
-    cellar :any
-    sha256 "2f074f7eb6aa1a1d0024e1f900315cb4bd056ad711c0f504acb160714e07597a" => :catalina
-    sha256 "4490571bb2101e00e3edc39ab25baf75a63dfd9617381ae0f102a274a2fbf622" => :mojave
-    sha256 "bd143dd032839762597253796c562607e43c654c128d4f4162fd382fd660dbfd" => :high_sierra
-    sha256 "59f5011b9c39b78c75a2bf5d93ae398a16660852a3b8fd8ed3a3389ea463fbf7" => :sierra
+    sha256 cellar: :any,                 arm64_ventura:  "98457589a1d9849757717a82ae339760498fc175be64629f3b0ffb983cb1b1d5"
+    sha256 cellar: :any,                 arm64_monterey: "53c31dd30f67aed950af38ff4c38caa28d3457be2e0c0a37ff458a36850126e9"
+    sha256 cellar: :any,                 arm64_big_sur:  "98556bfc802f5fcf60afe2233c49f214f6cde7c55455f1cb0faa3b69661e4d6c"
+    sha256 cellar: :any,                 ventura:        "0de5298a38529b43420a6baad568a0f68f9daba603d38ef0d74feacc63f76352"
+    sha256 cellar: :any,                 monterey:       "322804a1c48dc8c02ad86dc62a8201cdf2396922e3b1192a33ca4e164ec3110d"
+    sha256 cellar: :any,                 big_sur:        "f58142f3ee9f4e59823506472ad771d6eb6a0ca6ba4bc24d52c08668854f8cc9"
+    sha256 cellar: :any,                 catalina:       "b97cd73d131b3635595adedffdd2044cc8f39b6d32b3e0d35dc2c6e9b6a280d5"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "367c1d0a6db764a9e04b6a71cd0da854cb827ea762a5df1a66f4c39f8b1ef417"
   end
 
   head do
-    url "https://g.blicky.net/ncdc.git", shallow: false
+    url "https://g.blicky.net/ncdc.git", branch: "master"
 
     depends_on "autoconf" => :build
     depends_on "automake" => :build

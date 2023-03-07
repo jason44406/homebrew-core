@@ -1,28 +1,24 @@
 class Frugal < Formula
   desc "Cross language code generator for creating scalable microservices"
   homepage "https://github.com/Workiva/frugal"
-  url "https://github.com/Workiva/frugal/archive/v3.9.9.tar.gz"
-  sha256 "e7ddafb70f8413fb62f4d4760437bdc881c4da4a903e8c4fa22c7298ca0cc98e"
+  url "https://github.com/Workiva/frugal/archive/v3.16.14.tar.gz"
+  sha256 "ce41f26a39dbfa7f27309c9ce56e0ce62e95bcc563049f2c96953f36731c962a"
   license "Apache-2.0"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "a18fb61f92432c7449f345a7cc38de60c4265a9cd1bc0e136aa44a0cedff607a" => :catalina
-    sha256 "9d98b771e79ce21e380a498cfe0234324d1f9e4416917303dad9366e63f3c9c0" => :mojave
-    sha256 "006fb4433a47e988ddf78894674a83733179821c52f4c5674375c17c503a1409" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "838324684e6aa3c96198ee53ef2bb5b80e6325412c31b4b89e4320a13c55f97f"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "894e14ff033ee93ee57736833ceacad1aba9c35ad1dc61119fcc0b44d81872ef"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "92aa4c445046228baf50947a7d8f2eccc04e7f23e4666bd89766f1e52c66e8c0"
+    sha256 cellar: :any_skip_relocation, ventura:        "405c156ee3143305c49fd44dec81ff8c2727152f2113895af78a4de9712a020e"
+    sha256 cellar: :any_skip_relocation, monterey:       "55322fcc67352b90e066df35a49db1903e139ed3d915b9bb18e9e98123d5ad1c"
+    sha256 cellar: :any_skip_relocation, big_sur:        "1eb788cc57de6d3d7e8ba9766221138d4a5aa4cee618cee40d571e9a9ec5ae6a"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "b57baa685d3e52c11cacfa929bf1eb0633b703106bd5d077d6ada5929b345c92"
   end
 
-  depends_on "glide" => :build
   depends_on "go" => :build
 
   def install
-    ENV["GOPATH"] = buildpath
-    (buildpath/"src/github.com/Workiva/frugal").install buildpath.children
-    cd "src/github.com/Workiva/frugal" do
-      system "glide", "install"
-      system "go", "build", "-o", bin/"frugal"
-      prefix.install_metafiles
-    end
+    system "go", "build", *std_go_args(ldflags: "-s -w")
   end
 
   test do

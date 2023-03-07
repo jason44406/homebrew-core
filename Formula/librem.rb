@@ -1,29 +1,37 @@
 class Librem < Formula
   desc "Toolkit library for real-time audio and video processing"
-  homepage "http://www.creytiv.com"
-  url "http://www.creytiv.com/pub/rem-0.6.0.tar.gz"
-  sha256 "417620da3986461598aef327c782db87ec3dd02c534701e68f4c255e54e5272c"
+  homepage "https://github.com/baresip/rem"
+  url "https://github.com/baresip/rem/archive/refs/tags/v2.12.0.tar.gz"
+  sha256 "0583221e8fa9404eb9805a99ec96446f1fea9731250b01707e7225cece7878a4"
+  license "BSD-3-Clause"
 
   bottle do
-    cellar :any
-    sha256 "95862b3451f24c02dd50da1b7c5dfe798370431994f0b26f4418f6e68bc461ec" => :catalina
-    sha256 "0303178e3833e6799d2863835cdd3a6c9e639b2fdcf5b3925bae1fb2690419f1" => :mojave
-    sha256 "7b2cfbb41f81dd14636626f5d6e325d79cd7a69af540ddf722a7943a934c92ea" => :high_sierra
-    sha256 "37e4fc160a28de520ac9ee23dafff09e8d6f733d022110782fd8aa2bda7245a4" => :sierra
+    sha256 cellar: :any,                 arm64_ventura:  "6311d836e32f2cc72490c1484418f76089bf27b37fe5c1e5ddd77ae9fb3953bc"
+    sha256 cellar: :any,                 arm64_monterey: "fb7961d1461685a6dd70c8d14a4598114ec3bb4d4183e8d30a93f5c8b7d70667"
+    sha256 cellar: :any,                 arm64_big_sur:  "b10ed4a7fc586c070c09e41301d61bad6a446ec1cc5b1a6f5b033411e2618b58"
+    sha256 cellar: :any,                 ventura:        "cd528ed5f81d091514814fa741f0f0446694d1c46c0ed4cf151f3a3c75703c22"
+    sha256 cellar: :any,                 monterey:       "f502db9e4dc4e0e0bd218d89facf211672b64a126a8d107be672e193835dc5af"
+    sha256 cellar: :any,                 big_sur:        "0edf7381b5f92ae438f6fec144e6a50786d82ee8e9adf45f22f6e558ec209c6c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "17184b4ef23c26a8786392aabc829373e154f51915961761fc57a13140d76206"
   end
 
+  depends_on "cmake" => :build
   depends_on "libre"
 
   def install
     libre = Formula["libre"]
-    system "make", "install", "PREFIX=#{prefix}",
-                              "LIBRE_MK=#{libre.opt_share}/re/re.mk",
-                              "LIBRE_INC=#{libre.opt_include}/re",
-                              "LIBRE_SO=#{libre.opt_lib}"
+    args = %W[
+      -DCMAKE_BUILD_TYPE=Release
+      -DRE_INCLUDE_DIR=#{libre.opt_include}/re
+    ]
+    system "cmake", "-B", "build", *args, *std_cmake_args
+    system "cmake", "--build", "build", "-j"
+    system "cmake", "--install", "build"
   end
 
   test do
     (testpath/"test.c").write <<~EOS
+      #include <stdint.h>
       #include <re/re.h>
       #include <rem/rem.h>
       int main() {

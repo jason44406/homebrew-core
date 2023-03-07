@@ -1,29 +1,30 @@
 class Restic < Formula
   desc "Fast, efficient and secure backup program"
-  homepage "https://restic.github.io/"
-  url "https://github.com/restic/restic/archive/v0.9.6.tar.gz"
-  sha256 "1cc8655fa99f06e787871a9f8b5ceec283c856fa341a5b38824a0ca89420b0fe"
+  homepage "https://restic.net/"
+  url "https://github.com/restic/restic/archive/v0.15.1.tar.gz"
+  sha256 "fce382fdcdac0158a35daa640766d5e8a6e7b342ae2b0b84f2aacdff13990c52"
   license "BSD-2-Clause"
-  head "https://github.com/restic/restic.git"
+  head "https://github.com/restic/restic.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "cfbf35af0c86f5893fbecfb60085c49edd22ed8eb0861e6921cd85922680de44" => :catalina
-    sha256 "92b98a560b99f2a295e8e40689cd2fa9b8f04df62d6846fed8d13b63e0c2f960" => :mojave
-    sha256 "736201b7e7014d36f9ccd79a1deee1f577b231975628a2c405ca424882f00e7f" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "767d2b6fade6fbad2170275c46b01768a071b3c7aa926978d4906c37fcb8a59f"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "767d2b6fade6fbad2170275c46b01768a071b3c7aa926978d4906c37fcb8a59f"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "767d2b6fade6fbad2170275c46b01768a071b3c7aa926978d4906c37fcb8a59f"
+    sha256 cellar: :any_skip_relocation, ventura:        "7672fc2833ec1a9e0ba6c8358a63b17997dab2f69f21800cd38b9f5b3548e615"
+    sha256 cellar: :any_skip_relocation, monterey:       "7672fc2833ec1a9e0ba6c8358a63b17997dab2f69f21800cd38b9f5b3548e615"
+    sha256 cellar: :any_skip_relocation, big_sur:        "7672fc2833ec1a9e0ba6c8358a63b17997dab2f69f21800cd38b9f5b3548e615"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "6ea5e20625a83bb7180031bdbbe8f8c21a61068786f5c39bdf0fa869614c251b"
   end
 
   depends_on "go" => :build
 
   def install
-    ENV["GOPATH"] = HOMEBREW_CACHE/"go_cache"
-    ENV["CGO_ENABLED"] = "1"
-
-    system "go", "run", "-mod=vendor", "build.go", "--enable-cgo"
+    system "go", "run", "build.go"
 
     mkdir "completions"
     system "./restic", "generate", "--bash-completion", "completions/restic"
     system "./restic", "generate", "--zsh-completion", "completions/_restic"
+    system "./restic", "generate", "--fish-completion", "completions/restic.fish"
 
     mkdir "man"
     system "./restic", "generate", "--man", "man"
@@ -31,6 +32,7 @@ class Restic < Formula
     bin.install "restic"
     bash_completion.install "completions/restic"
     zsh_completion.install "completions/_restic"
+    fish_completion.install "completions/restic.fish"
     man1.install Dir["man/*.1"]
   end
 

@@ -1,34 +1,42 @@
 class Dumb < Formula
   desc "IT, XM, S3M and MOD player library"
   homepage "https://dumb.sourceforge.io"
-  url "https://downloads.sourceforge.net/project/dumb/dumb/0.9.3/dumb-0.9.3.tar.gz"
-  sha256 "8d44fbc9e57f3bac9f761c3b12ce102d47d717f0dd846657fb988e0bb5d1ea33"
+  url "https://github.com/kode54/dumb/archive/refs/tags/2.0.3.tar.gz"
+  sha256 "99bfac926aeb8d476562303312d9f47fd05b43803050cd889b44da34a9b2a4f9"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "dbb9dbb86ec1c5ff1bc9da976fe3ec481888b4c3cd5cd8b10b6c803b83d934f2" => :catalina
-    sha256 "e2956b48f246b68f98a5b39e81e371bd544d78b7bb0e97f5282cfc27e9b307cd" => :mojave
-    sha256 "674db2be479a742057619122759da52683c74b724b3e318f2fc71a4fa6bd7287" => :high_sierra
-    sha256 "04219fcc6bf6cd174cb5c2ddde4bfdbff266ed665e543c9948911e731d682dc9" => :sierra
-    sha256 "d2352df11bee735e963b887609578ec1b3acf0e07748385f472a6add0e1cd2b6" => :el_capitan
-    sha256 "317ac8139d8efb03022bb4f9a76ad61f2358570680563924d13229c52b282dff" => :yosemite
-    sha256 "ee41051ed609807bfb8ce774fa614869db6bdd0fe9a307f6f2cb89f99e9db78e" => :mavericks
+    sha256 cellar: :any,                 arm64_ventura:  "6ec724316f7ab409767fdb3b240bf6bd00c0753a66ea048b1a1527c19b659a6f"
+    sha256 cellar: :any,                 arm64_monterey: "f046a0784378b98ac76156a7a5c306a8c4d931130309c64d6205b1bfd2d0dcfe"
+    sha256 cellar: :any,                 arm64_big_sur:  "94dd00c18fd4f11400f30074357c4979fe727f49df6e45ad457e79a51d801f46"
+    sha256 cellar: :any,                 ventura:        "e2acfd0a2255bdb9c7256cd9cec4bf7a450e3db8853271a2ad0e13befc4bac4b"
+    sha256 cellar: :any,                 monterey:       "a0933282bbe2feb52a06cac1a1a189b83af422e422036f78b0fcfa0e55f5726c"
+    sha256 cellar: :any,                 big_sur:        "2dade8ff6646f71df07f3b2d586c9bb49ae24c3f0b5ddddea7a09a3762501f5c"
+    sha256 cellar: :any,                 catalina:       "f9d0768b3b50614adfb2190899362e250f20a14be0fb0c2d21d37bee0afea672"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "de4310947cbbc1807cf9c2bbdb9dcc42cc381de7153b3dc4f206718a1923fe40"
   end
 
+  depends_on "cmake" => :build
+  depends_on "argtable"
+  depends_on "sdl2"
+
   def install
-    (buildpath/"make/config.txt").write <<~EOS
-      include make/unix.inc
-      ALL_TARGETS := core core-examples core-headers
-      PREFIX := #{prefix}
-    EOS
-    bin.mkpath
-    include.mkpath
-    lib.mkpath
-    system "make"
-    system "make", "install"
+    args = std_cmake_args + %w[
+      -DBUILD_ALLEGRO4=OFF
+      -DBUILD_EXAMPLES=ON
+    ]
+
+    # Build shared library
+    system "cmake", "-S", ".", "-B", "build", *args, "-DBUILD_SHARED_LIBS=ON"
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
+
+    # Build static library
+    system "cmake", "-S", ".", "-B", "build", *args, "-DBUILD_SHARED_LIBS=OFF"
+    system "cmake", "--build", "build"
+    lib.install "build/libdumb.a"
   end
 
   test do
-    assert_match "Usage: dumb2wav", shell_output("#{bin}/dumb2wav 2>&1", 1)
+    assert_match "missing option <file>", shell_output("#{bin}/dumbplay 2>&1", 1)
   end
 end

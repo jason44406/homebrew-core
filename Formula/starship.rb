@@ -1,34 +1,35 @@
 class Starship < Formula
-  desc "The cross-shell prompt for astronauts"
+  desc "Cross-shell prompt for astronauts"
   homepage "https://starship.rs"
-  url "https://github.com/starship/starship/archive/v0.44.0.tar.gz"
-  sha256 "b002fa0e2b34ad59330a543461a51648751db4ae8d439d58065a3b9656772fe3"
+  url "https://github.com/starship/starship/archive/v1.13.1.tar.gz"
+  sha256 "6cce984c7fb0067b9dc457274139f277e2ff56488811c96a7ae68102184656f9"
   license "ISC"
-  revision 1
-  head "https://github.com/starship/starship.git"
+  head "https://github.com/starship/starship.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "a2d50878f224a8af2e0ab1e990d90166f7b4a02a82ebedc9acaa0a0443e04e4a" => :catalina
-    sha256 "ff2ec8fa902206c5514b384db12bc36558987d55b335aeb3fddeafae416b5168" => :mojave
-    sha256 "7955bc1b29268a4975f23d1312216cf71f50a9e05a82360cfb12a199831496d9" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "9d12ac9dcb05ca2ea86b943be41eaa32c2850ae429b6fc576c280f1e78514613"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "e5eaafb06f2d76282359dd33a35e0df8a6a20c0471cf262244b01524d1f2597a"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "f6117338c98223bd121a6ebae87f4e294bfb300f8f7d9f845d1f78532cf5ceb2"
+    sha256 cellar: :any_skip_relocation, ventura:        "1e50ab8e5c2dbcb4176c38c006ba586c9f9c70f2ce1eb03f74126cd22d3bd77b"
+    sha256 cellar: :any_skip_relocation, monterey:       "7ca4f9822b6c8bd33880b2703234fe3e5d5bac3ad23f1365178e587155260d3f"
+    sha256 cellar: :any_skip_relocation, big_sur:        "fd180eb92b4822ed728c1810cbaf1d4ed73729961ca38911f8bde86082d9e22a"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "7404de9f003218aa5bc90d4decf01ddd690110c2bf9af321f924e9c2de2d2c9b"
   end
 
+  depends_on "cmake" => :build
   depends_on "rust" => :build
 
   uses_from_macos "zlib"
 
+  on_linux do
+    depends_on "pkg-config" => :build
+    depends_on "dbus"
+  end
+
   def install
     system "cargo", "install", *std_cargo_args
 
-    bash_output = Utils.safe_popen_read("#{bin}/starship", "completions", "bash")
-    (bash_completion/"starship").write bash_output
-
-    zsh_output = Utils.safe_popen_read("#{bin}/starship", "completions", "zsh")
-    (zsh_completion/"_starship").write zsh_output
-
-    fish_output = Utils.safe_popen_read("#{bin}/starship", "completions", "fish")
-    (fish_completion/"starship.fish").write fish_output
+    generate_completions_from_executable(bin/"starship", "completions")
   end
 
   test do

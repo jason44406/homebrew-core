@@ -1,16 +1,21 @@
 class XercesC < Formula
   desc "Validating XML parser"
   homepage "https://xerces.apache.org/xerces-c/"
-  url "https://www.apache.org/dyn/closer.lua?path=xerces/c/3/sources/xerces-c-3.2.3.tar.gz"
-  mirror "https://archive.apache.org/dist/xerces/c/3/sources/xerces-c-3.2.3.tar.gz"
-  sha256 "fb96fc49b1fb892d1e64e53a6ada8accf6f0e6d30ce0937956ec68d39bd72c7e"
+  url "https://www.apache.org/dyn/closer.lua?path=xerces/c/3/sources/xerces-c-3.2.4.tar.gz"
+  mirror "https://archive.apache.org/dist/xerces/c/3/sources/xerces-c-3.2.4.tar.gz"
+  sha256 "3d8ec1c7f94e38fee0e4ca5ad1e1d9db23cbf3a10bba626f6b4afa2dedafe5ab"
   license "Apache-2.0"
+  revision 1
 
   bottle do
-    cellar :any
-    sha256 "8bcfddab9276b6f09c9af5bd8be60d500cd5107795c25495b53ef5e0734ae617" => :catalina
-    sha256 "502d34b51931ead6b1db27ca1a71eed465ecd4da5dbdeaa51c0ae77e77dc25ea" => :mojave
-    sha256 "8b30ad6819fc3628b706a18193d45b96c13749e7d1e27f5392cf91e48fe7d63b" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "99006e9ad984212dc5016d5aa9f6ae8021d50f56fec9e13947d9779d9decc1de"
+    sha256 cellar: :any,                 arm64_monterey: "55c380d3cda733199a22d294208fb6b552ae53373ebba6d1ca91737c99ea52eb"
+    sha256 cellar: :any,                 arm64_big_sur:  "a932e185d8ddde919516e0c7cc24f6a98ed760369df9a1edf96db3969d929934"
+    sha256 cellar: :any,                 ventura:        "529a48ca044cff1006c56e0ba471591d625c4f0efd7a117f98e0d928c3c2cbfc"
+    sha256 cellar: :any,                 monterey:       "17f2a1e797058706fe947034ab4c912f196bf12195736e719c6953d3c418f0c3"
+    sha256 cellar: :any,                 big_sur:        "c61f70bacc917fb00e378878265bc575d427d879148b320cabc14dc71bdca56c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "b7f4e544f614d90c303c47caa8630c6b8ac1a6e2f7f30cdd41137710a0a27f36"
   end
 
   depends_on "cmake" => :build
@@ -18,18 +23,21 @@ class XercesC < Formula
   uses_from_macos "curl"
 
   def install
-    ENV.cxx11
+    # Prevent opportunistic linkage to `icu4c`
+    args = std_cmake_args + %W[
+      -DCMAKE_DISABLE_FIND_PACKAGE_ICU=ON
+      -DCMAKE_INSTALL_RPATH=#{rpath}
+    ]
 
-    mkdir "build" do
-      system "cmake", "..", *std_cmake_args
-      system "make"
-      system "ctest", "-V"
-      system "make", "install"
-      system "make", "clean"
-      system "cmake", "..", "-DBUILD_SHARED_LIBS=OFF", *std_cmake_args
-      system "make"
-      lib.install Dir["src/*.a"]
-    end
+    system "cmake", "-S", ".", "-B", "build_shared", "-DBUILD_SHARED_LIBS=ON", *args
+    system "cmake", "--build", "build_shared"
+    system "ctest", "--test-dir", "build_shared", "--verbose"
+    system "cmake", "--install", "build_shared"
+
+    system "cmake", "-S", ".", "-B", "build_static", "-DBUILD_SHARED_LIBS=OFF", *args
+    system "cmake", "--build", "build_static"
+    lib.install Dir["build_static/src/*.a"]
+
     # Remove a sample program that conflicts with libmemcached
     # on case-insensitive file systems
     (bin/"MemParse").unlink

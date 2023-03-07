@@ -1,18 +1,23 @@
 class Elasticsearch < Formula
   desc "Distributed search & analytics engine"
   homepage "https://www.elastic.co/products/elasticsearch"
-  url "https://github.com/elastic/elasticsearch/archive/v7.8.1.tar.gz"
-  sha256 "e222d4165fb4145222491e1ed33dad15acc7b56334ca6589202e2ee761900c78"
+  # NOTE: Do not bump version to one with a non-open-source license
+  url "https://github.com/elastic/elasticsearch/archive/v7.10.2.tar.gz"
+  sha256 "bdb7811882a0d9436ac202a947061b565aa71983c72e1c191e7373119a1cdd1c"
   license "Apache-2.0"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "6cef7f769428a47c864edccc30b043153fa239fc5c5545b661975b7cef17efe7" => :catalina
-    sha256 "812838714ceb91031ae6ccc4b762a42fc2f52a8f43dbb9b74e3222a2a6c2b6cd" => :mojave
-    sha256 "666d9a971e6f8a603a96feac7afaaf95e6d88eabf4ecc3d6f1b1f02ff928fa3e" => :high_sierra
+    sha256 cellar: :any_skip_relocation, big_sur:      "e199fbcb913252e2f60134de2dfff98bff9ae3f1a28f30f3f44c8b0174e189fb"
+    sha256 cellar: :any_skip_relocation, catalina:     "6bb47c36590116e78d14b1d3bdce0aa091867f5a30007018b9fcac14ca0c3d8b"
+    sha256 cellar: :any_skip_relocation, mojave:       "dbc33bf97783ffae45b4438219a8e4586b82f9939d7c9cdb2398bace6f8ade8b"
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "4a493d6580c9e3c652ea498b26ca795db6ab56dfeedab8660aa26dd4474feca1"
   end
 
-  depends_on "gradle" => :build
+  # elasticsearch will be relicensed before v7.11.
+  # https://www.elastic.co/blog/licensing-change
+  disable! date: "2022-07-31", because: "is switching to an incompatible license. Check out `opensearch` instead"
+
+  depends_on "gradle@6" => :build
   depends_on "openjdk"
 
   def cluster_name
@@ -20,12 +25,13 @@ class Elasticsearch < Formula
   end
 
   def install
-    system "gradle", ":distribution:archives:oss-no-jdk-darwin-tar:assemble"
+    os = OS.kernel_name.downcase
+    system "gradle", ":distribution:archives:oss-no-jdk-#{os}-tar:assemble"
 
     mkdir "tar" do
       # Extract the package to the tar directory
       system "tar", "--strip-components=1", "-xf",
-        Dir["../distribution/archives/oss-no-jdk-darwin-tar/build/distributions/elasticsearch-oss-*.tar.gz"].first
+        Dir["../distribution/archives/oss-no-jdk-#{os}-tar/build/distributions/elasticsearch-oss-*.tar.gz"].first
 
       # Install into package directory
       libexec.install "bin", "lib", "modules"
@@ -54,7 +60,7 @@ class Elasticsearch < Formula
                 libexec/"bin/elasticsearch-keystore",
                 libexec/"bin/elasticsearch-plugin",
                 libexec/"bin/elasticsearch-shard"
-    bin.env_script_all_files(libexec/"bin", JAVA_HOME: Formula["openjdk"].opt_prefix)
+    bin.env_script_all_files libexec/"bin", Language::Java.overridable_java_home_env
   end
 
   def post_install

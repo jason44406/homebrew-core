@@ -3,30 +3,40 @@ class Fcrackzip < Formula
   homepage "http://oldhome.schmorp.de/marc/fcrackzip.html"
   url "http://oldhome.schmorp.de/marc/data/fcrackzip-1.0.tar.gz"
   sha256 "4a58c8cb98177514ba17ee30d28d4927918bf0bdc3c94d260adfee44d2d43850"
-  license "GPL-2.0"
+  license "GPL-2.0-or-later"
+
+  livecheck do
+    url "http://oldhome.schmorp.de/marc/data/"
+    regex(/href=.*?fcrackzip[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "553e2ed7eb76dcf4a216bf214e0ceed63a72bda2e7fe9f5fb5f2ed86d8e7bfb8" => :catalina
-    sha256 "9ac33112f0cb584aca3ac383ca3551cdda570e6f7337607c7f7db9d7f51b2e3a" => :mojave
-    sha256 "a90e9d404b0ef939f6419559ed58143f556eb3e0b4fb0b8053bae35b82cc7a15" => :high_sierra
-    sha256 "ce2d79b833f5805cbc475711a38db0a7a791b793b24b094e68f3ed54dfe5fd82" => :sierra
-    sha256 "169a5e7ea0e7ee9d04dc7ecce5288ef3a096fc9875d9af134b342878ce8c55fd" => :el_capitan
-    sha256 "1e9a5e3d9d37ce1bf7338d3f12f84bf67b31de4e2a6eb1511f90458c45b1b810" => :yosemite
-    sha256 "305533df364c7b91ae837dc38b3632bc9e2f0d167e10ad94901b5f2c06ab4924" => :mavericks
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "f647bed7b093952f1bb75429f8f7f00105d0468c7d6b5648db46d8b1ea39c190"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "46183b85780286b34ec981a6f694271bcb62270238c94eafd02bbf0cbeb6beae"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "294092e8601910f3a9120838024621a5604c00bec67cc8fb8e759a8ae2ced914"
+    sha256 cellar: :any_skip_relocation, ventura:        "0fc4f365ee4ffbe7a4491417f1e1da010482b8cbb7659394e6d7e045d86308df"
+    sha256 cellar: :any_skip_relocation, monterey:       "c56dbffcc544f7261854bbab1090fc6e4e629661c2db97fbde54c8aedff53421"
+    sha256 cellar: :any_skip_relocation, big_sur:        "162a84d06c9ce84300bbbe52feadc1c189de2a7f2dbd5667ca13647c941883a6"
+    sha256 cellar: :any_skip_relocation, catalina:       "a460811d270c7f0c5f0bb3960e8ebfeef6d36b822b3ecd7f4448871e3a4e86b5"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "fc5280f9da3eb29640b3201d9f461a44eb473749110de00e7f36d0632033af66"
   end
+
+  uses_from_macos "zip" => :test
 
   def install
     system "./configure", "--disable-debug", "--disable-dependency-tracking",
                           "--prefix=#{prefix}"
     system "make"
     system "make", "install"
+    # Avoid conflict with `unzip` on Linux and shadowing `/usr/bin/zipinfo` on macOS
+    bin.install bin/"zipinfo" => "fcrackzipinfo"
   end
 
   test do
     (testpath/"secret").write "homebrew"
     system "zip", "-qe", "-P", "a", "secret.zip", "secret"
-    assert_equal "PASSWORD FOUND!!!!: pw == a",
-                 shell_output("#{bin}/fcrackzip -u -l 1 secret.zip").strip
+    assert_match "possible pw found: a ()",
+                 shell_output("#{bin}/fcrackzip -c a -l 1 secret.zip").strip
   end
 end

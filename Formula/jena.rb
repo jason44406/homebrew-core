@@ -1,29 +1,35 @@
 class Jena < Formula
   desc "Framework for building semantic web and linked data apps"
   homepage "https://jena.apache.org/"
-  url "https://www.apache.org/dyn/closer.lua?path=jena/binaries/apache-jena-3.16.0.tar.gz"
-  mirror "https://archive.apache.org/dist/jena/binaries/apache-jena-3.16.0.tar.gz"
-  sha256 "6ef65ab3e24948f6f8fa97281a936276d74a8732fb4a14c624c1aa9fa93adb30"
+  url "https://www.apache.org/dyn/closer.lua?path=jena/binaries/apache-jena-4.7.0.tar.gz"
+  mirror "https://archive.apache.org/dist/jena/binaries/apache-jena-4.7.0.tar.gz"
+  sha256 "ded25127d507b0e61f5afc0f647a7e864459c5bd1138372126340c019de592e6"
   license "Apache-2.0"
 
-  bottle :unneeded
-
-  def shim_script(target)
-    <<~EOS
-      #!/usr/bin/env bash
-      export JENA_HOME="#{libexec}"
-      "$JENA_HOME/bin/#{target}" "$@"
-    EOS
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "0f93f85cc3630bdd4b6217af161f4cf29a4013c57ee7efc260cbf9b854928319"
   end
 
+  depends_on "openjdk"
+
+  conflicts_with "samba", because: "both install `tdbbackup` binaries"
+
   def install
+    env = {
+      JAVA_HOME: Formula["openjdk"].opt_prefix,
+      JENA_HOME: libexec,
+    }
+
     rm_rf "bat" # Remove Windows scripts
 
-    prefix.install %w[LICENSE NOTICE README]
     libexec.install Dir["*"]
-    Dir.glob("#{libexec}/bin/*") do |path|
-      bin_name = File.basename(path)
-      (bin/bin_name).write shim_script(bin_name)
+    Pathname.glob("#{libexec}/bin/*") do |file|
+      next if file.directory?
+
+      basename = file.basename
+      next if basename.to_s == "service"
+
+      (bin/basename).write_env_script file, env
     end
   end
 

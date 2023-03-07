@@ -3,20 +3,24 @@ class MpsYoutube < Formula
 
   desc "Terminal based YouTube player and downloader"
   homepage "https://github.com/mps-youtube/mps-youtube"
-  url "https://github.com/mps-youtube/mps-youtube/archive/v0.2.8.tar.gz"
-  sha256 "d5f2c4bc1f57f0566242c4a0a721a5ceaa6d6d407f9d6dd29009a714a0abec74"
-  license "GPL-3.0"
-  revision 10
+  url "https://files.pythonhosted.org/packages/b1/8e/5156416119545e3f5ba16ec0fdbb2c7d0b57fad9e19ee8554856cd4a41ad/mps-youtube-0.2.8.tar.gz"
+  sha256 "59ce3944626fbd1a041e1e1b15714bbd138ebc71ceb89e32ea9470d8152af083"
+  license "GPL-3.0-or-later"
+  revision 12
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "28c642ad9a2ddad76e66cdcfed51e99a6252ed263bba1dfc11a3bd616ebfb11d" => :catalina
-    sha256 "08d5bae85877ec5459934e372f964177dbd7659343d26f9692d3215429925cc7" => :mojave
-    sha256 "84d055c7b77afa7c1ffb27ec3b1de09bb1a622061408d7f9dde615892c405341" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "34b87b2545d398fbda0fa4d275a171a952f4d7c9cf62b0ab1c3b2920b0cf446f"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "34b87b2545d398fbda0fa4d275a171a952f4d7c9cf62b0ab1c3b2920b0cf446f"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "34b87b2545d398fbda0fa4d275a171a952f4d7c9cf62b0ab1c3b2920b0cf446f"
+    sha256 cellar: :any_skip_relocation, ventura:        "17af74c4e50533a28f381707209239aca41abb4cd5af1653dbe6bf40ba008fcd"
+    sha256 cellar: :any_skip_relocation, monterey:       "17af74c4e50533a28f381707209239aca41abb4cd5af1653dbe6bf40ba008fcd"
+    sha256 cellar: :any_skip_relocation, big_sur:        "17af74c4e50533a28f381707209239aca41abb4cd5af1653dbe6bf40ba008fcd"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "331211aeb8d3a9c6a22c4fe525a67b3197b373143bc02b933ecc91f5eaff0151"
   end
 
   depends_on "mplayer"
-  depends_on "python@3.8"
+  depends_on "python@3.11"
 
   resource "pafy" do
     url "https://files.pythonhosted.org/packages/7e/02/b70f4d2ad64bbc7d2a00018c6545d9b9039208553358534e73e6dd5bbaf6/pafy-0.5.5.tar.gz"
@@ -29,7 +33,7 @@ class MpsYoutube < Formula
   end
 
   def install
-    venv = virtualenv_create(libexec, "python3.8")
+    venv = virtualenv_create(libexec, "python3.11")
 
     %w[youtube_dl pafy].each do |r|
       venv.pip_install resource(r)
@@ -41,7 +45,7 @@ class MpsYoutube < Formula
   def caveats
     <<~EOS
       Install the optional mpv app with Homebrew Cask:
-        brew cask install mpv
+        brew install --cask mpv
     EOS
   end
 

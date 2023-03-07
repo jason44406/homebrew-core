@@ -3,70 +3,64 @@ class Glib < Formula
 
   desc "Core application library for C"
   homepage "https://developer.gnome.org/glib/"
-  url "https://download.gnome.org/sources/glib/2.64/glib-2.64.5.tar.xz"
-  sha256 "9cbd5bd2715ead1c28d53c46f7b7b6ff6166f5887b772c1a9e3bf2910cfecc11"
+  url "https://download.gnome.org/sources/glib/2.74/glib-2.74.6.tar.xz"
+  sha256 "069cf7e51cd261eb163aaf06c8d1754c6835f31252180aff5814e5afc7757fbc"
   license "LGPL-2.1-or-later"
 
   bottle do
-    sha256 "6d8c705b5feee37976530563cac6c959bd3a028e8b94fb7417c44f59eebe360f" => :catalina
-    sha256 "f20d990dd43d5732761adb780b9cf5a421a93337f81ddabdc9fc4a03f2f5537f" => :mojave
-    sha256 "e478a3f8bede892aa299589d722546dc0a94072f1f4b3d042a0a7f3400a5cade" => :high_sierra
+    sha256 arm64_ventura:  "566a206836bab9a18dfa04b3bbbb28dfbcd830f277669c9d0ba2fb55e6433498"
+    sha256 arm64_monterey: "6a797f2712203e806b4464f5293e3b4dfa25a76ef855798b280a880c075b3eae"
+    sha256 arm64_big_sur:  "2d560b53f023a0f8b9a8d9da97e3072d690efd9a308158da29fcefab6bbaa923"
+    sha256 ventura:        "e120c5a2b61bb90f5b4cfbc35019e5ec660cd9b19a681daea16d6cea3f9852d5"
+    sha256 monterey:       "4f601623908a9d13fa769f9ad8b6b432796bb43f0c36b163dac6fe0c56ef22fc"
+    sha256 big_sur:        "5d832deae80720563f26cdf506cfa3452302f8b7b78c501f0d19f8250aa88b4b"
+    sha256 x86_64_linux:   "486818883876d020b1f37ff475a634e9d16be6c1d9e8affff72476dfb348a731"
   end
 
+  depends_on "gettext" => :build
   depends_on "meson" => :build
   depends_on "ninja" => :build
   depends_on "pkg-config" => :build
-  depends_on "gettext"
-  depends_on "libffi"
-  depends_on "pcre"
-  depends_on "python@3.8"
+  depends_on "pcre2"
+
+  uses_from_macos "libffi", since: :catalina
+  uses_from_macos "python", since: :catalina
+
+  on_macos do
+    depends_on "gettext"
+  end
 
   on_linux do
     depends_on "util-linux"
   end
 
-  # https://bugzilla.gnome.org/show_bug.cgi?id=673135 Resolved as wontfix,
-  # but needed to fix an assumption about the location of the d-bus machine
-  # id file.
-  patch do
-    url "https://raw.githubusercontent.com/Homebrew/formula-patches/6164294a75541c278f3863b111791376caa3ad26/glib/hardcoded-paths.diff"
-    sha256 "a57fec9e85758896ff5ec1ad483050651b59b7b77e0217459ea650704b7d422b"
-  end
+  # These used to live in the now defunct `glib-utils`.
+  link_overwrite "bin/gdbus-codegen", "bin/glib-genmarshal", "bin/glib-mkenums", "bin/gtester-report"
+  link_overwrite "share/glib-2.0/codegen", "share/glib-2.0/gdb"
 
-  # Fixes a runtime error on ARM and PowerPC Macs.
-  # Can be removed in the next release.
-  # https://gitlab.gnome.org/GNOME/glib/-/merge_requests/1566
+  # replace several hardcoded paths with homebrew counterparts
   patch do
-    url "https://gitlab.gnome.org/GNOME/glib/-/commit/c60d6599c9182ce44fdfaa8dde2955f55fc0d628.patch"
-    sha256 "9e3de41571edaa4bce03959abf885aad4edd069a622a5b642bf40294d748792e"
-  end
-
-  # Enables G_GNUC_FALLTHROUGH on clang.
-  # Necessary for pango to build on recent versions of clang.
-  # Will be in the next release.
-  patch do
-    url "https://gitlab.gnome.org/GNOME/glib/-/commit/5f38ae5ffca3213addc5b279a46d537792d031db.patch"
-    sha256 "12128966a693dd45d2e20286437aea13b1fe554aed0907cbc33131d3b76be890"
+    url "https://raw.githubusercontent.com/Homebrew/formula-patches/43467fd8dfc0e8954892ecc08fab131242dca025/glib/hardcoded-paths.diff"
+    sha256 "d81c9e8296ec5b53b4ead6917f174b06026eeb0c671dfffc4965b2271fb6a82c"
   end
 
   def install
-    inreplace %w[gio/gdbusprivate.c gio/xdgmime/xdgmime.c glib/gutils.c],
-      "@@HOMEBREW_PREFIX@@", HOMEBREW_PREFIX
+    inreplace %w[gio/xdgmime/xdgmime.c glib/gutils.c], "@@HOMEBREW_PREFIX@@", HOMEBREW_PREFIX
 
     # Disable dtrace; see https://trac.macports.org/ticket/30413
-    args = std_meson_args + %W[
+    # and https://gitlab.gnome.org/GNOME/glib/-/issues/653
+    args = %W[
+      --default-library=both
+      --localstatedir=#{var}
       -Diconv=auto
       -Dgio_module_dir=#{HOMEBREW_PREFIX}/lib/gio/modules
       -Dbsymbolic_functions=false
       -Ddtrace=false
     ]
 
-    mkdir "build" do
-      system "meson", *args, ".."
-      system "ninja", "-v"
-      system "ninja", "install", "-v"
-      bin.find { |f| rewrite_shebang detected_python_shebang, f }
-    end
+    system "meson", "setup", "build", *args, *std_meson_args
+    system "meson", "compile", "-C", "build", "--verbose"
+    system "meson", "install", "-C", "build"
 
     # ensure giomoduledir contains prefix, as this pkgconfig variable will be
     # used by glib-networking and glib-openssl to determine where to install
@@ -75,26 +69,32 @@ class Glib < Formula
               "giomoduledir=#{HOMEBREW_PREFIX}/lib/gio/modules",
               "giomoduledir=${libdir}/gio/modules"
 
-    # `pkg-config --libs glib-2.0` includes -lintl, and gettext itself does not
-    # have a pkgconfig file, so we add gettext lib and include paths here.
-    gettext = Formula["gettext"].opt_prefix
-    inreplace lib+"pkgconfig/glib-2.0.pc" do |s|
-      s.gsub! "Libs: -L${libdir} -lglib-2.0 -lintl",
-              "Libs: -L${libdir} -lglib-2.0 -L#{gettext}/lib -lintl"
-      s.gsub! "Cflags: -I${includedir}/glib-2.0 -I${libdir}/glib-2.0/include",
-              "Cflags: -I${includedir}/glib-2.0 -I${libdir}/glib-2.0/include -I#{gettext}/include"
+    if OS.mac?
+      # `pkg-config --libs glib-2.0` includes -lintl, and gettext itself does not
+      # have a pkgconfig file, so we add gettext lib and include paths here.
+      gettext = Formula["gettext"].opt_prefix
+      inreplace lib/"pkgconfig/glib-2.0.pc" do |s|
+        s.gsub! "Libs: -L${libdir} -lglib-2.0 -lintl",
+                "Libs: -L${libdir} -lglib-2.0 -L#{gettext}/lib -lintl"
+        s.gsub! "Cflags: -I${includedir}/glib-2.0 -I${libdir}/glib-2.0/include",
+                "Cflags: -I${includedir}/glib-2.0 -I${libdir}/glib-2.0/include -I#{gettext}/include"
+      end
     end
 
-    # `pkg-config --print-requires-private gobject-2.0` includes libffi,
-    # but that package is keg-only so it needs to look for the pkgconfig file
-    # in libffi's opt path.
-    libffi = Formula["libffi"].opt_prefix
-    inreplace lib+"pkgconfig/gobject-2.0.pc" do |s|
-      s.gsub! "Requires.private: libffi",
-              "Requires.private: #{libffi}/lib/pkgconfig/libffi.pc"
+    if MacOS.version < :catalina
+      # `pkg-config --print-requires-private gobject-2.0` includes libffi,
+      # but that package is keg-only so it needs to look for the pkgconfig file
+      # in libffi's opt path.
+      libffi = Formula["libffi"].opt_prefix
+      inreplace lib/"pkgconfig/gobject-2.0.pc" do |s|
+        s.gsub! "Requires.private: libffi",
+                "Requires.private: #{libffi}/lib/pkgconfig/libffi.pc"
+      end
     end
 
-    bash_completion.install Dir["gio/completion/*"]
+    rm "gio/completion/.gitignore"
+    bash_completion.install (buildpath/"gio/completion").children
+    rewrite_shebang detected_python_shebang(use_python_from_path: true), *bin.children
   end
 
   def post_install

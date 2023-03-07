@@ -1,31 +1,25 @@
 class Miller < Formula
   desc "Like sed, awk, cut, join & sort for name-indexed data such as CSV"
   homepage "https://github.com/johnkerl/miller"
-  url "https://github.com/johnkerl/miller/releases/download/v5.9.0/mlr-5.9.0.tar.gz"
-  sha256 "06d995667f48a59818979c1ca6d4192f784796f8612550e1a2b24d63a0802856"
+  url "https://github.com/johnkerl/miller/releases/download/v6.7.0/miller-6.7.0.tar.gz"
+  sha256 "45c86dbb35e326184740eded13d61e9900187dfde72d9c46789d429373c7566f"
   license "BSD-2-Clause"
-  head "https://github.com/johnkerl/miller.git"
+  head "https://github.com/johnkerl/miller.git", branch: "main"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "262035972c936468b4ae38126c7cb92282c8eee992b5e1edbdf81e0a3cf26d83" => :catalina
-    sha256 "019b18a5ebb5c5214ea920d214990ed686d26bfcc331293f5d936b6f1b26249f" => :mojave
-    sha256 "abd84eef3044f3c7ec52ae14a3df5e2456abcd40fc4d211fa23f87460d0c60a7" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "f660c35ac5b44237c7ac9661f96e9f390463e65168bf0c60b87ef78050ca995d"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "52b9ea49217fe86d4fb1256c11d3c2800941a4fa2fc01628cb43d39c217df035"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "ff8723673231b469bfb071b885844157c0be35b90b5b056a3e473802393da30c"
+    sha256 cellar: :any_skip_relocation, ventura:        "772230895bd0705ce04a71efdfd1a723363e67a91c9f6f0a9a6791c073faf40e"
+    sha256 cellar: :any_skip_relocation, monterey:       "0ecc8d24b18582acec88e09ec02647709aa67bdd09dce229ff7e2c7381abc08d"
+    sha256 cellar: :any_skip_relocation, big_sur:        "d5538aa063f5551af443f39c387b6ef9a00b82a77c2f4e570fb7fd0ae5a866e9"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "ae4dc0d22e3b664200b68d08b2eae6dc22fd3070a289de08e9485e85de3360bc"
   end
 
-  depends_on "autoconf" => :build
-  depends_on "automake" => :build
-  depends_on "libtool" => :build
-
-  uses_from_macos "flex" => :build
+  depends_on "go" => :build
 
   def install
-    # Profiling build fails with Xcode 11, remove it
-    inreplace "c/Makefile.am", /noinst_PROGRAMS=\s*mlrg/, ""
-    system "autoreconf", "-fvi"
-
-    system "./configure", "--prefix=#{prefix}", "--disable-silent-rules",
-                          "--disable-dependency-tracking"
+    system "./configure", "--prefix=#{prefix}"
     system "make"
     system "make", "install"
   end
@@ -37,6 +31,6 @@ class Miller < Formula
       4,5,6
     EOS
     output = pipe_output("#{bin}/mlr --csvlite cut -f a test.csv")
-    assert_match /a\n1\n4\n/, output
+    assert_match "a\n1\n4\n", output
   end
 end

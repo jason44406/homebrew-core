@@ -3,15 +3,19 @@ require "language/node"
 class Newman < Formula
   desc "Command-line collection runner for Postman"
   homepage "https://www.getpostman.com"
-  url "https://registry.npmjs.org/newman/-/newman-5.1.2.tgz"
-  sha256 "3138f0d5716e7d7dccb39b800e1d88f6ea36cf4dda72adbccf133ba6bea5066d"
+  url "https://registry.npmjs.org/newman/-/newman-5.3.2.tgz"
+  sha256 "02f4468076e38b8950281518839cc3869f4c5b7ad7cab34e9e600c1451e2fcd6"
   license "Apache-2.0"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "7dbf99b62e25a9ba6dc779120479340d4ed92892d0543148e513c1458b2cfa61" => :catalina
-    sha256 "6138949598a71507c24a200cec0a4c6892efd4148b99a60836025166d50fcd8b" => :mojave
-    sha256 "bd039293615be7652c6fe012571775ba6482721e71df5388de07035fe0764343" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "de2ca1eb34c63680808d9cf35b85016e0e8652e0f6063f0988a55c5301936360"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "ffbd3ef5d1bf69b22eb175f6d72599c4d915d1b1fdea6dfd7a7f85fff4d4f6c9"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "ffbd3ef5d1bf69b22eb175f6d72599c4d915d1b1fdea6dfd7a7f85fff4d4f6c9"
+    sha256 cellar: :any_skip_relocation, ventura:        "4ff9a735ef2468472da211930c8ba7425513af5c909a040ef49ce8f686fbbe88"
+    sha256 cellar: :any_skip_relocation, monterey:       "f9458d98ebca55f9aac434fcb5e65d6ef5327d0de50f1da8945e165820d4f5f4"
+    sha256 cellar: :any_skip_relocation, big_sur:        "af2c026502794cf7b25fcd468ee2b7769fc62c081c6946b6bb96a983f50dc978"
+    sha256 cellar: :any_skip_relocation, catalina:       "af2c026502794cf7b25fcd468ee2b7769fc62c081c6946b6bb96a983f50dc978"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "ffbd3ef5d1bf69b22eb175f6d72599c4d915d1b1fdea6dfd7a7f85fff4d4f6c9"
   end
 
   depends_on "node"
@@ -59,7 +63,7 @@ class Newman < Formula
       }
     EOS
 
-    assert_match /newman/, shell_output("#{bin}/newman run #{path}")
+    assert_match "newman", shell_output("#{bin}/newman run #{path}")
     assert_equal version.to_s, shell_output("#{bin}/newman --version").strip
   end
 end

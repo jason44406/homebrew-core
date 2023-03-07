@@ -1,27 +1,26 @@
 class Yaws < Formula
   desc "Webserver for dynamic content (written in Erlang)"
   homepage "http://yaws.hyber.org"
+  url "https://github.com/erlyaws/yaws/archive/yaws-2.1.1.tar.gz"
+  sha256 "aeb74f0051fe9a2925b1a1b4f13af31ec5404acfbe000ac32cda25ee9779f4bf"
   license "BSD-3-Clause"
-  revision 2
-  head "https://github.com/erlyaws/yaws.git"
+  head "https://github.com/erlyaws/yaws.git", branch: "master"
 
-  stable do
-    url "https://github.com/erlyaws/yaws/archive/yaws-2.0.7.tar.gz"
-    sha256 "083b1b6be581fdfb66d77a151bbb2fc3897b1b0497352ff6c93c2256ef2b08f6"
-
-    # Erlang 23 compatibility
-    # Remove with the next release. Also remove `WARNINGS_AS_ERRORS=` flag from `make install` call
-    patch do
-      url "https://github.com/erlyaws/yaws/compare/c0fd79f17d52628fcec527da7fa3e788c283c445..28eecfd1c65c369de5b4b99cea9407205bbe8f8e.patch?full_index=1"
-      sha256 "0dbcb92e961ae9dc9d6613436f5d39e0c1b675635cfbeef888e1d2b487add413"
-    end
+  livecheck do
+    url :stable
+    strategy :github_latest
+    regex(%r{href=.*?/tag/yaws[._-]v?(\d+(?:\.\d+)+)["' >]}i)
   end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "09997293c21d6a547bd35e3c6384eae48376665729e02e9008d3fe59e2436c4d" => :catalina
-    sha256 "bb522ea70a11984cb30b10ad4a0fe6a8140d4a6b55916ded173fb44732d185e4" => :mojave
-    sha256 "627c282c11101b0f7b036e52ddff6e33db668540bb8c94a7ba9e45ab510f46f4" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "979fa10690f71f32f99ff48ba73b61db66841fc6dab8759a0b70d768d4e09483"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "915f2debcd29895c2dd235232fae27c6b93a8df74600324fc6281c037a8f0a9f"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "a9e8b1c12a01f2a69f60629ce7e9238b502cefca4838c7ec8f10add24560c66a"
+    sha256 cellar: :any_skip_relocation, ventura:        "32023b27f056a704bf8a74a83cd07efc1680b440ff6b7f2e22c3549d38e221ac"
+    sha256 cellar: :any_skip_relocation, monterey:       "c8ed14ebe8b7754b382567af80237d9622197e3a10b1aa673aaf6201c9d8cc17"
+    sha256 cellar: :any_skip_relocation, big_sur:        "c8ed6901333af5bda880682772f53eb3cbcfc89323527d0820696e9a0d963979"
+    sha256 cellar: :any_skip_relocation, catalina:       "1c84e7ed9b5329b5d79eeed7fabcf63bac90ae398481b1d71104ee97958056df"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "a98f436c58c2cc58eebfaf052387faf4c02f9554138935f674d6b6dd5cb8df94"
   end
 
   depends_on "autoconf" => :build
@@ -29,17 +28,27 @@ class Yaws < Formula
   depends_on "libtool" => :build
   depends_on "erlang"
 
+  on_linux do
+    depends_on "linux-pam"
+  end
+
   # the default config expects these folders to exist
   skip_clean "var/log/yaws"
   skip_clean "lib/yaws/examples/ebin"
   skip_clean "lib/yaws/examples/include"
 
   def install
+    # Ensure pam headers are found on Xcode-only installs
+    extra_args = %W[
+      --with-extrainclude=#{MacOS.sdk_path}/usr/include/security
+    ]
+    if OS.linux?
+      extra_args = %W[
+        --with-extrainclude=#{Formula["linux-pam"].opt_include}/security
+      ]
+    end
     system "autoreconf", "-fvi"
-    system "./configure", "--prefix=#{prefix}",
-                          # Ensure pam headers are found on Xcode-only installs
-                          "--with-extrainclude=#{MacOS.sdk_path}/usr/include/security",
-                          "SED=/usr/bin/sed"
+    system "./configure", "--prefix=#{prefix}", *extra_args
     system "make", "install", "WARNINGS_AS_ERRORS="
 
     cd "applications/yapp" do
@@ -50,6 +59,9 @@ class Yaws < Formula
     # the default config expects these folders to exist
     (lib/"yaws/examples/ebin").mkpath
     (lib/"yaws/examples/include").mkpath
+
+    # Remove Homebrew shims references on Linux
+    inreplace Dir["#{prefix}/var/yaws/www/*/Makefile"], Superenv.shims_path, "/usr/bin" if OS.linux?
   end
 
   def post_install

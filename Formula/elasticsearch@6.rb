@@ -1,36 +1,33 @@
 class ElasticsearchAT6 < Formula
   desc "Distributed search & analytics engine"
   homepage "https://www.elastic.co/products/elasticsearch"
-  url "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-6.8.11.tar.gz"
-  sha256 "2d136743072ca810f1af982f1c5a270b9fcc970be923ca1ee967aa7b9836cd3e"
+  url "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-6.8.23.tar.gz"
+  sha256 "60e77b5ca3ce11771469bcc2e009c49c8aadb831faebd170e7abcedc16b3e36d"
   license "Apache-2.0"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "216e813f6a02fd87a7eb8fc19052cf99c7c6357a5977c5d15f35edbecfed5625" => :catalina
-    sha256 "dccf4a7e06e585eb81769211286ee183bc34721338970389a7adf29e8d910f5a" => :mojave
-    sha256 "dccf4a7e06e585eb81769211286ee183bc34721338970389a7adf29e8d910f5a" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "5fb1d3e9bcae848e77b8041e8c870806d4dcf7977ad5c75c6849c4162f16f816"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "5fb1d3e9bcae848e77b8041e8c870806d4dcf7977ad5c75c6849c4162f16f816"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "5fb1d3e9bcae848e77b8041e8c870806d4dcf7977ad5c75c6849c4162f16f816"
+    sha256 cellar: :any_skip_relocation, ventura:        "c76ba900eb45c5187af15e086aa14b5de3455e447b926909a8e27d518cc39c00"
+    sha256 cellar: :any_skip_relocation, monterey:       "c76ba900eb45c5187af15e086aa14b5de3455e447b926909a8e27d518cc39c00"
+    sha256 cellar: :any_skip_relocation, big_sur:        "c76ba900eb45c5187af15e086aa14b5de3455e447b926909a8e27d518cc39c00"
+    sha256 cellar: :any_skip_relocation, catalina:       "c76ba900eb45c5187af15e086aa14b5de3455e447b926909a8e27d518cc39c00"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "53077defdc696108ea6436fe66aba3b5b6eae9158b5ea2bcd10c015b8c6689b0"
   end
 
   keg_only :versioned_formula
 
-  depends_on java: "1.8"
+  deprecate! date: "2022-02-10", because: :unsupported
+
+  depends_on "openjdk@17"
 
   def cluster_name
     "elasticsearch_#{ENV["USER"]}"
   end
 
   def install
-    if build.head?
-      # Build the package from source
-      system "gradle", "clean", ":distribution:tar:assemble"
-      # Extract the package to the tar directory
-      mkdir "tar"
-      cd "tar"
-      system "tar", "--strip-components=1", "-xf",
-        Dir["../distribution/tar/build/distributions/elasticsearch-*.tar.gz"].first
-    end
-
     # Remove Windows files
     rm_f Dir["bin/*.bat"]
     rm_f Dir["bin/*.exe"]
@@ -52,6 +49,11 @@ class ElasticsearchAT6 < Formula
       s.sub!(%r{#\s*path\.logs: /path/to.+$}, "path.logs: #{var}/log/elasticsearch/")
     end
 
+    inreplace "#{libexec}/config/jvm.options" do |s|
+      s.gsub! "logs/gc.log", "#{var}/log/elasticsearch/gc.log"
+      s.gsub! "10-:-XX:UseAVX=2", "# 10-:-XX:UseAVX=2" if Hardware::CPU.arm?
+    end
+
     # Move config files into etc
     (etc/"elasticsearch").install Dir[libexec/"config/*"]
     (libexec/"config").rmtree
@@ -60,7 +62,7 @@ class ElasticsearchAT6 < Formula
                 libexec/"bin/elasticsearch-keystore",
                 libexec/"bin/elasticsearch-plugin",
                 libexec/"bin/elasticsearch-translog"
-    bin.env_script_all_files(libexec/"bin", Language::Java.java_home_env("1.8"))
+    bin.env_script_all_files(libexec/"bin", Language::Java.overridable_java_home_env)
   end
 
   def post_install

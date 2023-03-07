@@ -1,17 +1,24 @@
 class Hypre < Formula
   desc "Library featuring parallel multigrid methods for grid problems"
-  homepage "https://computation.llnl.gov/casc/hypre/software.html"
-  url "https://github.com/hypre-space/hypre/archive/v2.19.0.tar.gz"
-  sha256 "466b19d8a86c69989a237f6f03f20d35c0c63a818776d2cd071b0a084cffeba5"
-  # license ["MIT", "Apache-2.0"] - pending https://github.com/Homebrew/brew/pull/7953
-  license "MIT"
-  head "https://github.com/hypre-space/hypre.git"
+  homepage "https://computing.llnl.gov/projects/hypre-scalable-linear-solvers-multigrid-methods"
+  url "https://github.com/hypre-space/hypre/archive/v2.27.0.tar.gz"
+  sha256 "507a3d036bb1ac21a55685ae417d769dd02009bde7e09785d0ae7446b4ae1f98"
+  license any_of: ["MIT", "Apache-2.0"]
+  head "https://github.com/hypre-space/hypre.git", branch: "master"
+
+  livecheck do
+    url :stable
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "9bba59afd174afc5ebb884369445639d9aae27bf5894ecd65e8f113d33c4f89f" => :catalina
-    sha256 "b8e38313cbf6a6a5ca0ad3605c51f70efea2687f9d8fa299e525b927b43544be" => :mojave
-    sha256 "135e5998b03eb58b4f4a7363c01014a74362c93daad5b8720b9081b5a65caeb9" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "a6fc7983ef7856a66ce2f918624f271717beb27e63db86942e6b6f1b1d4c7cf9"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "391465307d0b80730edb73313c16727560ed179abc68199da28fba2bd50d9c94"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "a2421848fcc0982cde3081d2416317877975a336b755bcc215943b28bafb260a"
+    sha256 cellar: :any_skip_relocation, ventura:        "327c45c4eca604c333f6be802f7455f83a146a00954a326e659670bd0505768c"
+    sha256 cellar: :any_skip_relocation, monterey:       "d61aa53e53ac0dd38fbb7fc3fd68b98a7d36f99447a2646a587c03c6a075aa83"
+    sha256 cellar: :any_skip_relocation, big_sur:        "a22dfe4d9c409401c8ea1503fa0f5e91a9a95b13ee0d8b0876ab2354bb858cd8"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "2999be3899011969e428b548f39451762d56551f20dc933cf18eaec45c82c132"
   end
 
   depends_on "gcc" # for gfortran
@@ -34,7 +41,7 @@ class Hypre < Formula
       }
     EOS
 
-    system ENV.cc, "test.cpp", "-o", "test"
+    system ENV.cxx, "test.cpp", "-o", "test"
     system "./test"
   end
 end

@@ -3,69 +3,49 @@ class MongoOrchestration < Formula
 
   desc "REST API to manage MongoDB configurations on a single host"
   homepage "https://github.com/10gen/mongo-orchestration"
-  url "https://files.pythonhosted.org/packages/72/34/9f010c4ac8569314569ea69a93a234d1dedf211666ab0b01b919d7843dba/mongo-orchestration-0.6.12.tar.gz"
-  sha256 "d73f7666424ee6e4b2143c1e2f72025b15236dacd07c80a374a44bb056d53a6b"
+  url "https://files.pythonhosted.org/packages/7a/df/245a0f19b54dbd8852b29f53d3448fd89df5283165eb9fe90a83bf59708e/mongo-orchestration-0.7.0.tar.gz"
+  sha256 "f297a1fb81d742ab8397257da5b1cf1fd43153afcc2261c66801126b78973982"
   license "Apache-2.0"
-  head "https://github.com/10gen/mongo-orchestration.git"
+  revision 2
+  head "https://github.com/10gen/mongo-orchestration.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "33576a232a292049ed59ff028ce32bfd14e770742d2156cc04ee26cf20cb45ff" => :catalina
-    sha256 "cb16ab4631efca5cb55fa62e45b84d274169d432964ecef16c34e49380a636f7" => :mojave
-    sha256 "0f068f4639a7e4f7686bf5b6a80bd08b32e2ef4514dcecb4fbfb3dcd86c379be" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "405127e453e31ede09efe2d9f227f1c3eb73284d83acfdfd6b7e8f933cf98ae5"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "6d23d95a71adb37e14c4e38e026d7e764af41480dd90841d74a7a2422f7f1f0d"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "90a4581f44b9dbdeb3acd2178844740b9c972d9ab482012fd621e0298fd2f2e6"
+    sha256 cellar: :any_skip_relocation, ventura:        "2ae530fa702c4b5ab68fe65c83ce5311fc4196685fc406b824c29368c55468ce"
+    sha256 cellar: :any_skip_relocation, monterey:       "9cd9b0ad3bfdda51c34bf4ae6fb0a8389b8d0eb2706f0bd08225d5ee8e0c66ed"
+    sha256 cellar: :any_skip_relocation, big_sur:        "ba9a03b8247ec1bdb1beb5dcc3ba9ec4d92950af2e1a15db1eefc9f2b4d802f9"
+    sha256 cellar: :any_skip_relocation, catalina:       "6653fea0b774f6007ac75652a1a90c4719c3e913d8b35f3af9e0616baa7fc46c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "5b7a67022d7990bbe34724e0ebc0b5ffb3b5f7833f4b89bfb0ffb3614750264c"
   end
 
-  depends_on "python@3.8"
+  depends_on "python@3.11"
+  depends_on "six"
 
   resource "bottle" do
-    url "https://files.pythonhosted.org/packages/d9/4f/57887a07944140dae0d039d8bc270c249fc7fc4a00744effd73ae2cde0a9/bottle-0.12.18.tar.gz"
-    sha256 "0819b74b145a7def225c0e83b16a4d5711fde751cd92bae467a69efce720f69e"
+    url "https://files.pythonhosted.org/packages/7c/58/75f3765b0a3f86ef0b6e0b23d0503920936752ca6e0fc27efce7403b01bd/bottle-0.12.23.tar.gz"
+    sha256 "683de3aa399fb26e87b274dbcf70b1a651385d459131716387abdc3792e04167"
   end
 
   resource "CherryPy" do
-    url "https://files.pythonhosted.org/packages/50/c6/6c3d7a3221b0f098f8684037736e5604ea1586a3ba450c4a52b48f5fc2b4/CherryPy-7.0.0.tar.gz"
-    sha256 "faead7c5c7ca2526aff8f179a24d699127ed307c3393eeef9610a33b93650bef"
+    url "https://files.pythonhosted.org/packages/56/aa/91005730bdc5c0da8291a2f411aacbc5c3729166c382e2193e33f28044a3/CherryPy-8.9.1.tar.gz"
+    sha256 "dfad2f34e929836d016ae79f9e27aff250a8a71df200bf87c3e9b23541e091c5"
   end
 
   resource "pymongo" do
-    url "https://files.pythonhosted.org/packages/a8/f6/f324f5c669478644ac64594b9d746a34e185d9c34d3f05a4a6a6dab5467b/pymongo-3.5.1.tar.gz"
-    sha256 "e820d93414f3bec1fa456c84afbd4af1b43ff41366321619db74e6bc065d6924"
-  end
-
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/16/d8/bc6316cf98419719bd59c91742194c111b6f2e85abac88e496adefaf7afe/six-1.11.0.tar.gz"
-    sha256 "70e8a77beed4562e7f14fe23a786b54f6296e34344c23bc42f07b15018ff98e9"
+    url "https://files.pythonhosted.org/packages/ec/ff/9b08f29b57384e1f55080d15a12ba4908d93d46cd7fe83c5c562fdcd3400/pymongo-3.13.0.tar.gz"
+    sha256 "e22d6cf5802cd09b674c307cc9e03870b8c37c503ebec3d25b86f2ce8c535dc7"
   end
 
   def install
     virtualenv_install_with_resources
   end
 
-  plist_options startup: true, manual: "#{HOMEBREW_PREFIX}/opt/mongo-orchestration/bin/mongo-orchestration -b 127.0.0.1 -p 8889 --no-fork start"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>Label</key>
-          <string>mongo-orchestration</string>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{opt_bin}/mongo-orchestration</string>
-            <string>-b</string>
-            <string>127.0.0.1</string>
-            <string>-p</string>
-            <string>8889</string>
-            <string>--no-fork</string>
-            <string>start</string>
-          </array>
-          <key>RunAtLoad</key>
-          <true/>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"mongo-orchestration", "-b", "127.0.0.1", "-p", "8889", "--no-fork", "start"]
+    require_root true
   end
 
   test do

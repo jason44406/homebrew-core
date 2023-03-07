@@ -1,22 +1,28 @@
 class Atomicparsley < Formula
   desc "MPEG-4 command-line tool"
   homepage "https://github.com/wez/atomicparsley"
-  url "https://github.com/wez/atomicparsley/archive/20200701.154658.b0d6223.tar.gz"
-  version "20200701.154658.b0d6223"
-  sha256 "52f11dc0cbd8964fcdaf019bfada2102f9ee716a1d480cd43ae5925b4361c834"
-  license "GPL-2.0"
+  url "https://github.com/wez/atomicparsley/archive/20221229.172126.d813aa6.tar.gz"
+  version "20221229.172126.d813aa6"
+  sha256 "2f095a251167dc771e8f4434abe4a9c7af7d8e13c718fb8439a0e0d97078899b"
+  license "GPL-2.0-or-later"
   version_scheme 1
-  head "https://github.com/wez/atomicparsley.git"
+  head "https://github.com/wez/atomicparsley.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "6bc22e04f5d2863e73010606d823eb0768d637165d190d3889db3780bbbb724c" => :catalina
-    sha256 "204e206047f48cdffef4fa91f81dbce6db370f002dd883000798d91f2916c391" => :mojave
-    sha256 "ce2509fe2cc72c18b6b82c9df5e802e2503f61ebf841833618a974ac21fc92c3" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "b34175e14acdb01523b83fb7e84ba96cfedb6fba3e40e33a594481e5020608dd"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "996bb284186eaa30569575a32e0447e7e5cf2f0223c4367e58a76a1addfac27d"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "9e553cc071ff479799cd114c085b56f03f23b904ae94d03c8cf490845dae9f7e"
+    sha256 cellar: :any_skip_relocation, ventura:        "558289aeb9de98c1c813afab51c3c0d1d92fdf82388a805781d2f4b11df20690"
+    sha256 cellar: :any_skip_relocation, monterey:       "8cc2e316a549c4d1bdc4041fd9a6cfa47673e3ed196b3aecba5e72492d2dc152"
+    sha256 cellar: :any_skip_relocation, big_sur:        "256816a97ae5ff57bbf87c40db79601522aec0b6f0bf2a0b4dc939badbe730c1"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "1b7c684a13e7f448cf4fd791c7534f43489428ee0eae19749c129b4db1389d02"
   end
 
   depends_on "cmake" => :build
+
   uses_from_macos "zlib"
+
+  fails_with gcc: "5"
 
   def install
     system "cmake", ".", *std_cmake_args

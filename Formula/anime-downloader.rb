@@ -2,31 +2,53 @@ class AnimeDownloader < Formula
   include Language::Python::Virtualenv
 
   desc "Download your favourite anime"
-  homepage "https://github.com/vn-ki/anime-downloader"
-  url "https://files.pythonhosted.org/packages/d9/c3/f3329977edf72ac7d1df1b38599ce6226c18d590627a373b4ad5be352569/anime-downloader-4.6.3.tar.gz"
-  sha256 "9dac24de5f17426982846c444b3f1ef815bb4a56766a64cf5edf55d0db1da468"
+  homepage "https://github.com/anime-dl/anime-downloader"
+  url "https://files.pythonhosted.org/packages/00/8b/2f354c0c2e56f1fe45e805698bd6a81c472473a48b814c44aaed2d41016d/anime-downloader-5.0.9.tar.gz"
+  sha256 "40eaded9508a30f35993b2fc0f436c357d9939d58625a10bd595bfc11816ead4"
   license "Unlicense"
-  head "https://github.com/vn-ki/anime-downloader.git"
+  revision 3
+  head "https://github.com/anime-dl/anime-downloader.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "f72af53be1b91169b613617cbbf597e10ca77b8df5c97619ac5beb9ae993ca05" => :catalina
-    sha256 "0132c4f18af10e9e7a4b1fb0833cdd07153f1f6d4e932e2d43ee77771133e34e" => :mojave
-    sha256 "8fdb34e55ff31e1307baee3819c44ac81fd34aee5d9ff20cae1e7fce45ab40d3" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "98e0f6cfcb073096be611b18ebd8e00409b8fffe66d356d18714055b4163538d"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "5a0d9538acb902ab6570f479c3f64db73588f4dfd6bbc2bfe1f97c7ff088b7fe"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "9f14c91f5fc8d4085b117862fab75f7f627fce41779630d39faa074d338d69b3"
+    sha256 cellar: :any_skip_relocation, ventura:        "b36953aca79c443345fd49b26aaabdf61cf51f1e3077c20932e9fd66650b7771"
+    sha256 cellar: :any_skip_relocation, monterey:       "31f79f267a1efa5df257f9fdad0e78f20669d48ea37182d7a5172356fe8caf56"
+    sha256 cellar: :any_skip_relocation, big_sur:        "cd65772b34924b995eba6966e3b62a9dc31d7bb482c34960db17f8e42f27e73b"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "e21296ba0f844f521e250fcff933fcf13375a3db3a8dee260c7a7a18eb97ddff"
   end
 
   depends_on "aria2"
   depends_on "node"
-  depends_on "python@3.8"
+  depends_on "python-tabulate"
+  depends_on "python@3.11"
+  depends_on "six"
+
+  resource "appdirs" do
+    url "https://files.pythonhosted.org/packages/d7/d8/05696357e0311f5b5c316d7b95f46c669dd9c15aaeecbb48c7d0aeb88c40/appdirs-1.4.4.tar.gz"
+    sha256 "7d5d0167b2b1ba821647616af46a749d1c653740dd0d2415100fe26e27afdf41"
+  end
+
+  resource "attrs" do
+    url "https://files.pythonhosted.org/packages/1a/cb/c4ffeb41e7137b23755a45e1bfec9cbb76ecf51874c6f1d113984ecaa32c/attrs-22.1.0.tar.gz"
+    sha256 "29adc2665447e5191d0e7c568fde78b21f9672d344281d0c6e1ab085429b22b6"
+  end
 
   resource "beautifulsoup4" do
-    url "https://files.pythonhosted.org/packages/c6/62/8a2bef01214eeaa5a4489eca7104e152968729512ee33cb5fbbc37a896b7/beautifulsoup4-4.9.1.tar.gz"
-    sha256 "73cc4d115b96f79c7d77c1c7f7a0a8d4c57860d1041df407dd1aae7f07a77fd7"
+    url "https://files.pythonhosted.org/packages/e8/b0/cd2b968000577ec5ce6c741a54d846dfa402372369b8b6861720aa9ecea7/beautifulsoup4-4.11.1.tar.gz"
+    sha256 "ad9aa55b65ef2808eb405f46cf74df7fcb7044d5cbc26487f96eb2ef2e436693"
+  end
+
+  resource "cattrs" do
+    url "https://files.pythonhosted.org/packages/fc/da/ff3239eb4241cbc6f8b69f53d4ca27a178d51f9e5a954f1a3588c8227dc5/cattrs-22.2.0.tar.gz"
+    sha256 "f0eed5642399423cf656e7b66ce92cdc5b963ecafd041d1b24d136fdde7acf6d"
   end
 
   resource "certifi" do
-    url "https://files.pythonhosted.org/packages/40/a7/ded59fa294b85ca206082306bba75469a38ea1c7d44ea7e1d64f5443d67a/certifi-2020.6.20.tar.gz"
-    sha256 "5930595817496dd21bb8dc35dad090f1c2cd0adfaf21204bf6732ca5d8ee34d3"
+    url "https://files.pythonhosted.org/packages/37/f7/2b1b0ec44fdc30a3d31dfebe52226be9ddc40cd6c0f34ffc8923ba423b69/certifi-2022.12.7.tar.gz"
+    sha256 "35824b4c3a97115964b408844d64aa14db1cc518f6562e8d7261699d1350a9e3"
   end
 
   resource "cfscrape" do
@@ -34,19 +56,19 @@ class AnimeDownloader < Formula
     sha256 "7c5ef94554e0d6ee7de7cd0d42051526e716ce6c0357679ee0b82c49e189e2ef"
   end
 
-  resource "chardet" do
-    url "https://files.pythonhosted.org/packages/fc/bb/a5768c230f9ddb03acc9ef3f0d4a3cf93462473795d18e9535498c8f929d/chardet-3.0.4.tar.gz"
-    sha256 "84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae"
+  resource "charset-normalizer" do
+    url "https://files.pythonhosted.org/packages/a1/34/44964211e5410b051e4b8d2869c470ae8a68ae274953b1c7de6d98bbcf94/charset-normalizer-2.1.1.tar.gz"
+    sha256 "5a3d016c7c547f69d6f81fb0db9449ce888b418b5b9952cc5e6e66843e9dd845"
   end
 
   resource "click" do
-    url "https://files.pythonhosted.org/packages/27/6f/be940c8b1f1d69daceeb0032fee6c34d7bd70e3e649ccac0951500b4720e/click-7.1.2.tar.gz"
-    sha256 "d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a"
+    url "https://files.pythonhosted.org/packages/59/87/84326af34517fca8c58418d148f2403df25303e02736832403587318e9e8/click-8.1.3.tar.gz"
+    sha256 "7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e"
   end
 
   resource "coloredlogs" do
-    url "https://files.pythonhosted.org/packages/84/1b/1ecdd371fa68839cfbda15cc671d0f6c92d2c42688df995a9bf6e36f3511/coloredlogs-14.0.tar.gz"
-    sha256 "a1fab193d2053aa6c0a97608c4342d031f1f93a3d1218432c59322441d31a505"
+    url "https://files.pythonhosted.org/packages/cc/c7/eed8f27100517e8c0e6b923d5f0845d0cb99763da6fdee00478f91db7325/coloredlogs-15.0.1.tar.gz"
+    sha256 "7c991aa71a4577af2f82600d8f8f3a89f936baeaf9b50a9c197da014e5bf16b0"
   end
 
   resource "fuzzywuzzy" do
@@ -55,43 +77,55 @@ class AnimeDownloader < Formula
   end
 
   resource "humanfriendly" do
-    url "https://files.pythonhosted.org/packages/6c/19/8e3b4c6fa7cca4788817db398c05274d98ecc6a35e0eaad2846fde90c863/humanfriendly-8.2.tar.gz"
-    sha256 "bf52ec91244819c780341a3438d5d7b09f431d3f113a475147ac9b7b167a3d12"
+    url "https://files.pythonhosted.org/packages/cc/3f/2c29224acb2e2df4d2046e4c73ee2662023c58ff5b113c4c1adac0886c43/humanfriendly-10.0.tar.gz"
+    sha256 "6b0b831ce8f15f7300721aa49829fc4e83921a9a301cc7f606be6686a2288ddc"
   end
 
   resource "idna" do
-    url "https://files.pythonhosted.org/packages/ea/b7/e0e3c1c467636186c39925827be42f16fee389dc404ac29e930e9136be70/idna-2.10.tar.gz"
-    sha256 "b307872f855b18632ce0c21c5e45be78c0ea7ae4c15c828c20788b26921eb3f6"
+    url "https://files.pythonhosted.org/packages/8b/e1/43beb3d38dba6cb420cefa297822eac205a277ab43e5ba5d5c46faf96438/idna-3.4.tar.gz"
+    sha256 "814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4"
   end
 
   resource "pycryptodome" do
-    url "https://files.pythonhosted.org/packages/4c/2b/eddbfc56076fae8deccca274a5c70a9eb1e0b334da0a33f894a420d0fe93/pycryptodome-3.9.8.tar.gz"
-    sha256 "0e24171cf01021bc5dc17d6a9d4f33a048f09d62cc3f62541e95ef104588bda4"
+    url "https://files.pythonhosted.org/packages/0d/66/5e4a14e91ffeac819e6888037771286bc1b86869f25d74d60bc4a61d2c1e/pycryptodome-3.16.0.tar.gz"
+    sha256 "0e45d2d852a66ecfb904f090c3f87dc0dfb89a499570abad8590f10d9cffb350"
+  end
+
+  resource "pySmartDL" do
+    url "https://files.pythonhosted.org/packages/5a/4c/ed073b2373f115094a4a612431abe25b58e542bebd951557dcc881999ef9/pySmartDL-1.3.4.tar.gz"
+    sha256 "35275d1694f3474d33bdca93b27d3608265ffd42f5aeb28e56f38b906c0c35f4"
   end
 
   resource "requests" do
-    url "https://files.pythonhosted.org/packages/da/67/672b422d9daf07365259958912ba533a0ecab839d4084c487a5fe9a5405f/requests-2.24.0.tar.gz"
-    sha256 "b3559a131db72c33ee969480840fff4bb6dd111de7dd27c8ee1f820f4f00231b"
+    url "https://files.pythonhosted.org/packages/a5/61/a867851fd5ab77277495a8709ddda0861b28163c4613b011bc00228cc724/requests-2.28.1.tar.gz"
+    sha256 "7c5599b102feddaa661c826c56ab4fee28bfd17f5abca1ebbe3e7f19d7c97983"
   end
 
   resource "requests-cache" do
-    url "https://files.pythonhosted.org/packages/0c/d4/bdc22aad6979ceeea2638297f213108aeb5e25c7b103fa02e4acbe43992e/requests-cache-0.5.2.tar.gz"
-    sha256 "813023269686045f8e01e2289cc1e7e9ae5ab22ddd1e2849a9093ab3ab7270eb"
+    url "https://files.pythonhosted.org/packages/66/02/40737a22e3c006830433d6dc9e9d6debb52d9e9e412bab16d82c50d7be14/requests_cache-0.9.7.tar.gz"
+    sha256 "b7c26ea98143bac7058fad6e773d56c3442eabc0da9ea7480af5edfc134ff515"
   end
 
   resource "soupsieve" do
-    url "https://files.pythonhosted.org/packages/3e/db/5ba900920642414333bdc3cb397075381d63eafc7e75c2373bbc560a9fa1/soupsieve-2.0.1.tar.gz"
-    sha256 "a59dc181727e95d25f781f0eb4fd1825ff45590ec8ff49eadfd7f1a537cc0232"
+    url "https://files.pythonhosted.org/packages/f3/03/bac179d539362319b4779a00764e95f7542f4920084163db6b0fd4742d38/soupsieve-2.3.2.post1.tar.gz"
+    sha256 "fc53893b3da2c33de295667a0e19f078c14bf86544af307354de5fcf12a3f30d"
   end
 
-  resource "tabulate" do
-    url "https://files.pythonhosted.org/packages/57/6f/213d075ad03c84991d44e63b6516dd7d185091df5e1d02a660874f8f7e1e/tabulate-0.8.7.tar.gz"
-    sha256 "db2723a20d04bcda8522165c73eea7c300eda74e0ce852d9022e0159d7895007"
+  resource "url-normalize" do
+    url "https://files.pythonhosted.org/packages/ec/ea/780a38c99fef750897158c0afb83b979def3b379aaac28b31538d24c4e8f/url-normalize-1.4.3.tar.gz"
+    sha256 "d23d3a070ac52a67b83a1c59a0e68f8608d1cd538783b401bc9de2c0fac999b2"
+
+    # Switch build-system to poetry-core to avoid rust dependency on Linux.
+    # Remove in the next release of url-normalize
+    patch do
+      url "https://github.com/niksite/url-normalize/commit/b8557b10c977b191cc9d37e6337afe874a24ad08.patch?full_index=1"
+      sha256 "b24bf01ec8d6c163a6d3c97672beba761d35006922d4ad930dbeca79b6c52bfe"
+    end
   end
 
   resource "urllib3" do
-    url "https://files.pythonhosted.org/packages/81/f4/87467aeb3afc4a6056e1fe86626d259ab97e1213b1dfec14c7cb5f538bf0/urllib3-1.25.10.tar.gz"
-    sha256 "91056c15fa70756691db97756772bb1eb9678fa585d9184f24534b100dc60f4a"
+    url "https://files.pythonhosted.org/packages/c2/51/32da03cf19d17d46cce5c731967bf58de9bd71db3a379932f53b094deda4/urllib3-1.26.13.tar.gz"
+    sha256 "c083dd0dce68dbfbe1129d5271cb90f9447dea7d52097c6e0126120c521ddea8"
   end
 
   def install

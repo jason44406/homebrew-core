@@ -1,18 +1,31 @@
 class IrcdHybrid < Formula
   desc "High-performance secure IRC server"
-  homepage "http://www.ircd-hybrid.org/"
-  url "https://downloads.sourceforge.net/project/ircd-hybrid/ircd-hybrid/ircd-hybrid-8.2.32/ircd-hybrid-8.2.32.tgz"
-  sha256 "b27823ee359dcdeeaf1cce3b81fb959a156fd776ab599092dd52fd79fa276df2"
+  homepage "https://www.ircd-hybrid.org/"
+  url "https://downloads.sourceforge.net/project/ircd-hybrid/ircd-hybrid/ircd-hybrid-8.2.43/ircd-hybrid-8.2.43.tgz"
+  sha256 "bd0373c780e308c1a6f6989015ff28e1c22999ef764b7b68636b628573c251ef"
   license "GPL-2.0-or-later"
 
-  bottle do
-    sha256 "4141097277b2a5e1c28c4d6ac1bf0b01743c7e34fb371aca7267e480db8ec830" => :catalina
-    sha256 "0a4639339b71b7b385a5f7a5bf0755d1b055a093db29ace3421d768f1aa6c4d9" => :mojave
-    sha256 "9d334046c230f6df1c75a7e5313477bb79fe6cc35f53f9be441216c577ca3d22" => :high_sierra
+  livecheck do
+    url :stable
+    regex(%r{url=.*?/ircd-hybrid[._-]v?(\d+(?:\.\d+)+)\.t}i)
   end
 
-  depends_on "openssl@1.1"
+  bottle do
+    sha256 arm64_ventura:  "6a81e2c060cd566f402869f96af0ed8c64a0ed34bab832d647e7376b55b208ff"
+    sha256 arm64_monterey: "8278654b1edca6191c1d549e796919b6836e524feb4a59b44860f817965b81da"
+    sha256 arm64_big_sur:  "b3927d1e5ddbfb44800b02eee5fd9fe88fc597589f3810fd1fd41deb20713f4a"
+    sha256 ventura:        "5a528cd1893e00df7ccbfe9b9fb324dc3574da86c6a358113ded14fe7e2407bb"
+    sha256 monterey:       "c7ffbfb6de2e476e248bd63c2b963abee68e684ce4aac3042c9406e12ecad09e"
+    sha256 big_sur:        "2eea0b23275797fe30f9095cbaebb167d707a08250bc66f5a0c729851bba7776"
+    sha256 catalina:       "2a1ce03715e20c3fb69c1716362471a7d1ee2ed4230c8db80347c7ef42986b7e"
+    sha256 x86_64_linux:   "e2bd735a173dbb77da8bb51a30b82844d4225f4ee2e3056c2afbc5c624c623be"
+  end
 
+  depends_on "openssl@3"
+
+  uses_from_macos "libxcrypt"
+
+  conflicts_with "expect", because: "both install an `mkpasswd` binary"
   conflicts_with "ircd-irc2", because: "both install an `ircd` binary"
 
   # ircd-hybrid needs the .la files
@@ -25,7 +38,7 @@ class IrcdHybrid < Formula
                           "--prefix=#{prefix}",
                           "--localstatedir=#{var}",
                           "--sysconfdir=#{etc}",
-                          "--enable-openssl=#{Formula["openssl@1.1"].opt_prefix}"
+                          "--enable-openssl=#{Formula["openssl@3"].opt_prefix}"
     system "make", "install"
     etc.install "doc/reference.conf" => "ircd.conf"
   end
@@ -37,31 +50,11 @@ class IrcdHybrid < Formula
     EOS
   end
 
-  plist_options manual: "ircd"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-      <dict>
-        <key>KeepAlive</key>
-        <false/>
-        <key>Label</key>
-        <string>#{plist_name}</string>
-        <key>ProgramArguments</key>
-        <array>
-          <string>#{opt_bin}/ircd</string>
-        </array>
-        <key>RunAtLoad</key>
-        <true/>
-        <key>WorkingDirectory</key>
-        <string>#{HOMEBREW_PREFIX}</string>
-        <key>StandardErrorPath</key>
-        <string>#{var}/ircd.log</string>
-      </dict>
-      </plist>
-    EOS
+  service do
+    run opt_bin/"ircd"
+    keep_alive false
+    working_dir HOMEBREW_PREFIX
+    error_log_path var/"ircd.log"
   end
 
   test do

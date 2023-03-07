@@ -1,63 +1,36 @@
 class Kcptun < Formula
   desc "Stable & Secure Tunnel based on KCP with N:M multiplexing and FEC"
   homepage "https://github.com/xtaci/kcptun"
-  url "https://github.com/xtaci/kcptun/archive/v20200701.tar.gz"
-  sha256 "d5b2d212c6806f1c4eba5fbce8797734eaa8ae0f8cdd90dd06d0844392888ff0"
+  url "https://github.com/xtaci/kcptun/archive/refs/tags/v20230214.tar.gz"
+  sha256 "3ab7b2cc3cdf1705faa76d474419a2d9e8868c8b46a24c93a218bd6a5acb2de3"
   license "MIT"
-  head "https://github.com/xtaci/kcptun.git"
+  head "https://github.com/xtaci/kcptun.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "6b2353c5753b2266b6dc9cbdfe8f4bc9266b299f1bcf2fea100b8276fa2c4074" => :catalina
-    sha256 "e5fb829f053fd71f14b8f290fabd22f87fd6961be01f1feb75df2c43c6753150" => :mojave
-    sha256 "872b2cc7078e268c38a78ed3e98cc7d6b201426584f57f11ee7c231cdcbdfe16" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "8a3c69dd05d16457e7bf96a05281ceb6417c1298a6f5c54f068891501c24b0be"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "60f619bed1bd429479a2c87a48a9e72bb4420456a79951867af24faafcd235b1"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "f41225ca816de2f14237bef82956a02edc6f3a2d3e74d367595e397afbbb426c"
+    sha256 cellar: :any_skip_relocation, ventura:        "53366ee01bde863ed8d496eed23c68ef2f717f39e2a3dcca82c20bd4b86dad3a"
+    sha256 cellar: :any_skip_relocation, monterey:       "16025109d56966ac85682d17eee1f4fa2a0cb450b9f25dfe42cc2461b9a6cdb2"
+    sha256 cellar: :any_skip_relocation, big_sur:        "e4362e99e6090fd07a722386abae31f4bcc0a9ca397c7ce8d3e9dbbb0b05b9f3"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "9b16fb8f3abab1d47e81fb3144794a7e06f3e59c76ac7d939a03b8475355c6ac"
   end
 
   depends_on "go" => :build
 
   def install
-    system "go", "build", "-ldflags", "-X main.VERSION=#{version} -s -w",
-      "-o", bin/"kcptun_client", "github.com/xtaci/kcptun/client"
-    system "go", "build", "-ldflags", "-X main.VERSION=#{version} -s -w",
-      "-o", bin/"kcptun_server", "github.com/xtaci/kcptun/server"
+    ldflags = "-s -w -X main.VERSION=#{version}"
+    system "go", "build", *std_go_args(ldflags: ldflags, output: bin/"kcptun_client"), "./client"
+    system "go", "build", *std_go_args(ldflags: ldflags, output: bin/"kcptun_server"), "./server"
 
     etc.install "examples/local.json" => "kcptun_client.json"
   end
 
-  plist_options manual: "#{HOMEBREW_PREFIX}/opt/kcptun/bin/kcptun_client -c #{HOMEBREW_PREFIX}/etc/kcptun_client.json"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{opt_bin}/kcptun_client</string>
-            <string>-c</string>
-            <string>#{etc}/kcptun_client.json</string>
-          </array>
-          <key>RunAtLoad</key>
-          <true/>
-          <key>KeepAlive</key>
-          <dict>
-            <key>Crashed</key>
-            <true/>
-            <key>SuccessfulExit</key>
-            <false/>
-          </dict>
-          <key>ProcessType</key>
-          <string>Background</string>
-          <key>StandardErrorPath</key>
-          <string>#{var}/log/kcptun.log</string>
-          <key>StandardOutPath</key>
-          <string>#{var}/log/kcptun.log</string>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"kcptun_client", "-c", etc/"kcptun_client.json"]
+    keep_alive true
+    log_path var/"log/kcptun.log"
+    error_log_path var/"log/kcptun.log"
   end
 
   test do

@@ -1,40 +1,40 @@
 class GstLibav < Formula
   desc "GStreamer plugins for Libav (a fork of FFmpeg)"
   homepage "https://gstreamer.freedesktop.org/"
-  url "https://gstreamer.freedesktop.org/src/gst-libav/gst-libav-1.16.2.tar.xz"
-  sha256 "c724f612700c15a933c7356fbeabb0bb9571fb5538f8b1b54d4d2d94188deef2"
-  license "GPL-2.0"
+  url "https://gstreamer.freedesktop.org/src/gst-libav/gst-libav-1.22.0.tar.xz"
+  sha256 "0e48407b4905227a260213dbda84cba3812f0530fc7a75b43829102ef82810f1"
+  license "LGPL-2.1-or-later"
+  head "https://gitlab.freedesktop.org/gstreamer/gst-libav.git", branch: "master"
+
+  livecheck do
+    url "https://gstreamer.freedesktop.org/src/gst-libav/"
+    regex(/href=.*?gst-libav[._-]v?(\d+\.\d*[02468](?:\.\d+)*)\.t/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "dce5e4261059fa2fc2e14eb4db2f43cfdf749eee11140539b3f1c3c74af25198" => :catalina
-    sha256 "999e32d952de88b5578a3906fe922b135827738ac9b16afcd542bc9ba01d2d21" => :mojave
-    sha256 "281dc5fd5d4a0f558b653d7054303fbd30308feb73d2c4e37811d8389d28b6ad" => :high_sierra
+    sha256 cellar: :any, arm64_ventura:  "b8a62a772040f6e4fc5839c58ea69bfd854af0dfe773c0ca418415f59d14a32a"
+    sha256 cellar: :any, arm64_monterey: "1daca6a1f15104b6d7e4455adaa7e1f7302437c6f2984b3cdd1c663ae188c264"
+    sha256 cellar: :any, arm64_big_sur:  "924463dc90fecb99b47f1aa34ddc8cf69abc9d1fbf19fc79b5c5b516f4cbf858"
+    sha256 cellar: :any, ventura:        "4583e0a46b5968a7f1d72fbb6aaa34f6c7f40278de0b617d090cfa6d507857e0"
+    sha256 cellar: :any, monterey:       "ca994abf313f85efd894bcc0197817dfe384c71a00bc5efdf3d6ab312d923c08"
+    sha256 cellar: :any, big_sur:        "db9dd43b08529ba2cb3110f7c1af2c1a80c39c7d8638cd761a0f68665057bd6a"
+    sha256               x86_64_linux:   "decfafa86cc433e8b14e2320e375252b2308d8871262b0fbbd83420990c240c4"
   end
 
-  head do
-    url "https://anongit.freedesktop.org/git/gstreamer/gst-libav.git"
-
-    depends_on "autoconf" => :build
-    depends_on "automake" => :build
-    depends_on "libtool" => :build
-    depends_on "gettext"
-  end
-
+  depends_on "meson" => :build
+  depends_on "ninja" => :build
   depends_on "pkg-config" => :build
   depends_on "yasm" => :build
+  depends_on "ffmpeg"
   depends_on "gst-plugins-base"
   depends_on "xz" # For LZMA
 
   def install
-    if build.head?
-      ENV["NOCONFIGURE"] = "yes"
-      system "./autogen.sh"
+    mkdir "build" do
+      system "meson", *std_meson_args, ".."
+      system "ninja", "-v"
+      system "ninja", "install", "-v"
     end
-
-    system "./configure", "--prefix=#{prefix}", "--disable-dependency-tracking"
-    system "make"
-    system "make", "install"
   end
 
   test do

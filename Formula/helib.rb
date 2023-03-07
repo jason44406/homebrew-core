@@ -1,19 +1,26 @@
 class Helib < Formula
   desc "Implementation of homomorphic encryption"
   homepage "https://github.com/homenc/HElib"
-  url "https://github.com/homenc/HElib/archive/v1.0.2.tar.gz"
-  sha256 "b907eaa8381af3d001d7fb8383273f4c652415b3320c11d5be2ad8f19757c998"
+  url "https://github.com/homenc/HElib/archive/v2.2.2.tar.gz"
+  sha256 "70c07d2a2da393c695095fe755836524e3d98efb27a336e206291f71db9cec7d"
   license "Apache-2.0"
 
   bottle do
-    cellar :any
-    sha256 "457cfdab05d0634453d4ddcbf84853f354a7ff7d83a4a5cad8d79edc3e1a3ee5" => :catalina
-    sha256 "b74a96fd7b94f1411015de28e8fb1dec5627cb5d8f63f3c7a0fcbd084eae13fe" => :mojave
-    sha256 "677d399ee0d241b206d026aea134812570256a6ca6f33ff809d68c2bff26440d" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "34f163bd12676026f9590a15244bfcb002df6967d031301a822150fa4ca9a888"
+    sha256 cellar: :any,                 arm64_monterey: "4f356464d714ffcac9f68b883c70b6d80521e148b4c1522421a28b44ef31c326"
+    sha256 cellar: :any,                 arm64_big_sur:  "7c004f3ea1822de6b87312b2ecfe5f1052fc0c73f2981e0ec829d982b1eb9fc1"
+    sha256 cellar: :any,                 ventura:        "1e5fc998605dad875c1e1778118107ef0f99d2222464511cc0e2269bf8bf950e"
+    sha256 cellar: :any,                 monterey:       "d92cef10a464476085a433a9a796185c8f3acb0c7675b574a9c8e40686f4e97a"
+    sha256 cellar: :any,                 big_sur:        "6bacf1a7120bfe69efaf04ba14a3fe2fa0264389bbaace8fa0107d8024525a9e"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "6dcba1a913111cd6d07c99089fc7766a59cccdca4fd28b860399a1197bb62c82"
   end
 
   depends_on "cmake" => :build
+  depends_on "bats-core" => :test
+  depends_on "gmp"
   depends_on "ntl"
+
+  fails_with gcc: "5" # for C++17
 
   def install
     mkdir "build" do
@@ -24,12 +31,12 @@ class Helib < Formula
   end
 
   test do
-    cp pkgshare/"examples/BGV_database_lookup/BGV_database_lookup.cpp", testpath/"test.cpp"
+    cp pkgshare/"examples/BGV_country_db_lookup/BGV_country_db_lookup.cpp", testpath/"test.cpp"
     mkdir "build"
-    system ENV.cxx, "-std=c++14", "-L#{lib}", "-L#{Formula["ntl"].opt_lib}",
-                    "-lhelib", "-lntl", "test.cpp", "-o", "build/BGV_database_lookup"
+    system ENV.cxx, "test.cpp", "-std=c++17", "-L#{lib}", "-L#{Formula["ntl"].opt_lib}",
+                    "-pthread", "-lhelib", "-lntl", "-o", "build/BGV_country_db_lookup"
 
-    cp pkgshare/"examples/BGV_database_lookup/runtest.sh", testpath/"runtest.sh"
-    system "./runtest.sh"
+    cp_r pkgshare/"examples/tests", testpath
+    system "bats", "."
   end
 end

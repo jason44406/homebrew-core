@@ -1,17 +1,19 @@
 class Arpack < Formula
   desc "Routines to solve large scale eigenvalue problems"
   homepage "https://github.com/opencollab/arpack-ng"
-  url "https://github.com/opencollab/arpack-ng/archive/3.7.0.tar.gz"
-  sha256 "972e3fc3cd0b9d6b5a737c9bf6fd07515c0d6549319d4ffb06970e64fa3cc2d6"
+  url "https://github.com/opencollab/arpack-ng/archive/3.9.0.tar.gz"
+  sha256 "24f2a2b259992d3c797d80f626878aa8e2ed5009d549dad57854bbcfb95e1ed0"
   license "BSD-3-Clause"
-  revision 5
-  head "https://github.com/opencollab/arpack-ng.git"
+  head "https://github.com/opencollab/arpack-ng.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "c4d53dfa06e56a05dfe6c53020a8c5d867b6cf9d0cc37de9b6debc80d1af0d44" => :catalina
-    sha256 "a5b2d5d34b7c9650d54b7985a4edf979e9c43ddc29830676f042c112f4025967" => :mojave
-    sha256 "152d4a439d8309460a8d2da947eb611aa5c6dd9fa77bba9afa2db60c09f807f4" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "00a4522b3c828a4c01fd217b4f3e463e244f78176be12ef4254ea717cf777ec2"
+    sha256 cellar: :any,                 arm64_monterey: "183e7b26a4013b2e985bcb9378fcfe9a26737f8453221573bd028d1195fb70e0"
+    sha256 cellar: :any,                 arm64_big_sur:  "3e3d2a125a0db65151f83ce69260d269c372ff1b33de4eff237c67227f4e3897"
+    sha256 cellar: :any,                 ventura:        "9f66d8634e9912fa4f307df1c9416f282cd07a24652ab5078dc5720c5cb3e87b"
+    sha256 cellar: :any,                 monterey:       "f942ff4f061694774405aa2acd05f834222f2609c3609d237ca2427224154055"
+    sha256 cellar: :any,                 big_sur:        "fe8f01ba84d9d5d706afa83764f795c60f6c5396e8766c3d01458c7a09d64631"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "38b19cff9601f7590571e03e820d65ecf1edb85875528b1f0b86991a68bfd623"
   end
 
   depends_on "autoconf" => :build
@@ -34,10 +36,6 @@ class Arpack < Formula
       --enable-icb
       --enable-icb-exmm
     ]
-
-    # Fix for GCC 10, remove with next version
-    # https://github.com/opencollab/arpack-ng/commit/ad82dcbc
-    args << "FFLAGS=-fallow-argument-mismatch"
 
     system "./bootstrap"
     system "./configure", *args

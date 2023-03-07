@@ -1,19 +1,29 @@
 class Getxbook < Formula
   desc "Tools to download ebooks from various sources"
-  homepage "https://njw.name/getxbook"
+  homepage "https://njw.name/getxbook/"
   url "https://njw.name/getxbook/getxbook-1.2.tar.xz"
   sha256 "7a4b1636ecb6dace814b818d9ff6a68167799b81ac6fc4dca1485efd48cf1c46"
+  license "ISC"
   revision 1
 
-  bottle do
-    cellar :any
-    sha256 "a99745b1db4509b84e84c0306bdf4439086670e608e7ff7e4d89e5318547391b" => :catalina
-    sha256 "68f7f76c607807315d1e8305830eaa94d04e1c87f1ea1382fb00bd7ec74f2886" => :mojave
-    sha256 "dce13d6e7d9f5f0eb79064858dca9dc3d62b274ba1f07b2ceaca3bf06e4effed" => :high_sierra
-    sha256 "d4b7500ecfbcf0b0d4ff905b01589a546aa53da5c1c465878305c8b6ee2c363c" => :sierra
+  livecheck do
+    url :homepage
+    regex(/href=.*?getxbook[._-]v?(\d+(?:\.\d+)+)\.t/i)
   end
 
-  depends_on "openssl@1.1"
+  bottle do
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "7254e0b761a6e9eb9388b1a7af5f70d4ec26afbfec79924a11ff343ac68cffd8"
+    sha256 cellar: :any,                 arm64_monterey: "2237deb414c3adb1808dd399db44aaa9716d6c015a23091fd0293551caa18d41"
+    sha256 cellar: :any,                 arm64_big_sur:  "00932264ebc086317cc3ef8fbd68c7cc06be424ecd51c331fc84797a1a862268"
+    sha256 cellar: :any,                 ventura:        "cf59d18cfd93e5378cfa7d99833955936c352c78de14f30fea628fb828057bb0"
+    sha256 cellar: :any,                 monterey:       "95ba1369c672fc85ee368dfeed1854d0c60ead37fb2ee61d970b62e4c0ae5668"
+    sha256 cellar: :any,                 big_sur:        "2af17bd072313e56ca6c199dcf9aadbdfbed69288fb21345a7395777b5d88a45"
+    sha256 cellar: :any,                 catalina:       "431582f1011ac367afc22623e6a5fdf3dfa8839999c69212ce32e986948c3c90"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "9c87c43136c6d85bd87766fff817a618abedc7392a1a4be393acd0546a02cdc6"
+  end
+
+  depends_on "openssl@3"
 
   def install
     system "make", "CC=#{ENV.cc}", "PREFIX=#{prefix}"

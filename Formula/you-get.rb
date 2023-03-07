@@ -3,27 +3,29 @@ class YouGet < Formula
 
   desc "Dumb downloader that scrapes the web"
   homepage "https://you-get.org/"
-  url "https://github.com/soimort/you-get/archive/v0.4.1456.tar.gz"
-  sha256 "619e2f5ae4b801dc196a2fe75d518cedd2f9e811db0fde7433de645a97898318"
+  url "https://files.pythonhosted.org/packages/92/39/423701a8346435292fdde5ad78beb5437ebb7718f6faa16e1546d3ef479b/you-get-0.4.1650.tar.gz"
+  sha256 "b3c944cf7a63cc468cccc8816dce7fc008c2e6b5ba52aefe5ce2081818a3ad47"
+  license "MIT"
   head "https://github.com/soimort/you-get.git", branch: "develop"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "9d5a16c6314054c05933c863ea5d7ac86d92bf599f5a40f3289a9e9442622eef" => :catalina
-    sha256 "968398ab3aadb8102966e73b68d27df1e83393d221ef7434bf89eef78fc7b30b" => :mojave
-    sha256 "95e8eb0367df79f532e351c44a1eb7e710f5c26af769e2065dd09dd8399c3489" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "10cbedc1662e5e93abf11da1dbfdfcafece91370708bb7bd2a90563424a941ba"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "10cbedc1662e5e93abf11da1dbfdfcafece91370708bb7bd2a90563424a941ba"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "10cbedc1662e5e93abf11da1dbfdfcafece91370708bb7bd2a90563424a941ba"
+    sha256 cellar: :any_skip_relocation, ventura:        "937b557473bf5b2d762c4d78bfb44f755353c429d1e370c36de26487b26c4949"
+    sha256 cellar: :any_skip_relocation, monterey:       "937b557473bf5b2d762c4d78bfb44f755353c429d1e370c36de26487b26c4949"
+    sha256 cellar: :any_skip_relocation, big_sur:        "937b557473bf5b2d762c4d78bfb44f755353c429d1e370c36de26487b26c4949"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "0e5144f23c00dfd8ffc7379be1c542f464a5644e7c586bbc35b1c62fd6fb23f4"
   end
 
-  depends_on "python@3.8"
+  depends_on "python@3.11"
   depends_on "rtmpdump"
-
-  resource "PySocks" do
-    url "https://files.pythonhosted.org/packages/bd/11/293dd436aea955d45fc4e8a35b6ae7270f5b8e00b53cf6c024c83b657a11/PySocks-1.7.1.tar.gz"
-    sha256 "3f8804571ebe159c380ac6de37643bb4685970655d3bba243530d6558b799aa0"
-  end
 
   def install
     virtualenv_install_with_resources
+    bash_completion.install "contrib/completion/you-get-completion.bash" => "you-get"
+    fish_completion.install "contrib/completion/you-get.fish"
+    zsh_completion.install "contrib/completion/_you-get"
   end
 
   def caveats

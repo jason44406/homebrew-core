@@ -3,20 +3,26 @@ class Viennacl < Formula
   homepage "https://viennacl.sourceforge.io/"
   url "https://downloads.sourceforge.net/project/viennacl/1.7.x/ViennaCL-1.7.1.tar.gz"
   sha256 "a596b77972ad3d2bab9d4e63200b171cd0e709fb3f0ceabcaf3668c87d3a238b"
-  head "https://github.com/viennacl/viennacl-dev.git"
+  revision 1
+  head "https://github.com/viennacl/viennacl-dev.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "6fa1cf4450123da7e4af2910f6a9c41e7005d5591e05d035c06adddff44f25e0" => :catalina
-    sha256 "0d2ae6a32779520d35e8194948a0df499bc147743fd54f59fe3c69e833e84f1c" => :mojave
-    sha256 "7be4bc5f161868a9646a575530acd83034e7af6e39439e262c499b219738e74e" => :high_sierra
-    sha256 "809b0ff014ad6fdae2337ac8dd0cde29c72fe4cb8817a7e7417e9722b7572059" => :sierra
-    sha256 "cb5cd96fd4c730518b6b0e150fd15386ad71576e444bfbbd5f055e844d4a5976" => :el_capitan
-    sha256 "875f61b8270246247450c0beedc9710b52d07171717dd2f9de9a493f3b4027b6" => :yosemite
-    sha256 "7256e29352bcf349fda479ef6913241249db48065ce64e7daee8cfe7b96c88fd" => :mavericks
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "a55d8851ffa58afce58203d6ed577321fa309f02c63f472794c35e147bbee696"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "8088de8835167e42aa0271cd230cea442279337a2108576fd46a1db4610c72c2"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "194ed5f169b951284a52fd44858a435b4312abd99f420a9b963823a4736d66c0"
+    sha256 cellar: :any_skip_relocation, ventura:        "39bb6f51bf36fed3df3de63ef1b2ab0c52b2d1ddf9bbded384d9f5fa2591d7d9"
+    sha256 cellar: :any_skip_relocation, monterey:       "c727de7f290a066e697f0bdddc8fb72c544a725f8984872ecc87fe9a3127d377"
+    sha256 cellar: :any_skip_relocation, big_sur:        "edf2e2951bd78f8677614eed708dc5aaf038c520cd270b4ff0ace91ec73b843d"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "8386a723438da51b3051c19ecc14af8c69f27c6a17f6f7e6b1bdcec6c1c85083"
   end
 
   depends_on "cmake" => :build
+
+  on_linux do
+    depends_on "opencl-headers" => :build
+    depends_on "opencl-icd-loader"
+    depends_on "pocl"
+  end
 
   def install
     system "cmake", ".", *std_cmake_args

@@ -1,19 +1,23 @@
 class GitTrim < Formula
   desc "Trim your git remote tracking branches that are merged or gone"
   homepage "https://github.com/foriequal0/git-trim"
-  url "https://github.com/foriequal0/git-trim/archive/v0.3.2.tar.gz"
-  sha256 "08c65f0e821b12f5e512034df22723be9289e42102d478dae759f57905554f25"
+  url "https://github.com/foriequal0/git-trim.git",
+      tag:      "v0.4.4",
+      revision: "1f39d85ddb242e9933fba9faaecd6f423f2b6a5b"
   license "MIT"
 
   bottle do
-    cellar :any
-    sha256 "291284c8fc2191487bcc55ea41a0de621e705b3ae141f91226cb843b5be408af" => :catalina
-    sha256 "a41fdd1acd98185e906be41cb1ca658e50e32fc3461a9d5ef5d10a1aed9c7e11" => :mojave
-    sha256 "e0c2c87d6d4aad24751f3dded41c6e8f68300eaef2a9721eea92508bb9ccc32c" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "3f230f99015946e53ff857649b92fc82ebdc01d53aabb1698379a6428056a304"
+    sha256 cellar: :any,                 arm64_monterey: "a39f49254342159071cbb88d3f3b8e97f189f5333502d185be152c73fe9c5770"
+    sha256 cellar: :any,                 arm64_big_sur:  "0f3c73e37431403348e7ac496b3b39671366a576d61e75315d0e2f6667000404"
+    sha256 cellar: :any,                 ventura:        "69a202e87bbe253c69c6cdcf65faf14e9523a8419c65ddd74eacc209dd432a94"
+    sha256 cellar: :any,                 monterey:       "164e873f61a2afa6c661821d77480ecf94d7c3e4d77da26335925af31628722b"
+    sha256 cellar: :any,                 big_sur:        "0e8c7d52f14301a786bfe5cce167310955f11da5cce33c780f6dee5da1299c13"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "4663a90075b39aa34a60e0b5c097bb69b1820b9a72b1d47c54562fa9e08288de"
   end
 
   depends_on "rust" => :build
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
 
   uses_from_macos "zlib"
 

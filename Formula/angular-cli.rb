@@ -3,15 +3,18 @@ require "language/node"
 class AngularCli < Formula
   desc "CLI tool for Angular"
   homepage "https://cli.angular.io/"
-  url "https://registry.npmjs.org/@angular/cli/-/cli-10.0.7.tgz"
-  sha256 "d614a05bfcbb5104a4816a118c0a04790cd4124b5e702e0591f38251066c2e5b"
+  url "https://registry.npmjs.org/@angular/cli/-/cli-15.2.1.tgz"
+  sha256 "9c23ae4bdc8133c72f272e2c2e742c856ad2531735f1f5113f19cbb392da1ee9"
   license "MIT"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "619ebea018ac1f6a9707d321247f996d1a0b1a9951953fc47a5154f2803d7ebc" => :catalina
-    sha256 "0d128cc6024d43ab0402e4fdf2ad1fdc9d470705e90d81b8d384dc5d19f616b7" => :mojave
-    sha256 "dc6f793ecd623dab853d0c4beaee987be80b5e3190a5427169133d826db4dfe6" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "8bbba005bc9f6a794eb310e3a5a7eb7038cfc58aff06f62f5132db14e7e29e4a"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "8bbba005bc9f6a794eb310e3a5a7eb7038cfc58aff06f62f5132db14e7e29e4a"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "8bbba005bc9f6a794eb310e3a5a7eb7038cfc58aff06f62f5132db14e7e29e4a"
+    sha256 cellar: :any_skip_relocation, ventura:        "e31bcad1803314d34970e32a05a234a8e540d567b0fd959b8ea693c98fffd336"
+    sha256 cellar: :any_skip_relocation, monterey:       "e31bcad1803314d34970e32a05a234a8e540d567b0fd959b8ea693c98fffd336"
+    sha256 cellar: :any_skip_relocation, big_sur:        "e31bcad1803314d34970e32a05a234a8e540d567b0fd959b8ea693c98fffd336"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "8bbba005bc9f6a794eb310e3a5a7eb7038cfc58aff06f62f5132db14e7e29e4a"
   end
 
   depends_on "node"

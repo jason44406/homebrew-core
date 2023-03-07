@@ -1,11 +1,14 @@
 class Mvnvm < Formula
   desc "Maven version manager"
   homepage "https://mvnvm.org/"
-  url "https://bitbucket.org/mjensen/mvnvm/get/mvnvm-1.0.14.tar.gz"
-  sha256 "09c61a1a7aa0b7e94db122d0b705267f22dce429d3bbcf2345b08ee7a92564c7"
-  head "https://bitbucket.org/mjensen/mvnvm.git"
+  url "https://bitbucket.org/mjensen/mvnvm/get/mvnvm-1.0.20.tar.gz"
+  sha256 "7262e4ce15e331c0097a4612070e7d1c9eb3c7fdf74f56eba617390cdd2576ce"
+  license "Apache-2.0"
+  head "https://bitbucket.org/mjensen/mvnvm.git", branch: "master"
 
-  bottle :unneeded
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "b91d3d2e7444371dc32173b3823a1ae3d7cd82536d058e5181e98feb2c9247d7"
+  end
 
   depends_on "openjdk"
 
@@ -14,7 +17,7 @@ class Mvnvm < Formula
   def install
     bin.install "mvn"
     bin.install "mvnDebug"
-    bin.env_script_all_files libexec/"bin", JAVA_HOME: "${JAVA_HOME:-#{Formula["openjdk"].opt_prefix}}"
+    bin.env_script_all_files libexec/"bin", Language::Java.overridable_java_home_env
   end
 
   test do

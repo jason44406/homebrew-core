@@ -1,29 +1,40 @@
 class GnomeAutoar < Formula
   desc "GNOME library for archive handling"
   homepage "https://github.com/GNOME/gnome-autoar"
-  url "https://download.gnome.org/sources/gnome-autoar/0.2/gnome-autoar-0.2.4.tar.xz"
-  sha256 "0a34c377f8841abbf4c29bc848b301fbd8e4e20c03d7318c777c58432033657a"
-  license "LGPL-2.1"
+  url "https://download.gnome.org/sources/gnome-autoar/0.4/gnome-autoar-0.4.3.tar.xz"
+  sha256 "7bdf0789553496abddc3c963b0ce7363805c0c02c025feddebcaacc787249e88"
+  license "LGPL-2.1-or-later"
 
-  bottle do
-    cellar :any
-    sha256 "e98e396441864f69d9866921363bbff8fe3a0e6e7048e9fcebfa98d0f8e3100c" => :catalina
-    sha256 "8f87552420faa2d64fee8cf655a15c58eb988bba92284b00e4fcb3cf2f10ce82" => :mojave
-    sha256 "bc17062bdb3f3b299c5122ffd887ff872d22f9d3021faed94db07da9687d096c" => :high_sierra
+  # gnome-autoar doesn't seem to follow the typical GNOME version format where
+  # even-numbered minor versions are stable, so we override the default regex
+  # from the `Gnome` strategy.
+  livecheck do
+    url :stable
+    regex(/gnome-autoar[._-]v?(\d+(?:\.\d+)+)\.t/i)
   end
 
-  depends_on "pkg-config" => :build
+  bottle do
+    sha256 cellar: :any, arm64_ventura:  "c2d46eb77c19eb1f599cf23a093d81c91e8d66b857d2df834d05200cd52383b5"
+    sha256 cellar: :any, arm64_monterey: "0df6603337a1cff502ba253b8801db07224f32598eb347f94fb5785378520fbc"
+    sha256 cellar: :any, arm64_big_sur:  "cb7cbf77725dfb8c63132595f9328165d05c88ff06bb354c0439b619046ea089"
+    sha256 cellar: :any, ventura:        "9690e11452b96f60b9b9076826a9c65f32909b89ea0deb267d7e0aab16d701c2"
+    sha256 cellar: :any, monterey:       "eb9b26d88d0999f3eda261336868815893a94680dfb59041093ca108a38a278c"
+    sha256 cellar: :any, big_sur:        "a6b34eb24dbdc52a7e616dc1fda7bd10b37428d97a182006da2f6b18b34bbdfb"
+    sha256 cellar: :any, catalina:       "ac757f0f9b548f9a993d6f4f80bcb2b48abbed49189b7c7ebad0b13e9a75ec0d"
+    sha256               x86_64_linux:   "f19b2f3e7c3014bd7e65e2326b2d550ce10add78fc35c09bd6016cce51b98f6d"
+  end
+
+  depends_on "meson" => :build
+  depends_on "ninja" => :build
   depends_on "gtk+3"
   depends_on "libarchive"
 
   def install
-    system "./configure", "--disable-debug",
-                          "--disable-dependency-tracking",
-                          "--disable-silent-rules",
-                          "--prefix=#{prefix}",
-                          "--disable-glibtest",
-                          "--disable-schemas-compile"
-    system "make", "install"
+    mkdir "build" do
+      system "meson", *std_meson_args, ".."
+      system "ninja", "-v"
+      system "ninja", "install", "-v"
+    end
   end
 
   def post_install
@@ -61,8 +72,8 @@ class GnomeAutoar < Formula
       -lglib-2.0
       -lgnome-autoar-0
       -lgobject-2.0
-      -lintl
     ]
+    flags << "-lintl" if OS.mac?
     system ENV.cc, "test.c", "-o", "test", *flags
     system "./test"
   end

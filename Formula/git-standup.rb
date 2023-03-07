@@ -4,13 +4,11 @@ class GitStandup < Formula
   url "https://github.com/kamranahmedse/git-standup/archive/2.3.2.tar.gz"
   sha256 "48d5aaa3c585037c950fa99dd5be8a7e9af959aacacde9fe94143e4e0bfcd6ba"
   license "MIT"
-  head "https://github.com/kamranahmedse/git-standup.git"
+  head "https://github.com/kamranahmedse/git-standup.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "0a75c65615d92237a59492ac00867d12ab4a23865d85d5cb464d9deb1f6d8ee8" => :catalina
-    sha256 "0a75c65615d92237a59492ac00867d12ab4a23865d85d5cb464d9deb1f6d8ee8" => :mojave
-    sha256 "0a75c65615d92237a59492ac00867d12ab4a23865d85d5cb464d9deb1f6d8ee8" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, all: "b0bd8d9ae367c4eb026f0ce046e7c33fbfa861249425d47fd2c9b81e69ca6706"
   end
 
   def install

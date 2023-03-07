@@ -1,32 +1,31 @@
 class Krakend < Formula
   desc "Ultra-High performance API Gateway built in Go"
   homepage "https://www.krakend.io/"
-  url "https://github.com/devopsfaith/krakend-ce/archive/v1.1.1.tar.gz"
-  sha256 "43f02c1ff1dbb8d0627f84d5332ab0974763e529b8fb154f72ca780ac562f858"
+  url "https://github.com/krakendio/krakend-ce/archive/refs/tags/v2.2.1.tar.gz"
+  sha256 "64a65f17f46a92d09bfa9d76561887b515a8044c82e39becf700a9948317ca92"
   license "Apache-2.0"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "3b2c4d19653b8c43580f994349beb23e70d5b2a1c2c187d54d8c1481d072a7ea" => :catalina
-    sha256 "d7dcdd8038f317dba6b12533b5750235f3e12fd2e584de5b4e5a56f29428e092" => :mojave
-    sha256 "db6cc9c73c230995752276f410b742b848d718ab9e6c6b783a6dfc3035f96dc9" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "021ca55192df22903341e5faf2d1181de67eb8f4ded1e0032551b22d2634563d"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "135af3ec9b828e06a67d79f85be210845cd7ca866ea9b66679bdb85d1feea007"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "18f327983128e891f2545aebb4619c55410e98150bf10df0097800432a401a0e"
+    sha256 cellar: :any_skip_relocation, ventura:        "b1e1108e881dc716c6381f6d28bebde1a5c9da4ff43ba6f4266652db5a57ca2a"
+    sha256 cellar: :any_skip_relocation, monterey:       "9bce8ccad86a4e3bdd9b05313f597fac19febe47f8cb973789bfee2aec95d7ae"
+    sha256 cellar: :any_skip_relocation, big_sur:        "22953f3d9c0d7603a3ce9b49126ec6acdd2133755cc8375c7a2c604fa1bcfdfa"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "8efa9e81fc38fda0863c7c5950d9eebd7a0c898f9706f40a4e36400e290adf72"
   end
 
   depends_on "go" => :build
 
   def install
-    (buildpath/"src/github.com/devopsfaith/krakend-ce").install buildpath.children
-    cd "src/github.com/devopsfaith/krakend-ce" do
-      system "make", "build"
-      bin.install "krakend"
-      prefix.install_metafiles
-    end
+    system "make", "build"
+    bin.install "krakend"
   end
 
   test do
     (testpath/"krakend_unsupported_version.json").write <<~EOS
       {
-        "version": 1,
+        "version": 2,
         "extra_config": {
           "github_com/devopsfaith/krakend-gologging": {
             "level": "WARNING",
@@ -37,12 +36,12 @@ class Krakend < Formula
         }
       }
     EOS
-    assert_match "Unsupported version",
+    assert_match "unsupported version",
       shell_output("#{bin}/krakend check -c krakend_unsupported_version.json 2>&1", 1)
 
     (testpath/"krakend_bad_file.json").write <<~EOS
       {
-        "version": 2,
+        "version": 3,
         "bad": file
       }
     EOS
@@ -51,9 +50,9 @@ class Krakend < Formula
 
     (testpath/"krakend.json").write <<~EOS
       {
-        "version": 2,
+        "version": 3,
         "extra_config": {
-          "github_com/devopsfaith/krakend-gologging": {
+          "telemetry/logging": {
             "level": "WARNING",
             "prefix": "[KRAKEND]",
             "syslog": false,
@@ -63,41 +62,19 @@ class Krakend < Formula
         "endpoints": [
           {
             "endpoint": "/test",
-            "method": "GET",
-            "concurrent_calls": 1,
-            "extra_config": {
-              "github_com/devopsfaith/krakend-httpsecure": {
-                "disable": true,
-                "allowed_hosts": [],
-                "ssl_proxy_headers": {}
-              },
-              "github.com/devopsfaith/krakend-ratelimit/juju/router": {
-                "maxRate": 0,
-                "clientMaxRate": 0
-              }
-            },
             "backend": [
               {
                 "url_pattern": "/backend",
-                "extra_config": {
-                  "github.com/devopsfaith/krakend-oauth2-clientcredentials": {
-                    "is_disabled": true,
-                    "endpoint_params": {}
-                  }
-                },
-                "encoding": "json",
-                "sd": "dns",
                 "host": [
-                  "host1"
-                ],
-                "disable_host_sanitize": true
+                  "http://some-host"
+                ]
               }
             ]
           }
         ]
       }
     EOS
-    assert_match "OK",
+    assert_match "Syntax OK",
       shell_output("#{bin}/krakend check -c krakend.json 2>&1")
   end
 end

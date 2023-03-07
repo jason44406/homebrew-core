@@ -1,27 +1,32 @@
 class Sourcery < Formula
   desc "Meta-programming for Swift, stop writing boilerplate code"
   homepage "https://github.com/krzysztofzablocki/Sourcery"
-  url "https://github.com/krzysztofzablocki/Sourcery/archive/1.0.0.tar.gz"
-  sha256 "5947267143fc63504bb21c094accad8c51160834f204a9b108211f28525bfbe4"
+  url "https://github.com/krzysztofzablocki/Sourcery/archive/2.0.1.tar.gz"
+  sha256 "bc28b9b0392b91e7787ca7e4c02e16aed11b39e940e8916e2c0cf745b1163fb1"
   license "MIT"
-  head "https://github.com/krzysztofzablocki/Sourcery.git"
+  version_scheme 1
+  head "https://github.com/krzysztofzablocki/Sourcery.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "18df6fc42860b714ce6f2e31e0c2df6409927d793d4c5594b3e752feae42d6a7" => :catalina
-    sha256 "adbafe637b3ffb78250e1ad95514d1c9fe597331fe13e89925381783803bf255" => :mojave
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "2294884b53e26e9040a35b5842b9fab833bf7d085301646b43b5f23d67e9ff0b"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "e21e951afe2f588cffa92980bec467848fd51bc1a4905a1530de0d5103ffac91"
+    sha256 cellar: :any_skip_relocation, ventura:        "5d0e610493b3319e835278ad6aa168d9d6948b9c95a6d9480d7614ce801019c5"
+    sha256 cellar: :any_skip_relocation, monterey:       "32c5987a9e50edcb95904a122cff649c10978e0b99a540dce8c2e91cddc219fa"
   end
 
-  depends_on xcode: "10.2"
+  depends_on :macos # Linux support is still a WIP: https://github.com/krzysztofzablocki/Sourcery/issues/306
+  depends_on xcode: "13.3"
+
+  uses_from_macos "ruby" => :build
 
   def install
-    system "swift", "build", "--disable-sandbox", "-c", "release", "-Xswiftc",
-                             "-target", "-Xswiftc", "x86_64-apple-macosx10.11"
-    bin.install ".build/release/sourcery"
-    lib.install Dir[".build/release/*.dylib"]
+    system "rake", "build"
+    bin.install "cli/bin/sourcery"
+    lib.install Dir["cli/lib/*.dylib"]
   end
 
   test do
+    # Regular functionality requires a non-sandboxed environment, so we can only test version/help here.
     assert_match version.to_s, shell_output("#{bin}/sourcery --version").chomp
   end
 end

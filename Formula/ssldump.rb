@@ -5,15 +5,28 @@ class Ssldump < Formula
   sha256 "6422c16718d27c270bbcfcc1272c4f9bd3c0799c351f1d6dd54fdc162afdab1e"
   revision 2
 
-  bottle do
-    cellar :any
-    sha256 "4227a45957205b7e183b9f66f4ad2cd57abd7eda44db220d0feadf4de03b5778" => :catalina
-    sha256 "940b872d8dd649cc7ef309bb169a02a48425b7059c44c012831fafd5cbe8b61e" => :mojave
-    sha256 "096ee72c50d64cddefb9d90f2b9c904322eaf36eab4c76bb914a60387b75baf9" => :high_sierra
+  # This regex intentionally matches unstable versions, as only a beta version
+  # (0.9b3) is available at the time of writing.
+  livecheck do
+    url :stable
+    regex(%r{url=.*?/ssldump/([^/]+)/[^/]+\.t}i)
   end
 
+  bottle do
+    rebuild 2
+    sha256 cellar: :any,                 arm64_ventura:  "233c699efc6adbf54ae1e0877b8376d016492116785942fa9cb7b5e38d6ac174"
+    sha256 cellar: :any,                 arm64_monterey: "a020925b76ade838f6462b00870256b47236390f4d185ffec7735ca33c6025fd"
+    sha256 cellar: :any,                 arm64_big_sur:  "3ff8463d5dc460c8d5775c307c492af601d12e455a27b3a5b966cd97d43560f1"
+    sha256 cellar: :any,                 ventura:        "728ec5ab844645fb4ccffebeda3cdaa8b99581261cae35ccd3193d6256aad34c"
+    sha256 cellar: :any,                 monterey:       "041b163945f15d099482ef9d7e4fa584d484439e90f11a2e81af663d004cab87"
+    sha256 cellar: :any,                 big_sur:        "747bc2115e5e70c9c38679cb13212f5b1a01266156b4c43756e209a5947b2523"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "cb5412234f420bc697835b6ede35a28ff31d03b2219f55e89c93352f1a0a74ea"
+  end
+
+  depends_on "autoconf" => :build
+  depends_on "automake" => :build
   depends_on "libpcap"
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
 
   # reorder include files
   # https://sourceforge.net/p/ssldump/bugs/40/
@@ -24,15 +37,25 @@ class Ssldump < Formula
     ENV["LIBS"] = "-lssl -lcrypto"
 
     # .dylib, not .a
-    inreplace "configure", "if test -f $dir/libpcap.a; then",
-                           "if test -f $dir/libpcap.dylib; then"
+    inreplace "configure.in", "if test -f $dir/libpcap.a; then",
+                              "if test -f $dir/#{shared_library("libpcap")}; then"
 
-    system "./configure", "--disable-debug",
+    # The configure file that ships in the 0.9b3 tarball is too old to work
+    # with Xcode 12
+    system "autoreconf", "--verbose", "--install", "--force"
+
+    # Normally we'd get these files installed as part of autoreconf.  However,
+    # this project doesn't use Makefile.am so they're not brought in.  The copies
+    # in the 0.9b3 tarball are too old to detect MacOS
+    %w[config.guess config.sub].each do |fn|
+      cp Formula["automake"].share/"automake-#{Formula["automake"].version.major_minor}"/fn, fn
+    end
+
+    system "./configure", *std_configure_args,
+                          "--disable-debug",
                           "--disable-dependency-tracking",
-                          "--prefix=#{prefix}",
                           "--mandir=#{man}",
-                          "--with-pcap=#{Formula["libpcap"].opt_prefix}",
-                          "osx"
+                          "--with-pcap=#{Formula["libpcap"].opt_prefix}"
     system "make"
     # force install as make got confused by install target and INSTALL file.
     system "make", "install", "-B"
@@ -51,10 +74,10 @@ __END__
  static char *RCSSTRING="$Id: pcap-snoop.c,v 1.14 2002/09/09 21:02:58 ekr Exp $";
 
 -
-+#include <net/bpf.h>
  #include <pcap.h>
  #include <unistd.h>
 -#include <net/bpf.h>
++#include <pcap-bpf.h>
  #ifndef _WIN32
  #include <sys/param.h>
  #endif

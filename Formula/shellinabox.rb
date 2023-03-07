@@ -3,21 +3,27 @@ class Shellinabox < Formula
   homepage "https://github.com/shellinabox/shellinabox"
   url "https://github.com/shellinabox/shellinabox/archive/v2.20.tar.gz"
   sha256 "27a5ec6c3439f87aee238c47cc56e7357a6249e5ca9ed0f044f0057ef389d81e"
-  license "GPL-2.0"
+  license "GPL-2.0-only"
   revision 1
 
   bottle do
-    cellar :any_skip_relocation
-    rebuild 1
-    sha256 "54a87f3514eb39cbbb1c4c127127d6b3eccd69d67f7ea26c32084218cb7d7d96" => :catalina
-    sha256 "364588ed44513d77da920c1dfa722b8bd6351f72b2f18f2e7ec4edcc808fe9d7" => :mojave
-    sha256 "78a08258706eec184d42977bda76175e827a909389a70627f6eed67a10c78d45" => :high_sierra
+    rebuild 2
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "0d00dfd6b119c7d8555081e4ad821d67ecf0da641c5630435e67c3c9eadedd1a"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "9b29df2258a90e8cfef9e54cf0569c1e556f07911d0dbb934e6760487416a3f4"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "ceb68ab288df2b997e3c7361cd6e8c0fb389ee9fa187503f14e2bd5f00393f03"
+    sha256 cellar: :any_skip_relocation, ventura:        "d303f6e2a79b3022f4659934635aa4c7fb4abeb18384bfafb1c012064a03018c"
+    sha256 cellar: :any_skip_relocation, monterey:       "17b6552900a2b8eb5297e6db21d07479821a95cbcc3d34d0c553e47ebd2595ed"
+    sha256 cellar: :any_skip_relocation, big_sur:        "920301191fb40b3f036e5d08175f829e512f9e6df63760cdc389a12a7c01429f"
+    sha256 cellar: :any_skip_relocation, catalina:       "a0d28e1679ea480a87fa8deeae9f3378f18322d6f3062d4a0f0dd71dbe5c6469"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "402a852e03ce83de0813d1775222f02e1fd4a52e13ce6757bd16a3adda0688fa"
   end
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
   depends_on "libtool" => :build
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
+
+  uses_from_macos "zlib"
 
   # Upstream (Debian) patch for OpenSSL 1.1 compatibility
   # Original patch cluster: https://github.com/shellinabox/shellinabox/pull/467
@@ -40,7 +46,7 @@ class Shellinabox < Formula
       system bin/"shellinaboxd", "--port=#{port}", "--disable-ssl", "--localhost-only"
     end
     sleep 1
-    assert_match /ShellInABox - Make command line applications available as AJAX web applications/,
+    assert_match "ShellInABox - Make command line applications available as AJAX web applications",
                  shell_output("curl -s http://localhost:#{port}")
     Process.kill "TERM", pid
   end

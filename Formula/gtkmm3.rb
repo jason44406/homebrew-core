@@ -1,28 +1,42 @@
 class Gtkmm3 < Formula
   desc "C++ interfaces for GTK+ and GNOME"
   homepage "https://www.gtkmm.org/"
-  url "https://download.gnome.org/sources/gtkmm/3.24/gtkmm-3.24.2.tar.xz"
-  sha256 "6d71091bcd1863133460d4188d04102810e9123de19706fb656b7bb915b4adc3"
-  license "LGPL-2.1"
-  revision 1
+  url "https://download.gnome.org/sources/gtkmm/3.24/gtkmm-3.24.7.tar.xz"
+  sha256 "1d7a35af9c5ceccacb244ee3c2deb9b245720d8510ac5c7e6f4b6f9947e6789c"
+  license "LGPL-2.1-or-later"
 
-  bottle do
-    cellar :any
-    sha256 "c656b3844e5e94f34556e5b8b0b6ee3099e7a2c1b96c839229bbc9997c18218d" => :catalina
-    sha256 "12efd715a1422f80321a2af07a6d82d1e95772b4c23dea90d8138e3a22475886" => :mojave
-    sha256 "2183abaf056161d4d13d8bd86fc5795b3e32caf3db7c1a4b8a44eba320104402" => :high_sierra
+  livecheck do
+    url :stable
+    regex(/gtkmm[._-]v?(3\.([0-8]\d*?)?[02468](?:\.\d+)*?)\.t/i)
   end
 
-  depends_on "pkg-config" => :build
-  depends_on "atkmm"
+  bottle do
+    sha256 cellar: :any, arm64_ventura:  "9c5913ee79cab986ee26accb6bf5ce09609f0680656086a7f6e00a54caa92659"
+    sha256 cellar: :any, arm64_monterey: "808bfe18b6b0520ae339f1547226186e26d2921aec56a1a893e23d944a4c8526"
+    sha256 cellar: :any, arm64_big_sur:  "27b6d3262145f8603093b58ca8acb18f2ab85e0a7c278e5b07cf6af9da8e6095"
+    sha256 cellar: :any, ventura:        "0826ae1a46d4c9e3d26ca4cbcb00202f193e2ab7287bda7e2d0f4366b0f7bb75"
+    sha256 cellar: :any, monterey:       "0d993ae9c31063d3e051809dc39e5c519f757488d0dc2329cd55088676d0ee89"
+    sha256 cellar: :any, big_sur:        "d02cdf945b5d228921bd461fadffeb28e384e29166b4483760ee3be9f7ab2c9f"
+    sha256 cellar: :any, catalina:       "c482ea55a5f8d0eace78b24ce5b8337b355f47816cc3c3b71f2767af2ed5bdb1"
+    sha256               x86_64_linux:   "a13ec506b7a75317c847535caa40ab647b8ac562d306eee35a499030ab9594d2"
+  end
+
+  depends_on "meson" => :build
+  depends_on "ninja" => :build
+  depends_on "pkg-config" => [:build, :test]
+  depends_on "atkmm@2.28"
+  depends_on "cairomm@1.14"
   depends_on "gtk+3"
-  depends_on "pangomm"
+  depends_on "pangomm@2.46"
 
   def install
     ENV.cxx11
 
-    system "./configure", "--disable-silent-rules", "--disable-dependency-tracking", "--prefix=#{prefix}"
-    system "make", "install"
+    mkdir "build" do
+      system "meson", *std_meson_args, ".."
+      system "ninja"
+      system "ninja", "install"
+    end
   end
 
   test do
@@ -35,92 +49,7 @@ class Gtkmm3 < Formula
         return 0;
       }
     EOS
-    atk = Formula["atk"]
-    atkmm = Formula["atkmm"]
-    cairo = Formula["cairo"]
-    cairomm = Formula["cairomm"]
-    fontconfig = Formula["fontconfig"]
-    freetype = Formula["freetype"]
-    gdk_pixbuf = Formula["gdk-pixbuf"]
-    gettext = Formula["gettext"]
-    glib = Formula["glib"]
-    glibmm = Formula["glibmm"]
-    gtkx3 = Formula["gtk+3"]
-    harfbuzz = Formula["harfbuzz"]
-    libepoxy = Formula["libepoxy"]
-    libpng = Formula["libpng"]
-    libsigcxx = Formula["libsigc++@2"]
-    pango = Formula["pango"]
-    pangomm = Formula["pangomm"]
-    pixman = Formula["pixman"]
-    flags = %W[
-      -I#{atk.opt_include}/atk-1.0
-      -I#{atkmm.opt_include}/atkmm-1.6
-      -I#{cairo.opt_include}/cairo
-      -I#{cairomm.opt_include}/cairomm-1.0
-      -I#{cairomm.opt_lib}/cairomm-1.0/include
-      -I#{fontconfig.opt_include}
-      -I#{freetype.opt_include}/freetype2
-      -I#{gdk_pixbuf.opt_include}/gdk-pixbuf-2.0
-      -I#{gettext.opt_include}
-      -I#{glib.opt_include}/gio-unix-2.0/
-      -I#{glib.opt_include}/glib-2.0
-      -I#{glib.opt_lib}/glib-2.0/include
-      -I#{glibmm.opt_include}/giomm-2.4
-      -I#{glibmm.opt_include}/glibmm-2.4
-      -I#{glibmm.opt_lib}/giomm-2.4/include
-      -I#{glibmm.opt_lib}/glibmm-2.4/include
-      -I#{gtkx3.opt_include}
-      -I#{gtkx3.opt_include}/gtk-3.0
-      -I#{gtkx3.opt_include}/gtk-3.0/unix-print
-      -I#{harfbuzz.opt_include}/harfbuzz
-      -I#{include}/gdkmm-3.0
-      -I#{include}/gtkmm-3.0
-      -I#{libepoxy.opt_include}
-      -I#{libpng.opt_include}/libpng16
-      -I#{libsigcxx.opt_include}/sigc++-2.0
-      -I#{libsigcxx.opt_lib}/sigc++-2.0/include
-      -I#{lib}/gdkmm-3.0/include
-      -I#{lib}/gtkmm-3.0/include
-      -I#{pango.opt_include}/pango-1.0
-      -I#{pangomm.opt_include}/pangomm-1.4
-      -I#{pangomm.opt_lib}/pangomm-1.4/include
-      -I#{pixman.opt_include}/pixman-1
-      -D_REENTRANT
-      -L#{atk.opt_lib}
-      -L#{atkmm.opt_lib}
-      -L#{cairo.opt_lib}
-      -L#{cairomm.opt_lib}
-      -L#{gdk_pixbuf.opt_lib}
-      -L#{gettext.opt_lib}
-      -L#{glib.opt_lib}
-      -L#{glibmm.opt_lib}
-      -L#{gtkx3.opt_lib}
-      -L#{libsigcxx.opt_lib}
-      -L#{lib}
-      -L#{pango.opt_lib}
-      -L#{pangomm.opt_lib}
-      -latk-1.0
-      -latkmm-1.6
-      -lcairo
-      -lcairo-gobject
-      -lcairomm-1.0
-      -lgdk-3
-      -lgdk_pixbuf-2.0
-      -lgdkmm-3.0
-      -lgio-2.0
-      -lgiomm-2.4
-      -lglib-2.0
-      -lglibmm-2.4
-      -lgobject-2.0
-      -lgtk-3
-      -lgtkmm-3.0
-      -lintl
-      -lpango-1.0
-      -lpangocairo-1.0
-      -lpangomm-1.4
-      -lsigc-2.0
-    ]
+    flags = shell_output("#{Formula["pkg-config"].opt_bin}/pkg-config --cflags --libs gtkmm-3.0").strip.split
     system ENV.cxx, "-std=c++11", "test.cpp", "-o", "test", *flags
     system "./test"
   end

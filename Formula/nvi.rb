@@ -3,21 +3,30 @@ class Nvi < Formula
   homepage "https://sites.google.com/a/bostic.com/keithbostic/vi/"
   url "https://deb.debian.org/debian/pool/main/n/nvi/nvi_1.81.6.orig.tar.gz"
   sha256 "8bc348889159a34cf268f80720b26f459dbd723b5616107d36739d007e4c978d"
-  revision 5
+  license "BSD-3-Clause"
+  revision 6
 
   bottle do
-    cellar :any
-    sha256 "433ad12463c8b8f36f78295307d75b9886799b9dd924e2e483667c302a7a8b47" => :catalina
-    sha256 "b5ccb501038dfbb0e14241a2f5efe0c731e05ca0adc2690a473178252f5c0313" => :mojave
-    sha256 "dcaa5dd43e6edfc5c8188761cc8aad6b80a06abc7382b8ceac4d92498354b5c4" => :high_sierra
-    sha256 "1327ea05ec82ec05e9ec7b00b95ac3f7329b198a613385042a0814265b393f13" => :sierra
-    sha256 "e188b0a9fa040c6a11f7ed6338d28d96428e11cfa019aaa1d0aa69e0f2b87bc3" => :el_capitan
+    sha256                               arm64_ventura:  "aa6ba856388d331dce1cec171db093a6846d349d3b0013bd08c3331d9d6f09f1"
+    sha256                               arm64_monterey: "4172bb7673685b0e0f569ad84edbe4d568c152b419678e6146f539accd243c80"
+    sha256                               arm64_big_sur:  "0c504c79f2fd0be54ce31ee4236a1d9fb4d9e5d8f33fab07305e1acd9c4740de"
+    sha256 cellar: :any,                 ventura:        "c7836fbb451c44095dec64bb0cac55e1b95829cca063201988a45eee538fcd09"
+    sha256 cellar: :any,                 monterey:       "4bbbf70becf3cfa52340027bb81f0b39b8071638dcb9f042cf314bee7a8feeac"
+    sha256 cellar: :any,                 big_sur:        "692b129c29e7018565decb9c3ece80c020028549eb571d638851bb0e8647b0d8"
+    sha256 cellar: :any,                 catalina:       "9443eb6edf1377a25a506245df2a20c0d2a7365d71eee720bb7152052b96d3e6"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "d8eb6c0c8a8eef36a09bf55e35ced6d2e2afb4d75a70d93d96e88d9cbd5c4b56"
   end
 
   depends_on "xz" => :build # Homebrew bug. Shouldn't need declaring explicitly.
-  depends_on "berkeley-db"
+  depends_on "berkeley-db@5"
 
   uses_from_macos "ncurses"
+
+  on_macos do
+    depends_on "autoconf" => :build
+    depends_on "automake" => :build
+    depends_on "libtool" => :build
+  end
 
   # Patches per MacPorts
   # The first corrects usage of BDB flags.
@@ -51,9 +60,21 @@ class Nvi < Formula
 
   def install
     cd "dist" do
+      # Run autoreconf on macOS to rebuild configure script so that it doesn't try
+      # to build with a flat namespace.
+      if OS.mac?
+        # These files must be present for autoreconf to work.
+        %w[AUTHORS ChangeLog NEWS README].each { |f| touch f }
+        system "autoreconf", "--force", "--verbose", "--install"
+      end
+
+      # Xcode 12 needs the "-Wno-implicit-function-declaration" to compile successfully
+      # The usual trick of setting $CFLAGS in the environment doesn't work for this
+      # configure file though, but specifying an explicit CC setting does
       system "./configure", "--prefix=#{prefix}",
                             "--program-prefix=n",
-                            "--disable-dependency-tracking"
+                            "--disable-dependency-tracking",
+                            "CC=" + ENV.cc + " -Wno-implicit-function-declaration"
       system "make"
       ENV.deparallelize
       system "make", "install"

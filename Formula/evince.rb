@@ -1,16 +1,18 @@
 class Evince < Formula
   desc "GNOME document viewer"
   homepage "https://wiki.gnome.org/Apps/Evince"
-  url "https://download.gnome.org/sources/evince/3.36/evince-3.36.7.tar.xz"
-  sha256 "65d61a423e3fbbe07001f65e87422dfb7d2e42b9edf0ca6a1d427af9a04b8f32"
-  license "GPL-2.0"
-  revision 1
+  url "https://download.gnome.org/sources/evince/43/evince-43.1.tar.xz"
+  sha256 "6d75ca62b73bfbb600f718a098103dc6b813f9050b9594be929e29b4589d2335"
+  license "GPL-2.0-or-later"
 
   bottle do
-    rebuild 1
-    sha256 "6b0be18965aa27c500abf52cd0e1c5092eb304e8f3eb981031b0c9a98ff4f2b2" => :catalina
-    sha256 "49f55d76c47e8bbe458d2a04a9721d550d71a7f4e74f4193e66af7d6b68b5232" => :mojave
-    sha256 "6fd094df345b9355d9f8e6824b1e0d1aa3237f456a781bf19c6f038ab9196699" => :high_sierra
+    sha256 arm64_ventura:  "4663c8637d9de02308b1e65a0f71570cf95883ae5c560374e44859e18a5a0f99"
+    sha256 arm64_monterey: "7675f40d279cf544e0df36155184b54d244f0c9cb8970a7a9f9e767d46f94f44"
+    sha256 arm64_big_sur:  "ca3a9d32aaf0765e6e941d336b602123c464086fd308f2fad8a5f53b094f8564"
+    sha256 ventura:        "f3c27dacdab6783fc06fad4cdbc548ffe8774e5671d2b557483574854f053f65"
+    sha256 monterey:       "ac1e5a9f93686eee264c0567fb477271b40f1b9d0043ac629b7b2407b92ba264"
+    sha256 big_sur:        "2d70f1a55d9d65e7309aea7986cb2ef66df699421461a254e650e000889a5684"
+    sha256 x86_64_linux:   "7424c6e6d75d8eeb2c9bf302d360bc35c3fea37aa0a535e5099fbb899309b91a"
   end
 
   depends_on "gobject-introspection" => :build
@@ -25,31 +27,27 @@ class Evince < Formula
   depends_on "hicolor-icon-theme"
   depends_on "libarchive"
   depends_on "libgxps"
+  depends_on "libhandy"
   depends_on "libsecret"
   depends_on "libspectre"
   depends_on "poppler"
-  depends_on "python@3.8"
 
   def install
     ENV["DESTDIR"] = "/"
-
-    args = %w[
-      -Dnautilus=false
-      -Ddjvu=enabled
-      -Dgxps=enabled
-      -Dcomics=enabled
-      -Dgtk_doc=false
-      -Dintrospection=true
-      -Dbrowser_plugin=false
-      -Dgspell=enabled
-      -Ddbus=false
-    ]
-
-    mkdir "build" do
-      system "meson", *std_meson_args, *args, ".."
-      system "ninja", "-v"
-      system "ninja", "install", "-v"
-    end
+    system "meson", "setup", "build", "-Dnautilus=false",
+                                      "-Dcomics=enabled",
+                                      "-Ddjvu=enabled",
+                                      "-Dpdf=enabled",
+                                      "-Dps=enabled",
+                                      "-Dtiff=enabled",
+                                      "-Dxps=enabled",
+                                      "-Dgtk_doc=false",
+                                      "-Dintrospection=true",
+                                      "-Ddbus=false",
+                                      "-Dgspell=enabled",
+                                      *std_meson_args
+    system "meson", "compile", "-C", "build", "--verbose"
+    system "meson", "install", "-C", "build"
   end
 
   def post_install

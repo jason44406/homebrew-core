@@ -1,15 +1,24 @@
 class Sundials < Formula
   desc "Nonlinear and differential/algebraic equations solver"
-  homepage "https://computation.llnl.gov/casc/sundials/main.html"
-  url "https://computation.llnl.gov/projects/sundials/download/sundials-5.3.0.tar.gz"
-  sha256 "88dff7e11a366853d8afd5de05bf197a8129a804d9d4461fb64297f1ef89bca7"
+  homepage "https://computing.llnl.gov/projects/sundials"
+  url "https://github.com/LLNL/sundials/releases/download/v6.5.0/sundials-6.5.0.tar.gz"
+  sha256 "4e0b998dff292a2617e179609b539b511eb80836f5faacf800e688a886288502"
+  license "BSD-3-Clause"
   revision 1
 
+  livecheck do
+    url "https://computing.llnl.gov/projects/sundials/sundials-software"
+    regex(/href=.*?sundials[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
+
   bottle do
-    cellar :any
-    sha256 "fff1df3841c80eb3c2a6471e53ad2e8f29f97eb1e8498f8e85dc919616c68d0f" => :catalina
-    sha256 "63e63e0f7f928cd656613dc6344aaaaf11acd25e8c3148d3ac9a5b86dfe6c3df" => :mojave
-    sha256 "04f549daeb21124cfa74aeddb7c7baf58f7f482faec96cd4f5bc96f206414896" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "a48dd4520c7151ce4795b842153ea4bdc77ef4b06fbdfdd0df25b609038d64ca"
+    sha256 cellar: :any,                 arm64_monterey: "cdac128562ccbb0cc63d232f70cbade11e33d89133ccc2ffb74649427c292350"
+    sha256 cellar: :any,                 arm64_big_sur:  "2f9b9624036c333f079570abbc9af03daa8c498a788a38cf3361d8d97152c81a"
+    sha256 cellar: :any,                 ventura:        "ee7aade8dba27f4e6281a785b79012f71b6701cc775dc9a0efdd82516b13d369"
+    sha256 cellar: :any,                 monterey:       "c89daddc370b11612578ab9c54a435a08440a2a635e9b248b23f9030d5cf2714"
+    sha256 cellar: :any,                 big_sur:        "330af17a201f90e88b6a6329cb92fc8c590f31cec53fdde68e558e9f6c31f41a"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "e1dbb51411fa5ff52802ebf9bbc4a4df03513271f12a9641e64b96368301d487"
   end
 
   depends_on "cmake" => :build
@@ -19,37 +28,34 @@ class Sundials < Formula
   depends_on "suite-sparse"
 
   uses_from_macos "libpcap"
-  uses_from_macos "m4"
 
   def install
     blas = "-L#{Formula["openblas"].opt_lib} -lopenblas"
-    args = std_cmake_args + %W[
+    args = %W[
       -DBUILD_SHARED_LIBS=ON
       -DKLU_ENABLE=ON
       -DKLU_LIBRARY_DIR=#{Formula["suite-sparse"].opt_lib}
       -DKLU_INCLUDE_DIR=#{Formula["suite-sparse"].opt_include}
       -DLAPACK_ENABLE=ON
-      -DBLA_VENDOR=OpenBLAS
       -DLAPACK_LIBRARIES=#{blas};#{blas}
       -DMPI_ENABLE=ON
     ]
 
-    mkdir "build" do
-      system "cmake", "..", *args
-      system "make", "install"
-    end
+    system "cmake", "-S", ".", "-B", "build", *args, *std_cmake_args
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
 
     # Only keep one example for testing purposes
     (pkgshare/"examples").install Dir[prefix/"examples/nvector/serial/*"] \
                                   - Dir[prefix/"examples/nvector/serial/{CMake*,Makefile}"]
-    rm_rf prefix/"examples"
+    (prefix/"examples").rmtree
   end
 
   test do
     cp Dir[pkgshare/"examples/*"], testpath
-    system ENV.cc, "-I#{include}", "test_nvector.c", "sundials_nvector.c",
-                   "test_nvector_serial.c", "-L#{lib}", "-lsundials_nvecserial"
+    system ENV.cc, "test_nvector.c", "test_nvector_serial.c", "-o", "test",
+                   "-I#{include}", "-L#{lib}", "-lsundials_nvecserial", "-lm"
     assert_match "SUCCESS: NVector module passed all tests",
-                 shell_output("./a.out 42 0")
+                 shell_output("./test 42 0")
   end
 end

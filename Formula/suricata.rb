@@ -1,14 +1,23 @@
 class Suricata < Formula
   desc "Network IDS, IPS, and security monitoring engine"
-  homepage "https://suricata-ids.org/"
-  url "https://www.openinfosecfoundation.org/download/suricata-5.0.3.tar.gz"
-  sha256 "34413ecdad2ff2452526dbcd22f1279afd0935151916c0ff9cface4b0b5665db"
-  license "GPL-2.0"
+  homepage "https://suricata.io"
+  url "https://www.openinfosecfoundation.org/download/suricata-6.0.10.tar.gz"
+  sha256 "59bfd1bf5d9c1596226fa4815bf76643ce59698866c107a26269c481f125c4d7"
+  license "GPL-2.0-only"
+
+  livecheck do
+    url "https://suricata.io/download/"
+    regex(/href=.*?suricata[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    sha256 "ce6e9acf117b139febc73ae854aa279c1bab29981c107524ee3ff7c1b3c780a8" => :catalina
-    sha256 "033c282b979418b4356b4f208781bcea7fd9100c62e4981a8980b396424aefc9" => :mojave
-    sha256 "6943af9391e189cd28c441645aeec26f48782eaf1c7760c30bdd9ef2e5cf3c7d" => :high_sierra
+    sha256 arm64_ventura:  "d6fb86fc95a8228adb9ba8b38fce0c81b6e700b897ec7ba50225506bc020b3b6"
+    sha256 arm64_monterey: "032abfbeebd3649e359ab2871d791fcdb3646d24cb36cc94705ab5dce55730ae"
+    sha256 arm64_big_sur:  "25d85da00add941ac3b3a2f94d8c034d3f13cb2ca77b545acea5288722c4921a"
+    sha256 ventura:        "709efdf883a679bc020ab7c17a398685c0b1f894f1465e8c3e4b2f2dd6c2550b"
+    sha256 monterey:       "ada66b413ebac219df51d43f55f133ae01e04f83f41e72d0c9729f3cb5d8326f"
+    sha256 big_sur:        "97e1cf955c65d8b12db57afd39e02381666a95088e8173444168bfe2667e93be"
+    sha256 x86_64_linux:   "8adeda897c08b18f856c107ca051755834ad01677ed9bdb670c51a93a396836a"
   end
 
   depends_on "pkg-config" => :build
@@ -16,46 +25,29 @@ class Suricata < Formula
   depends_on "jansson"
   depends_on "libmagic"
   depends_on "libnet"
-  depends_on "libyaml"
   depends_on "lz4"
   depends_on "nspr"
   depends_on "nss"
   depends_on "pcre"
-  depends_on "python@3.8"
+  depends_on "python@3.11"
+  depends_on "pyyaml"
 
-  resource "argparse" do
-    url "https://files.pythonhosted.org/packages/18/dd/e617cfc3f6210ae183374cd9f6a26b20514bbb5a792af97949c5aacddf0f/argparse-1.4.0.tar.gz"
-    sha256 "62b089a55be1d8949cd2bc7e0df0bddb9e028faefc8c32038cc84862aefdd6e4"
-  end
+  uses_from_macos "libpcap"
 
-  resource "PyYAML" do
-    url "https://files.pythonhosted.org/packages/64/c2/b80047c7ac2478f9501676c988a5411ed5572f35d1beff9cae07d321512c/PyYAML-5.3.1.tar.gz"
-    sha256 "b8eac752c5e14d3eca0e6dd9199cd627518cb5ec06add0de9d32baeee6fe645d"
-  end
-
-  resource "simplejson" do
-    url "https://files.pythonhosted.org/packages/98/87/a7b98aa9256c8843f92878966dc3d8d914c14aad97e2c5ce4798d5743e07/simplejson-3.17.0.tar.gz"
-    sha256 "2b4b2b738b3b99819a17feaf118265d0753d5536049ea570b3c43b51c4701e81"
+  # Fix -flat_namespace being used on Big Sur and later.
+  patch do
+    url "https://raw.githubusercontent.com/Homebrew/formula-patches/03cf8088210822aa2c1ab544ed58ea04c897d9c4/libtool/configure-big_sur.diff"
+    sha256 "35acd6aebc19843f1a2b3a63e880baceb0f5278ab1ace661e57a502d9d78c93c"
+    directory "libhtp"
   end
 
   def install
-    python3 = Formula["python@3.8"].opt_bin/"python3"
-    xy = Language::Python.major_minor_version python3
-    ENV.prepend_create_path "PYTHONPATH", libexec/"vendor/lib/python#{xy}/site-packages"
-    resources.each do |r|
-      r.stage do
-        system python3, *Language::Python.setup_install_args(libexec/"vendor")
-      end
-    end
-
     jansson = Formula["jansson"]
     libmagic = Formula["libmagic"]
     libnet = Formula["libnet"]
 
     args = %W[
-      --disable-dependency-tracking
       --disable-silent-rules
-      --prefix=#{prefix}
       --sysconfdir=#{etc}
       --localstatedir=#{var}
       --with-libjansson-includes=#{jansson.opt_include}
@@ -64,19 +56,29 @@ class Suricata < Formula
       --with-libmagic-libraries=#{libmagic.opt_lib}
       --with-libnet-includes=#{libnet.opt_include}
       --with-libnet-libraries=#{libnet.opt_lib}
-      --enable-ipfw
     ]
 
-    system "./configure", *args
+    if OS.mac?
+      args << "--enable-ipfw"
+      # Workaround for dyld[98347]: symbol not found in flat namespace '_iconv'
+      ENV.append "LIBS", "-liconv" if MacOS.version >= :monterey
+    else
+      args << "--with-libpcap-includes=#{Formula["libpcap"].opt_include}"
+      args << "--with-libpcap-libraries=#{Formula["libpcap"].opt_lib}"
+    end
+
+    inreplace "configure", "for ac_prog in python3 ", "for ac_prog in python3.11 "
+    system "./configure", *std_configure_args, *args
     system "make", "install-full"
 
-    bin.env_script_all_files(libexec/"bin", PYTHONPATH: ENV["PYTHONPATH"])
+    bin.env_script_all_files(libexec/"bin", PYTHONPATH: lib/"suricata/python")
 
     # Leave the magic-file: prefix in otherwise it overrides a commented out line rather than intended line.
     inreplace etc/"suricata/suricata.yaml", %r{magic-file: /.+/magic}, "magic-file: #{libmagic.opt_share}/misc/magic"
   end
 
   test do
-    assert_match(/#{version}/, shell_output("#{bin}/suricata --build-info"))
+    assert_match version.to_s, shell_output("#{bin}/suricata --build-info")
+    assert_match "Found Suricata", shell_output("#{bin}/suricata-update list-sources")
   end
 end

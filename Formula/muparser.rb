@@ -1,22 +1,26 @@
 class Muparser < Formula
   desc "C++ math expression parser library"
-  homepage "https://beltoforion.de/en/muparser/"
-  url "https://github.com/beltoforion/muparser/archive/v2.3.2.tar.gz"
-  sha256 "b35fc84e3667d432e3414c8667d5764dfa450ed24a99eeef7ee3f6647d44f301"
+  homepage "https://github.com/beltoforion/muparser"
+  url "https://github.com/beltoforion/muparser/archive/v2.3.4.tar.gz"
+  sha256 "0c3fa54a3ebf36dda0ed3e7cd5451c964afbb15102bdbcba08aafb359a290121"
   license "BSD-2-Clause"
-  revision 2
-  head "https://github.com/beltoforion/muparser.git"
+  head "https://github.com/beltoforion/muparser.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "0a1a8ee3560af0487a46b7c524cdf938b1d6e159e6c4d9689968225cd6311713" => :catalina
-    sha256 "3094837032e20cbbd5e74531a20450af6986bfd5ac83ea4df4884a538a552c85" => :mojave
-    sha256 "ca242a645a77e528c16cced97cf06bc796071c549a8d81f22bd4d9bd547828fb" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "6b959115733d494a5a6cb3256853e368313eda71d1df964ae2b67496e092f55d"
+    sha256 cellar: :any,                 arm64_monterey: "c2514a95c8f9e08c8c9792ecbc78397fd1c8e52069cf16fdaf87d9cc1cfc8de5"
+    sha256 cellar: :any,                 arm64_big_sur:  "36f09677be96fe1f60945c6d16c0bbe48b51d898443420f6360d07c478c1127c"
+    sha256 cellar: :any,                 ventura:        "f1312db2dadecaabd79c4539f9d19dfbbcff6320ac1e3f019dc2696938eebcfb"
+    sha256 cellar: :any,                 monterey:       "091cad450a37fbe0b51d83a0302260eca95f872d6d272811df0b82319f37d822"
+    sha256 cellar: :any,                 big_sur:        "646599aca3fac21f7e0d0f9f3c02d28dae9f03bae2130d3866e7953125ee9779"
+    sha256 cellar: :any,                 catalina:       "dce05e4517b703b8d41d7477fb64585b20d26cdf83e1bc1e591555e2246f6826"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "a22a520b128642ade29eded38b0c9e33c20ddbdcc6055f8522409a48b416df04"
   end
 
   depends_on "cmake" => :build
 
   def install
+    ENV.cxx11 if OS.linux?
     mkdir "build" do
       system "cmake", "..", *std_cmake_args, "-DENABLE_OPENMP=OFF"
       system "make", "install"
@@ -57,8 +61,9 @@ class Muparser < Formula
         return 0;
       }
     EOS
-    system ENV.cxx, "-std=c++11", "-I#{include}", "-L#{lib}", "-lmuparser",
-           testpath/"test.cpp", "-o", testpath/"test"
+    system ENV.cxx, "-std=c++11", "-I#{include}",
+           testpath/"test.cpp", "-L#{lib}", "-lmuparser",
+           "-o", testpath/"test"
     system "./test"
   end
 end

@@ -1,32 +1,34 @@
 class Torsocks < Formula
   desc "Use SOCKS-friendly applications with Tor"
-  homepage "https://gitweb.torproject.org/torsocks.git/"
-  url "https://git.torproject.org/torsocks.git",
-      tag:      "v2.3.0",
-      revision: "cec4a733c081e09fb34f0aa4224ffd7b687fb310"
-  head "https://git.torproject.org/torsocks.git"
+  homepage "https://gitlab.torproject.org/tpo/core/torsocks"
+  url "https://gitlab.torproject.org/tpo/core/torsocks/-/archive/v2.4.0/torsocks-v2.4.0.tar.bz2"
+  sha256 "54b2e3255b697fb69bb92388376419bcef1f94d511da3980f9ed5cd8a41df3a8"
+  head "https://gitlab.torproject.org/tpo/core/torsocks.git", branch: "main"
 
   bottle do
-    sha256 "e29d0428907ea2d5aecfbeeb70de35998082a899cc5a86b312c5b264c6ed442c" => :catalina
-    sha256 "a69a7a23628c4a79c216b114ccdd0bbd20b76513f5f16eaea2eab8be17473323" => :mojave
-    sha256 "14a21746072ddb73f7fc3157dbe41bcce90e0bcb0a3761646faf421294e3ecff" => :high_sierra
-    sha256 "c2eb93f0ef7d44ca1c74ccc210d0a2a3fa2a45a7ef46c7ec68f68fb4162e5905" => :sierra
+    sha256 arm64_ventura:  "1b49807cb5abf53eb47cf3672b9883784fb4f7510472bb562b63d723cbb8d32b"
+    sha256 arm64_monterey: "2cabbbb8642a786a45cb99e1633447ceab14b5df439679f8588814ecb3117aab"
+    sha256 arm64_big_sur:  "8c1b04d704074ee39b0ad3ff78ffa87ce8bd58ddac3eb6fbb20f559f0bbac55f"
+    sha256 ventura:        "954dc96cc1a7a39d1424639f55e61e7cf650db8b50fac00eb84bec4a98f129af"
+    sha256 monterey:       "65b106a97660e2d27779dca77bf2998df798f4376bc00fd7ba21cbe9ae3f3b26"
+    sha256 big_sur:        "3ccf568b46201f651f12d017b6a507f51150cc5f714ad70e3a456e41fe737b7c"
+    sha256 catalina:       "2e4214a024055b73d0c6f7f7a05c24d872940b4a49735ed2856711c58e37f2b4"
+    sha256 x86_64_linux:   "b2dd5e3cb19d877cb6bb46d58c8c71a03fdc02d1d7bdc7772bc75431df861283"
   end
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
   depends_on "libtool" => :build
 
-  # https://trac.torproject.org/projects/tor/ticket/28538
+  # https://gitlab.torproject.org/legacy/trac/-/issues/28538
   patch do
-    url "https://trac.torproject.org/projects/tor/raw-attachment/ticket/28538/0001-Fix-macros-for-accept4-2.patch"
+    url "https://gitlab.torproject.org/legacy/trac/uploads/9efc1c0c47b3950aa91e886b01f7e87d/0001-Fix-macros-for-accept4-2.patch"
     sha256 "97881f0b59b3512acc4acb58a0d6dfc840d7633ead2f400fad70dda9b2ba30b0"
   end
 
   def install
     system "./autogen.sh"
-    system "./configure", "--disable-dependency-tracking",
-                          "--prefix=#{prefix}"
+    system "./configure", *std_configure_args
     system "make", "install"
   end
 

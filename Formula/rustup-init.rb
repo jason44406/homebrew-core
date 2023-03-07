@@ -1,24 +1,31 @@
 class RustupInit < Formula
-  desc "The Rust toolchain installer"
-  homepage "https://github.com/rust-lang/rustup.rs"
-  url "https://github.com/rust-lang/rustup.rs/archive/1.22.1.tar.gz"
-  sha256 "ad46cc624f318a9493aa62fc9612a450564fe20ba93c689e0ad856bff3c64c5b"
-  license "Apache-2.0"
+  desc "Rust toolchain installer"
+  homepage "https://github.com/rust-lang/rustup"
+  url "https://github.com/rust-lang/rustup/archive/1.25.2.tar.gz"
+  sha256 "dc9bb5d3dbac5cea9afa9b9c3c96fcf644a1e7ed6188a6b419dfe3605223b5f3"
+  license any_of: ["Apache-2.0", "MIT"]
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "12bef1ce5ee98d022eee88019044b30d1c9919fd6f4b14e9ef876f8944e39a96" => :catalina
-    sha256 "a4f477ccd1472f43321452297aa935347fd8e12f96d7bd839239e669dd361000" => :mojave
-    sha256 "6a4ba7267ffa430c98cc4cf58026473ce07a47a97dcc40acd4031d8d82c209a5" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "16f17c91641ec51f96882e560cf153633d75a86ffc0694849f1ec3af3374cde3"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "20d5f670eb0ff3f8d6854e8186131b57173691e3ebc44ea7c4fd7b964b643fab"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "a90ada375a1415dd658664a84686ba0076b8024e0895dd4ee4bfbe325fb35f5c"
+    sha256 cellar: :any_skip_relocation, ventura:        "9f37940043950ca725bc75c6e73d795908ec224baed0257f116f825bcbb7b92d"
+    sha256 cellar: :any_skip_relocation, monterey:       "e4a955dc86df7e4db6b842c1396608c75f37db267ba943d3174af009d32f1d2e"
+    sha256 cellar: :any_skip_relocation, big_sur:        "d4f1c224cbe4042cc2dd2fce2c22771d53dab0cdb523e4a81c982d1adad45e2a"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "c749c63b8a4e4f3aecfbd73a22505fbf7d908c611f371b384d305b6639e47546"
   end
 
   depends_on "rust" => :build
 
-  def install
-    cargo_home = buildpath/"cargo_home"
-    cargo_home.mkpath
-    ENV["CARGO_HOME"] = cargo_home
+  uses_from_macos "curl"
+  uses_from_macos "xz"
 
+  on_linux do
+    depends_on "pkg-config" => :build
+    depends_on "openssl@3"
+  end
+
+  def install
     system "cargo", "install", "--features", "no-self-update", *std_cargo_args
   end
 

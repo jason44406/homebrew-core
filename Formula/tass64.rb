@@ -1,20 +1,24 @@
 class Tass64 < Formula
   desc "Multi pass optimizing macro assembler for the 65xx series of processors"
   homepage "https://tass64.sourceforge.io/"
-  url "https://downloads.sourceforge.net/project/tass64/source/64tass-1.55.2200-src.zip"
-  sha256 "067d0a54cb3c473b26aa5d69ea3f1f956be7cccc9044f1117fc20cb84aa63880"
+  url "https://downloads.sourceforge.net/project/tass64/source/64tass-1.58.2974-src.zip"
+  sha256 "3f3e2b1867664cb3b64d315fea11938f1666d79d11ea705a6937310257ef0a67"
+  license all_of: ["GPL-2.0-or-later", "LGPL-2.0-or-later", "LGPL-2.1-only", "MIT"]
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "afefda676ae81f3340850d132e17fa408505d79da25fd50c42c3042ca3b4f7f2" => :catalina
-    sha256 "4a1a224e806b0f9827ffe1f4e5e8ce792e616e6b2e829c278fad5c8a5ee958af" => :mojave
-    sha256 "1aa51c3d25cf651f7d4725d89a022ab2510963684dc3b3ebe4845b488b3bb5d7" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "e9e804611c1a03eb3c563ad9c60cea21498d375e706d96931d3eec2b2d1bfc89"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "12e08b68f976a919f927579f3e9d7768dd497aa5cd02337cc42dd95586956f68"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "e819ad2bf701f18a362c4343b464f954bc3fac63b8f410bf97fefc12c787dcaa"
+    sha256 cellar: :any_skip_relocation, ventura:        "f597f8a0ce9f9cad1506bb1424e3209e66d5549ecb529a39d10cea90120a77b3"
+    sha256 cellar: :any_skip_relocation, monterey:       "7cbee14fd0c68c2f9e42fd7f5541f2d83054b893e4d82822f5cc7afaabad3cd9"
+    sha256 cellar: :any_skip_relocation, big_sur:        "7f1372d00208565abf8d92fdb50f8011e8f21b778f214f073118516d54f0028a"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "e38f72df0f40c5c0d38a2e44ee29b77d07e41f3289bf73439ef6531014979f94"
   end
 
   def install
     system "make", "install", "CPPFLAGS=-D_XOPEN_SOURCE", "prefix=#{prefix}"
 
-    # `make install` does not install syntax highlighting defintions
+    # `make install` does not install syntax highlighting definitions
     pkgshare.install "syntax"
   end
 

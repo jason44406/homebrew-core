@@ -1,43 +1,43 @@
 class Fceux < Formula
-  desc "The all in one NES/Famicom Emulator"
-  homepage "http://fceux.com"
-  url "https://downloads.sourceforge.net/project/fceultra/Source%20Code/2.2.3%20src/fceux-2.2.3.src.tar.gz"
-  sha256 "4be6dda9a347f941809a3c4a90d21815b502384adfdd596adaa7b2daf088823e"
-  revision 4
+  desc "All-in-one NES/Famicom Emulator"
+  homepage "https://fceux.com/"
+  url "https://github.com/TASEmulators/fceux.git",
+      tag:      "v2.6.5",
+      revision: "ea6ed69b874e3ae94072f1b4f14b9a8f0fdd774b"
+  license "GPL-2.0-only"
+  head "https://github.com/TASEmulators/fceux.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "7c7550b97011321d5d48f8f689c7158223aee5054698a6c707a185404e469e35" => :catalina
-    sha256 "800e46a45f554876ad2a63ea6a62f6d672e5aefd2c9cca8f58fe615b82eb9ea7" => :mojave
-    sha256 "3f587de213706a92fb02b14676514f6cba079e3c3b7ded2e57a8e718ebf9cf20" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "84fc7e01a4bd37c50e66856663c0a85ad6a10b0a7092583ea76daa4e27f31b4d"
+    sha256 cellar: :any,                 arm64_monterey: "7c176a75a109ae6351a3b53a0f791cc440498591039655ee9d951b77567c39a8"
+    sha256 cellar: :any,                 arm64_big_sur:  "ed09257356077299043e5e2a00fe48a209de8931bd282d1687ed890dcdda20fb"
+    sha256 cellar: :any,                 ventura:        "7bb7541203311e9e12c240eee8d9f3e00788cffd810db4715189b4fbe5b392a7"
+    sha256 cellar: :any,                 monterey:       "4cb78e1bdff952dcb42bf2f5f90b8a12e178d64947fa9d41a53ce300042fc321"
+    sha256 cellar: :any,                 big_sur:        "0f0bd1643792ad6c2882b801d40fc2fd6ba5e4174858ef6a71fa6a47a68e8ed5"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "40cb6b743e7b5d5ed218cc90d886705fcdad77cfe33d480c188e521d4e3d2b1d"
   end
 
+  depends_on "cmake" => :build
   depends_on "pkg-config" => :build
-  depends_on "scons" => :build
-  depends_on "gd"
-  depends_on "gtk+3"
-  depends_on "sdl"
+  depends_on "ffmpeg"
+  depends_on "minizip"
+  depends_on "qt"
+  depends_on "sdl2"
+  depends_on "x264"
 
-  # does not build anymore: the Scons buildscripts rely on Python2 syntax.
-  disable!
-
-  # Fix "error: ordered comparison between pointer and zero"
-  if DevelopmentTools.clang_build_version >= 900
-    patch do
-      url "https://raw.githubusercontent.com/Homebrew/formula-patches/c126b2c/fceux/xcode9.patch"
-      sha256 "3fdea3b81180d1720073c943ce9f3e2630d200252d33c1e2efc1cd8c1e3f8148"
-    end
+  on_linux do
+    depends_on "mesa-glu"
   end
+
+  fails_with gcc: "5"
 
   def install
-    # Bypass X11 dependency injection
-    # https://sourceforge.net/p/fceultra/bugs/755/
-    inreplace "src/drivers/sdl/SConscript", "env.ParseConfig(config_string)", ""
-
-    # gdlib required for logo insertion, but headers are not detected
-    # https://sourceforge.net/p/fceultra/bugs/756/
-    system "scons", "RELEASE=1", "GTK=0", "GTK3=1", "LOGO=0"
-    libexec.install "src/fceux"
+    ENV["CXXFLAGS"] = "-DPUBLIC_RELEASE=1" if build.stable?
+    system "cmake", ".", *std_cmake_args, "-DQT6=ON"
+    system "make"
+    cp "src/auxlib.lua", "output/luaScripts"
+    fceux_path = OS.mac? ? "src/fceux.app/Contents/MacOS" : "src"
+    libexec.install Pathname.new(fceux_path)/"fceux"
     pkgshare.install ["output/luaScripts", "output/palettes", "output/tools"]
     (bin/"fceux").write <<~EOS
       #!/bin/bash
@@ -46,6 +46,10 @@ class Fceux < Formula
   end
 
   test do
-    system "#{bin}/fceux", "-h"
+    # Set QT_QPA_PLATFORM to minimal to avoid error:
+    # "This application failed to start because no Qt platform plugin could be initialized."
+    ENV["QT_QPA_PLATFORM"] = "minimal" if OS.linux? && ENV["HOMEBREW_GITHUB_ACTIONS"]
+
+    system "#{bin}/fceux", "--help"
   end
 end

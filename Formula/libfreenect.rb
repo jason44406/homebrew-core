@@ -1,17 +1,20 @@
 class Libfreenect < Formula
   desc "Drivers and libraries for the Xbox Kinect device"
   homepage "https://openkinect.org/"
-  url "https://github.com/OpenKinect/libfreenect/archive/v0.6.1.tar.gz"
-  sha256 "a2e426cf42d9289b054115876ec39502a1144bc782608900363a0c38056b6345"
-  # license ["Apache-2.0", "GPL-2.0"] - pending https://github.com/Homebrew/brew/pull/7953
-  license "Apache-2.0"
-  head "https://github.com/OpenKinect/libfreenect.git"
+  url "https://github.com/OpenKinect/libfreenect/archive/v0.6.4.tar.gz"
+  sha256 "6169600f999729a7f99dd71a9825ed6e7aec8b8aac4f532ecf2911f76133c125"
+  license any_of: ["Apache-2.0", "GPL-2.0-only"]
+  head "https://github.com/OpenKinect/libfreenect.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "a9098e0b3d868c85de4b0bb243d16200361002ff5d27d6d9c9bc5a08fb6ab95a" => :catalina
-    sha256 "d150e4351036b1b3174d24c359736e04a3bbdbe966c77b1714f0edbef486d012" => :mojave
-    sha256 "c08bad975cc7175fdf88a603fb300cac3493f0e20172fc99a69da568d4ad68ff" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "eeaefea3c833809024c643dd444bd588be4045c77af898aa2520c5b457429d87"
+    sha256 cellar: :any,                 arm64_monterey: "7051953ec9958dfe54c2f65edc97e18e2df9bd43d545b977e95dd73ec553f8a5"
+    sha256 cellar: :any,                 arm64_big_sur:  "2129c9a0986cb332fdea26e6e7094d68e377aea898493c8d3e37534118a1a94f"
+    sha256 cellar: :any,                 ventura:        "08461a257c1337cfd37a2ac53b46f24ef8ac5ce9efa19c93ffe2fdd494409439"
+    sha256 cellar: :any,                 monterey:       "281860b157bd771e268f823c1c21a5a620942314bbad9850a235a5c9610f30bb"
+    sha256 cellar: :any,                 big_sur:        "fb1dcb243ce31b970b5c18c1651a051f284c58a77693a21e62f857e87bf063d2"
+    sha256 cellar: :any,                 catalina:       "6a45ea2a3d5a89af85e3dc68cae2d77a4705d3607839c7e8ea41850f6cbe3740"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "d036fdf727eeecbb1529529dfe013a4f036667f76732e5df21e883ce9ff29c53"
   end
 
   depends_on "cmake" => :build

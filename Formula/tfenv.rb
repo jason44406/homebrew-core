@@ -1,25 +1,25 @@
 class Tfenv < Formula
   desc "Terraform version manager inspired by rbenv"
   homepage "https://github.com/tfutils/tfenv"
+  url "https://github.com/tfutils/tfenv/archive/v3.0.0.tar.gz"
+  sha256 "463132e45a211fa3faf85e62fdfaa9bb746343ff1954ccbad91cae743df3b648"
   license "MIT"
-  head "https://github.com/tfutils/tfenv.git"
+  head "https://github.com/tfutils/tfenv.git", branch: "master"
 
-  stable do
-    url "https://github.com/tfutils/tfenv/archive/v2.0.0.tar.gz"
-    sha256 "de3dcf13768cb078e94d68ca85071b8d6e44104394336d952255ca558b854b0b"
-
-    # fix bash 3.x compatibility
-    # removed in the next release
-    # Original source: "https://github.com/tfutils/tfenv/pull/181.patch?full_index=1"
-    patch do
-      url "https://raw.githubusercontent.com/Homebrew/formula-patches/526faca9830646b974f563532fa27a1515e51ca1/tfenv/2.0.0.patch"
-      sha256 "b1365be51a8310a44b330f9b008dabcdfe2d16b0349f38988e7a24bcef6cae09"
-    end
+  livecheck do
+    url :stable
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
   end
 
-  bottle :unneeded
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "4905c2390b0254348be44da1c4a05b3d8bf4d8704b94d16b739d64fd4709784b"
+  end
 
   uses_from_macos "unzip"
+
+  on_macos do
+    depends_on "grep"
+  end
 
   conflicts_with "terraform", because: "tfenv symlinks terraform binaries"
 
@@ -29,5 +29,8 @@ class Tfenv < Formula
 
   test do
     assert_match "0.10.0", shell_output("#{bin}/tfenv list-remote")
+    with_env(TFENV_TERRAFORM_VERSION: "0.10.0", TF_AUTO_INSTALL: "false") do
+      assert_equal "0.10.0", shell_output("#{bin}/tfenv version-name").strip
+    end
   end
 end

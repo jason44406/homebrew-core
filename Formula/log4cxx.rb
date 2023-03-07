@@ -1,38 +1,32 @@
 class Log4cxx < Formula
   desc "Library of C++ classes for flexible logging"
   homepage "https://logging.apache.org/log4cxx/index.html"
-  url "https://www.apache.org/dyn/closer.lua?path=logging/log4cxx/0.11.0/apache-log4cxx-0.11.0.tar.gz"
-  mirror "https://archive.apache.org/dist/logging/log4cxx/0.11.0/apache-log4cxx-0.11.0.tar.gz"
-  sha256 "c316705ee3c4e5b919d3561d5f305162d21687aa6ae1f31f02f6cdadc958b393"
+  url "https://www.apache.org/dyn/closer.lua?path=logging/log4cxx/1.0.0/apache-log4cxx-1.0.0.tar.gz"
+  mirror "https://archive.apache.org/dist/logging/log4cxx/1.0.0/apache-log4cxx-1.0.0.tar.gz"
+  sha256 "6df9f1f682650de6045309473d5b2fe1f798a03ceb36a74a5b21f5520962d32f"
   license "Apache-2.0"
 
   bottle do
-    cellar :any
-    sha256 "ec9ff34b2c49aa9a48536f7d109da16cc32f9ce83e95ac1dc3efc8a982709908" => :catalina
-    sha256 "23a968d63f8a181a73410cffcde5fd16fbacd5867453e7c0d7b0cb3815942bf8" => :mojave
-    sha256 "11478b4f5ece24ec391954cc0538bb28f11ae6256a9499ca1e95103c2eb1d75c" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "3d0f33b32809f8e031fb6205652936a3461615e6581d550bc2564d036a211478"
+    sha256 cellar: :any,                 arm64_monterey: "00f20ed7f3f8899e1c8bfde63fc5a6d669a8d74de675272d9e7a39db5acebac1"
+    sha256 cellar: :any,                 arm64_big_sur:  "191c762c51bc54d2d40ed443112ad031bb06c8f5c93274d3d06372896eeef821"
+    sha256 cellar: :any,                 ventura:        "247d1bee0654a1c6e768109e87f8707fd4c6cf14fa4177fac36f3c0bd90ac027"
+    sha256 cellar: :any,                 monterey:       "98a0592d6d08dbaed5508b24d6f334718b4dd8c368b2c76dc27a75c57f08d569"
+    sha256 cellar: :any,                 big_sur:        "cd86acc7a5d5c6668d9f9c5dfbc44ac4a26348148f3daeb96d6bf113615d3019"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "fe4c29052b04fd9c3e4382e5acd5b9cccc910ad3b35826ece37a4420725b15ec"
   end
 
-  depends_on "autoconf" => :build
-  depends_on "automake" => :build
-  depends_on "libtool" => :build
-
+  depends_on "cmake" => :build
   depends_on "apr-util"
 
-  def install
-    ENV.O2 # Using -Os causes build failures on Snow Leopard.
+  fails_with gcc: "5" # needs C++17 or Boost
 
-    # Fixes build error with clang, old libtool scripts. cf. #12127
-    # Reported upstream here: https://issues.apache.org/jira/browse/LOGCXX-396
-    # Remove at: unknown, waiting for developer comments.
-    system "./autogen.sh"
-    system "./configure", "--disable-debug", "--disable-dependency-tracking",
-                          "--prefix=#{prefix}",
-                          # Docs won't install on macOS
-                          "--disable-doxygen",
-                          "--with-apr=#{Formula["apr"].opt_bin}",
-                          "--with-apr-util=#{Formula["apr-util"].opt_bin}"
-    system "make", "install"
+  def install
+    mkdir "build" do
+      system "cmake", "..", *std_cmake_args, "-DBUILD_SHARED_LIBS=ON"
+      system "make"
+      system "make", "install"
+    end
   end
 
   test do
@@ -68,7 +62,7 @@ class Log4cxx < Formula
       log4j.appender.R.layout=org.apache.log4j.PatternLayout
       log4j.appender.R.layout.ConversionPattern=%p %t %c - %m%n
     EOS
-    system ENV.cxx, "test.cpp", "-o", "test", "-L#{lib}", "-llog4cxx"
-    assert_match /ERROR.*Foo/, shell_output("./test", 1)
+    system ENV.cxx, "-std=c++17", "test.cpp", "-o", "test", "-L#{lib}", "-llog4cxx"
+    assert_match(/ERROR.*Foo/, shell_output("./test", 1))
   end
 end

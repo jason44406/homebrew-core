@@ -7,7 +7,12 @@ class Sqoop < Formula
   sha256 "64111b136dbadcb873ce17e09201f723d4aea81e5e7c843e400eb817bb26f235"
   license "Apache-2.0"
 
-  bottle :unneeded
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "04de1ca8398879433620c8bb66cda1c959fb3b724e6ed7638fd7e26d6e132483"
+  end
+
+  # See https://attic.apache.org/projects/sqoop.html
+  disable! date: "2022-10-19", because: :deprecated_upstream
 
   depends_on "coreutils"
   depends_on "hadoop"
@@ -47,6 +52,6 @@ class Sqoop < Formula
   end
 
   test do
-    assert_match /#{version}/, shell_output("#{bin}/sqoop version")
+    assert_match version.to_s, shell_output("#{bin}/sqoop version")
   end
 end

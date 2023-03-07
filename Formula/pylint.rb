@@ -3,56 +3,66 @@ class Pylint < Formula
 
   desc "It's not just a linter that annoys you!"
   homepage "https://github.com/PyCQA/pylint"
-  url "https://files.pythonhosted.org/packages/3b/f0/ee19aeccaea881c38d129f015b2be7658724fcefa3a506d7c44747d764d9/pylint-2.5.3.tar.gz"
-  sha256 "7dd78437f2d8d019717dbf287772d0b2dbdfd13fc016aa7faa08d67bccc46adc"
+  url "https://files.pythonhosted.org/packages/9f/cc/cf24bfbb4591c4cb89cc1d78932874bf75548f837859cd9947587d471c9c/pylint-2.16.4.tar.gz"
+  sha256 "8841f26a0dbc3503631b6a20ee368b3f5e0e5461a1d95cf15d103dab748a0db3"
   license "GPL-2.0-or-later"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "0276d309ef75310c6f769fd57bd1c0326c42ad167fada9985d9a18c5219111a8" => :catalina
-    sha256 "7382a74b8dc90f0a89a09e525a76967c4872c685d8dae62be7bde0474e750bc3" => :mojave
-    sha256 "8ecaf808929ee9c3a7ee76f707b2df886712a7be0c73b7c274f96d4dbd7ba304" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "a2da9f957b23c6be385a9453e351edf3dd9e0fc85b7dce3265a36267901678e0"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "1fe22b6b9c52c6f4de05b3c3072af49de06477eb4c81683d32a0bbba0362fccd"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "d2089651598e7280c987eba8805ed0db4165ba0bf789939070fd5d179eb40d3b"
+    sha256 cellar: :any_skip_relocation, ventura:        "9edc35217c60bc149b7ddc75fb7e1835c37a7b59fe15bfbc7123f5fbfc410e07"
+    sha256 cellar: :any_skip_relocation, monterey:       "4ee4df5d91410f6184f5e237485c642f28109f0725808c8740ffbd15be3beadd"
+    sha256 cellar: :any_skip_relocation, big_sur:        "0fd5e85cd37639f03afbf89685df96159b5a8a0dda7944e6a16b871d48e84c47"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "a37d25fd6ecd5257bdbbad8b4c07eec862271f70fa7ea4121ad9732128a2e417"
   end
 
-  depends_on "python@3.8"
+  depends_on "isort"
+  depends_on "python-typing-extensions"
+  depends_on "python@3.11"
 
   resource "astroid" do
-    url "https://files.pythonhosted.org/packages/ee/25/d3f01bc7e16641e0acb9a8c12decf1d5c2f04336c1f19ba69dc8e6927dff/astroid-2.4.2.tar.gz"
-    sha256 "2f4078c2a41bf377eea06d71c9d2ba4eb8f6b1af2135bec27bbbb7d8f12bb703"
+    url "https://files.pythonhosted.org/packages/60/73/6a30d506ac5317b8b8db2a4340172a85a9b545e7fb732f390c1d2a35d8de/astroid-2.15.0.tar.gz"
+    sha256 "525f126d5dc1b8b0b6ee398b33159105615d92dc4a17f2cd064125d57f6186fa"
   end
 
-  resource "isort" do
-    url "https://files.pythonhosted.org/packages/43/00/8705e8d0c05ba22f042634f791a61f4c678c32175763dcf2ca2a133f4739/isort-4.3.21.tar.gz"
-    sha256 "54da7e92468955c4fceacd0c86bd0ec997b0e1ee80d97f67c35a78b719dccab1"
+  resource "dill" do
+    url "https://files.pythonhosted.org/packages/7c/e7/364a09134e1062d4d5ff69b853a56cf61c223e0afcc6906b6832bcd51ea8/dill-0.3.6.tar.gz"
+    sha256 "e5db55f3687856d8fbdab002ed78544e1c4559a130302693d839dfe8f93f2373"
   end
 
   resource "lazy-object-proxy" do
-    url "https://files.pythonhosted.org/packages/07/3f/a3d687f83c7d44970f70ff0400677746c8860b11f0c08f6b4e07205f0cdc/lazy-object-proxy-1.4.3.tar.gz"
-    sha256 "f3900e8a5de27447acbf900b4750b0ddfd7ec1ea7fbaf11dfa911141bc522af0"
+    url "https://files.pythonhosted.org/packages/20/c0/8bab72a73607d186edad50d0168ca85bd2743cfc55560c9d721a94654b20/lazy-object-proxy-1.9.0.tar.gz"
+    sha256 "659fb5809fa4629b8a1ac5106f669cfc7bef26fbb389dda53b3e010d1ac4ebae"
   end
 
   resource "mccabe" do
-    url "https://files.pythonhosted.org/packages/06/18/fa675aa501e11d6d6ca0ae73a101b2f3571a565e0f7d38e062eec18a91ee/mccabe-0.6.1.tar.gz"
-    sha256 "dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"
+    url "https://files.pythonhosted.org/packages/e7/ff/0ffefdcac38932a54d2b5eed4e0ba8a408f215002cd178ad1df0f2806ff8/mccabe-0.7.0.tar.gz"
+    sha256 "348e0240c33b60bbdf4e523192ef919f28cb2c3d7d5c7794f74009290f236325"
   end
 
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/6b/34/415834bfdafca3c5f451532e8a8d9ba89a21c9743a0c59fbd0205c7f9426/six-1.15.0.tar.gz"
-    sha256 "30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"
+  resource "platformdirs" do
+    url "https://files.pythonhosted.org/packages/8f/5f/01180534cebac14f3a792bf2f74fc99d34531c950c308fdebd9721e85550/platformdirs-3.1.0.tar.gz"
+    sha256 "accc3665857288317f32c7bebb5a8e482ba717b474f3fc1d18ca7f9214be0cef"
   end
 
-  resource "toml" do
-    url "https://files.pythonhosted.org/packages/da/24/84d5c108e818ca294efe7c1ce237b42118643ce58a14d2462b3b2e3800d5/toml-0.10.1.tar.gz"
-    sha256 "926b612be1e5ce0634a2ca03470f95169cf16f939018233a670519cb4ac58b0f"
+  resource "tomlkit" do
+    url "https://files.pythonhosted.org/packages/ff/04/58b4c11430ed4b7b8f1723a5e4f20929d59361e9b17f0872d69681fd8ffd/tomlkit-0.11.6.tar.gz"
+    sha256 "71b952e5721688937fb02cf9d354dbcf0785066149d2855e44531ebdd2b65d73"
   end
 
   resource "wrapt" do
-    url "https://files.pythonhosted.org/packages/82/f7/e43cefbe88c5fd371f4cf0cf5eb3feccd07515af9fd6cf7dbf1d1793a797/wrapt-1.12.1.tar.gz"
-    sha256 "b62ffa81fb85f4332a4f609cab4ac40709470da05643a082ec1eb88e6d9b97d7"
+    url "https://files.pythonhosted.org/packages/f8/7d/73e4e3cdb2c780e13f9d87dc10488d7566d8fd77f8d68f0e416bfbd144c7/wrapt-1.15.0.tar.gz"
+    sha256 "d06730c6aed78cee4126234cf2d071e01b44b915e725a6cb439a879ec9754a3a"
   end
 
   def install
     virtualenv_install_with_resources
+
+    # we depend on isort, but that's a separate formula, so install a `.pth` file to link them
+    site_packages = Language::Python.site_packages("python3.11")
+    isort = Formula["isort"].opt_libexec
+    (libexec/site_packages/"homebrew-isort.pth").write isort/site_packages
   end
 
   test do

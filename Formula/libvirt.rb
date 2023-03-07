@@ -1,90 +1,76 @@
 class Libvirt < Formula
   desc "C virtualization API"
-  homepage "https://www.libvirt.org"
-  url "https://libvirt.org/sources/libvirt-6.6.0.tar.xz"
-  sha256 "94e52ddd2d71b650e1a7eb5ab7e651f9607ecee207891216714020b8ff081ef9"
-  license "LGPL-2.1"
-  head "https://github.com/libvirt/libvirt.git"
+  homepage "https://libvirt.org/"
+  url "https://libvirt.org/sources/libvirt-9.1.0.tar.xz"
+  sha256 "defebea252a24c1800fbf484b14018b6261192acbac5bda8395e47eba2a14d6a"
+  license all_of: ["LGPL-2.1-or-later", "GPL-2.0-or-later"]
+  head "https://gitlab.com/libvirt/libvirt.git", branch: "master"
+
+  livecheck do
+    url "https://libvirt.org/sources/"
+    regex(/href=.*?libvirt[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    sha256 "48241043ff81ccd226d4303b11034ccdc636fd72aec2c5ba56398ef0191667d3" => :catalina
-    sha256 "e76fd3f6fb11397c8963d6d92f8f6b56d19dc86ffcfdffb45663b50239f89a93" => :mojave
-    sha256 "466948b3ed952a7ed22a41284ada218b5c007013670c799a54c23eff9ab15482" => :high_sierra
+    sha256 arm64_ventura:  "a0ad1459d0cd11d37810d873eb1c2fba2ad167a0b4ab5ebe538ed8b44495e413"
+    sha256 arm64_monterey: "f0f153f7d349657a44b8177df87f519ed54ea6d3c95ade7f3c61e6de28728c5c"
+    sha256 arm64_big_sur:  "220969ba84fcac799a45ed3a4f145ad7dde85a560b5c9d8fbaa84302de9a027b"
+    sha256 ventura:        "7c7c79718b8eb242cb398fea929629b476d012bfcfb2bbf548866e0cbce1a3eb"
+    sha256 monterey:       "92a10075ddec2c0565e621fa0d3104add7b0da3b2babe78205f9d8662317d69a"
+    sha256 big_sur:        "91fd6fb6464237ea7848dd3a7fd87c74deec4c25d7208e88f53d8a858570a253"
+    sha256 x86_64_linux:   "6a7c8079937edc6b31676e8285f24fb046721c95185b1ab160540b996368410f"
   end
 
   depends_on "docutils" => :build
+  depends_on "meson" => :build
+  depends_on "ninja" => :build
+  depends_on "perl" => :build
   depends_on "pkg-config" => :build
+  depends_on "python@3.11" => :build
+  depends_on "gettext"
   depends_on "glib"
+  depends_on "gnu-sed"
   depends_on "gnutls"
+  depends_on "grep"
   depends_on "libgcrypt"
+  depends_on "libiscsi"
+  depends_on "libssh2"
+  depends_on "readline" # Possible opportunistic linkage. TODO: Check if this can be removed.
   depends_on "yajl"
 
-  if build.head?
-    depends_on "autoconf" => :build
-    depends_on "automake" => :build
-    depends_on "gettext" => :build
-    depends_on "libtool" => :build
+  uses_from_macos "curl"
+  uses_from_macos "libxslt"
+
+  on_macos do
     depends_on "rpcgen" => :build
   end
 
+  on_linux do
+    depends_on "libtirpc"
+  end
+
+  fails_with gcc: "5"
+
   def install
     args = %W[
-      --prefix=#{prefix}
       --localstatedir=#{var}
       --mandir=#{man}
       --sysconfdir=#{etc}
-      --with-esx
-      --with-init-script=none
-      --with-remote
-      --with-test
-      --with-vbox
-      --with-vmware
-      --with-qemu
+      -Ddriver_esx=enabled
+      -Ddriver_qemu=enabled
+      -Ddriver_network=enabled
+      -Dinit_script=none
+      -Dqemu_datadir=#{Formula["qemu"].opt_pkgshare}
     ]
-
-    args << "ac_cv_path_RPCGEN=#{Formula["rpcgen"].opt_prefix}/bin/rpcgen" if build.head?
-
-    # Work around a gnulib issue with macOS Catalina
-    args << "gl_cv_func_ftello_works=yes"
-
-    mkdir "build" do
-      system "../autogen.sh" if build.head?
-      system "../configure", *args
-
-      # Compilation of docs doesn't get done if we jump straight to "make install"
-      system "make"
-      system "make", "install"
-    end
+    system "meson", "setup", "build", *args, *std_meson_args
+    system "meson", "compile", "-C", "build", "--verbose"
+    system "meson", "install", "-C", "build"
   end
 
-  plist_options manual: "libvirtd"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>EnvironmentVariables</key>
-          <dict>
-            <key>PATH</key>
-            <string>#{HOMEBREW_PREFIX}/bin</string>
-          </dict>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{sbin}/libvirtd</string>
-            <string>-f</string>
-            <string>#{etc}/libvirt/libvirtd.conf</string>
-          </array>
-          <key>KeepAlive</key>
-          <true/>
-          <key>RunAtLoad</key>
-          <true/>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_sbin/"libvirtd", "-f", etc/"libvirt/libvirtd.conf"]
+    keep_alive true
+    environment_variables PATH: HOMEBREW_PREFIX/"bin"
   end
 
   test do

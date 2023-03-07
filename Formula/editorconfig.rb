@@ -1,25 +1,29 @@
 class Editorconfig < Formula
   desc "Maintain consistent coding style between multiple editors"
   homepage "https://editorconfig.org/"
-  url "https://github.com/editorconfig/editorconfig-core-c/archive/v0.12.3.tar.gz"
-  sha256 "64edf79500e104e47035cace903f5c299edba778dcff71b814b7095a9f14cbc1"
+  url "https://github.com/editorconfig/editorconfig-core-c/archive/v0.12.6.tar.gz"
+  sha256 "36052a5371731d915b53d9c7a24a11c4032585ccacb392ec9d58656eef4c0edf"
   license "BSD-2-Clause"
-  head "https://github.com/editorconfig/editorconfig-core-c.git"
+  head "https://github.com/editorconfig/editorconfig-core-c.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "a1315cb812fd1f626d7924543b80388f88e8cb13ee79e9f305d475bf5787217e" => :catalina
-    sha256 "da824a4d67b8c1c1627d90e222b5f2441caf9cd7eca50de40380d3e7839db047" => :mojave
-    sha256 "26eceb21fd8d34c04799f70ba22ca0da11456c1e3fa30b0b90e592038b840d01" => :high_sierra
-    sha256 "a4655cde0acc92e11b02263337d384770bf0b592d828d44b8bef8be961572ad8" => :sierra
+    sha256 cellar: :any,                 arm64_ventura:  "bbeed6b68bc52b794f58f8b44de2f0d09375a74aa77a56699517e618b4895a20"
+    sha256 cellar: :any,                 arm64_monterey: "445a27596e9129b5436ec906a7de8b216359837e162d4a2c452c01d32c0cebee"
+    sha256 cellar: :any,                 arm64_big_sur:  "cc1242db975617d3813647af68678d948d154570038f44d8ef231bd41590d0ff"
+    sha256 cellar: :any,                 ventura:        "8ad4ac64856b3b4b3622a9f835c192d34d95aeee846297309dd232537debf43a"
+    sha256 cellar: :any,                 monterey:       "53371ea6d475c96c68443062893d0e9ec100549da7f57c62abdf40e43e943e88"
+    sha256 cellar: :any,                 big_sur:        "a51958424b3961a68857092a80dce49a04f18b0584b952af68e0bc8e5e7183ed"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "6a8791e9513abccd5ff2ef61315fa2391966e520526065e5de5832c23ed9d828"
   end
 
   depends_on "cmake" => :build
   depends_on "pcre2"
 
   def install
-    system "cmake", ".", *std_cmake_args
-    system "make", "install"
+    mkdir "build" do
+      system "cmake", "..", *std_cmake_args, "-DCMAKE_INSTALL_RPATH=#{rpath}"
+      system "make", "install"
+    end
   end
 
   test do

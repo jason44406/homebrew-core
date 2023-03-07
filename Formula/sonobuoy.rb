@@ -1,40 +1,32 @@
 class Sonobuoy < Formula
   desc "Kubernetes component that generates reports on cluster conformance"
   homepage "https://github.com/vmware-tanzu/sonobuoy"
-  url "https://github.com/vmware-tanzu/sonobuoy/archive/v0.18.4.tar.gz"
-  sha256 "94af6512fb8caa6dd268ef6ff30904895691dd494cd9337385ef036dd41d0610"
+  url "https://github.com/vmware-tanzu/sonobuoy/archive/v0.56.16.tar.gz"
+  sha256 "a20c806a1fe9f977514cc22695bc1d51ac48409bc4d5a2191a5caaa8e6c8b121"
   license "Apache-2.0"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "d5bd020fcf2c5068c50a97f37a465cd1846bba916760e524def3498ae5734532" => :catalina
-    sha256 "d7e49cce7fa5ae820b73b2dfe7fd375dbaf1b98b49b530f434248f7866a4e1c2" => :mojave
-    sha256 "0d0f7d6801e1b86ac9827878857b1c497810fc5c3c23e0b4e6394e73731dd5dd" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "d0ed8a9429c8b4344b247fcd8ab0bbb94acc358b7e7f5024d8b279da4ef96454"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "354ccf760a66778309bdd3ca14ea26653dcb3211698a9b4044443741af309a2d"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "d0ed8a9429c8b4344b247fcd8ab0bbb94acc358b7e7f5024d8b279da4ef96454"
+    sha256 cellar: :any_skip_relocation, ventura:        "973e37bf46983269400e0b4cc5a2cda89d4d0c7c86b00dc9774b92626c020230"
+    sha256 cellar: :any_skip_relocation, monterey:       "973e37bf46983269400e0b4cc5a2cda89d4d0c7c86b00dc9774b92626c020230"
+    sha256 cellar: :any_skip_relocation, big_sur:        "a245d65db647bfb783abbea2cc7225093e6a3b4b8fac07805881eeac622c5afe"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "07cc236f51a35e36ddcbbea3a10a0e7e2f5f8eb32070a2638033ccfd8f084695"
   end
 
   depends_on "go" => :build
 
-  resource "sonobuoyresults" do
-    url "https://raw.githubusercontent.com/vmware-tanzu/sonobuoy/master/pkg/client/results/testdata/results-0.10.tar.gz"
-    sha256 "a945ba4d475e33820310a6138e3744f301a442ba01977d38f2b635d2e6f24684"
-  end
-
   def install
-    system "go", "build", "-ldflags",
-                   "-s -w -X github.com/vmware-tanzu/sonobuoy/pkg/buildinfo.Version=v#{version}",
-                   *std_go_args
-    prefix.install_metafiles
+    system "go", "build", *std_go_args(ldflags: "-s -w -X github.com/vmware-tanzu/sonobuoy/pkg/buildinfo.Version=v#{version}")
   end
 
   test do
-    resources.each { |r| r.verify_download_integrity(r.fetch) }
-    assert_match "Sonobuoy is an introspective kubernetes component that generates reports on cluster conformance",
+    assert_match "Sonobuoy is a Kubernetes component that generates reports on cluster conformance",
       shell_output("#{bin}/sonobuoy 2>&1")
     assert_match version.to_s,
       shell_output("#{bin}/sonobuoy version 2>&1")
     assert_match "name: sonobuoy",
-      shell_output("#{bin}/sonobuoy gen --kube-conformance-image-version=v1.14 2>&1")
-    assert_match "all tests",
-      shell_output("#{bin}/sonobuoy e2e --show=all " + resource("sonobuoyresults").cached_download + " 2>&1")
+      shell_output("#{bin}/sonobuoy gen --kubernetes-version=v1.21 2>&1")
   end
 end

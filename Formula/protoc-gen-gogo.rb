@@ -1,23 +1,33 @@
 class ProtocGenGogo < Formula
   desc "Protocol Buffers for Go with Gadgets"
   homepage "https://github.com/gogo/protobuf"
-  url "https://github.com/gogo/protobuf/archive/v1.3.1.tar.gz"
-  sha256 "5184f06decd681fcc82f6583976111faf87189c0c2f8063b34ac2ea9ed997236"
+  url "https://github.com/gogo/protobuf/archive/v1.3.2.tar.gz"
+  sha256 "2bb4b13d6e56b3911f09b8e9ddd15708477fbff8823c057cc79dd99c9a452b34"
   license "BSD-3-Clause"
-  head "https://github.com/gogo/protobuf.git"
+  revision 2
+  head "https://github.com/gogo/protobuf.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "9be4c48be2450104703311eadf0457869f0a933602c18918c794cd4f17430349" => :catalina
-    sha256 "bce62f3a9c17de2c649863d5416bbb1a4ba2ded03804b79e1de1515f716a86aa" => :mojave
-    sha256 "334e9a6d6e8dea847e217326944503a154614134e6c74a522cccdb9ef4051478" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "80e3e677f3b12a02da7de60f3586d2ead2be403885c62f5c9700c010cc368be4"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "f806d12b79c1d49407fcad5fa50a8cf47303ee5f3e5f0403c2d1993387bf6a62"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "9ba5d8b674ef61368f7dfdc0f072190ec0927fc3c42fa846535ccd2dfd3030f9"
+    sha256 cellar: :any_skip_relocation, ventura:        "5b1296d9bf13d3eb67cbf999303e7a7b1e72369ced261c15567956fdcb5ef329"
+    sha256 cellar: :any_skip_relocation, monterey:       "a0e11a313199c7912fbeca42f17d9c24bff4031a6d0a994ced6e6d7b4e25dc6a"
+    sha256 cellar: :any_skip_relocation, big_sur:        "fd8a46c27fe74626f154ec7ea64183b1dfcfaea1cba6f35ebd91da51383c4122"
+    sha256 cellar: :any_skip_relocation, catalina:       "fd8a46c27fe74626f154ec7ea64183b1dfcfaea1cba6f35ebd91da51383c4122"
+    sha256 cellar: :any_skip_relocation, mojave:         "fd8a46c27fe74626f154ec7ea64183b1dfcfaea1cba6f35ebd91da51383c4122"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "1cd0e2d85d2acb9aeaea2405f7ca8e9a734970758027ef098d0ffd624b11c895"
   end
+
+  # gogoprotobuf is officially deprecated:
+  # https://github.com/gogo/protobuf/commit/f67b8970b736e53dbd7d0a27146c8f1ac52f74e5
+  deprecate! date: "2023-03-02", because: :deprecated_upstream
 
   depends_on "go" => :build
   depends_on "protobuf"
 
   def install
-    system "go", "build", *std_go_args, "-ldflags", "-s -w", "./protoc-gen-gogo"
+    system "go", "build", *std_go_args(ldflags: "-s -w"), "./protoc-gen-gogo"
   end
 
   test do

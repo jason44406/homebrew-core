@@ -1,16 +1,24 @@
 class Mediaconch < Formula
   desc "Conformance checker and technical metadata reporter"
   homepage "https://mediaarea.net/MediaConch"
-  url "https://mediaarea.net/download/binary/mediaconch/18.03.2/MediaConch_CLI_18.03.2_GNU_FromSource.tar.bz2"
-  sha256 "8f8f31f1c3eb55449799ebb2031ef373934a0a9826ce6c2b2bdd32dacbf5ec4c"
-  revision 1
+  url "https://mediaarea.net/download/binary/mediaconch/22.09/MediaConch_CLI_22.09_GNU_FromSource.tar.bz2"
+  sha256 "7ce9c4ac76b395029f86d9bed92dd1031375e4387758c9a9fb7275461300cef0"
+  license "BSD-2-Clause"
+
+  livecheck do
+    url "https://mediaarea.net/MediaConch/Download/Source"
+    regex(/href=.*?mediaconch[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "41a49bbafbffc220f140d8e466f1507757cbe552f8de4ca306217affbf1e6dd5" => :catalina
-    sha256 "9d59b85fecc5d5caba622fe57358caab23c8ea904954a137b99e66dd4f7fedec" => :mojave
-    sha256 "d59cfb9ac07ffb7eacc4c7970c38676a3909f0966481b99c745735bf87db7b8e" => :high_sierra
-    sha256 "fdb3934174a68121357c21d4f0800e8bbbaa6a296f3386ab52e5298fde96a6b6" => :sierra
+    sha256 cellar: :any,                 arm64_ventura:  "9f09e75b794100179826c12d61562b4ebee426eb5f06d9b1114c4ea0bca8966e"
+    sha256 cellar: :any,                 arm64_monterey: "b50b3309915cf885c17bd8bae2b28914b4ad75dc39c39885d63dcbd00d0addb2"
+    sha256 cellar: :any,                 arm64_big_sur:  "a07b8e83f9eae756d297567c28fcfb02432a2c527b2da31149c73914ba5251a1"
+    sha256 cellar: :any,                 ventura:        "c3318ca92990e88a43cdccf7a93e3d26fd6f2633df292925a8d0a0abdf67ff36"
+    sha256 cellar: :any,                 monterey:       "df6e1f485e1ee0e0fc3207ed609a1aea8c49cb7a09fb06374bd3742c666627c9"
+    sha256 cellar: :any,                 big_sur:        "cb73095a4412e37d1ebc36f6b3e55726e892d858fae99055e8a525b1b1310ea6"
+    sha256 cellar: :any,                 catalina:       "bfc13581c53976d8a732f160e853869c462117a8731075f7c7a35b5de85d0c31"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "1d786d22f5a5473ce40a2d4425877092b3823e8ade39ad2117e6b6310998ae82"
   end
 
   depends_on "pkg-config" => :build

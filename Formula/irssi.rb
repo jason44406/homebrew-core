@@ -1,21 +1,31 @@
 class Irssi < Formula
   desc "Modular IRC client"
   homepage "https://irssi.org/"
-  url "https://github.com/irssi/irssi/releases/download/1.2.2/irssi-1.2.2.tar.xz"
-  sha256 "6727060c918568ba2ff4295ad736128dba0b995d7b20491bca11f593bd857578"
-  license "GPL-2.0"
-  revision 1
+  url "https://github.com/irssi/irssi/releases/download/1.2.3/irssi-1.2.3.tar.xz"
+  sha256 "a647bfefed14d2221fa77b6edac594934dc672c4a560417b1abcbbc6b88d769f"
+  license "GPL-2.0-or-later" => { with: "openvpn-openssl-exception" }
+  revision 3
+
+  # This formula uses a file from a GitHub release, so we check the latest
+  # release version instead of Git tags.
+  livecheck do
+    url :stable
+    strategy :github_latest
+  end
 
   bottle do
-    rebuild 1
-    sha256 "a8d0caa726da8abaa3942e154ea6d6501df46ea3ae7c24d3583d3a229fd92727" => :catalina
-    sha256 "e25efab5dc0b20925d920aca182f713fa54b3d781bbea7ff0ff98606a29e8553" => :mojave
-    sha256 "92ce3e102445bc1248daf5404b9045088dde6a8f4e185c5f2a98982e692b4b26" => :high_sierra
-    sha256 "5f2f66c2581189d52bab585f5a1731f2382a29d7125d782856b6b0944515b1bd" => :sierra
+    sha256 arm64_ventura:  "143107760ded6982897869477d2c79aaa13775d05e25356f2fd5002865a9fccb"
+    sha256 arm64_monterey: "69731184fcfe2677b6d24cf3b3c3901e2aace975ed99242b7b706182aef01cd3"
+    sha256 arm64_big_sur:  "743b316af037b0756de7b405a6f29cd70c99f213ad03cd02aed56ede6a8c8654"
+    sha256 ventura:        "eb5da9b3fb7c1e827ff88483ae81676ddf8687be82c109c5db3fc727071eccb0"
+    sha256 monterey:       "b7df6b4e9dd65d526127e8c0b243a32c80d33ac3c04456c63f3a24953f149c75"
+    sha256 big_sur:        "ebc2daf02eae062170378d2995a42a643bb3d64f5f10ebeccdecf0446c7e0401"
+    sha256 catalina:       "5c9239da0b6620df1e8bba3f315d35a6e41884bd107aab393c46434bd17fa920"
+    sha256 x86_64_linux:   "3b1dc215132892ba386ff95486231a50e367b1866bcb6dc330811d4f5cf765f3"
   end
 
   head do
-    url "https://github.com/irssi/irssi.git"
+    url "https://github.com/irssi/irssi.git", branch: "master"
     depends_on "autoconf" => :build
     depends_on "automake" => :build
     depends_on "libtool" => :build
@@ -26,6 +36,7 @@ class Irssi < Formula
   depends_on "glib"
   depends_on "openssl@1.1"
 
+  uses_from_macos "ncurses"
   uses_from_macos "perl"
 
   def install
@@ -39,10 +50,15 @@ class Irssi < Formula
       --with-proxy
       --enable-true-color
       --with-socks=no
-      --with-ncurses=#{MacOS.sdk_path}/usr
       --with-perl=yes
       --with-perl-lib=#{lib}/perl5/site_perl
     ]
+
+    args << if OS.mac?
+      "--with-ncurses=#{MacOS.sdk_path/"usr"}"
+    else
+      "--with-ncurses=#{Formula["ncurses"].prefix}"
+    end
 
     if build.head?
       ENV["NOCONFIGURE"] = "yes"

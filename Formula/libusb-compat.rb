@@ -1,24 +1,36 @@
 class LibusbCompat < Formula
   desc "Library for USB device access"
   homepage "https://libusb.info/"
-  url "https://downloads.sourceforge.net/project/libusb/libusb-compat-0.1/libusb-compat-0.1.5/libusb-compat-0.1.5.tar.bz2"
-  sha256 "404ef4b6b324be79ac1bfb3d839eac860fbc929e6acb1ef88793a6ea328bc55a"
-  revision 1
+  url "https://downloads.sourceforge.net/project/libusb/libusb-compat-0.1/libusb-compat-0.1.8/libusb-compat-0.1.8.tar.bz2"
+  sha256 "698c76484f3dec1e0175067cbd1556c3021e94e7f2313ae3ea6a66d900e00827"
+  license all_of: [
+    "LGPL-2.1-or-later",
+    any_of: ["LGPL-2.1-or-later", "BSD-3-Clause"], # libusb/usb.h
+  ]
 
-  bottle do
-    cellar :any
-    sha256 "e1f03f77caed5418c50c3c9659e6c56f2363eddfd6cc1aac3f8dcac9451771d2" => :catalina
-    sha256 "11fe66aff70c0177a186c946624f91417565c43bbdc9e7c51725e26ea0c868c5" => :mojave
-    sha256 "fccc08c6c3ff2bf93d2aa8e7cc18f30c1fb95fbca044ecaa42d45f7c73a8facf" => :high_sierra
-    sha256 "e24ad80ee860f6f6c7e6c8dbb100aaa2de3294e2ecf7f591f2f51c52e11f09ea" => :sierra
-    sha256 "7b62449f8a9c02834b74adeb0827ca2ae32b47cb82923de0a8e88f16c36ca8b8" => :el_capitan
-    sha256 "0e4f131b8fd8210db3ff353a92c35ed12643a717b8780618680e3b4a16d7f347" => :yosemite
+  livecheck do
+    url :stable
+    regex(%r{url=.*?/libusb-compat[._-]v?(\d+(?:\.\d+)+)\.t}i)
   end
 
+  bottle do
+    sha256 cellar: :any,                 arm64_ventura:  "f166717b7947442be0d3dd9f4f32af5a81dc1b88e33c1e6d255f3661f1c9b00c"
+    sha256 cellar: :any,                 arm64_monterey: "c7806ae398c6e4c21b74591f3963c3dab1daaf789024320e53e26f05cc1969a9"
+    sha256 cellar: :any,                 arm64_big_sur:  "8d270d3af266fc64cded433bcd66737e4333be532971ecb7c6fff3013325242f"
+    sha256 cellar: :any,                 ventura:        "e9c27a0e5e8079dba3b1c2ebac987650eb104ede405a4ed8eed721a75c66c281"
+    sha256 cellar: :any,                 monterey:       "ef60733dc1a9cdd8b90ae397066bcabd3b5afa0cc156593282f827d7dfb62af0"
+    sha256 cellar: :any,                 big_sur:        "1286e09bd29c0520290e7e0c3100a4bb34c1d8144caa3f76a9d8dd21fb6d1769"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "fc84ad685fce1fac730610df3062fc8158c44df2f707d3a4b51719f7ae41d2ea"
+  end
+
+  depends_on "autoconf" => :build
+  depends_on "automake" => :build
+  depends_on "libtool" => :build
   depends_on "pkg-config" => :build
   depends_on "libusb"
 
   def install
+    system "./autogen.sh"
     system "./configure", "--prefix=#{prefix}", "--disable-dependency-tracking"
     system "make", "install"
   end

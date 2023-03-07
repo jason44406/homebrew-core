@@ -1,19 +1,27 @@
 class Fossil < Formula
   desc "Distributed software configuration management"
-  homepage "https://www.fossil-scm.org/"
-  url "https://www.fossil-scm.org/index.html/uv/fossil-src-2.12.1.tar.gz"
-  sha256 "822326ffcfed3748edaf4cfd5ab45b23225dea840304f765d1d55d2e6c7d6603"
+  homepage "https://www.fossil-scm.org/home/"
+  url "https://fossil-scm.org/home/tarball/version-2.21/fossil-src-2.21.tar.gz"
+  sha256 "195faf0b20c101834a809979d0a9cdf04a0dcbae1fdabae792c9db900b73bda0"
   license "BSD-2-Clause"
   head "https://www.fossil-scm.org/", using: :fossil
 
-  bottle do
-    cellar :any
-    sha256 "79dddedf515aa4c145161b6511f99f8864656f19cd3935be77cf92bac60e1eb0" => :catalina
-    sha256 "0366a7a4642f1805d593fd8c357df989cb811280afbef101bbc07fdcec4391d7" => :mojave
-    sha256 "87006ce88d4bc52e452b06f2a10f8151930af1e0b6c14bace7eeb486505fd5b9" => :high_sierra
+  livecheck do
+    url "https://www.fossil-scm.org/home/uv/download.js"
+    regex(/"title":\s*?"Version (\d+(?:\.\d+)+)\s*?\(/i)
   end
 
-  depends_on "openssl@1.1"
+  bottle do
+    sha256 cellar: :any,                 arm64_ventura:  "489696cec14a8b890c82fcb70080f6559b4cd54b93e8bca8c2a7bdcbf1654389"
+    sha256 cellar: :any,                 arm64_monterey: "4975c2fd99e11502110ae4024bdffdd9242e5c28dbf2dbb81230f862e767abf8"
+    sha256 cellar: :any,                 arm64_big_sur:  "25f6b8aeb5dc6a491b1265c76972d33004344002afeb8ad3afd1a7c6a2922f7e"
+    sha256 cellar: :any,                 ventura:        "4d33e22f97093471af81d86b603f24493192c68aa906a9f4cf8f8f3b28e0cadb"
+    sha256 cellar: :any,                 monterey:       "cfe7d9af2c80fa8ae7e03c2049c819e6a29614b7bd901630ed4952118fbca574"
+    sha256 cellar: :any,                 big_sur:        "83b2803eb21f8f1a968b9cebed1a047f5d2576d651b1f28717313cdfa04b0a77"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "31fd06a80a96da70e1357996c816f0e9d33a06404277d103454ee58a48a50b24"
+  end
+
+  depends_on "openssl@3"
   uses_from_macos "zlib"
 
   def install
@@ -34,6 +42,8 @@ class Fossil < Formula
     system "./configure", *args
     system "make"
     bin.install "fossil"
+    bash_completion.install "tools/fossil-autocomplete.bash"
+    zsh_completion.install "tools/fossil-autocomplete.zsh" => "_fossil"
   end
 
   test do

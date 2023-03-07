@@ -1,19 +1,24 @@
 class Guile < Formula
   desc "GNU Ubiquitous Intelligent Language for Extensions"
   homepage "https://www.gnu.org/software/guile/"
-  url "https://ftp.gnu.org/gnu/guile/guile-3.0.4.tar.xz"
-  mirror "https://ftpmirror.gnu.org/guile/guile-3.0.4.tar.xz"
-  sha256 "6b7947dc2e3d115983846a268b8f5753c12fd5547e42fbf2b97d75a3b79f0d31"
+  url "https://ftp.gnu.org/gnu/guile/guile-3.0.9.tar.xz"
+  mirror "https://ftpmirror.gnu.org/guile/guile-3.0.9.tar.xz"
+  sha256 "1a2625ac72b2366e95792f3fe758fd2df775b4044a90a4a9787326e66c0d750d"
+  license "LGPL-3.0-or-later"
 
   bottle do
     rebuild 1
-    sha256 "82d5ae8de3a1c8bf11e35b53487d6dbd14536376d04b9939df052f2eac66f0f0" => :catalina
-    sha256 "ed3f5ae6d9331860184d93c8e4d3e230c4b1558a330a9a23042115aef17c7ed5" => :mojave
-    sha256 "1e02fde47f568f75a58911b9c14ba60169c77ed09bdddb9038a4b89adc153b9d" => :high_sierra
+    sha256 arm64_ventura:  "802b09beab5de8794ee71ee9556e78347f0d70b76c34fa8bde2799cbe0bdd64c"
+    sha256 arm64_monterey: "5bd0d6a721847e049d42e53a5aab7f062ecfd816d5dcf79047fc9cf6e39767cf"
+    sha256 arm64_big_sur:  "815898ea4478f76b02c7cf6b87570abb68da29fd07de2a233ee0f7ae95a9bf31"
+    sha256 ventura:        "6d6a9327705cc6d1910b20e6e0d5cf8e9264340302276e2e1be1cbbe32b00fbd"
+    sha256 monterey:       "9c0a36654c77db52102d4344be4bd468b5a96482383f65a6a0ab5c6c0ecce29b"
+    sha256 big_sur:        "07cfc8d1991c784e5d3a25dd939b6027c7d603e03bdc62c1bb8cb4a2ecb97803"
+    sha256 x86_64_linux:   "000f48044f48d7008a21691cf321bb77764dd7ee85e48c8a5088c66514bd9ed1"
   end
 
   head do
-    url "https://git.savannah.gnu.org/git/guile.git"
+    url "https://git.savannah.gnu.org/git/guile.git", branch: "main"
 
     depends_on "autoconf" => :build
     depends_on "automake" => :build
@@ -24,29 +29,25 @@ class Guile < Formula
   depends_on "gnu-sed" => :build
   depends_on "bdw-gc"
   depends_on "gmp"
-  depends_on "libffi"
   depends_on "libtool"
   depends_on "libunistring"
   depends_on "pkg-config" # guile-config is a wrapper around pkg-config.
   depends_on "readline"
 
-  on_linux do
-    depends_on "gperf"
-  end
+  uses_from_macos "gperf"
+  uses_from_macos "libffi", since: :catalina
+  uses_from_macos "libxcrypt"
 
   def install
-    # Work around Xcode 11 clang bug
-    # https://bitbucket.org/multicoreware/x265/issues/514/wrong-code-generated-on-macos-1015
-    ENV.append_to_cflags "-fno-stack-check" if DevelopmentTools.clang_build_version >= 1010
-
     # Avoid superenv shim
     inreplace "meta/guile-config.in", "@PKG_CONFIG@", Formula["pkg-config"].opt_bin/"pkg-config"
 
     system "./autogen.sh" unless build.stable?
-    system "./configure", "--disable-dependency-tracking",
-                          "--prefix=#{prefix}",
+
+    system "./configure", *std_configure_args,
                           "--with-libreadline-prefix=#{Formula["readline"].opt_prefix}",
-                          "--with-libgmp-prefix=#{Formula["gmp"].opt_prefix}"
+                          "--with-libgmp-prefix=#{Formula["gmp"].opt_prefix}",
+                          "--disable-nls"
     system "make", "install"
 
     # A really messed up workaround required on macOS --mkhl
@@ -60,7 +61,7 @@ class Guile < Formula
     # of opt_prefix usage everywhere.
     inreplace lib/"pkgconfig/guile-3.0.pc" do |s|
       s.gsub! Formula["bdw-gc"].prefix.realpath, Formula["bdw-gc"].opt_prefix
-      s.gsub! Formula["libffi"].prefix.realpath, Formula["libffi"].opt_prefix
+      s.gsub! Formula["libffi"].prefix.realpath, Formula["libffi"].opt_prefix if MacOS.version < :catalina
     end
 
     (share/"gdb/auto-load").install Dir["#{lib}/*-gdb.scm"]

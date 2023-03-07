@@ -1,22 +1,19 @@
 class VulkanHeaders < Formula
   desc "Vulkan Header files and API registry"
   homepage "https://github.com/KhronosGroup/Vulkan-Headers"
-  url "https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.2.151.tar.gz"
-  sha256 "9a3bb3077c9bb71347d6b9942fa5b728053b67dbd5c1eb9d75a774bccefa18d8"
+  url "https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.3.242.tar.gz"
+  sha256 "4ee7c8e588e3e90785636c7ac879ad7d0b8d363c26838f57d3e4a7b8a55c38f5"
   license "Apache-2.0"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "33b963f2fe043f8913b869ce5862343ddf7cc3df0b142d043e907e7571d31c92" => :catalina
-    sha256 "33b963f2fe043f8913b869ce5862343ddf7cc3df0b142d043e907e7571d31c92" => :mojave
-    sha256 "33b963f2fe043f8913b869ce5862343ddf7cc3df0b142d043e907e7571d31c92" => :high_sierra
+    sha256 cellar: :any_skip_relocation, all: "62e898f956e5a6d7ce48b705ed62796a32dac92045a507ff8974a436f3782055"
   end
 
   depends_on "cmake" => :build
 
   def install
-    system "cmake", ".", *std_cmake_args
-    system "make", "install"
+    system "cmake", "-S", ".", "-B", "build", *std_cmake_args
+    system "cmake", "--install", "build"
   end
 
   test do

@@ -1,18 +1,20 @@
 class RustAnalyzer < Formula
   desc "Experimental Rust compiler front-end for IDEs"
   homepage "https://rust-analyzer.github.io/"
-  url "https://github.com/rust-analyzer/rust-analyzer.git",
-       tag:      "2020-08-17",
-       revision: "0b2b9a5508186c16a2e782f47ce7e0e1c5fb8d33"
-  version "2020-08-17"
-  license "Apache-2.0"
-  revision 1
+  url "https://github.com/rust-lang/rust-analyzer.git",
+       tag:      "2023-03-06",
+       revision: "0a956ec9326eca09725d64d9f1b63896f93505d1"
+  version "2023-03-06"
+  license any_of: ["Apache-2.0", "MIT"]
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "0ea3e0e657a87690a8b3a1ad1b865d2ee444247203f1adc200ff51bdfe744210" => :catalina
-    sha256 "a9a10323c9f367a5095c5ae44c0390026ab8fe72f6b0942092de72cc952e65ad" => :mojave
-    sha256 "ed16c8322ba1415fedbfba9a77d9fe2cf4a0ef4afa72837e31d6e90aaace790d" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "3a61f261a2cc610f7abff0e37e0f3b722df14220fd3e99d8c0157cedccfad0d3"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "a907e363ae16a5f4d8897d4c0bd13825f790bcbf3d6a17ca775854a98ff3383c"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "5b26bd534efdd9a1cb2a21a36d974efc7275120c88591cb76aa8e724e47dceb4"
+    sha256 cellar: :any_skip_relocation, ventura:        "feca9394a6562f2d6a594fcc111c94ff0bc2686ad3cd9e14d3c2e87e8917ef8b"
+    sha256 cellar: :any_skip_relocation, monterey:       "d5fa9d4d16451c69eec69d988dcde3608d99041a2736f2cacd262a4fd23a5c7b"
+    sha256 cellar: :any_skip_relocation, big_sur:        "2fd65a142bae5e78cfa3ed9d38d1ee1e599efa0ac45518833aa0fac3c2297cc8"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "6acdaa51c8062f3d00566bdbbfbc6bd89ca73405dbc460e177669ee6b7e208ed"
   end
 
   depends_on "rust" => :build
@@ -23,13 +25,13 @@ class RustAnalyzer < Formula
     end
   end
 
-  test do
-    def rpc(json)
-      "Content-Length: #{json.size}\r\n" \
+  def rpc(json)
+    "Content-Length: #{json.size}\r\n" \
       "\r\n" \
       "#{json}"
-    end
+  end
 
+  test do
     input = rpc <<-EOF
     {
       "jsonrpc":"2.0",

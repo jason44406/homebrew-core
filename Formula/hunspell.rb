@@ -1,38 +1,38 @@
 class Hunspell < Formula
   desc "Spell checker and morphological analyzer"
   homepage "https://hunspell.github.io"
-  url "https://github.com/hunspell/hunspell/archive/v1.7.0.tar.gz"
-  sha256 "bb27b86eb910a8285407cf3ca33b62643a02798cf2eef468c0a74f6c3ee6bc8a"
-  license "GPL-2.0"
-  revision 2
+  url "https://github.com/hunspell/hunspell/releases/download/v1.7.2/hunspell-1.7.2.tar.gz"
+  sha256 "11ddfa39afe28c28539fe65fc4f1592d410c1e9b6dd7d8a91ca25d85e9ec65b8"
+  license any_of: ["MPL-1.1", "GPL-2.0-or-later", "LGPL-2.1-or-later"]
 
   bottle do
-    cellar :any
-    sha256 "3b7a02908774fa50dafee913969963ce223a09de100b62269fdb0fd71cd09115" => :catalina
-    sha256 "30927ed74597ba96c52ec0c1e9380aaaadee2adadf2e17414e1b494bfd8066b3" => :mojave
-    sha256 "4ada0a39e041b9e6676b4cd68e95c6523725043088f3555d1cac1216c8f91944" => :high_sierra
-    sha256 "65b1d0fc54a0de1fc7e8520aaee4dbe192a2f441757002c7b305b0fb93e3e341" => :sierra
+    sha256 cellar: :any,                 arm64_ventura:  "97e8e1bbf7cbad6fa97efd96711e0ff25d46cd98bd19c75dab4d1160c00b591d"
+    sha256 cellar: :any,                 arm64_monterey: "0077d77fd9cc1a47eb3b0e78818c91735899879fab8373acbc41bccf74cbd2cc"
+    sha256 cellar: :any,                 arm64_big_sur:  "1f0389abc127deb93d7230497181af1d2cbc18a354127b98f7aa1a7a47e56279"
+    sha256 cellar: :any,                 ventura:        "c0770e77b09220da99d9dc5f169a5a815b08b77350a7396ef1017d131fc2a800"
+    sha256 cellar: :any,                 monterey:       "a4f7164470263a3d9b5511136680475f91c5f4498b6d58097f18a8ee496cc3da"
+    sha256 cellar: :any,                 big_sur:        "9d58f7687ab71647524ada2ab980193d7083357072b15510d756e6f90a769830"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "09ba93523c0b255617dd5c9771da092b73a9e9f40f0e7f5c727b7b181f6c8248"
   end
 
-  depends_on "autoconf" => :build
-  depends_on "automake" => :build
-  depends_on "libtool" => :build
-  depends_on "gettext"
   depends_on "readline"
+
+  uses_from_macos "ncurses"
+
+  on_macos do
+    depends_on "gettext"
+  end
 
   conflicts_with "freeling", because: "both install 'analyze' binary"
 
   def install
-    system "autoreconf", "-fiv"
-    system "./configure", "--disable-dependency-tracking",
-                          "--prefix=#{prefix}",
+    system "./configure", *std_configure_args,
+                          "--disable-silent-rules",
                           "--with-ui",
                           "--with-readline"
     system "make"
     system "make", "check"
     system "make", "install"
-
-    pkgshare.install "tests"
   end
 
   def caveats
@@ -41,7 +41,7 @@ class Hunspell < Formula
       ~/Library/Spelling/ or /Library/Spelling/.  Homebrew itself
       provides no dictionaries for Hunspell, but you can download
       compatible dictionaries from other sources, such as
-      https://wiki.openoffice.org/wiki/Dictionaries .
+      https://cgit.freedesktop.org/libreoffice/dictionaries/tree/ .
     EOS
   end
 

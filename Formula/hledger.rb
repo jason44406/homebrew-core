@@ -1,85 +1,45 @@
 class Hledger < Formula
   desc "Easy plain text accounting with command-line, terminal and web UIs"
   homepage "https://hledger.org/"
-  url "https://hackage.haskell.org/package/hledger-1.18.1/hledger-1.18.1.tar.gz"
-  sha256 "0c88c9a1896a6c431854c76229f0fe8d9bc59b6560829a4af1b8fcbad85486fa"
+  url "https://github.com/simonmichael/hledger/archive/refs/tags/1.28.tar.gz"
+  sha256 "e2736f732d9f5cade993877b4524f06fbb3488142843c62653a0849180d2a34a"
   license "GPL-3.0-or-later"
+  head "https://github.com/simonmichael/hledger.git", branch: "master"
 
-  bottle do
-    cellar :any_skip_relocation
-    sha256 "d3a0849f59d9db817166c2d029d5ea25d9a95d62f8a9b4f9db2bda443d4d2aaa" => :catalina
-    sha256 "64cda6dc29ef5bc5fe65f6c3669a1738076849798a030bc8819166001b13ec62" => :mojave
-    sha256 "702f4abb102cb59528c4f33a6d6a6aa48c7a12cf0db0008e493cef429e62060a" => :high_sierra
+  # A new version is sometimes present on Hackage before it's officially
+  # released on the upstream homepage, so we check the first-party download
+  # page instead.
+  livecheck do
+    url "https://hledger.org/install.html"
+    regex(%r{href=.*?/tag/(?:hledger[._-])?v?(\d+(?:\.\d+)+)(?:#[^"' >]+?)?["' >]}i)
   end
 
-  depends_on "ghc@8.8" => :build
+  bottle do
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "ae3754888e79908af05f5d49ba2056f0cff2cfd2ba11d2bdffa3add0cbdaeea9"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "b8cdec5b36120100254a460639eb3dcac63c54ae1b5070624b213ccbe3ab404d"
+    sha256 cellar: :any_skip_relocation, ventura:        "865c618609b3b223be175f8d3297a487fd8b616900189f52408c9e37a867a37f"
+    sha256 cellar: :any_skip_relocation, monterey:       "705fdc2a468dbbe0db8754d5eaf046c6cfe9a0ff46c9abd8b26146d52ec4fe8f"
+    sha256 cellar: :any_skip_relocation, big_sur:        "3d842d278f4e60a5ce14f0409844cb5f892374178b2dc7a1322d860cebbada14"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "960e2d8af466b27ac35cfa712bc65aee6d53791ef138838a30b20d6c19ce3982"
+  end
+
+  depends_on "ghc@9.2" => :build
   depends_on "haskell-stack" => :build
 
   uses_from_macos "ncurses"
   uses_from_macos "zlib"
 
-  resource "hledger-lib" do
-    url "https://hackage.haskell.org/package/hledger-lib-1.18.1/hledger-lib-1.18.1.tar.gz"
-    sha256 "44c265b655a8ad37111821d58486bdbe7e8f0e285d3ecb94b46d132b0219cd99"
-  end
-  resource "hledger-ui" do
-    url "https://hackage.haskell.org/package/hledger-ui-1.18.1/hledger-ui-1.18.1.tar.gz"
-    sha256 "c4f487ea97ac83ac5f2efd772f24e70b47339ba6ebdb3fbfb4f693e046faee3d"
-  end
-  resource "hledger-web" do
-    url "https://hackage.haskell.org/package/hledger-web-1.18.1/hledger-web-1.18.1.tar.gz"
-    sha256 "3e2ca18e5a5d0c76c19208ede84b3931844254382c9f9a48a2fd1c8da3ef20e8"
-  end
-
   def install
-    (buildpath/"../hledger-lib").install resource("hledger-lib")
-    (buildpath/"../hledger-ui").install resource("hledger-ui")
-    (buildpath/"../hledger-web").install resource("hledger-web")
-    cd ".." do
-      system "stack", "update"
-      system "stack", "init", "--resolver=lts-15.16"
-      system "stack", "install", "--system-ghc", "--no-install-ghc", "--local-bin-path=#{bin}"
-
-      man1.install "hledger-1.18.1/hledger.1"
-      man1.install "hledger-ui/hledger-ui.1"
-      man1.install "hledger-web/hledger-web.1"
-      man5.install "hledger-lib/hledger_csv.5"
-      man5.install "hledger-lib/hledger_journal.5"
-      man5.install "hledger-lib/hledger_timeclock.5"
-      man5.install "hledger-lib/hledger_timedot.5"
-
-      info.install "hledger-1.18.1/hledger.info"
-      info.install "hledger-lib/hledger_csv.info"
-      info.install "hledger-lib/hledger_journal.info"
-      info.install "hledger-lib/hledger_timeclock.info"
-      info.install "hledger-lib/hledger_timedot.info"
-      info.install "hledger-ui/hledger-ui.info"
-      info.install "hledger-web/hledger-web.info"
-    end
+    system "stack", "update"
+    system "stack", "install", "--system-ghc", "--no-install-ghc", "--skip-ghc-check", "--local-bin-path=#{bin}"
+    man1.install Dir["hledger*/*.1"]
+    info.install Dir["hledger*/*.info"]
+    bash_completion.install "hledger/shell-completion/hledger-completion.bash" => "hledger"
   end
 
   test do
-    system "#{bin}/hledger", "test"
-
-    File.open(".hledger.journal", "w") do |f|
-      f.write <<~EOS
-        2020/1/1
-          boat  123
-          cash
-      EOS
-    end
-
-    system "#{bin}/hledger-ui", "--version"
-
-    pid = fork do
-      exec "#{bin}/hledger-web", "--serve"
-    end
-    sleep 1
-    begin
-      assert_match /boat +123/, shell_output("curl -s http://127.0.0.1:5000/journal")
-    ensure
-      Process.kill("SIGINT", pid)
-      Process.wait(pid)
-    end
+    system bin/"hledger", "test"
+    system bin/"hledger-ui", "--version"
+    system bin/"hledger-web", "--test"
   end
 end

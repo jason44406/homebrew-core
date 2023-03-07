@@ -1,19 +1,30 @@
 class CernNdiff < Formula
   desc "Numerical diff tool"
-  # Note: ndiff is a sub-project of Mad-X at the moment..
+  # NOTE: ndiff is a sub-project of Mad-X at the moment..
   homepage "https://mad.web.cern.ch/mad/"
-  url "https://github.com/MethodicalAcceleratorDesign/MAD-X/archive/5.06.00.tar.gz"
-  sha256 "b4853e231b510b6153968190aedfe95a2b0de058324a2b9bcc70b795d73c304d"
-  head "https://github.com/MethodicalAcceleratorDesign/MAD-X.git"
+  url "https://github.com/MethodicalAcceleratorDesign/MAD-X/archive/5.08.01.tar.gz"
+  sha256 "89c943fcb474344a4f7d28de98e8eae0aec40f779bf908daff79043bf3520555"
+  head "https://github.com/MethodicalAcceleratorDesign/MAD-X.git", branch: "master"
+
+  livecheck do
+    url :stable
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "df835dc6cedc8d04c6113667fbc6344d5a16c900524b9c8b99011d83c43c50ce" => :catalina
-    sha256 "48f81ce73037ca0c8043fe8a3c327448f174c4375958d68fbbcf8ae923e9556c" => :mojave
-    sha256 "07eece89be8b6eef97d06aba5fd326b4d06e9fb251e503ea5c61590e2a0e4dc7" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "4021d6710141f31de9224732b1d3196d1dd315c86a13fcbc8213564a5390b743"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "ef87f0ce60ad2f81011942a949a3e70b32ee45322c435cd860e406ad61e7f52c"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "6c850063e8050b34b933757634a4b1119608e1afaee4f01e159c5c07f15da399"
+    sha256 cellar: :any_skip_relocation, ventura:        "018149df6762d7886e66649ef2f75d422a460635f98550dafc26a99c9092034a"
+    sha256 cellar: :any_skip_relocation, monterey:       "c6b90768ba05a796a504a47ed93c62c617a2340f5cfc5716c74b9282225d56a6"
+    sha256 cellar: :any_skip_relocation, big_sur:        "d17efd81d490ed73468eaf41dc2e64061fd01ba049c7ea1a22647b3c981cd0c2"
+    sha256 cellar: :any_skip_relocation, catalina:       "06c3c33a9d470f3466dec139945861748aadf3c78a697d458004f14a503614d3"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "8a63d894f310616820d5e31d87c9e6d131694976e3b26a4f4cc7061d288bb50d"
   end
 
   depends_on "cmake" => :build
+
+  conflicts_with "ndiff", "nmap", because: "both install `ndiff` binaries"
 
   def install
     cd "tools/numdiff" do

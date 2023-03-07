@@ -6,10 +6,15 @@ class Rargs < Formula
   license "MIT"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "37d5a3c2a5608eb4a10df0814a1334b88602a7200fdf99db60113f7aea598489" => :catalina
-    sha256 "1c24f60f8b91301cd167b0040e2c9ec7895fe818eeb21f13d40fca94e6f4f08b" => :mojave
-    sha256 "9cea3ec1abc342281b94649496e0d28275eead691238a2d03e47c2621afc9801" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "db39ea8042e8c099c423325bf28e62fddcd985312dc39f2f9f7f4cee307b23f6"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "63a38fdbffaba3ef942b5f7d29c093cf995f4ea1c3bef35f5194ad0a32b9d306"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "4513c4e3dd9b6623322227d52001579b10bfb651a645ce143bd3927903d94e1e"
+    sha256 cellar: :any_skip_relocation, ventura:        "a1030b51564a181c68ce37cc615ae774b53f72e24c9f0949a0fd5024f21996cc"
+    sha256 cellar: :any_skip_relocation, monterey:       "ec12b996841e633e647a60d753e7a52b6d654f4d13755fd0ab509d7b75666c2c"
+    sha256 cellar: :any_skip_relocation, big_sur:        "5b385f4ac72270f54bf30989cbe1a12dc5a2ad4c78f67445f386b774b30456c9"
+    sha256 cellar: :any_skip_relocation, catalina:       "32591f33510d8ead309401f8da9c91690830919c717d84b913a7ec7dbd764624"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "5986e0f6b1f35cf2cb8b2113965c30895942c065dfe24d61a17c5497de6f9f02"
   end
 
   depends_on "rust" => :build
@@ -19,6 +24,6 @@ class Rargs < Formula
   end
 
   test do
-    assert_equal "abc", shell_output("echo abc,def | #{bin}/rargs -d, echo {1}").chomp
+    assert_equal "abc", pipe_output("#{bin}/rargs -d, echo {1}", "abc,def").chomp
   end
 end

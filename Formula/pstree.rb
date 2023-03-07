@@ -1,23 +1,21 @@
-# Note, the version of pstree used on Linux requires
+# NOTE: The version of pstree used on Linux requires
 # the /proc file system, which is not available on macOS.
 
 class Pstree < Formula
   desc "Show ps output as a tree"
-  homepage "http://www.thp.uni-duisburg.de/pstree/"
-  url "ftp://ftp.thp.uni-duisburg.de/pub/source/pstree-2.39.tar.gz"
-  mirror "https://fossies.org/linux/misc/pstree-2.39.tar.gz"
-  sha256 "7c9bc3b43ee6f93a9bc054eeff1e79d30a01cac13df810e2953e3fc24ad8479f"
+  homepage "https://github.com/FredHucht/pstree"
+  url "https://github.com/FredHucht/pstree/archive/refs/tags/v2.40.tar.gz"
+  sha256 "64d613d8f66685b29f13a80e08cddc08616cf3e315a0692cbbf9de0d8aa376b3"
 
   bottle do
-    cellar :any_skip_relocation
-    rebuild 2
-    sha256 "af4d6c7d6bffd6e12d3cb31ceb6bdd5292b66405ddd1be3a48870373829219a7" => :catalina
-    sha256 "27b643077e6fa2e233945f505b024f3e725ed8b930bdd89a9df73817197acbea" => :mojave
-    sha256 "426d5701e835bc1f9313c3b7cd630aa0f2b279ad5f95406bd73f50d174e8eaf1" => :high_sierra
-    sha256 "063d2498a346002265c44bf9ad237ae47fd9923a10dd529575640d7d63bef2fa" => :sierra
-    sha256 "624458274db8e826c170121061ad25547c5a245788c8108bd2bf0af4a3678dea" => :el_capitan
-    sha256 "127b605bf4b20cbddf63f875bd15f78ad5fc31eaebb57d9ce2051a3b856a8bd5" => :yosemite
-    sha256 "2334d959beae2171fe10f6781a060eab40d57b841aa1905ead0b0936fb4145ef" => :mavericks
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "ca06848c6042d6f8c7ee44477aae9d5e1ed8f73be77dc99d9ec126460bc1f9f8"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "e43ea23b1cc41dbd5717b22c8de73faae3fa58e88a9f18845533e7f4acc24eeb"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "bc1765755ab89e61a17983692eb4ceb6c659f2f90b1f26bfea0ed1a908a7dc07"
+    sha256 cellar: :any_skip_relocation, ventura:        "b95d35e5b4f3bb8953ccec2ee1e3f25fdd14ed942606de9f4abcd9b2dfa31a5b"
+    sha256 cellar: :any_skip_relocation, monterey:       "fc23e46dee144842b941ad5b6527018154d38b67827e4f019bf9efab24a15365"
+    sha256 cellar: :any_skip_relocation, big_sur:        "bf6f7f6e9a1ec7b0e5454e15973ee091a143eb887c67d81b07f262c447c685b7"
+    sha256 cellar: :any_skip_relocation, catalina:       "820b3dd1b26142457348dfc27c29ad8f1b6d86367995d8895ff41d8c74f91c8a"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "d65aff524b410c2ea45556fad2e5b07b9052896c07ee386fc6213208fdc7bc43"
   end
 
   def install

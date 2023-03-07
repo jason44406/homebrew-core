@@ -1,14 +1,23 @@
 class MysqlConnectorCxx < Formula
   desc "MySQL database connector for C++ applications"
   homepage "https://dev.mysql.com/downloads/connector/cpp/"
-  url "https://dev.mysql.com/get/Downloads/Connector-C++/mysql-connector-c++-8.0.21-src.tar.gz"
-  sha256 "70e11c81ee6f482f4d2954a0aa5c43ab35bb6b2a0f0cadcd37e246950201e423"
+  url "https://dev.mysql.com/get/Downloads/Connector-C++/mysql-connector-c++-8.0.32-src.tar.gz"
+  sha256 "fbdb7f214427632f423e84ba7594be1f9205eac8128c6b1857203b2f5455cef3"
+  license "GPL-2.0-only" => { with: "Universal-FOSS-exception-1.0" }
+
+  livecheck do
+    url "https://dev.mysql.com/downloads/connector/cpp/?tpl=files&os=src"
+    regex(/href=.*?mysql-connector-c%2B%2B[._-]v?(\d+(?:\.\d+)+)[._-]src\.t/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "de70755aba3f996f670ebfb1a87a0c8e6664e7b43f498b3a6ef142ff96e1f64f" => :catalina
-    sha256 "d674541be036abf14122f6df709ec1cd4aac4e87bcb4265f68f1433ef56eeb46" => :mojave
-    sha256 "4989e5985a9c5c26f9d7878cc4aa683a791c889dc7a4d6e5b9ef323d0a84defd" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "9710648b67da44ee1d92dfa2ac023b66c7e193b1deb68bc618124a6afa23f97b"
+    sha256 cellar: :any,                 arm64_monterey: "678881af35d1147a5c0b630930f2994af40419420dd84ac1adeaa5ba12d7446f"
+    sha256 cellar: :any,                 arm64_big_sur:  "f8df7b38314468440fabc7661fc44df6ff6134617581da6c0351693d48052feb"
+    sha256 cellar: :any,                 ventura:        "4553fed15ffb695ee07243ffa9ea8a25ebfca275ce03d25039b6a20b8ded0700"
+    sha256 cellar: :any,                 monterey:       "ada40ba2c5a2c4abedfe348ac3a17d269c3b2bb25d91773a5a3117cb2767021b"
+    sha256 cellar: :any,                 big_sur:        "de8c2d95a26c4ee682d5198a9ca755f28ad697b85980404615ccca04a831329d"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "3a085d1cfbe804db4c89f3a93c69acbd73f1ead03c44747ad7847d63582c1302"
   end
 
   depends_on "boost" => :build
@@ -17,9 +26,9 @@ class MysqlConnectorCxx < Formula
   depends_on "openssl@1.1"
 
   def install
-    system "cmake", ".", *std_cmake_args,
-                    "-DINSTALL_LIB_DIR=lib"
-    system "make", "install"
+    system "cmake", "-S", ".", "-B", "build", "-DINSTALL_LIB_DIR=lib", *std_cmake_args
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
   end
 
   test do

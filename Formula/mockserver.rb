@@ -1,14 +1,23 @@
 class Mockserver < Formula
   desc "Mock HTTP server and proxy"
   homepage "https://www.mock-server.com/"
-  url "https://oss.sonatype.org/content/repositories/releases/org/mock-server/mockserver-netty/5.11.1/mockserver-netty-5.11.1-brew-tar.tar"
-  sha256 "9ceacc0be86fcbd24fe3bdc1e0160d15228e8adabc866aa73887a2cc24a72a6a"
+  url "https://search.maven.org/remotecontent?filepath=org/mock-server/mockserver-netty/5.15.0/mockserver-netty-5.15.0-brew-tar.tar"
+  sha256 "5f679d84e4254f32f4b129cdeead98028d59f523419c2e61ac13f3dc3e7418df"
+  license "Apache-2.0"
 
-  bottle :unneeded
+  livecheck do
+    url "https://search.maven.org/remotecontent?filepath=org/mock-server/mockserver-netty/maven-metadata.xml"
+    regex(%r{<version>v?(\d+(?:\.\d+)+)</version>}i)
+  end
+
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "019123f1946f7d2bd51fa089369f57d1e68b72c8b620b668689efc131202d882"
+  end
 
   depends_on "openjdk"
 
   def install
+    inreplace "bin/run_mockserver.sh", "/usr/local", HOMEBREW_PREFIX
     libexec.install Dir["*"]
     (bin/"mockserver").write_env_script libexec/"bin/run_mockserver.sh", JAVA_HOME: Formula["openjdk"].opt_prefix
 

@@ -1,22 +1,61 @@
 class MariadbAT103 < Formula
   desc "Drop-in replacement for MySQL"
   homepage "https://mariadb.org/"
-  url "https://downloads.mariadb.org/f/mariadb-10.3.24/source/mariadb-10.3.24.tar.gz"
-  sha256 "713cfbe78475bf152d711280096756bd12cce3ba01a1130027da4901598a9a4e"
+  url "https://downloads.mariadb.com/MariaDB/mariadb-10.3.38/source/mariadb-10.3.38.tar.gz"
+  sha256 "4afbeff86d996475bb2324db9845c0746ea6e128c129b86a4a0163e4dc93293c"
   license "GPL-2.0-only"
 
+  # This uses a placeholder regex to satisfy the `PageMatch` strategy
+  # requirement. In the future, this will be updated to use a `Json` strategy
+  # and we can remove the unused regex at that time.
+  livecheck do
+    url "https://downloads.mariadb.org/rest-api/mariadb/all-releases/?olderReleases=false"
+    regex(/unused/i)
+    strategy :page_match do |page|
+      json = JSON.parse(page)
+      json["releases"]&.map do |release|
+        next unless release["release_number"]&.start_with?(version.major_minor)
+        next unless release["status"]&.include?("stable")
+
+        release["release_number"]
+      end
+    end
+  end
+
   bottle do
-    sha256 "9f7aa5a8304e906d91bfb96937c11f494c447cd971338a8a2a89f57c322e26b1" => :catalina
-    sha256 "fd54b37e4467a1fc79882f6c85dd1943c19eb63a6990de28ec4136728f5940c4" => :mojave
-    sha256 "d405a8c0314fbb5dc21a98b34e77de7c5f0e9064c0a6f4de8a7370dec5f4c10a" => :high_sierra
+    sha256 arm64_ventura:  "207cc96af2f814e818dc3763c9bfda3c5827a9c0c710187e3f661e3d78014352"
+    sha256 arm64_monterey: "58caf68376d4ea20d588559bc2899a5c9eb344fce1a3d0a35fa5adadc49f6226"
+    sha256 arm64_big_sur:  "3da7626f2718960307ebd6e41838c70280849b9ec45addc105d3748cfd0dca56"
+    sha256 ventura:        "d88435d8b8e317faa2a2d2240bcfe83f97bc8f4a0382ca42eabf5ced0ce94f42"
+    sha256 monterey:       "2f3ebeaff954f0b8555782fa59472ccdb0f56ac80ca7e1fc8938ab3f84da8c44"
+    sha256 big_sur:        "73705edf8a818287c0e3c4fac355c6b6f9f7f9baa68dd366d800ef7c9dae24e8"
+    sha256 x86_64_linux:   "b07e2fb94f68d0c434c60c92889dcf2ad010a153d9ddcdaea27d7ee3658e5a24"
   end
 
   keg_only :versioned_formula
 
+  # See: https://mariadb.com/kb/en/changes-improvements-in-mariadb-103/
+  # End-of-life on 2023-05-25: https://mariadb.org/about/#maintenance-policy
+  deprecate! date: "2023-05-25", because: :unsupported
+
+  depends_on "bison" => :build
   depends_on "cmake" => :build
   depends_on "pkg-config" => :build
   depends_on "groonga"
   depends_on "openssl@1.1"
+  depends_on "pcre2"
+
+  uses_from_macos "bzip2"
+  uses_from_macos "libxcrypt"
+  uses_from_macos "libxml2"
+  uses_from_macos "ncurses"
+  uses_from_macos "zlib"
+
+  on_linux do
+    depends_on "linux-pam"
+  end
+
+  fails_with gcc: "5"
 
   def install
     # Set basedir and ldata so that mysql_install_db can find the server
@@ -38,7 +77,6 @@ class MariadbAT103 < Formula
       -DINSTALL_DOCDIR=share/doc/#{name}
       -DINSTALL_INFODIR=share/info
       -DINSTALL_MYSQLSHAREDIR=share/mysql
-      -DWITH_PCRE=bundled
       -DWITH_READLINE=yes
       -DWITH_SSL=yes
       -DWITH_UNIT_TESTS=OFF
@@ -48,12 +86,22 @@ class MariadbAT103 < Formula
       -DCOMPILATION_COMMENT=Homebrew
     ]
 
+    if OS.linux?
+      args << "-DWITH_NUMA=OFF"
+      args << "-DENABLE_DTRACE=NO"
+      args << "-DCONNECT_WITH_JDBC=OFF"
+    end
+
+    if OS.mac?
+      args << "-DWITH_READLINE=NO" # uses libedit on macOS
+    end
+
     # disable TokuDB, which is currently not supported on macOS
     args << "-DPLUGIN_TOKUDB=NO"
 
-    system "cmake", ".", *std_cmake_args, *args
-    system "make"
-    system "make", "install"
+    system "cmake", "-S", ".", "-B", "_build", *std_cmake_args, *args
+    system "cmake", "--build", "_build"
+    system "cmake", "--install", "_build"
 
     # Fix my.cnf to point to #{etc} instead of /etc
     (etc/"my.cnf.d").mkpath
@@ -85,7 +133,7 @@ class MariadbAT103 < Formula
       wsrep_sst_rsync
       wsrep_sst_mariabackup
     ].each do |f|
-      inreplace "#{bin}/#{f}", "$(dirname $0)/wsrep_sst_common",
+      inreplace "#{bin}/#{f}", "$(dirname \"$0\")/wsrep_sst_common",
                                "#{libexec}/wsrep_sst_common"
     end
 
@@ -102,6 +150,10 @@ class MariadbAT103 < Formula
   def post_install
     # Make sure the var/mysql directory exists
     (var/"mysql").mkpath
+
+    # Don't initialize database, it clashes when testing other MySQL-like implementations.
+    return if ENV["HOMEBREW_GITHUB_ACTIONS"]
+
     unless File.exist? "#{var}/mysql/mysql/user.frm"
       ENV["TMPDIR"] = nil
       system "#{bin}/mysql_install_db", "--verbose", "--user=#{ENV["USER"]}",
@@ -121,33 +173,26 @@ class MariadbAT103 < Formula
     EOS
   end
 
-  plist_options manual: "#{HOMEBREW_PREFIX}/opt/mariadb@10.3/bin/mysql.server start"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-      <dict>
-        <key>KeepAlive</key>
-        <true/>
-        <key>Label</key>
-        <string>#{plist_name}</string>
-        <key>ProgramArguments</key>
-        <array>
-          <string>#{opt_bin}/mysqld_safe</string>
-          <string>--datadir=#{var}/mysql</string>
-        </array>
-        <key>RunAtLoad</key>
-        <true/>
-        <key>WorkingDirectory</key>
-        <string>#{var}</string>
-      </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"mysqld_safe", "--datadir=#{var}/mysql"]
+    keep_alive true
+    working_dir var
   end
 
   test do
-    system bin/"mysqld", "--version"
+    (testpath/"mysql").mkpath
+    (testpath/"tmp").mkpath
+    system bin/"mysql_install_db", "--no-defaults", "--user=#{ENV["USER"]}",
+      "--basedir=#{prefix}", "--datadir=#{testpath}/mysql", "--tmpdir=#{testpath}/tmp",
+      "--auth-root-authentication-method=normal"
+    port = free_port
+    fork do
+      system "#{bin}/mysqld", "--no-defaults", "--user=#{ENV["USER"]}",
+        "--datadir=#{testpath}/mysql", "--port=#{port}", "--tmpdir=#{testpath}/tmp"
+    end
+    sleep 5
+    assert_match "information_schema",
+      shell_output("#{bin}/mysql --port=#{port} --user=root --password= --execute='show databases;'")
+    system "#{bin}/mysqladmin", "--port=#{port}", "--user=root", "--password=", "shutdown"
   end
 end

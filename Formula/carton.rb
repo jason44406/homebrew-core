@@ -1,15 +1,20 @@
 class Carton < Formula
   desc "Perl module dependency manager (aka Bundler for Perl)"
   homepage "https://metacpan.org/pod/Carton"
-  url "https://cpan.metacpan.org/authors/id/M/MI/MIYAGAWA/Carton-v1.0.34.tar.gz"
-  sha256 "77d42b92732bcfc18a59d341e56ce476205b1c4d380eab3a07224f5745c23e45"
-  revision 1
+  url "https://cpan.metacpan.org/authors/id/M/MI/MIYAGAWA/Carton-v1.0.35.tar.gz"
+  sha256 "9c4558ca97cd08b69fdfb52b28c3ddc2043ef52f0627b90e53d05a4087344175"
+  license any_of: ["Artistic-1.0-Perl", "GPL-1.0-or-later"]
+  head "https://github.com/perl-carton/carton.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "6b297651d53363d8e300cfa3f1dd30b3a3b26bc12d42d869cf3ae994edca0daa" => :catalina
-    sha256 "dad7e5f481b721f027a956e13d4c0845e3d9dfd40c823296d206ed0b0a0e9f15" => :mojave
-    sha256 "08a660d4f27f1159886a6fddbebe7b082d1b755fdcaa2c4bc31b50dfadc15e43" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "e8b540a262fd997261a20add377f931b7eb4ddfd496954a7af4adb7d692abca3"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "4ed93b6f36dcfcbda3cf60bd27d204ed6e3fef9837a2c604baf5134e5133a75d"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "4ed93b6f36dcfcbda3cf60bd27d204ed6e3fef9837a2c604baf5134e5133a75d"
+    sha256 cellar: :any_skip_relocation, ventura:        "1488d2dde96fc144cd7e787b90930275bf1e291850bca2feb2a7639bab69c7d5"
+    sha256 cellar: :any_skip_relocation, monterey:       "ae0fcb618fd8b91fb40d7e52ed07d1ccb8a76ef5fabe0f7a73772f7f63a9979f"
+    sha256 cellar: :any_skip_relocation, big_sur:        "ae0fcb618fd8b91fb40d7e52ed07d1ccb8a76ef5fabe0f7a73772f7f63a9979f"
+    sha256 cellar: :any_skip_relocation, catalina:       "ae0fcb618fd8b91fb40d7e52ed07d1ccb8a76ef5fabe0f7a73772f7f63a9979f"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "2b241c14b6caf27b5e0a7eb694e31c186a60670a72a47834eda4883947ce5b89"
   end
 
   depends_on "perl"
@@ -35,8 +40,8 @@ class Carton < Formula
   end
 
   resource "Class::Tiny" do
-    url "https://cpan.metacpan.org/authors/id/D/DA/DAGOLDEN/Class-Tiny-1.006.tar.gz"
-    sha256 "2efcbd31528be51d3022c616768558b78c6172df5f03c5dc698939f65488cb4e"
+    url "https://cpan.metacpan.org/authors/id/D/DA/DAGOLDEN/Class-Tiny-1.008.tar.gz"
+    sha256 "ee058a63912fa1fcb9a72498f56ca421a2056dc7f9f4b67837446d6421815615"
   end
 
   resource "ExtUtils::Config" do
@@ -60,8 +65,8 @@ class Carton < Formula
   end
 
   resource "File::Which" do
-    url "https://cpan.metacpan.org/authors/id/P/PL/PLICEASE/File-Which-1.23.tar.gz"
-    sha256 "b79dc2244b2d97b6f27167fc3b7799ef61a179040f3abd76ce1e0a3b0bc4e078"
+    url "https://cpan.metacpan.org/authors/id/P/PL/PLICEASE/File-Which-1.27.tar.gz"
+    sha256 "3201f1a60e3f16484082e6045c896842261fc345de9fb2e620fd2a2c7af3a93a"
   end
 
   resource "File::pushd" do
@@ -70,8 +75,8 @@ class Carton < Formula
   end
 
   resource "HTTP::Tinyish" do
-    url "https://cpan.metacpan.org/authors/id/M/MI/MIYAGAWA/HTTP-Tinyish-0.16.tar.gz"
-    sha256 "1a3318b89987c2aa5dd18990a109e8af63049f87e4e1a9357583beed1c3bfbda"
+    url "https://cpan.metacpan.org/authors/id/M/MI/MIYAGAWA/HTTP-Tinyish-0.17.tar.gz"
+    sha256 "47bd111e474566d733c41870e2374c81689db5e0b5a43adc48adb665d89fb067"
   end
 
   resource "IPC::Run3" do
@@ -95,23 +100,18 @@ class Carton < Formula
   end
 
   resource "Parse::PMFile" do
-    url "https://cpan.metacpan.org/authors/id/I/IS/ISHIGAKI/Parse-PMFile-0.42.tar.gz"
-    sha256 "e7f6c70932b86eb4a2426569e33d2b651b52a24e5d0c0dcb3849d045b52c736c"
+    url "https://cpan.metacpan.org/authors/id/I/IS/ISHIGAKI/Parse-PMFile-0.43.tar.gz"
+    sha256 "be61e807204738cf0c52ed321551992fdc7fa8faa43ed43ff489d0c269900623"
   end
 
   resource "Path::Tiny" do
-    url "https://cpan.metacpan.org/authors/id/D/DA/DAGOLDEN/Path-Tiny-0.114.tar.gz"
-    sha256 "cd0f88f37a58fc3667ec065767fe01e73ee6efa18a112bfd3508cf6579ca00e1"
+    url "https://cpan.metacpan.org/authors/id/D/DA/DAGOLDEN/Path-Tiny-0.122.tar.gz"
+    sha256 "4bc6f76d0548ccd8b38cb66291a885bf0de453d0167562c7b82e8861afdcfb7c"
   end
 
   resource "String::ShellQuote" do
     url "https://cpan.metacpan.org/authors/id/R/RO/ROSCH/String-ShellQuote-1.04.tar.gz"
     sha256 "e606365038ce20d646d255c805effdd32f86475f18d43ca75455b00e4d86dd35"
-  end
-
-  resource "Test::Requires" do
-    url "https://cpan.metacpan.org/authors/id/T/TO/TOKUHIROM/Test-Requires-0.11.tar.gz"
-    sha256 "4b88de549597eecddf7c3c38a4d0204a16f59ad804577b671896ac04e24e040f"
   end
 
   resource "Tie::Handle::Offset" do
@@ -120,13 +120,13 @@ class Carton < Formula
   end
 
   resource "Try::Tiny" do
-    url "https://cpan.metacpan.org/authors/id/E/ET/ETHER/Try-Tiny-0.30.tar.gz"
-    sha256 "da5bd0d5c903519bbf10bb9ba0cb7bcac0563882bcfe4503aee3fb143eddef6b"
+    url "https://cpan.metacpan.org/authors/id/E/ET/ETHER/Try-Tiny-0.31.tar.gz"
+    sha256 "3300d31d8a4075b26d8f46ce864a1d913e0e8467ceeba6655d5d2b2e206c11be"
   end
 
   resource "URI" do
-    url "https://cpan.metacpan.org/authors/id/O/OA/OALDERS/URI-1.76.tar.gz"
-    sha256 "b2c98e1d50d6f572483ee538a6f4ccc8d9185f91f0073fd8af7390898254413e"
+    url "https://cpan.metacpan.org/authors/id/O/OA/OALDERS/URI-5.10.tar.gz"
+    sha256 "16325d5e308c7b7ab623d1bf944e1354c5f2245afcfadb8eed1e2cae9a0bd0b5"
   end
 
   resource "Win32::ShellQuote" do
@@ -135,8 +135,8 @@ class Carton < Formula
   end
 
   resource "local::lib" do
-    url "https://cpan.metacpan.org/authors/id/H/HA/HAARG/local-lib-2.000024.tar.gz"
-    sha256 "2e9b917bd48a0615e42633b2a327494e04610d8f710765b9493d306cead98a05"
+    url "https://cpan.metacpan.org/authors/id/H/HA/HAARG/local-lib-2.000029.tar.gz"
+    sha256 "8df87a10c14c8e909c5b47c5701e4b8187d519e5251e87c80709b02bb33efdd7"
   end
 
   def install

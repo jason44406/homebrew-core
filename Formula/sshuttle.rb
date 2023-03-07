@@ -3,20 +3,24 @@ class Sshuttle < Formula
 
   desc "Proxy server that works as a poor man's VPN"
   homepage "https://github.com/sshuttle/sshuttle"
-  url "https://github.com/sshuttle/sshuttle.git",
-      tag:      "v1.0.3",
-      revision: "c5dcc918db666dfd1b30afc72cc198abfb3b3aa9"
-  license "LGPL-2.0"
-  head "https://github.com/sshuttle/sshuttle.git"
+  url "https://files.pythonhosted.org/packages/f1/4d/91c8bff8fabe44cd88edce0b18e874e60f1e11d4e9d37c254f2671e1a3d4/sshuttle-1.1.1.tar.gz"
+  sha256 "f5a3ed1e5ab1213c7a6df860af41f1a903ab2cafbfef71f371acdcff21e69ee6"
+  license "LGPL-2.1-or-later"
+  head "https://github.com/sshuttle/sshuttle.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "f44682243fd2b0ffd1f463f8eca6a93a0575b8b52e27d14c2bbb0d5cdee72f32" => :catalina
-    sha256 "4a16f0170fc41f77af6a8994dc587cc5510de7be1b7fab4ad5968fb6d402587f" => :mojave
-    sha256 "d466f1fb7d5dd3ae8f2ceec36a5d2348c124c25847db7d7156db59554c81ea44" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "90c2823e56ebaeb8b25636b88c882d9345d04e55af0d83269a09a952c459e111"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "90c2823e56ebaeb8b25636b88c882d9345d04e55af0d83269a09a952c459e111"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "90c2823e56ebaeb8b25636b88c882d9345d04e55af0d83269a09a952c459e111"
+    sha256 cellar: :any_skip_relocation, ventura:        "180b62b05fd0d2134dc57648bd830cd52ccb2cf169ccfd7f8224c58dd7597b22"
+    sha256 cellar: :any_skip_relocation, monterey:       "180b62b05fd0d2134dc57648bd830cd52ccb2cf169ccfd7f8224c58dd7597b22"
+    sha256 cellar: :any_skip_relocation, big_sur:        "180b62b05fd0d2134dc57648bd830cd52ccb2cf169ccfd7f8224c58dd7597b22"
+    sha256 cellar: :any_skip_relocation, catalina:       "180b62b05fd0d2134dc57648bd830cd52ccb2cf169ccfd7f8224c58dd7597b22"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "89386b334888a8effeca3997f8910b1a4543ca37cae33a50d80f047b4b65576e"
   end
 
-  depends_on "python@3.8"
+  depends_on "python@3.11"
 
   def install
     # Building the docs requires installing

@@ -1,15 +1,25 @@
 class Ansifilter < Formula
   desc "Strip or convert ANSI codes into HTML, (La)Tex, RTF, or BBCode"
   homepage "http://www.andre-simon.de/doku/ansifilter/ansifilter.html"
-  url "http://www.andre-simon.de/zip/ansifilter-2.16.tar.bz2"
-  sha256 "7fcd2fa3520bce2bd3834c299f533cbfb43a29a095c83e8fea372a383dfbbaf2"
-  license "GPL-3.0"
+  url "http://www.andre-simon.de/zip/ansifilter-2.18.tar.bz2"
+  sha256 "66cf017d36a43d5f6ae20609ce3b58647494ee6c0e41fc682c598bffce7d7d39"
+  license "GPL-3.0-or-later"
+
+  livecheck do
+    url "http://www.andre-simon.de/zip/download.php"
+    regex(/href=.*?ansifilter[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "29cf09137837f8830ba67d6e8aed9fc2e21192edbdc68531e8c33e5f75b14209" => :catalina
-    sha256 "8498a78c79a4e22b9d644a957508f9641443e10ed00177cb75d8aa9377f7e940" => :mojave
-    sha256 "0e28ecd7fccb6753e0f2b056f553f1434661cbda4972a82b253e3f696762247e" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "dc395b12e05e924850d9c3140e2df688645dbd3cb6fbe0ee55a85efecfc3a25d"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "b2b6a8ec1dbee03ec73761e62abdb29e25daf9a5f5cd2339281784e73e35b27f"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "604a45cdc202a4cb1ee084a350b8ad989f135e29d1d4153a9c9e20818da8e31e"
+    sha256 cellar: :any_skip_relocation, ventura:        "82beb4fa65191d059c74f556d92b2c2250f676a60fe9ca69fea353b40cc14ec5"
+    sha256 cellar: :any_skip_relocation, monterey:       "a4c13e32789f3e2dc6e8c1c41d7a680e5fad4464ed59cddda4b859de3d669573"
+    sha256 cellar: :any_skip_relocation, big_sur:        "bce4e87b0f16217d84a01e664c6e96c530d561da301912bfd9e39ec7ff584a74"
+    sha256 cellar: :any_skip_relocation, catalina:       "95487d963289a6fbc97a933a492a8f82ae88ad7087ca525d710edea34e100f0a"
+    sha256 cellar: :any_skip_relocation, mojave:         "06193d389cb3f1ba85f07fda25e0f17ac732efd289597a6ea2e6ce440123bb5c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "6ef9a31b1b7ad620a2a4166df38aed63399796ebf40e52ba6e52172c49463798"
   end
 
   def install

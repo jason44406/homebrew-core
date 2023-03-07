@@ -1,33 +1,32 @@
 class Podofo < Formula
   desc "Library to work with the PDF file format"
   homepage "https://podofo.sourceforge.io"
-  url "https://downloads.sourceforge.net/project/podofo/podofo/0.9.6/podofo-0.9.6.tar.gz"
-  sha256 "e9163650955ab8e4b9532e7aa43b841bac45701f7b0f9b793a98c8ca3ef14072"
-  revision 2
+  url "https://downloads.sourceforge.net/project/podofo/podofo/0.9.8/podofo-0.9.8.tar.gz"
+  sha256 "5de607e15f192b8ad90738300759d88dea0f5ccdce3bf00048a0c932bc645154"
+  license all_of: ["LGPL-2.0-only", "GPL-2.0-only"]
+  revision 1
+  head "svn://svn.code.sf.net/p/podofo/code/podofo/trunk"
 
   bottle do
-    cellar :any
-    sha256 "f3a0b9f5f93e268e1b8233bc1af041d26a89bb6f9e66ea0da0ef745b0454dc1d" => :catalina
-    sha256 "2ad60f4e4acd3fa9d1da1dcfeb7381696f126915bbea881d4bec9bb2cfd4fbab" => :mojave
-    sha256 "00db9c24295276fa24909d417f2790105bccc990c23f80ffa906210ab70e5af8" => :high_sierra
-    sha256 "30d51bd12657b4fe2defbe157c8dfea4c804318f13fa1f15011ebefaa7dec016" => :sierra
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "85846bbe1ffd8c425174f29a50fe278d17ec7561f9c73afffcb7aa25035a40a8"
+    sha256 cellar: :any,                 arm64_monterey: "3f6f31c67de44012c99d67c8fd199a365f2482b4e6f5a2cf3ec835c3f16b148c"
+    sha256 cellar: :any,                 arm64_big_sur:  "c0173e0e2f363efe2f03aaef8677310f52f994966f3665814ca0dedaddd78d36"
+    sha256 cellar: :any,                 ventura:        "68ff0b120ed6e8cc5e493e0fb1fc07b7cbfb877b550b153036de612e9091782b"
+    sha256 cellar: :any,                 monterey:       "db9da10d40210749d99357f95176c5a1a5766c703262094af6b030f5e670de3f"
+    sha256 cellar: :any,                 big_sur:        "e16ce776142f7f2da35b549805c0a49e2a61f40b95b0a73357061440373ac0b5"
+    sha256 cellar: :any,                 catalina:       "0ff7fc07f1044393eb33ef3da8c0ac2f4eeda765e32172dfcf4def7818e08fe1"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "c27f3f2155a17424c12477cb8e084485f141a7d1b903b7a46a94e6e6253caa3d"
   end
 
   depends_on "cmake" => :build
   depends_on "fontconfig"
   depends_on "freetype"
-  depends_on "jpeg"
+  depends_on "jpeg-turbo"
   depends_on "libidn"
   depends_on "libpng"
   depends_on "libtiff"
-  depends_on "openssl@1.1"
-
-  # Upstream commit to fix cmake 3.12.0 build issue, remove in >= 0.9.7
-  # https://sourceforge.net/p/podofo/tickets/24/
-  patch :p0 do
-    url "https://sourceforge.net/p/podofo/tickets/24/attachment/podofo-cmake-3.12.patch"
-    sha256 "33e8bd8b57cc04884528d64c80624a852f61c8918b6fe320d26ca7d4905bdd54"
-  end
+  depends_on "openssl@3"
 
   def install
     args = std_cmake_args + %W[
@@ -39,11 +38,16 @@ class Podofo < Formula
       -DFREETYPE_INCLUDE_DIR_FT2BUILD=#{Formula["freetype"].opt_include}/freetype2
       -DFREETYPE_INCLUDE_DIR_FTHEADER=#{Formula["freetype"].opt_include}/freetype2/config/
     ]
+    # C++ standard settings may be implemented upstream in which case the below will not be necessary.
+    # See https://sourceforge.net/p/podofo/tickets/121/
+    args += %w[
+      -DCMAKE_CXX_STANDARD=11
+      -DCMAKE_CXX_STANDARD_REQUIRED=ON
+    ]
 
-    mkdir "build" do
-      system "cmake", "..", *args
-      system "make", "install"
-    end
+    system "cmake", "-S", ".", "-B", "build", *args
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
   end
 
   test do

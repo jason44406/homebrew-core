@@ -1,23 +1,24 @@
 class Pacparser < Formula
   desc "Library to parse proxy auto-config (PAC) files"
-  homepage "https://github.com/pacparser/pacparser"
-  url "https://github.com/pacparser/pacparser/archive/1.3.7.tar.gz"
-  sha256 "575c5d8096b4c842b2af852bbb8bcfde96170b28b49f33249dbe2057a8beea13"
-  license "LGPL-3.0"
-  head "https://github.com/pacparser/pacparser.git"
+  homepage "https://github.com/manugarg/pacparser"
+  url "https://github.com/manugarg/pacparser/archive/v1.4.1.tar.gz"
+  sha256 "97eb85832194bd4a98946fd92cebb9181fffb0763319086fc0541408b5d4415b"
+  license "LGPL-3.0-or-later"
+  head "https://github.com/manugarg/pacparser.git", branch: "master"
 
   bottle do
-    cellar :any
-    rebuild 1
-    sha256 "985bbf12ff200cd4f521eddbc17e084f1cb1fd8166853a52fd4b30228bdefd46" => :catalina
-    sha256 "5a4db686679c753a806fa2e2df5e93263f973f447f9357fcdadc071687c10071" => :mojave
-    sha256 "1bb0af844e0cfd58357987f2f9e6f82b0e72a13df961f13ad8b81b3e00a3dff2" => :high_sierra
-    sha256 "719e5eadacf71e3a2e863447609322c45f3be3a9d3ee63373c05a9a2ae7f31b8" => :sierra
+    sha256 cellar: :any,                 arm64_ventura:  "e4c3db484fe2bd33ae2c93d978c9367030a1d53446819f5fb2e17d11eba1bb69"
+    sha256 cellar: :any,                 arm64_monterey: "9684968dc0488a7fefc960b48b07c730f51518c9302d1a28414b3b39079e570f"
+    sha256 cellar: :any,                 arm64_big_sur:  "df9f100d605dbca0aa98b541e12821c0bfff9da126b2f6122122bd7cdf4b28a2"
+    sha256 cellar: :any,                 ventura:        "40f638eb66c02c9fcbbf26dcbd0f3be7f2f63b79db9308ef82101715c3affc1c"
+    sha256 cellar: :any,                 monterey:       "6e5c9c2959f9c21305bbaaa035422e0efffd87b7bac8345b4335759b3a850018"
+    sha256 cellar: :any,                 big_sur:        "c75e37d499241a15b2fdfe6da3a9d2b25638f7225ec8df7479f7ebb08e2d08f0"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "1ae67f9bb8f2343863f7c4c3a0b2cbc776424d3e9595af9d000ad66bef3ba02b"
   end
 
   def install
     # Disable parallel build due to upstream concurrency issue.
-    # https://github.com/pacparser/pacparser/issues/27
+    # https://github.com/manugarg/pacparser/issues/27
     ENV.deparallelize
     ENV["VERSION"] = version
     Dir.chdir "src"

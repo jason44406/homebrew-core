@@ -1,95 +1,108 @@
 class Pypy < Formula
   desc "Highly performant implementation of Python 2 in Python"
   homepage "https://pypy.org/"
-  url "https://downloads.python.org/pypy/pypy2.7-v7.3.1-src.tar.bz2"
-  sha256 "fa3771514c8a354969be9bd3b26d65a489c30e28f91d350e4ad2f4081a9c9321"
+  url "https://downloads.python.org/pypy/pypy2.7-v7.3.11-src.tar.bz2"
+  sha256 "1117afb66831da4ea6f39d8d2084787a74689fd0229de0be301f9ed9b255093c"
   license "MIT"
-  revision 1
   head "https://foss.heptapod.net/pypy/pypy", using: :hg
 
+  livecheck do
+    url "https://downloads.python.org/pypy/"
+    regex(/href=.*?pypy2(?:\.\d+)*[._-]v?(\d+(?:\.\d+)+)-src\.t/i)
+  end
+
   bottle do
-    cellar :any
-    sha256 "61e8cfe37e26b93cd72b7fa8d758d71c52181bc1e2a04f6221811018237bade1" => :catalina
-    sha256 "8b6ec82f015f6481f44f30d0d01907872129197efc03bebbc2c14edb54bf598d" => :mojave
-    sha256 "08f78b30b0a831ce06cfa27f9d1f82efbffa3ff9a3997ba8e6129bfefe9e337d" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "0c16b3b1fd9fb51dcf921fb982d9a650becc5ed24479c63b574b9f05b879708c"
+    sha256 cellar: :any,                 arm64_monterey: "9d2e4a95ded688b5b04044da3e25a977dff9517b074b0712b68c57bdfa5dad02"
+    sha256 cellar: :any,                 arm64_big_sur:  "0fa8bf4c8732544c8adbf811b955508c90ba78cb42ad5d5273b09412cc1063a2"
+    sha256 cellar: :any,                 ventura:        "0cc34f6b6b0a9aadf7b960860ecdd1010b29b2ea8d3bed334fdd601b00b57184"
+    sha256 cellar: :any,                 monterey:       "77f11e4fac43941487565844f4ae9ed94bcc6f750cc29bee2a19324834b965cb"
+    sha256 cellar: :any,                 big_sur:        "dd3b63d5a7ecbc796139f3d1a66104eb6fca9b3efc505eba1b9b81771dda1f51"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "c462e07549c01c0f52e1db0037eb610d15574a70588d7568cc08e8eeec635ede"
   end
 
   depends_on "pkg-config" => :build
-  depends_on arch: :x86_64
   depends_on "gdbm"
-  # pypy does not find system libffi, and its location cannot be given
-  # as a build option
-  depends_on "libffi" if DevelopmentTools.clang_build_version >= 1000
   depends_on "openssl@1.1"
   depends_on "sqlite"
   depends_on "tcl-tk"
 
+  uses_from_macos "bzip2"
   uses_from_macos "expat"
   uses_from_macos "libffi"
+  uses_from_macos "ncurses"
   uses_from_macos "unzip"
   uses_from_macos "zlib"
 
   resource "bootstrap" do
-    url "https://downloads.python.org/pypy/pypy2.7-v7.3.0-osx64.tar.bz2"
-    version "7.3.0"
-    sha256 "ca7b056b243a6221ad04fa7fc8696e36a2fb858396999dcaa31dbbae53c54474"
+    on_macos do
+      on_arm do
+        url "https://downloads.python.org/pypy/pypy2.7-v7.3.11-macos_arm64.tar.bz2"
+        sha256 "cc5696ab4f93cd3481c1e4990b5dedd7ba60ac0602fa1890d368889a6c5bf771"
+      end
+      on_intel do
+        url "https://downloads.python.org/pypy/pypy2.7-v7.3.11-macos_x86_64.tar.bz2"
+        sha256 "56deee9c22640f5686c35b9d64fdb1ce3abd044583e4078f0b171ca2fd2a198e"
+      end
+    end
+    on_linux do
+      url "https://downloads.python.org/pypy/pypy2.7-v7.3.11-linux64.tar.bz2"
+      sha256 "ba8ed958a905c0735a4cfff2875c25089954dc020e087d982b0ffa5b9da316cd"
+    end
   end
 
+  # > Setuptools as a project continues to support Python 2 with bugfixes and important features on Setuptools 44.x.
+  # See https://setuptools.readthedocs.io/en/latest/python%202%20sunset.html#python-2-sunset
   resource "setuptools" do
-    url "https://files.pythonhosted.org/packages/b5/96/af1686ea8c1e503f4a81223d4a3410e7587fd52df03083de24161d0df7d4/setuptools-46.1.3.zip"
-    sha256 "795e0475ba6cd7fa082b1ee6e90d552209995627a2a227a47c6ea93282f4bfb1"
+    url "https://files.pythonhosted.org/packages/b2/40/4e00501c204b457f10fe410da0c97537214b2265247bc9a5bc6edd55b9e4/setuptools-44.1.1.zip"
+    sha256 "c67aa55db532a0dadc4d2e20ba9961cbd3ccc84d544e9029699822542b5a476b"
   end
 
+  # > pip 20.3 was the last version of pip that supported Python 2.
+  # See https://pip.pypa.io/en/stable/development/release-process/#python-2-support
   resource "pip" do
-    url "https://files.pythonhosted.org/packages/8e/76/66066b7bc71817238924c7e4b448abdb17eb0c92d645769c223f9ace478f/pip-20.0.2.tar.gz"
-    sha256 "7db0c8ea4c7ea51c8049640e8e6e7fde949de672bfa4949920675563a5a6967f"
+    url "https://files.pythonhosted.org/packages/53/7f/55721ad0501a9076dbc354cc8c63ffc2d6f1ef360f49ad0fbcce19d68538/pip-20.3.4.tar.gz"
+    sha256 "6773934e5f5fc3eaa8c5a44949b5b924fc122daa0a8aa9f80c835b4ca2a543fc"
   end
+
+  # Build fixes:
+  # - Disable Linux tcl-tk detection since the build script only searches system paths.
+  #   When tcl-tk is not found, it uses unversioned `-ltcl -ltk`, which breaks build.
+  patch :DATA
 
   def install
-    ENV.prepend_path "PKG_CONFIG_PATH", "#{prefix}/opt/tcl-tk/lib/pkgconfig"
-    ENV.prepend "LDFLAGS", "-L#{prefix}/opt/tcl-tk/lib"
-    ENV.prepend "CPPFLAGS", "-I#{prefix}/opt/tcl-tk/include"
-    # Having PYTHONPATH set can cause the build to fail if another
-    # Python is present, e.g. a Homebrew-provided Python 2.x
+    # The `tcl-tk` library paths are hardcoded and need to be modified for non-/usr/local prefix
+    inreplace "lib_pypy/_tkinter/tklib_build.py", "/usr/local/opt/tcl-tk/", Formula["tcl-tk"].opt_prefix/""
+
     # See https://github.com/Homebrew/homebrew/issues/24364
     ENV["PYTHONPATH"] = ""
     ENV["PYPY_USESSION_DIR"] = buildpath
-
-    # Fix build on High Sierra
-    inreplace "lib_pypy/_tkinter/tklib_build.py" do |s|
-      s.gsub! "/System/Library/Frameworks/Tk.framework/Versions/Current/Headers/",
-              "#{prefix}/opt/tcl-tk/include"
-      s.gsub! "libdirs = []",
-              "libdirs = ['#{prefix}/opt/tcl-tk/lib']"
-    end
 
     resource("bootstrap").stage buildpath/"bootstrap"
     python = buildpath/"bootstrap/bin/pypy"
 
     cd "pypy/goal" do
-      system python, buildpath/"rpython/bin/rpython",
-             "-Ojit", "--shared", "--cc", ENV.cc, "--verbose",
-             "--make-jobs", ENV.make_jobs, "targetpypystandalone.py"
+      system python, "../../rpython/bin/rpython", "--opt", "jit",
+                                                  "--cc", ENV.cc,
+                                                  "--make-jobs", ENV.make_jobs,
+                                                  "--shared",
+                                                  "--verbose"
     end
 
+    system python, "pypy/tool/release/package.py", "--archive-name", "pypy",
+                                                   "--targetdir", ".",
+                                                   "--no-embedded-dependencies",
+                                                   "--no-keep-debug",
+                                                   "--no-make-portable"
     libexec.mkpath
-    cd "pypy/tool/release" do
-      package_args = %w[--archive-name pypy --targetdir .]
-      system python, "package.py", *package_args
-      system "tar", "-C", libexec.to_s, "--strip-components", "1", "-xf", "pypy.tar.bz2"
-    end
-
-    (libexec/"lib").install libexec/"bin/libpypy-c.dylib"
-    MachO::Tools.change_install_name("#{libexec}/bin/pypy",
-                                     "@rpath/libpypy-c.dylib",
-                                     "#{libexec}/lib/libpypy-c.dylib")
+    system "tar", "-C", libexec.to_s, "--strip-components", "1", "-xf", "pypy.tar.bz2"
 
     # The PyPy binary install instructions suggest installing somewhere
     # (like /opt) and symlinking in binaries as needed. Specifically,
     # we want to avoid putting PyPy's Python.h somewhere that configure
     # scripts will find it.
     bin.install_symlink libexec/"bin/pypy"
-    lib.install_symlink libexec/"lib/libpypy-c.dylib"
+    lib.install_symlink libexec/"bin"/shared_library("libpypy-c")
   end
 
   def post_install
@@ -111,15 +124,14 @@ class Pypy < Formula
 
     # Tell distutils-based installers where to put scripts
     scripts_folder.mkpath
-    (distutils+"distutils.cfg").atomic_write <<~EOS
+    (distutils/"distutils.cfg").atomic_write <<~EOS
       [install]
       install-scripts=#{scripts_folder}
     EOS
 
     %w[setuptools pip].each do |pkg|
       resource(pkg).stage do
-        system bin/"pypy", "-s", "setup.py", "--no-user-cfg", "install",
-               "--force", "--verbose"
+        system bin/"pypy", "-s", "setup.py", "--no-user-cfg", "install", "--force", "--verbose"
       end
     end
 
@@ -154,17 +166,17 @@ class Pypy < Formula
 
   # The HOMEBREW_PREFIX location of site-packages
   def prefix_site_packages
-    HOMEBREW_PREFIX+"lib/pypy/site-packages"
+    HOMEBREW_PREFIX/"lib/pypy/site-packages"
   end
 
   # Where setuptools will install executable scripts
   def scripts_folder
-    HOMEBREW_PREFIX+"share/pypy"
+    HOMEBREW_PREFIX/"share/pypy"
   end
 
   # The Cellar location of distutils
   def distutils
-    libexec+"lib-python/2.7/distutils"
+    libexec/"lib-python/2.7/distutils"
   end
 
   test do
@@ -173,3 +185,25 @@ class Pypy < Formula
     system scripts_folder/"pip", "list"
   end
 end
+
+__END__
+--- a/lib_pypy/_tkinter/tklib_build.py
++++ b/lib_pypy/_tkinter/tklib_build.py
+@@ -17,7 +17,7 @@ elif sys.platform == 'win32':
+     incdirs = []
+     linklibs = ['tcl86t', 'tk86t']
+     libdirs = []
+-elif sys.platform == 'darwin':
++else:
+     # homebrew
+     homebrew = os.environ.get('HOMEBREW_PREFIX', '')
+     incdirs = ['/usr/local/opt/tcl-tk/include']
+@@ -26,7 +26,7 @@ elif sys.platform == 'darwin':
+     if homebrew:
+         incdirs.append(homebrew + '/include')
+         libdirs.append(homebrew + '/opt/tcl-tk/lib')
+-else:
++if False: # disable Linux system tcl-tk detection
+     # On some Linux distributions, the tcl and tk libraries are
+     # stored in /usr/include, so we must check this case also
+     libdirs = []

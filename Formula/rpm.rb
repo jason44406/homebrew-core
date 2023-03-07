@@ -1,33 +1,52 @@
 class Rpm < Formula
   desc "Standard unix software packaging tool"
   homepage "https://rpm.org/"
-  url "http://ftp.rpm.org/releases/rpm-4.15.x/rpm-4.15.1.tar.bz2"
-  sha256 "ddef45f9601cd12042edfc9b6e37efcca32814e1e0f4bb8682d08144a3e2d230"
-  revision 1
+  url "https://ftp.osuosl.org/pub/rpm/releases/rpm-4.18.x/rpm-4.18.0.tar.bz2"
+  sha256 "2a17152d7187ab30edf2c2fb586463bdf6388de7b5837480955659e5e9054554"
+  license "GPL-2.0-only"
   version_scheme 1
 
-  bottle do
-    sha256 "e5d398daca37da278add441d2cb0825c019fed8bcfb33bd4abb01dad3dce42e0" => :catalina
-    sha256 "0b5556d33614062b0b9d39cc8d3f4046d562cbaa9b03498cf4b11c57debb38fe" => :mojave
-    sha256 "a59870c437fe72ce7438726f79a44111d8352dbe50b7f6cf9d147210034a764b" => :high_sierra
+  livecheck do
+    url "https://rpm.org/download.html"
+    regex(/href=.*?rpm[._-]v?(\d+(?:\.\d+)+)\.t/i)
   end
 
-  depends_on "berkeley-db"
+  bottle do
+    rebuild 1
+    sha256 arm64_ventura: "b53546064adccbad8b399e755dee7ce53b7e5740bafb0c9f57c21755bbd44a4e"
+    sha256 ventura:       "c3479781c5af9756f03f0fa03ae34a8810aa5fe4a5a578c012be0aa6d2778b18"
+    sha256 x86_64_linux:  "92fa3dcdb9eb03d3db9941ac7ee1a01a380aa78bdf8d0446f397ac699ff02ca1"
+  end
+
   depends_on "gettext"
   depends_on "libarchive"
   depends_on "libmagic"
-  depends_on "libomp"
   depends_on "lua"
-  depends_on "openssl@1.1"
+  depends_on macos: :ventura
+  depends_on "openssl@3"
   depends_on "pkg-config"
   depends_on "popt"
+  depends_on "sqlite"
   depends_on "xz"
   depends_on "zstd"
 
+  uses_from_macos "bzip2"
+  uses_from_macos "zlib"
+
+  on_macos do
+    depends_on "libomp"
+  end
+
+  conflicts_with "rpm2cpio", because: "both install `rpm2cpio` binaries"
+
+  # Fix -flat_namespace being used on Big Sur and later.
+  patch do
+    url "https://raw.githubusercontent.com/Homebrew/formula-patches/03cf8088210822aa2c1ab544ed58ea04c897d9c4/libtool/configure-big_sur.diff"
+    sha256 "35acd6aebc19843f1a2b3a63e880baceb0f5278ab1ace661e57a502d9d78c93c"
+  end
+
   def install
-    ENV.prepend_path "PKG_CONFIG_PATH", Formula["lua"].opt_libexec/"lib/pkgconfig"
-    ENV.append "CPPFLAGS", "-I#{Formula["lua"].opt_include}/lua"
-    ENV.append "LDFLAGS", "-lomp"
+    ENV.append "LDFLAGS", "-lomp" if OS.mac?
 
     # only rpm should go into HOMEBREW_CELLAR, not rpms built
     inreplace ["macros.in", "platform.in"], "@prefix@", HOMEBREW_PREFIX
@@ -36,9 +55,8 @@ class Rpm < Formula
     inreplace "scripts/pkgconfigdeps.sh",
               "/usr/bin/pkg-config", Formula["pkg-config"].opt_bin/"pkg-config"
 
-    system "./configure", "--disable-dependency-tracking",
+    system "./configure", *std_configure_args,
                           "--disable-silent-rules",
-                          "--prefix=#{prefix}",
                           "--localstatedir=#{var}",
                           "--sharedstatedir=#{var}/lib",
                           "--sysconfdir=#{etc}",
@@ -48,24 +66,43 @@ class Rpm < Formula
                           "--with-external-db",
                           "--with-crypto=openssl",
                           "--without-apidocs",
-                          "--with-vendor=homebrew",
+                          "--with-vendor=#{tap.user.downcase}",
                           # Don't allow superenv shims to be saved into lib/rpm/macros
                           "__MAKE=/usr/bin/make",
-                          "__SED=/usr/bin/sed",
                           "__GIT=/usr/bin/git",
-                          "__LD=/usr/bin/ld"
+                          "__LD=/usr/bin/ld",
+                          # GPG is not a strict dependency, so set stored GPG location to a decent default
+                          "__GPG=#{Formula["gpg"].opt_bin}/gpg"
+
     system "make", "install"
+
+    # NOTE: We need the trailing `/` to avoid leaving it behind.
+    inreplace lib/"rpm/macros", "#{Superenv.shims_path}/", ""
+    inreplace lib/"rpm/brp-remove-la-files", "--null", "-0"
   end
 
   def post_install
     (var/"lib/rpm").mkpath
-
-    # Attempt to fix expected location of GPG to a sane default.
-    inreplace lib/"rpm/macros", "/usr/bin/gpg2", HOMEBREW_PREFIX/"bin/gpg"
+    safe_system bin/"rpmdb", "--initdb" unless (var/"lib/rpm/rpmdb.sqlite").exist?
   end
 
-  def test_spec
-    <<~EOS
+  test do
+    ENV["HOST"] = "test"
+    (testpath/".rpmmacros").write <<~EOS
+      %_topdir  %(echo $HOME)/rpmbuild
+      %_tmppath	%_topdir/tmp
+    EOS
+
+    system bin/"rpmdb", "--initdb", "--root=#{testpath}"
+    system bin/"rpm", "-vv", "-qa", "--root=#{testpath}"
+    assert_predicate testpath/var/"lib/rpm/rpmdb.sqlite", :exist?,
+                     "Failed to create 'rpmdb.sqlite' file"
+
+    %w[SPECS BUILD BUILDROOT].each do |dir|
+      (testpath/"rpmbuild/#{dir}").mkpath
+    end
+    specfile = testpath/"rpmbuild/SPECS/test.spec"
+    specfile.write <<~EOS
       Summary:   Test package
       Name:      test
       Version:   1.0
@@ -79,40 +116,33 @@ class Rpm < Formula
 
       %prep
       %build
+      echo "hello brew" > test
+
       %install
-      mkdir -p $RPM_BUILD_ROOT/tmp
-      touch $RPM_BUILD_ROOT/tmp/test
+      install -d $RPM_BUILD_ROOT/%_docdir
+      cp test $RPM_BUILD_ROOT/%_docdir/test
 
       %files
-      /tmp/test
+      %_docdir/test
 
       %changelog
 
     EOS
-  end
+    system bin/"rpmbuild", "-ba", specfile
+    assert_predicate testpath/"rpmbuild/SRPMS/test-1.0-1.src.rpm", :exist?
+    assert_predicate testpath/"rpmbuild/RPMS/noarch/test-1.0-1.noarch.rpm", :exist?
 
-  def rpmdir(macro)
-    Pathname.new(`#{bin}/rpm --eval #{macro}`.chomp)
-  end
+    info = shell_output(bin/"rpm --query --package -i #{testpath}/rpmbuild/RPMS/noarch/test-1.0-1.noarch.rpm")
+    assert_match "Name        : test", info
+    assert_match "Version     : 1.0", info
+    assert_match "Release     : 1", info
+    assert_match "Architecture: noarch", info
+    assert_match "Group       : Development/Tools", info
+    assert_match "License     : Public Domain", info
+    assert_match "Source RPM  : test-1.0-1.src.rpm", info
+    assert_match "Trivial test package", info
 
-  test do
-    (testpath/"rpmbuild").mkpath
-
-    (testpath/".rpmmacros").write <<~EOS
-      %_topdir		#{testpath}/rpmbuild
-      %_tmppath		%\{_topdir}/tmp
-    EOS
-
-    system "#{bin}/rpm", "-vv", "-qa", "--dbpath=#{testpath}/var/lib/rpm"
-    assert_predicate testpath/"var/lib/rpm/Packages", :exist?,
-                     "Failed to create 'Packages' file!"
-    rpmdir("%_builddir").mkpath
-    specfile = rpmdir("%_specdir")+"test.spec"
-    specfile.write(test_spec)
-    system "#{bin}/rpmbuild", "-ba", specfile
-    assert_predicate rpmdir("%_srcrpmdir")/"test-1.0-1.src.rpm", :exist?
-    assert_predicate rpmdir("%_rpmdir")/"noarch/test-1.0-1.noarch.rpm", :exist?
-    system "#{bin}/rpm", "-qpi", "--dbpath=#{testpath}/var/lib/rpm",
-                         rpmdir("%_rpmdir")/"noarch/test-1.0-1.noarch.rpm"
+    files = shell_output(bin/"rpm --query --list --package #{testpath}/rpmbuild/RPMS/noarch/test-1.0-1.noarch.rpm")
+    assert_match (HOMEBREW_PREFIX/"share/doc/test").to_s, files
   end
 end

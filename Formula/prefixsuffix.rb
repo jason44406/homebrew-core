@@ -3,20 +3,29 @@ class Prefixsuffix < Formula
   homepage "https://github.com/murraycu/prefixsuffix"
   url "https://download.gnome.org/sources/prefixsuffix/0.6/prefixsuffix-0.6.9.tar.xz"
   sha256 "fc3202bddf2ebbb93ffd31fc2a079cfc05957e4bf219535f26e6d8784d859e9b"
-  license "GPL-2.0"
-  revision 5
+  license "GPL-2.0-or-later"
+  revision 9
 
   bottle do
-    sha256 "24dc25fc90c2e0187c5ac94ea89856516c3a10573821c0f72f4154ce5694285a" => :catalina
-    sha256 "cae14def9ca8939d6fc3dcf5c249c7a8e6af3d1bfd9f790157b52dae7b09e901" => :mojave
-    sha256 "e216a904a8f6e6d2345767d04aac870ecd6efdd95aecb1b031644c3c90d56ec0" => :high_sierra
+    sha256 arm64_ventura:  "a5b1da4e45587183698f730fb05967ea4e5fc1b10b1bd504861f8c37f4042870"
+    sha256 arm64_monterey: "f4a3934702cc68077a096d0baca50a4baf033309cec38b2225b144a4bd825b45"
+    sha256 arm64_big_sur:  "03a102fc5cbf319029a6b536b60caf5db40396b25e1d6de1eda1baf297cb0d81"
+    sha256 ventura:        "2d4b50c8622e330650bb064a2cb710d293e5372909e0c9e02779536d8ebcebba"
+    sha256 monterey:       "941432357b54d13c0b0333c120b72ec0ce467230a05de210a0a4837e3a898e31"
+    sha256 big_sur:        "4300af03702b1873b307890bfb3bf9e08da08e43c401c958a2dcf796d56a34e8"
+    sha256 catalina:       "8384f85dfc725d9a754030a2f94320124845b3d63968a2a3348a918afd096415"
+    sha256 mojave:         "3e25c1930c085b61c073b5015895db250ec1113b3102384ebf84c1f8d0a65731"
+    sha256 x86_64_linux:   "fc0145d8cfcf008d3801cf7d90611303c510c4529974d4f2fa5b7224d09c027b"
   end
 
   depends_on "intltool" => :build
   depends_on "pkg-config" => :build
   depends_on "gtkmm3"
 
+  uses_from_macos "perl" => :build
+
   def install
+    ENV.prepend_path "PERL5LIB", Formula["intltool"].libexec/"lib/perl5" unless OS.mac?
     ENV.cxx11
     system "./configure", "--disable-dependency-tracking",
                           "--disable-silent-rules",
@@ -30,6 +39,7 @@ class Prefixsuffix < Formula
   end
 
   test do
-    system "#{bin}/prefixsuffix", "--version"
+    # Disable this part of the test on Linux because display is not available.
+    system "#{bin}/prefixsuffix", "--version" if OS.mac?
   end
 end

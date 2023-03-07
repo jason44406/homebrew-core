@@ -1,28 +1,32 @@
 class Cgal < Formula
   desc "Computational Geometry Algorithms Library"
   homepage "https://www.cgal.org/"
-  url "https://github.com/CGAL/cgal/releases/download/releases%2FCGAL-5.0.3/CGAL-5.0.3.tar.xz"
-  sha256 "e5a3672e35e5e92e3c1b4452cd3c1d554f3177dc512bd98b29edf21866a4288c"
-  license "GPL-3.0"
-  revision 1
+  url "https://github.com/CGAL/cgal/releases/download/v5.5.2/CGAL-5.5.2.tar.xz"
+  sha256 "b2b05d5616ecc69facdc24417cce0b04fb4321491d107db45103add520e3d8c3"
+  license "GPL-3.0-or-later"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "4d0e346b575a67e942c5c490eb070eb9552418baba20d712c5428f102531c41f" => :catalina
-    sha256 "4d0e346b575a67e942c5c490eb070eb9552418baba20d712c5428f102531c41f" => :mojave
-    sha256 "4d0e346b575a67e942c5c490eb070eb9552418baba20d712c5428f102531c41f" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "dac91a0004bad87169513d3df69586fd42c3ad4586a2158cdc8aba2c520a6171"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "dac91a0004bad87169513d3df69586fd42c3ad4586a2158cdc8aba2c520a6171"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "dac91a0004bad87169513d3df69586fd42c3ad4586a2158cdc8aba2c520a6171"
+    sha256 cellar: :any_skip_relocation, ventura:        "ded5db67baf3074c283561e9a258a0141285b8b41bc38d16405e4eceeb7d73aa"
+    sha256 cellar: :any_skip_relocation, monterey:       "ded5db67baf3074c283561e9a258a0141285b8b41bc38d16405e4eceeb7d73aa"
+    sha256 cellar: :any_skip_relocation, big_sur:        "ded5db67baf3074c283561e9a258a0141285b8b41bc38d16405e4eceeb7d73aa"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "dac91a0004bad87169513d3df69586fd42c3ad4586a2158cdc8aba2c520a6171"
   end
 
   depends_on "cmake" => [:build, :test]
-  depends_on "qt" => [:build, :test]
+  depends_on "qt@5" => [:build, :test]
   depends_on "boost"
   depends_on "eigen"
   depends_on "gmp"
   depends_on "mpfr"
 
   on_linux do
-    depends_on "openssl@1.1"
+    depends_on "openssl@3"
   end
+
+  fails_with gcc: "5"
 
   def install
     args = std_cmake_args + %w[
@@ -33,6 +37,7 @@ class Cgal < Formula
     system "cmake", ".", *args
     system "make", "install"
   end
+
   test do
     # https://doc.cgal.org/latest/Triangulation_2/Triangulation_2_2draw_triangulation_2_8cpp-example.html and  https://doc.cgal.org/latest/Algebraic_foundations/Algebraic_foundations_2interoperable_8cpp-example.html
     (testpath/"surprise.cpp").write <<~EOS
@@ -73,10 +78,13 @@ class Cgal < Formula
       cmake_minimum_required(VERSION 3.1...3.15)
       find_package(CGAL COMPONENTS Qt5)
       add_definitions(-DCGAL_USE_BASIC_VIEWER -DQT_NO_KEYWORDS)
+      include_directories(surprise BEFORE SYSTEM #{Formula["qt@5"].opt_include})
       add_executable(surprise surprise.cpp)
+      target_include_directories(surprise BEFORE PUBLIC #{Formula["qt@5"].opt_include})
       target_link_libraries(surprise PUBLIC CGAL::CGAL_Qt5)
     EOS
-    system "cmake", "-L", "-DQt5_DIR=#{Formula["qt"].opt_lib}/cmake/Qt5",
+    system "cmake", "-L", "-DQt5_DIR=#{Formula["qt@5"].opt_lib}/cmake/Qt5",
+           "-DCMAKE_PREFIX_PATH=#{Formula["qt@5"].opt_lib}",
            "-DCMAKE_BUILD_RPATH=#{HOMEBREW_PREFIX}/lib", "-DCMAKE_PREFIX_PATH=#{prefix}", "."
     system "cmake", "--build", ".", "-v"
     assert_equal "15\n15", shell_output("./surprise").chomp

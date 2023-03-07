@@ -1,76 +1,47 @@
 class Isync < Formula
   desc "Synchronize a maildir with an IMAP server"
   homepage "https://isync.sourceforge.io/"
-  url "https://downloads.sourceforge.net/project/isync/isync/1.3.3/isync-1.3.3.tar.gz"
-  sha256 "f2213bf7f90266e1295deafe39b02d1ba0b4c7f3b897c09cd17c60f0d4f4c882"
-  license "GPL-2.0"
-  head "https://git.code.sf.net/p/isync/isync.git"
+  url "https://downloads.sourceforge.net/project/isync/isync/1.4.4/isync-1.4.4.tar.gz"
+  sha256 "7c3273894f22e98330a330051e9d942fd9ffbc02b91952c2f1896a5c37e700ff"
+  license "GPL-2.0-or-later"
+  revision 1
 
   bottle do
-    cellar :any
-    sha256 "e246ae47ad32253be95b4344e3a8c7ef2b586364944080d98beb7d9543ba7c9e" => :catalina
-    sha256 "af52bcdb59df55a0aa754d5fd3b77ef14107365d9d1ef39cf20115e0d49d6221" => :mojave
-    sha256 "aaea9bd9e79853387aef7c312616d9c1446af6661b889539500e5640070679f4" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "e4e43c921a44c03f8e2e8023a1d7c381318ad5185ecfe7d9992f50afd7fb4152"
+    sha256 cellar: :any,                 arm64_monterey: "816db2393272d941460076dd9407191c669fb1fa95c23ffeb428645e7e18bf00"
+    sha256 cellar: :any,                 arm64_big_sur:  "29e8f407d075874ecfe535755910e5b013bc9da62c15ddd1f095270b642336c5"
+    sha256 cellar: :any,                 ventura:        "abba23b4d43a1abeb313d1efaf43ed6ad8c0b83cd8cb02891a8d1de32b395d35"
+    sha256 cellar: :any,                 monterey:       "d76f4a0b6f3465f8a3b5443db5a67553ea0164350dbe1fc8a4106f4329f3ba5b"
+    sha256 cellar: :any,                 big_sur:        "b1b774bb526cfbf5742ebd662c521040be27c885d1b104cd7fa41ffd3e03f511"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "c733c49de05ff2ebff3b768115e50b0ceed3326094c16df686b5a7f8d562e8c2"
   end
 
-  depends_on "autoconf" => :build
-  depends_on "automake" => :build
-  depends_on "berkeley-db"
-  depends_on "openssl@1.1"
+  head do
+    url "https://git.code.sf.net/p/isync/isync.git", branch: "master"
+    depends_on "autoconf" => :build
+    depends_on "automake" => :build
+  end
+
+  depends_on "berkeley-db@5"
+  depends_on "openssl@3"
 
   uses_from_macos "zlib"
 
   def install
-    # Regenerated for HEAD, and because of our patch
-    if build.head?
-      system "./autogen.sh"
-    else
-      system "autoreconf", "-fiv"
-    end
-
-    args = %W[
-      --disable-dependency-tracking
-      --prefix=#{prefix}
-      --disable-silent-rules
-    ]
-
-    system "./configure", *args
+    system "./autogen.sh" if build.head?
+    system "./configure", *std_configure_args, "--disable-silent-rules"
     system "make", "install"
   end
 
-  plist_options manual: "isync"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>EnvironmentVariables</key>
-          <dict>
-            <key>PATH</key>
-            <string>/usr/bin:/bin:/usr/sbin:/sbin:#{HOMEBREW_PREFIX}/bin</string>
-          </dict>
-          <key>KeepAlive</key>
-          <false/>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{opt_bin}/mbsync</string>
-            <string>-a</string>
-          </array>
-          <key>StartInterval</key>
-          <integer>300</integer>
-          <key>RunAtLoad</key>
-          <true />
-          <key>StandardErrorPath</key>
-          <string>/dev/null</string>
-          <key>StandardOutPath</key>
-          <string>/dev/null</string>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"mbsync", "-a"]
+    run_type :interval
+    interval 300
+    keep_alive false
+    environment_variables PATH: std_service_path_env
+    log_path "/dev/null"
+    error_log_path "/dev/null"
   end
 
   test do

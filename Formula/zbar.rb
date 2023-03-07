@@ -1,75 +1,58 @@
 class Zbar < Formula
   desc "Suite of barcodes-reading tools"
-  homepage "https://zbar.sourceforge.io"
-  revision 10
+  homepage "https://github.com/mchehab/zbar"
+  url "https://linuxtv.org/downloads/zbar/zbar-0.23.90.tar.bz2"
+  sha256 "9152c8fb302b3891e1cb9cc719883d2f4ccd2483e3430783a2cf2d93bd5901ad"
+  license "LGPL-2.1-only"
+  revision 2
 
-  stable do
-    url "https://downloads.sourceforge.net/project/zbar/zbar/0.10/zbar-0.10.tar.bz2"
-    sha256 "234efb39dbbe5cef4189cc76f37afbe3cfcfb45ae52493bfe8e191318bdbadc6"
-
-    # Fix JPEG handling using patch from
-    # https://sourceforge.net/p/zbar/discussion/664596/thread/58b8d79b#8f67
-    # already applied upstream but not present in the 0.10 release
-    patch :DATA
+  livecheck do
+    url :homepage
+    strategy :github_latest
   end
 
   bottle do
-    cellar :any
-    sha256 "c67f6e8064b2c29e707529c211d90499452391ab05739da4774d922f643dd1a3" => :catalina
-    sha256 "17da6d6bbc5072ee46a84b3fed3259afcdc96eabb50988363aa1c13d6437ec4d" => :mojave
-    sha256 "fdba8cdcefcf962f2da1d475bd6556d3bdc3b0f644e3684a0a46efb1dd778fe2" => :high_sierra
+    rebuild 1
+    sha256 arm64_ventura:  "0148fabe1084ac13f107a34c15e69a68a4e0de8c1212550ea927d5873450843b"
+    sha256 arm64_monterey: "e9b2610d5fa22cd12a463ac2701240acc8f6e1c1c190e6fbe1e8f56b12fb695e"
+    sha256 arm64_big_sur:  "66d7b6a0b9cc69e2d0786aa626577abc917adba4dd76b79e7bc959afd9eefb7c"
+    sha256 ventura:        "e7b877bc80e132b018fe786882ade65d5650ab81ae7e087c81f1a61d278ffb7f"
+    sha256 monterey:       "e3f3cd2101683ec1e5d129d9c590f9e61283dd078968231211c994ebd919eeeb"
+    sha256 big_sur:        "7a440c19a50c6dd6ebf77b41a254e78fa5ffc641877ae180d131f1cc0d2f4e6b"
+    sha256 catalina:       "6524034479ef1b0329914bba94b9a778f07436a4fdcef8d5685df31152a1d990"
+    sha256 x86_64_linux:   "b95de47606556882a0e828e77e7230a3e02d49df3fac48d6692f18e33a9e88b6"
   end
 
   head do
-    url "https://github.com/ZBar/ZBar.git"
+    url "https://github.com/mchehab/zbar.git", branch: "master"
 
     depends_on "autoconf" => :build
     depends_on "automake" => :build
     depends_on "gettext" => :build
     depends_on "libtool" => :build
-    depends_on "xmlto" => :build
   end
 
   depends_on "pkg-config" => :build
-  depends_on "freetype"
+  depends_on "xmlto" => :build
   depends_on "imagemagick"
-  depends_on "jpeg"
-  depends_on "libtool"
-  depends_on "ufraw"
-  depends_on "xz"
+  depends_on "jpeg-turbo"
 
   on_linux do
-    # Avoid function naming conflict
-    patch do
-      url "https://salsa.debian.org/debian/zbar/raw/debian/0.10+doc-11/debian/patches/0005-src-Replace-dprintf-macro-with-zbar_dprintf-to-avoid.patch"
-      sha256 "e9a1aab8150f244c7b092a03f16ad8997b26575149b7c86ea8b453199e8916d0"
-    end
+    depends_on "dbus"
   end
 
+  fails_with gcc: "5" # imagemagick is built with GCC
+
   def install
-    if build.head?
-      inreplace "configure.ac", "-Werror", ""
-      gettext = Formula["gettext"]
-      system "autoreconf", "-fvi", "-I", "#{gettext.opt_share}/aclocal"
-    end
-
-    # ImageMagick 7 compatibility
-    # Reported 20 Jun 2016 https://sourceforge.net/p/zbar/support-requests/156/
-    inreplace ["configure", "zbarimg/zbarimg.c"],
-      "wand/MagickWand.h",
-      "ImageMagick-7/MagickWand/MagickWand.h"
-
-    args = %W[
-      --disable-dependency-tracking
-      --prefix=#{prefix}
-      --without-python
-      --without-qt
-      --disable-video
-      --without-gtk
-      --without-x
-    ]
-
-    system "./configure", *args
+    ENV["XML_CATALOG_FILES"] = etc/"xml/catalog"
+    system "autoreconf", "--force", "--install", "--verbose" if build.head?
+    system "./configure", *std_configure_args,
+                          "--disable-silent-rules",
+                          "--disable-video",
+                          "--without-python",
+                          "--without-qt",
+                          "--without-gtk",
+                          "--without-x"
     system "make", "install"
   end
 
@@ -77,27 +60,3 @@ class Zbar < Formula
     system bin/"zbarimg", "-h"
   end
 end
-
-__END__
-diff --git a/zbar/jpeg.c b/zbar/jpeg.c
-index fb566f4..d1c1fb2 100644
---- a/zbar/jpeg.c
-+++ b/zbar/jpeg.c
-@@ -79,8 +79,15 @@ int fill_input_buffer (j_decompress_ptr cinfo)
- void skip_input_data (j_decompress_ptr cinfo,
-                       long num_bytes)
- {
--    cinfo->src->next_input_byte = NULL;
--    cinfo->src->bytes_in_buffer = 0;
-+    if (num_bytes > 0) {
-+        if (num_bytes < cinfo->src->bytes_in_buffer) {
-+            cinfo->src->next_input_byte += num_bytes;
-+            cinfo->src->bytes_in_buffer -= num_bytes;
-+        }
-+        else {
-+            fill_input_buffer(cinfo);
-+        }
-+    }
- }
- 
- void term_source (j_decompress_ptr cinfo)

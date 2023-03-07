@@ -1,26 +1,32 @@
 class Scrypt < Formula
   desc "Encrypt and decrypt files using memory-hard password function"
   homepage "https://www.tarsnap.com/scrypt.html"
-  url "https://www.tarsnap.com/scrypt/scrypt-1.3.0.tgz"
-  sha256 "263034edd4d1e117d4051d9a9260c74dedb0efaf4491c5152b738978b3f32748"
+  url "https://www.tarsnap.com/scrypt/scrypt-1.3.1.tgz"
+  sha256 "df2f23197c9589963267f85f9c5307ecf2b35a98b83a551bf1b1fb7a4d06d4c2"
   license "BSD-2-Clause"
 
   bottle do
-    cellar :any
-    sha256 "a683e2b6a8432d2489594a4f18dfb61704fdba3dc33fb8ae54ca169cee6124ee" => :catalina
-    sha256 "3d8a2f79a7d04355d6c646e3b70def1159dbef4974b5783a67af6afea2d3d2e6" => :mojave
-    sha256 "9a39b3a69169a7e199ee174d7b643eb07e0a7da152508ef49606d59e13cc9f3d" => :high_sierra
-    sha256 "61c6a47372b1da0735a45af1e93abe8530e22b8f469ef5c4dbed836194e6b228" => :sierra
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "cae01628c68cb6961a9515a9b6815dc390bce773d69da24b2e92dce4c45db8cb"
+    sha256 cellar: :any,                 arm64_monterey: "d76d3d327a97c51b522d65f6c6fc1dbcd227fccc39f0de4cde9ab991f138d9a9"
+    sha256 cellar: :any,                 arm64_big_sur:  "358e1343aa3e64b5b94a5eddfd5e75da9c9d089a18784f0fa21db93f9f34af2f"
+    sha256 cellar: :any,                 ventura:        "7810b10c20fb90123866aefb62360604e65166a5fb21e5148ffda194b44ba49f"
+    sha256 cellar: :any,                 monterey:       "86671c984e05a532e7b25c9f8c6712096592a15147a04948ca80d9006335ba8d"
+    sha256 cellar: :any,                 big_sur:        "98864356e7d2a46eae0d85de33445b3baacf7d2bc362f34cebcc89c959e33b61"
+    sha256 cellar: :any,                 catalina:       "34668a3ffd312cd9687a9b9c4fef5e0ccf36103a9dca92cb2cd6c640aa87c9a9"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "a301fa271721417d2aaa18c941716b1d64d22fafef03c3f91bf4aea0d072cf12"
   end
 
   head do
-    url "https://github.com/Tarsnap/scrypt.git"
+    url "https://github.com/Tarsnap/scrypt.git", branch: "master"
 
     depends_on "autoconf" => :build
     depends_on "automake" => :build
   end
 
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
+
+  uses_from_macos "expect" => :test
 
   def install
     system "autoreconf", "-fvi" if build.head?
@@ -29,8 +35,7 @@ class Scrypt < Formula
   end
 
   test do
-    (testpath/"test.sh").write <<~EOS
-      #!/usr/bin/expect -f
+    (testpath/"test.exp").write <<~EOS
       set timeout -1
       spawn #{bin}/scrypt enc homebrew.txt homebrew.txt.enc
       expect -exact "Please enter passphrase: "
@@ -40,10 +45,9 @@ class Scrypt < Formula
       send -- "Testing\n"
       expect eof
     EOS
-    chmod 0755, testpath/"test.sh"
     touch "homebrew.txt"
 
-    system "./test.sh"
+    system "expect", "-f", "test.exp"
     assert_predicate testpath/"homebrew.txt.enc", :exist?
   end
 end

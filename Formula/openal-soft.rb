@@ -1,16 +1,24 @@
 class OpenalSoft < Formula
   desc "Implementation of the OpenAL 3D audio API"
   homepage "https://openal-soft.org/"
-  url "https://openal-soft.org/openal-releases/openal-soft-1.20.1.tar.bz2"
-  sha256 "b6ceb051325732c23f5c8b6d37dbd89534517e6439a87e970882b447c3025d6d"
-  license "LGPL-2.0"
-  head "https://github.com/kcat/openal-soft.git"
+  url "https://openal-soft.org/openal-releases/openal-soft-1.23.0.tar.bz2"
+  sha256 "057dcf96c3cdfcf40159800a93f57740fe79c2956f76247bee10e436b6657183"
+  license "LGPL-2.0-or-later"
+  head "https://github.com/kcat/openal-soft.git", branch: "master"
+
+  livecheck do
+    url :homepage
+    regex(/href=.*?openal-soft[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "b62337bb563eaaacec777b6861de4b6ba1d33ad8e19418b4b5a0cdfb37473fcf" => :catalina
-    sha256 "f6448e18550e62cd283bebe24e98f6253c5c18758aeb7c44f3816f1840082b25" => :mojave
-    sha256 "26dbb8819cd991e4a901f3f90f0cc2339c9e4220330329dcf7caa37b14d048d7" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "fe33fe2321dc3a56d93e66a1885fa2b4bbab01d7d05e033dcc6263ab0ac6ddf5"
+    sha256 cellar: :any,                 arm64_monterey: "73884d531330330ed69f01b98a9ee2db0040f83760de6030b485fcc4bc0d2f62"
+    sha256 cellar: :any,                 arm64_big_sur:  "15f6a0fce29c7f22b0107c17a80c47a70c41a5c944489ee28feb4ae7ec7b0b97"
+    sha256 cellar: :any,                 ventura:        "c96fbbe7765c3ba2cb425916b24ac34eb955781d2f843edda9c2b8494469b6c0"
+    sha256 cellar: :any,                 monterey:       "8f5104ada051d551e7248d5f47d9b36973725a737f75fb593cf4f38948b93445"
+    sha256 cellar: :any,                 big_sur:        "b9fddf543c46a83df8c15744e0ae53430bc3ed51bb98eccf5010e8a647abceab"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "70642bf18753fe50fb27330f27822a076dfbd322851a280da2d60e2e432d0e3c"
   end
 
   keg_only :shadowed_by_macos, "macOS provides OpenAL.framework"
@@ -19,17 +27,19 @@ class OpenalSoft < Formula
   depends_on "pkg-config" => :build
 
   def install
-    # Please don't reenable example building. See:
+    # Please don't re-enable example building. See:
     # https://github.com/Homebrew/homebrew/issues/38274
-    args = std_cmake_args + %w[
+    args = %w[
       -DALSOFT_BACKEND_PORTAUDIO=OFF
       -DALSOFT_BACKEND_PULSEAUDIO=OFF
       -DALSOFT_EXAMPLES=OFF
       -DALSOFT_MIDI_FLUIDSYNTH=OFF
     ]
+    args << "-DCMAKE_INSTALL_RPATH=#{rpath}"
 
-    system "cmake", ".", *args
-    system "make", "install"
+    system "cmake", "-S", ".", "-B", "build", *args, *std_cmake_args
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
   end
 
   test do

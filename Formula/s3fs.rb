@@ -1,26 +1,25 @@
 class S3fs < Formula
   desc "FUSE-based file system backed by Amazon S3"
   homepage "https://github.com/s3fs-fuse/s3fs-fuse/wiki"
-  url "https://github.com/s3fs-fuse/s3fs-fuse/archive/v1.87.tar.gz"
-  sha256 "c5e064efb8fb5134a463731a7cf8d7174c93a296957145200347d2f4d9d11985"
+  url "https://github.com/s3fs-fuse/s3fs-fuse/archive/refs/tags/v1.91.tar.gz"
+  sha256 "f130fec375dc6972145c56f53e83ea7c98c82621406d0208a328989e5d900b0f"
   license "GPL-2.0-or-later"
-  head "https://github.com/s3fs-fuse/s3fs-fuse.git"
+  head "https://github.com/s3fs-fuse/s3fs-fuse.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "5183ab606057fbe8e46a737b25c1ad4e82dd67389f48827d7bfd567c67cf8417" => :catalina
-    sha256 "d691bdeb4abd443bc1f1f3de46c286a97829f95ba3d47b026e535a6688085d07" => :mojave
-    sha256 "f475d03b68102dd400a22de99b9ddc044653f6658e2cb84349adf507ffbddcad" => :high_sierra
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "40366ae4c296e3095014f8639d77d0ede2b0f8f960d305a8ed43f0b160702fff"
   end
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
   depends_on "pkg-config" => :build
+  depends_on "curl"
   depends_on "gnutls"
+  depends_on "libfuse@2"
   depends_on "libgcrypt"
+  depends_on "libxml2"
+  depends_on :linux # on macOS, requires closed-source macFUSE
   depends_on "nettle"
-
-  depends_on :osxfuse
 
   def install
     system "./autogen.sh"

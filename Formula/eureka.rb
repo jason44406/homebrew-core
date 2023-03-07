@@ -1,31 +1,43 @@
 class Eureka < Formula
   desc "CLI tool to input and store your ideas without leaving the terminal"
   homepage "https://github.com/simeg/eureka"
-  url "https://github.com/simeg/eureka/archive/v1.7.0.tar.gz"
-  sha256 "3a4475fcce16acdb5bfc705641dbfc99ab7d8d7739de1da44d1f9c2fec8ea92d"
+  url "https://github.com/simeg/eureka/archive/v2.0.0.tar.gz"
+  sha256 "e874549e1447ee849543828f49c4c1657f7e6cfe787deea13d44241666d4aaa0"
   license "MIT"
-  head "https://github.com/simeg/eureka.git"
+  head "https://github.com/simeg/eureka.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "78923a432ed0b00a266aba6680ad1b1c948e7c31a74b32babad1ffe45bc7dc20" => :catalina
-    sha256 "88b2371865f81cf092a3ab85c757bba880a3e3aef9c379ef880972fb75f80d93" => :mojave
-    sha256 "ef7f1bde80157ad17a9a789028bd0b0fee6e62f93f66b545a15c8bd753a58767" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "f2270ec57c74b9bcef349049f9fc3818ddfd3c4c38884973ecfdf3926b66d172"
+    sha256 cellar: :any,                 arm64_monterey: "3a9a6d7a5b0a7e599f5704bb7729285836bb25978a586243e5fb78695c30a157"
+    sha256 cellar: :any,                 arm64_big_sur:  "861dfd095945e5600666a2ca79366b52df59a72cc27e0d25e6b10a60c5781066"
+    sha256 cellar: :any,                 ventura:        "07a730ffe6b8fa6b2ca028ae4ec07adbf04ff99f5246d69c1bac809469eb3d9c"
+    sha256 cellar: :any,                 monterey:       "37888fa43d99d9740479bf57078b60a87eaaf7f082f18a790bdf81df6fb4ce8e"
+    sha256 cellar: :any,                 big_sur:        "6b50c3a975f63a84f975c16b919f775ffb163d8b7c1d40f0219ee660d12f9f88"
+    sha256 cellar: :any,                 catalina:       "0e7559a426bc893f8c14aca3e9110465658a94a0fb7561264e05fcf3c8756096"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "b8df396a1e2c9e87f093dfd44dafed480bd97ff2115beac25725d12d3d028439"
   end
 
   depends_on "rust" => :build
+  depends_on "openssl@3"
+
+  uses_from_macos "zlib"
+
+  on_linux do
+    depends_on "pkg-config" => :build
+  end
 
   def install
     system "cargo", "install", *std_cargo_args
   end
 
   test do
-    assert_match "eureka [FLAGS]", shell_output("#{bin}/eureka --help 2>&1")
+    assert_match "eureka [OPTIONS]", shell_output("#{bin}/eureka --help 2>&1")
 
     (testpath/".eureka/repo_path").write <<~EOS
       homebrew
     EOS
 
-    assert_match "homebrew/README.md: No such file or directory", shell_output("#{bin}/eureka --view 2>&1")
+    assert_match "ERROR eureka > No such file or directory", pipe_output("#{bin}/eureka --view 2>&1")
   end
 end

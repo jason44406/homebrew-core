@@ -1,21 +1,41 @@
 class RxvtUnicode < Formula
   desc "Rxvt fork with Unicode support"
   homepage "http://software.schmorp.de/pkg/rxvt-unicode.html"
-  url "http://dist.schmorp.de/rxvt-unicode/rxvt-unicode-9.22.tar.bz2"
-  sha256 "e94628e9bcfa0adb1115d83649f898d6edb4baced44f5d5b769c2eeb8b95addd"
-  revision 3
+  url "http://dist.schmorp.de/rxvt-unicode/rxvt-unicode-9.31.tar.bz2"
+  sha256 "aaa13fcbc149fe0f3f391f933279580f74a96fd312d6ed06b8ff03c2d46672e8"
+  license "GPL-3.0-only"
 
-  bottle do
-    sha256 "d17b7410c97c5f95f1abbf7de7e49249995b23303696b8f7a2eed7c0924fe818" => :catalina
-    sha256 "126bda5982eb1d785cdaf84ab108024d85c3904cc3039514f13e12ebb80652a9" => :mojave
-    sha256 "01a97a5842a1507ae1e9c99d973811e300d0aac95b3fb744e8181918b6ac11eb" => :high_sierra
-    sha256 "2946f3abe2481ad6e4f52be7a9e51259bcd0846f38602e74384343946479eb4a" => :sierra
-    sha256 "5d6060cc30061763809d7255b8654309be0a709fccdcda1b799f0fac16fd085d" => :el_capitan
-    sha256 "9b674dd3738ab25fa6145680f92ca036df470ced089448abcb6647439320e075" => :yosemite
+  livecheck do
+    url "http://dist.schmorp.de/rxvt-unicode/"
+    regex(/href=.*?rxvt-unicode[._-]v?(\d+(?:\.\d+)+)\.t/i)
   end
 
+  bottle do
+    sha256 arm64_ventura:  "7dcc677369d1baab6f16df81f8b8eb55ec58e7250c63823105a4b41dfc076012"
+    sha256 arm64_monterey: "d7d065eaa8a9edb656446536bc45466062f0c8fd5aba80583bae20c2813b72f2"
+    sha256 arm64_big_sur:  "3770fbf0ca91a3f894862c40d27699aa2d602bd5a7420cb3c760c16d98c79f94"
+    sha256 ventura:        "de7ffce5e796bac2174392eff67aebcfc19a841e3c10c8e1eb43cf9afb319957"
+    sha256 monterey:       "54b0be5c3682b2d6974696b708935ad239ec26117a6028c201f5ca99a701dc90"
+    sha256 big_sur:        "ca8c7a88bdb67f56ea721039077450a4f4ceac8f5ea83518bca596f8daedecd5"
+    sha256 x86_64_linux:   "69f31db1144e72a56e1453390170053d38fdfcba1d359e6a34c88ff1842cf749"
+  end
+
+  depends_on "cmake" => :build
   depends_on "pkg-config" => :build
-  depends_on :x11
+  depends_on "fontconfig"
+  depends_on "freetype"
+  depends_on "libx11"
+  depends_on "libxft"
+  depends_on "libxmu"
+  depends_on "libxrender"
+  depends_on "libxt"
+
+  uses_from_macos "perl"
+
+  resource "libptytty" do
+    url "http://dist.schmorp.de/libptytty/libptytty-2.0.tar.gz"
+    sha256 "8033ed3aadf28759660d4f11f2d7b030acf2a6890cb0f7926fb0cfa6739d31f7"
+  end
 
   # Patches 1 and 2 remove -arch flags for compiling perl support
   # Patch 3 fixes `make install` target on case-insensitive filesystems
@@ -25,6 +45,15 @@ class RxvtUnicode < Formula
   end
 
   def install
+    ENV.cxx11
+    resource("libptytty").stage do
+      system "cmake", "-S", ".", "-B", "build", *std_cmake_args(install_prefix: buildpath), "-DBUILD_SHARED_LIBS=OFF"
+      system "cmake", "--build", "build"
+      system "cmake", "--install", "build"
+    end
+    ENV.prepend_path "PKG_CONFIG_PATH", buildpath/"lib/pkgconfig"
+    ENV.append "LDFLAGS", "-L#{buildpath}/lib"
+
     args = %W[
       --prefix=#{prefix}
       --enable-256-color

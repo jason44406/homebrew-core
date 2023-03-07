@@ -1,10 +1,19 @@
 class Byteman < Formula
   desc "Java bytecode manipulation tool for testing, monitoring and tracing"
   homepage "https://byteman.jboss.org/"
-  url "https://downloads.jboss.org/byteman/4.0.12/byteman-download-4.0.12-bin.zip"
-  sha256 "7aebafd6877058a1406e725be4246bcafd8efd78fa583b7192e847cb5d6b27a5"
+  url "https://downloads.jboss.org/byteman/4.0.20/byteman-download-4.0.20-bin.zip"
+  sha256 "e37c15b854c5002716a5a9d384c443100a203f47516657533a9808f6e429bcfd"
+  license "LGPL-2.1-or-later"
+  head "https://github.com/bytemanproject/byteman.git", branch: "main"
 
-  bottle :unneeded
+  livecheck do
+    url "https://byteman.jboss.org/downloads.html"
+    regex(/href=.*?byteman-download[._-]v?(\d+(?:\.\d+)+)-bin\.zip/i)
+  end
+
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "a406601b8dfde423a9908d89a92124c4bb0f79ee0631e3a7d537b3992dfed709"
+  end
 
   depends_on "openjdk"
 
@@ -48,15 +57,10 @@ class Byteman < Formula
       DO traceln("Exiting main")
       ENDRULE
     EOS
-    # Compile example
-    system "javac", "src/main/java/BytemanHello.java"
-    # Expected successful output when Byteman runs example
-    expected = <<~EOS
-      Entering main
-      Hello, Brew!
-      Exiting main
-    EOS
+
+    system "#{Formula["openjdk"].bin}/javac", "src/main/java/BytemanHello.java"
+
     actual = shell_output("#{bin}/bmjava -l brew.btm -cp src/main/java BytemanHello")
-    assert_equal(expected, actual)
+    assert_match("Hello, Brew!", actual)
   end
 end

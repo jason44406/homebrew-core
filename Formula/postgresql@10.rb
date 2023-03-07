@@ -1,27 +1,39 @@
 class PostgresqlAT10 < Formula
   desc "Object-relational database system"
   homepage "https://www.postgresql.org/"
-  url "https://ftp.postgresql.org/pub/source/v10.14/postgresql-10.14.tar.bz2"
-  sha256 "381cd8f491d8f77db2f4326974542a50095b5fa7709f24d7c5b760be2518b23b"
+  url "https://ftp.postgresql.org/pub/source/v10.22/postgresql-10.22.tar.bz2"
+  sha256 "955977555c69df1a64f44b81d4a1987eb74abbd1870579f5ad9d946133dd8e4d"
   license "PostgreSQL"
+  revision 3
 
   bottle do
-    sha256 "0d107a7007bfd7ad54bc2c341dd668b9b371d53a5bb51c18a32b6cc13fc6af95" => :catalina
-    sha256 "3802455dc7dedea458b92c3f79a178a6748bd4ea916226523d7ca7ebed05790e" => :mojave
-    sha256 "6bf09daea4f52334c0d42ceb1c461117fb3cda07f5d0eb9fc6d7b7185f5adc0d" => :high_sierra
+    sha256 arm64_ventura:  "12a23aa3da4c20fe27d7d2cf7e68a31f8072b8e5e1356e95e0918d7d528a6faa"
+    sha256 arm64_monterey: "95ff39fa2a308b2ba32569df5da563911664d447ab160cf9e7a4e0dc81cd46c1"
+    sha256 arm64_big_sur:  "ce82c9858b89a210fe816495af9072c57e4a2102007dbd481bb6055ac3ab37a5"
+    sha256 ventura:        "e192b534805c7bc6d03af8e3bbfbd5bccdac4f33a1901dfddc0f5532ea125458"
+    sha256 monterey:       "56d578ffafd4651d48ea24c65c2821d5eab5c4308dc83ec0b13a7aa069a8dfe1"
+    sha256 big_sur:        "0709771101fc5c98748b905b4687b19275fa196169a12f2b882ba4c14fc0668e"
+    sha256 catalina:       "a8fdf9b8cc39eb124cf9006ba21d13b9b47aea401f4916a9159db27877029bdc"
+    sha256 x86_64_linux:   "ba4d03256d2b7217953fa653505d053f12d71af9291f3b6adb16bc0a5a665b4f"
   end
 
   keg_only :versioned_formula
+
+  # https://www.postgresql.org/support/versioning/
+  deprecate! date: "2022-11-10", because: :unsupported
 
   depends_on "pkg-config" => :build
   depends_on "icu4c"
   depends_on "openssl@1.1"
   depends_on "readline"
 
+  uses_from_macos "krb5"
   uses_from_macos "libxslt"
+  uses_from_macos "openldap"
   uses_from_macos "perl"
 
   on_linux do
+    depends_on "linux-pam"
     depends_on "util-linux"
   end
 
@@ -37,7 +49,6 @@ class PostgresqlAT10 < Formula
       --sysconfdir=#{etc}
       --docdir=#{doc}
       --enable-thread-safety
-      --with-bonjour
       --with-gssapi
       --with-icu
       --with-ldap
@@ -46,9 +57,14 @@ class PostgresqlAT10 < Formula
       --with-openssl
       --with-pam
       --with-perl
-      --with-tcl
       --with-uuid=e2fs
     ]
+    if OS.mac?
+      args += %w[
+        --with-bonjour
+        --with-tcl
+      ]
+    end
 
     # PostgreSQL by default uses xcodebuild internally to determine this,
     # which does not work on CLT-only installs.
@@ -68,68 +84,65 @@ class PostgresqlAT10 < Formula
     # Attempting to fix that by adding a dependency on `open-sp` doesn't
     # work and the build errors out on generating the documentation, so
     # for now let's simply omit it so we can package Postgresql for Mojave.
-    if DevelopmentTools.clang_build_version >= 1000
+    if OS.mac?
+      if DevelopmentTools.clang_build_version >= 1000
+        system "make", "all"
+        system "make", "-C", "contrib", "install", "all", *dirs
+        system "make", "install", "all", *dirs
+      else
+        system "make", "install-world", *dirs
+      end
+    else
       system "make", "all"
       system "make", "-C", "contrib", "install", "all", *dirs
       system "make", "install", "all", *dirs
-    else
-      system "make", "install-world", *dirs
+      inreplace lib/"pgxs/src/Makefile.global",
+                "LD = #{HOMEBREW_PREFIX}/Homebrew/Library/Homebrew/shims/linux/super/ld",
+                "LD = #{HOMEBREW_PREFIX}/bin/ld"
     end
   end
 
   def post_install
-    return if ENV["CI"]
-
     (var/"log").mkpath
-    (var/name).mkpath
-    system "#{bin}/initdb", "#{var}/#{name}" unless File.exist? "#{var}/#{name}/PG_VERSION"
+    postgresql_datadir.mkpath
+
+    # Don't initialize database, it clashes when testing other PostgreSQL versions.
+    return if ENV["HOMEBREW_GITHUB_ACTIONS"]
+
+    system "#{bin}/initdb", "--locale=C", "-E", "UTF-8", postgresql_datadir unless pg_version_exists?
+  end
+
+  def postgresql_datadir
+    var/name
+  end
+
+  def postgresql_log_path
+    var/"log/#{name}.log"
+  end
+
+  def pg_version_exists?
+    (postgresql_datadir/"PG_VERSION").exist?
   end
 
   def caveats
     <<~EOS
-      To migrate existing data from a previous major version of PostgreSQL run:
-        brew postgresql-upgrade-database
-
       This formula has created a default database cluster with:
-        initdb #{var}/postgres
+        initdb --locale=C -E UTF-8 #{postgresql_datadir}
       For more details, read:
         https://www.postgresql.org/docs/#{version.major}/app-initdb.html
     EOS
   end
 
-  plist_options manual: "pg_ctl -D #{HOMEBREW_PREFIX}/var/postgresql@10 start"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-      <dict>
-        <key>KeepAlive</key>
-        <true/>
-        <key>Label</key>
-        <string>#{plist_name}</string>
-        <key>ProgramArguments</key>
-        <array>
-          <string>#{opt_bin}/postgres</string>
-          <string>-D</string>
-          <string>#{var}/#{name}</string>
-        </array>
-        <key>RunAtLoad</key>
-        <true/>
-        <key>WorkingDirectory</key>
-        <string>#{HOMEBREW_PREFIX}</string>
-        <key>StandardOutPath</key>
-        <string>#{var}/log/#{name}.log</string>
-        <key>StandardErrorPath</key>
-        <string>#{var}/log/#{name}.log</string>
-      </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"postgres", "-D", var/"postgresql@10"]
+    keep_alive true
+    log_path var/"log/postgresql@10.log"
+    error_log_path var/"log/postgresql@10.log"
+    working_dir HOMEBREW_PREFIX
   end
 
   test do
-    system "#{bin}/initdb", testpath/"test" unless ENV["CI"]
+    system "#{bin}/initdb", testpath/"test" unless ENV["HOMEBREW_GITHUB_ACTIONS"]
     assert_equal pkgshare.to_s, shell_output("#{bin}/pg_config --sharedir").chomp
     assert_equal lib.to_s, shell_output("#{bin}/pg_config --libdir").chomp
     assert_equal lib.to_s, shell_output("#{bin}/pg_config --pkglibdir").chomp

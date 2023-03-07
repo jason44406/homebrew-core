@@ -1,19 +1,28 @@
 class Cgdb < Formula
   desc "Curses-based interface to the GNU Debugger"
   homepage "https://cgdb.github.io/"
-  url "https://cgdb.me/files/cgdb-0.7.1.tar.gz"
-  sha256 "bb723be58ec68cb59a598b8e24a31d10ef31e0e9c277a4de07b2f457fe7de198"
-  license "GPL-2.0"
+  url "https://cgdb.me/files/cgdb-0.8.0.tar.gz"
+  sha256 "0d38b524d377257b106bad6d856d8ae3304140e1ee24085343e6ddf1b65811f1"
+  license "GPL-2.0-or-later"
+
+  livecheck do
+    url "https://cgdb.me/files/"
+    regex(/href=.*?cgdb[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    sha256 "50abc3a292d69a3a121f3ed7d54d72f4528eb1285faa7f842bb96588a463dc88" => :catalina
-    sha256 "8f361fcad59ddf4825f4d42b516a099ba75bfffc0b885d42aeb875dbd1b2a1d4" => :mojave
-    sha256 "9ab4c0a880cb71903094929b04eada3c279a48ddb00b651a8a93d55cd523d380" => :high_sierra
-    sha256 "db6c63b20e2185ecaaf3ddef92d1ff052f0b0322c727f3f0429ef0d38ac9d269" => :sierra
+    sha256 arm64_ventura:  "2c71862edb76b37a42f6d41f2f461a56313bb6e56139ab78fe32ee0fe1cea7c5"
+    sha256 arm64_monterey: "cf029cddf3d08875c2f363d6ed9df10bfb944830d448557784e669138a3aefa5"
+    sha256 arm64_big_sur:  "1dfbebad73683e283033ce308c131a9509a1db30df30830f8177c08f631b69c4"
+    sha256 ventura:        "d959481de39f00122a3274092eebb71c62892c0a2abbee8f59fbb3c1040a5c16"
+    sha256 monterey:       "8fd498ac0f53354ec1b2298e5b6d0bf5d11f2047ca0df29b44b3b31a6bf89682"
+    sha256 big_sur:        "82301d4bbc42f2feea9b20676554ed96360d7ce7626b5ef02afb6e76983818f6"
+    sha256 catalina:       "0cf4c2cd5ed2f6b831581d06d3f9614007aaecc16bc4ba0a1fce85afa81a11ee"
+    sha256 x86_64_linux:   "cb3a12c3700e55375cffe843a4bdf8e4fe2541219dc1da35304f7dbece2f5809"
   end
 
   head do
-    url "https://github.com/cgdb/cgdb.git"
+    url "https://github.com/cgdb/cgdb.git", branch: "master"
 
     depends_on "autoconf" => :build
     depends_on "automake" => :build
@@ -23,6 +32,10 @@ class Cgdb < Formula
   depends_on "readline"
 
   uses_from_macos "flex" => :build
+
+  on_system :linux, macos: :ventura_or_newer do
+    depends_on "texinfo" => :build
+  end
 
   def install
     system "sh", "autogen.sh" if build.head?

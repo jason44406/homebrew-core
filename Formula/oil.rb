@@ -1,24 +1,41 @@
 class Oil < Formula
   desc "Bash-compatible Unix shell with more consistent syntax and semantics"
   homepage "https://www.oilshell.org/"
-  url "https://www.oilshell.org/download/oil-0.7.0.tar.gz"
-  sha256 "da462387a467661cb9d0ec9b667aecd7be3f54ce662cfbb2292f4795fd3f7f20"
+  url "https://www.oilshell.org/download/oil-0.14.1.tar.gz"
+  sha256 "586ffd3de890ee33ae855d02ac49b06a4e85bfa1ca710e8e1333acf004d8c92c"
   license "Apache-2.0"
-  head "https://github.com/oilshell/oil.git"
 
-  bottle do
-    sha256 "8e5714ec5cc0700623b37e8c6e64c2fc85bec5cb91a48ecdd23c2139d2e0615c" => :catalina
-    sha256 "8e135274574ff3c21248feca2ba837e8197bba55b78c41b0f80f7a3ff0cdb3b1" => :mojave
-    sha256 "89427ac26ef12831c9e1a737abad953791a753d2c806bc5cf369b152fa308b1d" => :high_sierra
+  livecheck do
+    url "https://www.oilshell.org/releases.html"
+    regex(/href=.*?oil[._-]v?(\d+(?:\.\d+)+)\.t/i)
   end
 
+  bottle do
+    sha256 arm64_ventura:  "c9f92d8d391b561ed803518d6d2782564d69c1b4af24b245535192a9178dfba3"
+    sha256 arm64_monterey: "198736096f1135c77bdb83e2bed8d30e6f999beae964f446f330ed111ba61c5b"
+    sha256 arm64_big_sur:  "17bd14fc2404dad8b47827920582995e290b2bab09a9d47b867637edcf690632"
+    sha256 ventura:        "2376227f31b34ee0cc59eb4dd4677474a35142e868a9a66a7f0e92da733c71b5"
+    sha256 monterey:       "975b383160b4602e5f89375b0b3e5ec2f6f4a52e9b4e209c658941572110aa00"
+    sha256 big_sur:        "7d286867a1fcc0b9a10587d5507d38a90c0251363637348bd15ff8173e488d1d"
+  end
+
+  depends_on "readline"
+
+  conflicts_with "omake", because: "both install 'osh' binaries"
+
   def install
-    system "./configure", "--prefix=#{prefix}"
+    system "./configure", "--prefix=#{prefix}",
+                          "--datarootdir=#{share}",
+                          "--with-readline=#{Formula["readline"].opt_prefix}"
     system "make"
     system "./install"
   end
 
   test do
-    assert_equal pipe_output("#{bin}/osh -c 'pwd'").strip, testpath.to_s
+    system "#{bin}/osh", "-c", "shopt -q parse_backticks"
+    assert_equal testpath.to_s, shell_output("#{bin}/osh -c 'echo `pwd -P`'").strip
+
+    system "#{bin}/oil", "-c", "shopt -u parse_equals"
+    assert_equal "bar", shell_output("#{bin}/oil -c 'var foo = \"bar\"; write $foo'").strip
   end
 end

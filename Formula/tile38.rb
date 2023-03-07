@@ -2,15 +2,19 @@ class Tile38 < Formula
   desc "In-memory geolocation data store, spatial index, and realtime geofence"
   homepage "https://tile38.com/"
   url "https://github.com/tidwall/tile38.git",
-    tag:      "1.22.0",
-    revision: "bd572b0d3843b4a33f300653ef70e368370bd50e"
+      tag:      "1.30.2",
+      revision: "ae3e549cfc5ead8cdd792c14d553e21401c36cbb"
   license "MIT"
+  head "https://github.com/tidwall/tile38.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "6e606e977dbe5bf0c286361713f020c085fad931bdb84fd344e9a00b42b50b6f" => :catalina
-    sha256 "2cc618a4743e14b1c0603e2f8c3ec7af299bf62ac134cb1b021e375776178704" => :mojave
-    sha256 "aa28a00edb4e3208061669510f692005d15668198921a841f135c6d7347149c0" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "3d704bf89b40b03a39643ac2276799fd274b142f716345bbdf0e6e4afbf539dc"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "d74675562141e2f890de61f7f38a052d7bbd8da302632d3cbf74c277ea3d76cb"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "b2a9717eb8c5a30eccc46514452c601652b44024476b6f0a7d764cc83bd17391"
+    sha256 cellar: :any_skip_relocation, ventura:        "f8dc85420680aba11af689e1cbe0c1b8d1771814bf0931257ab10cf80e56584f"
+    sha256 cellar: :any_skip_relocation, monterey:       "4117611ebf34c732be2de2498aa14b3276c59da737179d3de16966db3845603b"
+    sha256 cellar: :any_skip_relocation, big_sur:        "1b02c2a508b38e4ce9d1d329873e12921880899a06c5841ebec7157de730ad0b"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "7eef6ef6c541a5740e63661b0c0d44b358ec82a5582bd97a7da3d99308870e5e"
   end
 
   depends_on "go" => :build
@@ -20,16 +24,14 @@ class Tile38 < Formula
   end
 
   def install
-    commit = Utils.safe_popen_read("git", "rev-parse", "--short", "HEAD").chomp
-
     ldflags = %W[
       -s -w
       -X github.com/tidwall/tile38/core.Version=#{version}
-      -X github.com/tidwall/tile38/core.GitSHA=#{commit}
-    ]
+      -X github.com/tidwall/tile38/core.GitSHA=#{Utils.git_short_head}
+    ].join(" ")
 
-    system "go", "build", "-o", bin/"tile38-server", "-ldflags", ldflags.join(" "), "./cmd/tile38-server"
-    system "go", "build", "-o", bin/"tile38-cli", "-ldflags", ldflags.join(" "), "./cmd/tile38-cli"
+    system "go", "build", *std_go_args(ldflags: ldflags), "-o", bin/"tile38-server", "./cmd/tile38-server"
+    system "go", "build", *std_go_args(ldflags: ldflags), "-o", bin/"tile38-cli", "./cmd/tile38-cli"
   end
 
   def post_install
@@ -43,49 +45,26 @@ class Tile38 < Formula
     EOS
   end
 
-  plist_options manual: "tile38-server -d #{HOMEBREW_PREFIX}/var/tile38/data"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>KeepAlive</key>
-          <dict>
-            <key>SuccessfulExit</key>
-            <false/>
-          </dict>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{opt_bin}/tile38-server</string>
-            <string>-d</string>
-            <string>#{datadir}</string>
-          </array>
-          <key>RunAtLoad</key>
-          <true/>
-          <key>WorkingDirectory</key>
-          <string>#{var}</string>
-          <key>StandardErrorPath</key>
-          <string>#{var}/log/tile38.log</string>
-          <key>StandardOutPath</key>
-          <string>#{var}/log/tile38.log</string>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"tile38-server", "-d", var/"tile38/data"]
+    keep_alive true
+    working_dir var
+    log_path var/"log/tile38.log"
+    error_log_path var/"log/tile38.log"
   end
 
   test do
+    port = free_port
     pid = fork do
-      exec "#{bin}/tile38-server", "-q"
+      exec "#{bin}/tile38-server", "-q", "-p", port.to_s
     end
     sleep 2
     # remove `$408` in the first line output
-    json_output = shell_output("#{bin}/tile38-cli server").lines[1]
+    json_output = shell_output("#{bin}/tile38-cli -p #{port} server")
     tile38_server = JSON.parse(json_output)
+
     assert_equal tile38_server["ok"], true
+    assert_predicate testpath/"data", :exist?
   ensure
     Process.kill("HUP", pid)
   end

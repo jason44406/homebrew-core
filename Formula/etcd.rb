@@ -2,62 +2,46 @@ class Etcd < Formula
   desc "Key value store for shared configuration and service discovery"
   homepage "https://github.com/etcd-io/etcd"
   url "https://github.com/etcd-io/etcd.git",
-    tag:      "v3.4.13",
-    revision: "ae9734ed278b7a1a7dfc82e800471ebbf9fce56f"
+      tag:      "v3.5.7",
+      revision: "215b53cf3b48ee761f4c40908b3874b2e5e95e9f"
   license "Apache-2.0"
-  head "https://github.com/etcd-io/etcd.git"
+  head "https://github.com/etcd-io/etcd.git", branch: "main"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "ff3603b21a38568e3a2ae9964cdacbb5adfdc8b094c98b8e0423d2e4fb82c8ca" => :catalina
-    sha256 "8c3f78a11d36c7c934deb4faa1007645d8cdb8293b04242e92e536551752a805" => :mojave
-    sha256 "642a6b2ef0dbfabad3645e512c507aca25fa777a84e1790f7d18f8f63a2c637d" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "1fe729530dc6c4c3b3769c131b231718b0a211d9d423dbdc74400401c541c037"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "1fe729530dc6c4c3b3769c131b231718b0a211d9d423dbdc74400401c541c037"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "1fe729530dc6c4c3b3769c131b231718b0a211d9d423dbdc74400401c541c037"
+    sha256 cellar: :any_skip_relocation, ventura:        "5bccd38618d5a65fc3ad05fe99447dfa968c22a3d27a98acaabc92c9fb44e994"
+    sha256 cellar: :any_skip_relocation, monterey:       "5bccd38618d5a65fc3ad05fe99447dfa968c22a3d27a98acaabc92c9fb44e994"
+    sha256 cellar: :any_skip_relocation, big_sur:        "5bccd38618d5a65fc3ad05fe99447dfa968c22a3d27a98acaabc92c9fb44e994"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "02a267f2c3db4e1063e703e1243daca054cad510c99039d3f17b0bca39089c6b"
   end
 
   depends_on "go" => :build
 
   def install
-    # Fix vendored deps issue (remove this in the next release)
-    system "go", "mod", "vendor"
-
-    system "go", "build", "-mod=vendor", "-ldflags", "-s -w -X main.version=#{version}", "-trimpath", "-o",
-      bin/"etcd"
-    system "go", "build", "-mod=vendor", "-ldflags", "-s -w -X main.version=#{version}", "-trimpath", "-o",
-      bin/"etcdctl", "etcdctl/main.go"
-    prefix.install_metafiles
+    system "make", "build"
+    bin.install Dir[buildpath/"bin/*"]
   end
 
-  plist_options manual: "etcd"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>KeepAlive</key>
-          <dict>
-            <key>SuccessfulExit</key>
-            <false/>
-          </dict>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{opt_bin}/etcd</string>
-          </array>
-          <key>RunAtLoad</key>
-          <true/>
-          <key>WorkingDirectory</key>
-          <string>#{var}</string>
-        </dict>
-      </plist>
-    EOS
+  service do
+    environment_variables ETCD_UNSUPPORTED_ARCH: "arm64" if Hardware::CPU.arm?
+    run [opt_bin/"etcd"]
+    run_type :immediate
+    keep_alive true
+    working_dir var
   end
 
   test do
     test_string = "Hello from brew test!"
     etcd_pid = fork do
+      if OS.mac? && Hardware::CPU.arm?
+        # etcd isn't officially supported on arm64
+        # https://github.com/etcd-io/etcd/issues/10318
+        # https://github.com/etcd-io/etcd/issues/10677
+        ENV["ETCD_UNSUPPORTED_ARCH"]="arm64"
+      end
+
       exec bin/"etcd",
         "--enable-v2", # enable etcd v2 client support
         "--force-new-cluster",

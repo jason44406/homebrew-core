@@ -1,23 +1,31 @@
 class Chamber < Formula
   desc "CLI for managing secrets through AWS SSM Parameter Store"
   homepage "https://github.com/segmentio/chamber"
-  url "https://github.com/segmentio/chamber/archive/v2.8.2.tar.gz"
-  sha256 "7f471abf96c92c619641d7a3fed130cddbd815c9c15fe2f151e6c981f5706584"
+  url "https://github.com/segmentio/chamber/archive/v2.12.0.tar.gz"
+  sha256 "fa933b988cebc717c0443fa1469a3c9569df9f2fbb485713af21c443526070c9"
   license "MIT"
-  head "https://github.com/segmentio/chamber.git"
+  head "https://github.com/segmentio/chamber.git", branch: "master"
+
+  livecheck do
+    url :stable
+    regex(%r{href=.*?/tag/v?(\d+(?:\.\d+)+(?:-ci\d)?)["' >]}i)
+    strategy :github_latest
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "8371eee8ce1d24a682597422a12b651ef6cdbabe3ef81c9678ee8f460401d063" => :catalina
-    sha256 "fe13b0ef1b110c43034f0e4ce3c414c68f199bcc5147ba2dda16608ab6673a05" => :mojave
-    sha256 "948c865eb11c46e8d662dad8db21f39d53476a99bfb5475aa1fdb68b5cd86201" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "f0bcfa0be19425fbf50fb7e0daafaa5127c4534b69a353a76e1fd969554f9575"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "f0bcfa0be19425fbf50fb7e0daafaa5127c4534b69a353a76e1fd969554f9575"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "f0bcfa0be19425fbf50fb7e0daafaa5127c4534b69a353a76e1fd969554f9575"
+    sha256 cellar: :any_skip_relocation, ventura:        "1a9bba036b13204c312a5b1939171accb5eed9859f780fa62553cb0c1f8caf36"
+    sha256 cellar: :any_skip_relocation, monterey:       "1a9bba036b13204c312a5b1939171accb5eed9859f780fa62553cb0c1f8caf36"
+    sha256 cellar: :any_skip_relocation, big_sur:        "1a9bba036b13204c312a5b1939171accb5eed9859f780fa62553cb0c1f8caf36"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "94c7d70088a6625ac4b394e57c57172a9a57cc19b560c8468f87bbed236ae8d1"
   end
 
   depends_on "go" => :build
 
   def install
-    system "go", "build", "-ldflags", "-s -w -X main.Version=v#{version}", "-trimpath", "-o", bin/"chamber"
-    prefix.install_metafiles
+    system "go", "build", *std_go_args(ldflags: "-s -w -X main.Version=v#{version}")
   end
 
   test do

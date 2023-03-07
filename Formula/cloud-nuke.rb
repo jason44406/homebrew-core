@@ -1,31 +1,25 @@
 class CloudNuke < Formula
   desc "CLI tool to nuke (delete) cloud resources"
   homepage "https://gruntwork.io/"
-  url "https://github.com/gruntwork-io/cloud-nuke/archive/v0.1.20.tar.gz"
-  sha256 "9a8df713129afe2c4a536dcf3286353ecfb1899655efb95a6608c078cc66f89e"
+  url "https://github.com/gruntwork-io/cloud-nuke/archive/v0.26.0.tar.gz"
+  sha256 "da5455b516efd6be81e2b9ae25b933575eab7d88bc8ff89b91ae171023d10e31"
   license "MIT"
-  head "https://github.com/gruntwork-io/cloud-nuke.git"
+  head "https://github.com/gruntwork-io/cloud-nuke.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "1bd062358ee79ddd80e6aa82b70586c35e5db0f5578e828534186a2945114be2" => :catalina
-    sha256 "00d0e25987130eef854be69b476785b5c9520c010462b152435aa6a406098c2a" => :mojave
-    sha256 "a7a6c5ebabdab4c70e408d12dac4798d675dcb067de4e342d08c9d8a894ea9b9" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "2591aeea84e255390ce99c782add4bcb1350cabe755b631fe28fbc6546f12f4e"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "2591aeea84e255390ce99c782add4bcb1350cabe755b631fe28fbc6546f12f4e"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "2591aeea84e255390ce99c782add4bcb1350cabe755b631fe28fbc6546f12f4e"
+    sha256 cellar: :any_skip_relocation, ventura:        "be0e0d667496f05ac1a7ab26f73ce5718507c68e633a2a8e28437626a5820c98"
+    sha256 cellar: :any_skip_relocation, monterey:       "be0e0d667496f05ac1a7ab26f73ce5718507c68e633a2a8e28437626a5820c98"
+    sha256 cellar: :any_skip_relocation, big_sur:        "be0e0d667496f05ac1a7ab26f73ce5718507c68e633a2a8e28437626a5820c98"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "85993ac74073d8437213e815e4d89095b2fedd871222805873487a781a6e18a8"
   end
 
   depends_on "go" => :build
 
   def install
-    system "go", "build", "-ldflags", "-X main.VERSION=v#{version}", *std_go_args
-  end
-
-  def caveats
-    <<~EOS
-      Before you can use these tools, you must export some variables to your $SHELL.
-        export AWS_ACCESS_KEY="<Your AWS Access ID>"
-        export AWS_SECRET_KEY="<Your AWS Secret Key>"
-        export AWS_REGION="<Your AWS Region>"
-    EOS
+    system "go", "build", *std_go_args(ldflags: "-s -w -X main.VERSION=v#{version}")
   end
 
   test do

@@ -1,38 +1,57 @@
 class Ruby < Formula
   desc "Powerful, clean, object-oriented scripting language"
   homepage "https://www.ruby-lang.org/"
-  url "https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.1.tar.xz"
-  sha256 "b224f9844646cc92765df8288a46838511c1cec5b550d8874bd4686a904fcee7"
   license "Ruby"
-  revision 2
+
+  stable do
+    url "https://cache.ruby-lang.org/pub/ruby/3.2/ruby-3.2.1.tar.gz"
+    sha256 "13d67901660ee3217dbd9dd56059346bd4212ce64a69c306ef52df64935f8dbd"
+
+    # Should be updated only when Ruby is updated (if an update is available).
+    # The exception is Rubygem security fixes, which mandate updating this
+    # formula & the versioned equivalents and bumping the revisions.
+    resource "rubygems" do
+      url "https://rubygems.org/rubygems/rubygems-3.4.6.tgz"
+      sha256 "6a53bdd53495e80cda63a1f393c45bea0d66b3ecf11c34d88fabdacd0704412f"
+    end
+  end
+
+  livecheck do
+    url "https://www.ruby-lang.org/en/downloads/"
+    regex(/href=.*?ruby[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    sha256 "c9ee36823a8dfe2686c6d7a3faf5061a032ed0b8e08d484f3ff2cda72d210a08" => :catalina
-    sha256 "d597bee751f9419ea7b40d8125e4f58b2c1eb675b929fe85d8463a6e008b2250" => :mojave
-    sha256 "345677b922e40e7324bbab0d68593a2bbef7aa3e8f636fd850295f3414758ed7" => :high_sierra
+    sha256 arm64_ventura:  "847ffd1c19baa2529b3caa244a86811298697a56da93dd955fe5c28d0f288497"
+    sha256 arm64_monterey: "c9ff8aa4730964478c58972c2237f5ff8dc8d04d93af1104ee320b6bd75de317"
+    sha256 arm64_big_sur:  "134bee6f2ef2301b46cc42ec07d5af577bf1d22f3590be5480f22f4c78a5e742"
+    sha256 ventura:        "067df852d76aec266a429828840242efded9d5345f27abef8b56e0b12efeeba7"
+    sha256 monterey:       "52b35ac566918d22a102f4b37417e534ca23653b050d1264f2b63c90f9e78617"
+    sha256 big_sur:        "7f8fbebe38b5f1e9c8940bc2607a2a71fe04069bb37b36c950e608f44d8c01ba"
+    sha256 x86_64_linux:   "6ef0ae1a01d1949b831c5f52d46a4f45898a6337011a33dbfacca47d1b0c58be"
   end
 
   head do
-    url "https://github.com/ruby/ruby.git", branch: "trunk"
+    url "https://github.com/ruby/ruby.git", branch: "master"
     depends_on "autoconf" => :build
+    depends_on "bison" => :build
+    depends_on "rust" => :build
   end
 
   keg_only :provided_by_macos
 
+  depends_on "autoconf" => :build
+  depends_on "bison" => :build
   depends_on "pkg-config" => :build
+  depends_on "rust" => :build
   depends_on "libyaml"
   depends_on "openssl@1.1"
   depends_on "readline"
 
+  uses_from_macos "gperf"
+  uses_from_macos "libffi"
+  uses_from_macos "libxcrypt"
   uses_from_macos "zlib"
-
-  # Should be updated only when Ruby is updated (if an update is available).
-  # The exception is Rubygem security fixes, which mandate updating this
-  # formula & the versioned equivalents and bumping the revisions.
-  resource "rubygems" do
-    url "https://rubygems.org/rubygems/rubygems-3.1.2.tgz"
-    sha256 "edd1a6bca6e780a3f65019bbcb0bbfe36c65a9809c0d43e7b52f23792591f140"
-  end
 
   def api_version
     Utils.safe_popen_read("#{bin}/ruby", "-e", "print Gem.ruby_api_version")
@@ -46,7 +65,12 @@ class Ruby < Formula
     # otherwise `gem` command breaks
     ENV.delete("SDKROOT")
 
-    system "autoconf" if build.head?
+    # Prevent `make` from trying to install headers into the SDK
+    # TODO: Remove this workaround when the following PR is merged/resolved:
+    #       https://github.com/Homebrew/brew/pull/12508
+    inreplace "tool/mkconfig.rb", /^(\s+val = )'"\$\(SDKROOT\)"'\+/, "\\1"
+
+    system "./autogen.sh" if build.head?
 
     paths = %w[libyaml openssl@1.1 readline].map { |f| Formula[f].opt_prefix }
     args = %W[
@@ -58,10 +82,10 @@ class Ruby < Formula
       --with-opt-dir=#{paths.join(":")}
       --without-gmp
     ]
-    args << "--disable-dtrace" unless MacOS::CLT.installed?
+    args << "--disable-dtrace" if OS.mac? && !MacOS::CLT.installed?
 
     # Correct MJIT_CC to not use superenv shim
-    args << "MJIT_CC=/usr/bin/clang"
+    args << "MJIT_CC=/usr/bin/#{DevelopmentTools.default_compiler}"
 
     system "./configure", *args
 
@@ -84,6 +108,8 @@ class Ruby < Formula
     # A newer version of ruby-mode.el is shipped with Emacs
     elisp.install Dir["misc/*.el"].reject { |f| f == "misc/ruby-mode.el" }
 
+    return if build.head? # Use bundled RubyGems for --HEAD (will be newer)
+
     # This is easier than trying to keep both current & versioned Ruby
     # formulae repeatedly updated with Rubygem patches.
     resource("rubygems").stage do
@@ -91,16 +117,21 @@ class Ruby < Formula
 
       system "#{bin}/ruby", "setup.rb", "--prefix=#{buildpath}/vendor_gem"
       rg_in = lib/"ruby/#{api_version}"
+      rg_gems_in = lib/"ruby/gems/#{api_version}"
 
       # Remove bundled Rubygem and Bundler
-      rm_rf rg_in/"bundler"
-      rm_rf rg_in/"rubygems"
-      rm_f rg_in/"rubygems.rb"
-      rm_f rg_in/"ubygems.rb"
-      rm_f bin/"gem"
+      rm_r rg_in/"bundler"
+      rm rg_in/"bundler.rb"
+      rm_r Dir[rg_gems_in/"gems/bundler-*"]
+      rm Dir[rg_gems_in/"specifications/default/bundler-*.gemspec"]
+      rm_r rg_in/"rubygems"
+      rm rg_in/"rubygems.rb"
+      rm bin/"gem"
 
       # Drop in the new version.
       rg_in.install Dir[buildpath/"vendor_gem/lib/*"]
+      (rg_gems_in/"gems").install Dir[buildpath/"vendor_gem/gems/*"]
+      (rg_gems_in/"specifications/default").install Dir[buildpath/"vendor_gem/specifications/default/*"]
       bin.install buildpath/"vendor_gem/bin/gem" => "gem"
       (libexec/"gembin").install buildpath/"vendor_gem/bin/bundle" => "bundle"
       (libexec/"gembin").install_symlink "bundle" => "bundler"
@@ -222,10 +253,10 @@ class Ruby < Formula
 
     (testpath/"Gemfile").write <<~EOS
       source 'https://rubygems.org'
-      gem 'gemoji'
+      gem 'github-markup'
     EOS
     system bin/"bundle", "exec", "ls" # https://github.com/Homebrew/homebrew-core/issues/53247
     system bin/"bundle", "install", "--binstubs=#{testpath}/bin"
-    assert_predicate testpath/"bin/gemoji", :exist?, "gemoji is not installed in #{testpath}/bin"
+    assert_predicate testpath/"bin/github-markup", :exist?, "github-markup is not installed in #{testpath}/bin"
   end
 end

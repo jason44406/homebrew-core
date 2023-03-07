@@ -1,45 +1,52 @@
 class Go < Formula
   desc "Open source programming language to build simple/reliable/efficient software"
-  homepage "https://golang.org"
+  homepage "https://go.dev/"
+  url "https://go.dev/dl/go1.20.1.src.tar.gz"
+  mirror "https://fossies.org/linux/misc/go1.20.1.src.tar.gz"
+  sha256 "b5c1a3af52c385a6d1c76aed5361cf26459023980d0320de7658bae3915831a2"
   license "BSD-3-Clause"
+  head "https://go.googlesource.com/go.git", branch: "master"
 
-  stable do
-    url "https://golang.org/dl/go1.15.src.tar.gz"
-    mirror "https://fossies.org/linux/misc/go1.15.src.tar.gz"
-    sha256 "69438f7ed4f532154ffaf878f3dfd83747e7a00b70b3556eddabf7aaee28ac3a"
-
-    go_version = version.major_minor
-    resource "gotools" do
-      url "https://go.googlesource.com/tools.git",
-          branch: "release-branch.go#{go_version}"
-    end
+  livecheck do
+    url "https://go.dev/dl/"
+    regex(/href=.*?go[._-]?v?(\d+(?:\.\d+)+)[._-]src\.t/i)
   end
 
   bottle do
-    sha256 "36ef2e4cc3ecc84e0c1e98580a63f8d417efc8831f0c59b0a7e13d517c61353b" => :catalina
-    sha256 "ea373dd668c31caa9816a5028028694425635cc3871783709381d872906fa78e" => :mojave
-    sha256 "a29ea808ffac13d3967dee44f30a9f72709b941f7e82836715f939970e6cb222" => :high_sierra
-  end
-
-  head do
-    url "https://go.googlesource.com/go.git"
-
-    resource "gotools" do
-      url "https://go.googlesource.com/tools.git"
-    end
+    sha256 arm64_ventura:  "1fdcae1a158eb97520e184d6ead9a312706e75648b0c72e45e54072adfa1c55f"
+    sha256 arm64_monterey: "1fdcae1a158eb97520e184d6ead9a312706e75648b0c72e45e54072adfa1c55f"
+    sha256 arm64_big_sur:  "1fdcae1a158eb97520e184d6ead9a312706e75648b0c72e45e54072adfa1c55f"
+    sha256 ventura:        "b763597544bbe1df40a63ef2bbe10c04855d674e65322efa0c97fc4938ff5bd8"
+    sha256 monterey:       "b763597544bbe1df40a63ef2bbe10c04855d674e65322efa0c97fc4938ff5bd8"
+    sha256 big_sur:        "b763597544bbe1df40a63ef2bbe10c04855d674e65322efa0c97fc4938ff5bd8"
+    sha256 x86_64_linux:   "2b95153c24bb83c59b1baf9253c230d7827cb8319156d4bfa34c4aee48aedc04"
   end
 
   # Don't update this unless this version cannot bootstrap the new version.
   resource "gobootstrap" do
-    on_macos do
-      url "https://storage.googleapis.com/golang/go1.7.darwin-amd64.tar.gz"
-      sha256 "51d905e0b43b3d0ed41aaf23e19001ab4bc3f96c3ca134b48f7892485fc52961"
+    checksums = {
+      "darwin-arm64" => "e4ccc9c082d91eaa0b866078b591fc97d24b91495f12deb3dd2d8eda4e55a6ea",
+      "darwin-amd64" => "c101beaa232e0f448fab692dc036cd6b4677091ff89c4889cc8754b1b29c6608",
+      "linux-arm64"  => "914daad3f011cc2014dea799bb7490442677e4ad6de0b2ac3ded6cee7e3f493d",
+      "linux-amd64"  => "4cdd2bc664724dc7db94ad51b503512c5ae7220951cac568120f64f8e94399fc",
+    }
+
+    arch = "arm64"
+    platform = "darwin"
+
+    on_intel do
+      arch = "amd64"
     end
 
     on_linux do
-      url "https://storage.googleapis.com/golang/go1.7.linux-amd64.tar.gz"
-      sha256 "702ad90f705365227e902b42d91dd1a40e48ca7f67a2f4b2fd052aaa4295cd95"
+      platform = "linux"
     end
+
+    boot_version = "1.17.13"
+
+    url "https://storage.googleapis.com/golang/go#{boot_version}.#{platform}-#{arch}.tar.gz"
+    version boot_version
+    sha256 checksums["#{platform}-#{arch}"]
   end
 
   def install
@@ -48,25 +55,20 @@ class Go < Formula
 
     cd "src" do
       ENV["GOROOT_FINAL"] = libexec
-      system "./make.bash", "--no-clean"
+      system "./make.bash"
     end
 
-    (buildpath/"pkg/obj").rmtree
     rm_rf "gobootstrap" # Bootstrap not required beyond compile.
     libexec.install Dir["*"]
     bin.install_symlink Dir[libexec/"bin/go*"]
 
     system bin/"go", "install", "-race", "std"
 
-    # Build and install godoc
-    ENV.prepend_path "PATH", bin
-    ENV["GOPATH"] = buildpath
-    (buildpath/"src/golang.org/x/tools").install resource("gotools")
-    cd "src/golang.org/x/tools/cmd/godoc/" do
-      system "go", "build"
-      (libexec/"bin").install "godoc"
-    end
-    bin.install_symlink libexec/"bin/godoc"
+    # Remove useless files.
+    # Breaks patchelf because folder contains weird debug/test files
+    (libexec/"src/debug/elf/testdata").rmtree
+    # Binaries built for an incompatible architecture
+    (libexec/"src/runtime/pprof/testdata").rmtree
   end
 
   test do
@@ -83,10 +85,6 @@ class Go < Formula
     # This is a a bare minimum of go working as it uses fmt, build, and run.
     system bin/"go", "fmt", "hello.go"
     assert_equal "Hello World\n", shell_output("#{bin}/go run hello.go")
-
-    # godoc was installed
-    assert_predicate libexec/"bin/godoc", :exist?
-    assert_predicate libexec/"bin/godoc", :executable?
 
     ENV["GOOS"] = "freebsd"
     ENV["GOARCH"] = "amd64"

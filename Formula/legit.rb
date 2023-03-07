@@ -4,19 +4,24 @@ class Legit < Formula
   desc "Command-line interface for Git, optimized for workflow simplicity"
   homepage "https://frostming.github.io/legit/"
   url "https://files.pythonhosted.org/packages/cb/e4/8cc5904c486241bf2edc4dd84f357fa96686dc85f48eedb835af65f821bf/legit-1.2.0.post0.tar.gz"
-  version "1.2.0.post0"
   sha256 "949396b68029a8af405ab20c901902341ef6bd55c7fec6dab71141d63d406b11"
   license "BSD-3-Clause"
+  revision 3
   head "https://github.com/frostming/legit.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "f8e751f24ec29945d19282e2ba4ebbde289f29365c62e2083792bae79b1be7b9" => :catalina
-    sha256 "3cf90c6383f7a7f0be82aeef8605775de297b3911484d2472970562031d2d008" => :mojave
-    sha256 "cec24c2e497d9b8c162a06fb867778da3ecb08fe8ff7299a386c8abf1a03f895" => :high_sierra
+    rebuild 2
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "9c5c0cfe02e4bfbfbf317b6497d053383c890108681e509ffe860e309ec3c4dd"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "9e05fd8a51bf20e69fa663faaf63eb849fc571d1ebb60d9c12cf682649866b91"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "aff01568c3bd19aeea61c6178489d89398c2a45b4f7848ce4e12c9172e418119"
+    sha256 cellar: :any_skip_relocation, ventura:        "50a9343aaca8abf4e65797d41cd3694649ebb420aa82e4d338f70eb3386502ee"
+    sha256 cellar: :any_skip_relocation, monterey:       "bb96cbb5c46cdb0cf70f284deb561914ef6df5cf58bc994ea552b83d45b6d25d"
+    sha256 cellar: :any_skip_relocation, big_sur:        "9ac152c3c80f71a7603033ed36e9c13a84f877fd174bcb6d773d2607fb016d17"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "df26fa697c854d6c210f06241ec9739bf40d8e69c3ab53d72f2fb7de1ea75e5b"
   end
 
-  depends_on "python@3.8"
+  depends_on "python@3.11"
+  depends_on "six"
 
   resource "args" do
     url "https://files.pythonhosted.org/packages/e5/1c/b701b3f4bd8d3667df8342f311b3efaeab86078a840fb826bd204118cc6b/args-0.1.0.tar.gz"
@@ -24,8 +29,8 @@ class Legit < Formula
   end
 
   resource "click" do
-    url "https://files.pythonhosted.org/packages/95/d9/c3336b6b5711c3ab9d1d3a80f1a3e2afeb9d8c02a7166462f6cc96570897/click-6.7.tar.gz"
-    sha256 "f15516df478d5a56180fbf80e68f206010e6d160fc39fa508b65e035fd75130b"
+    url "https://files.pythonhosted.org/packages/59/87/84326af34517fca8c58418d148f2403df25303e02736832403587318e9e8/click-8.1.3.tar.gz"
+    sha256 "7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e"
   end
 
   resource "clint" do
@@ -34,33 +39,28 @@ class Legit < Formula
   end
 
   resource "colorama" do
-    url "https://files.pythonhosted.org/packages/76/53/e785891dce0e2f2b9f4b4ff5bc6062a53332ed28833c7afede841f46a5db/colorama-0.4.1.tar.gz"
-    sha256 "05eed71e2e327246ad6b38c540c4a3117230b19679b875190486ddd2d721422d"
+    url "https://files.pythonhosted.org/packages/d8/53/6f443c9a4a8358a93a6792e2acffb9d9d5cb0a5cfd8802644b7b1c9a02e4/colorama-0.4.6.tar.gz"
+    sha256 "08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"
   end
 
   resource "crayons" do
-    url "https://files.pythonhosted.org/packages/14/fa/635fdd47686a0f29692d927333fcf39e0279fc39c81704866c97adc34053/crayons-0.1.2.tar.gz"
-    sha256 "5e17691605e564d63482067eb6327d01a584bbaf870beffd4456a3391bd8809d"
+    url "https://files.pythonhosted.org/packages/b8/6b/12a1dea724c82f1c19f410365d3e25356625b48e8009a7c3c9ec4c42488d/crayons-0.4.0.tar.gz"
+    sha256 "bd33b7547800f2cfbd26b38431f9e64b487a7de74a947b0fafc89b45a601813f"
   end
 
-  resource "gitdb2" do
-    url "https://files.pythonhosted.org/packages/c5/62/ed7205331e8d7cc377e2512cb32f8f8f075c0defce767551d0a76e102ce2/gitdb2-2.0.6.tar.gz"
-    sha256 "1b6df1433567a51a4a9c1a5a0de977aa351a405cc56d7d35f3388bad1f630350"
+  resource "gitdb" do
+    url "https://files.pythonhosted.org/packages/4b/47/dc98f3d5d48aa815770e31490893b92c5f1cd6c6cf28dd3a8ae0efffac14/gitdb-4.0.10.tar.gz"
+    sha256 "6eb990b69df4e15bad899ea868dc46572c3f75339735663b81de79b06f17eb9a"
   end
 
   resource "GitPython" do
-    url "https://files.pythonhosted.org/packages/1c/08/a2b5ba4ad43c4c33066ced2c45958593ab2554bb0d09f7ecb9bf9092e5f6/GitPython-2.1.8.tar.gz"
-    sha256 "ad61bc25deadb535b047684d06f3654c001d9415e1971e51c9c20f5b510076e9"
+    url "https://files.pythonhosted.org/packages/ef/8d/50658d134d89e080bb33eb8e2f75d17563b5a9dfb75383ea1a78e1df6fff/GitPython-3.1.30.tar.gz"
+    sha256 "769c2d83e13f5d938b7688479da374c4e3d49f71549aaf462b646db9602ea6f8"
   end
 
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/16/d8/bc6316cf98419719bd59c91742194c111b6f2e85abac88e496adefaf7afe/six-1.11.0.tar.gz"
-    sha256 "70e8a77beed4562e7f14fe23a786b54f6296e34344c23bc42f07b15018ff98e9"
-  end
-
-  resource "smmap2" do
-    url "https://files.pythonhosted.org/packages/3b/ba/e49102b3e8ffff644edded25394b2d22ebe3e645f3f6a8139129c4842ffe/smmap2-2.0.5.tar.gz"
-    sha256 "29a9ffa0497e7f2be94ca0ed1ca1aa3cd4cf25a1f6b4f5f87f74b46ed91d609a"
+  resource "smmap" do
+    url "https://files.pythonhosted.org/packages/21/2d/39c6c57032f786f1965022563eec60623bb3e1409ade6ad834ff703724f3/smmap-5.0.0.tar.gz"
+    sha256 "c840e62059cd3be204b0c9c9f74be2c09d5648eddd4580d9314c3ecde0b30936"
   end
 
   def install

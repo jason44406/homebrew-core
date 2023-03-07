@@ -1,22 +1,52 @@
 class Dovecot < Formula
   desc "IMAP/POP3 server"
   homepage "https://dovecot.org/"
-  url "https://dovecot.org/releases/2.3/dovecot-2.3.10.1.tar.gz"
-  sha256 "6642e62f23b1b23cfac235007ca6e21cb67460cca834689fad450724456eb10c"
+  url "https://dovecot.org/releases/2.3/dovecot-2.3.20.tar.gz"
+  sha256 "caa832eb968148abdf35ee9d0f534b779fa732c0ce4a913d9ab8c3469b218552"
+  license all_of: ["BSD-3-Clause", "LGPL-2.1-or-later", "MIT", "Unicode-DFS-2016", :public_domain]
 
-  bottle do
-    sha256 "e8d7b6bf587b5673826b467c3a30b148a191ed94246797609fcdad42e3ad40e4" => :catalina
-    sha256 "3b05663fc50f7669b2f16f6b55821f6fb2abf54fea8a858301ed7d5dbf7de7b5" => :mojave
-    sha256 "3f35d37650ccc397e11584b5a31ef13157e63b7db3b4886a5f3b7c4fb73a3e7b" => :high_sierra
+  livecheck do
+    url "https://www.dovecot.org/download/"
+    regex(/href=.*?dovecot[._-]v?(\d+(?:\.\d+)+)\.t/i)
   end
 
-  depends_on "openssl@1.1"
+  bottle do
+    rebuild 1
+    sha256 arm64_ventura:  "c9e2fc781d0b0a896294e5619d85d19c0d01d0d4e5a833e6b380ba792dc2fa2c"
+    sha256 arm64_monterey: "b911df521e2e6961d5db4553b92e009aa9cce6f84d3fb7a5d5fda0115e3c8355"
+    sha256 arm64_big_sur:  "4c0cacdc42c3170b298fc0a88f5085a51a51ee052b04956fe2d1067b630a0819"
+    sha256 ventura:        "81a94d994329d3a3c8b2ff8f1774a280ae54330174bd1dfad2826fec54287a7b"
+    sha256 monterey:       "b323934b7d27693e28a8d0047576dff6f8029d721e0d6d5d97d6b1afeca30a4a"
+    sha256 big_sur:        "0c9fbdb439b3e781d23ecc4a4f65c81f11ad6a3d238d217eae5918916658bf61"
+    sha256 x86_64_linux:   "8a23a5a515f5f09cc8bbfc9302cc4e0d9cb23ed3368a5eb0241edaded1882759"
+  end
+
+  depends_on "openssl@3"
+
   uses_from_macos "bzip2"
+  uses_from_macos "libxcrypt"
   uses_from_macos "sqlite"
 
+  on_linux do
+    depends_on "linux-pam"
+    depends_on "zstd"
+  end
+
   resource "pigeonhole" do
-    url "https://pigeonhole.dovecot.org/releases/2.3/dovecot-2.3-pigeonhole-0.5.9.tar.gz"
-    sha256 "36da68aae5157b83e21383f711b8977e5b6f5477f369f71e7e22e76a738bbd05"
+    url "https://pigeonhole.dovecot.org/releases/2.3/dovecot-2.3-pigeonhole-0.5.20.tar.gz"
+    sha256 "ae32bd4870ea2c1328ae09ba206e9ec12128046d6afca52fbbc9ef7f75617c98"
+
+    # Fix -flat_namespace being used on Big Sur and later.
+    patch do
+      url "https://raw.githubusercontent.com/Homebrew/formula-patches/03cf8088210822aa2c1ab544ed58ea04c897d9c4/libtool/configure-big_sur.diff"
+      sha256 "35acd6aebc19843f1a2b3a63e880baceb0f5278ab1ace661e57a502d9d78c93c"
+    end
+  end
+
+  # Fix -flat_namespace being used on Big Sur and later.
+  patch do
+    url "https://raw.githubusercontent.com/Homebrew/formula-patches/03cf8088210822aa2c1ab544ed58ea04c897d9c4/libtool/configure-big_sur.diff"
+    sha256 "35acd6aebc19843f1a2b3a63e880baceb0f5278ab1ace661e57a502d9d78c93c"
   end
 
   def install
@@ -31,6 +61,7 @@ class Dovecot < Formula
       --with-sqlite
       --with-ssl=openssl
       --with-zlib
+      --without-icu
     ]
 
     system "./configure", *args
@@ -56,45 +87,22 @@ class Dovecot < Formula
     EOS
   end
 
-  plist_options startup: true
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>KeepAlive</key>
-          <false/>
-          <key>RunAtLoad</key>
-          <true/>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{opt_sbin}/dovecot</string>
-            <string>-F</string>
-          </array>
-          <key>StandardErrorPath</key>
-          <string>#{var}/log/dovecot/dovecot.log</string>
-          <key>StandardOutPath</key>
-          <string>#{var}/log/dovecot/dovecot.log</string>
-          <key>SoftResourceLimits</key>
-          <dict>
-          <key>NumberOfFiles</key>
-          <integer>1000</integer>
-          </dict>
-          <key>HardResourceLimits</key>
-          <dict>
-          <key>NumberOfFiles</key>
-          <integer>1024</integer>
-          </dict>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_sbin/"dovecot", "-F"]
+    require_root true
+    environment_variables PATH: std_service_path_env
+    error_log_path var/"log/dovecot/dovecot.log"
+    log_path var/"log/dovecot/dovecot.log"
   end
 
   test do
     assert_match version.to_s, shell_output("#{sbin}/dovecot --version")
+
+    cp_r share/"doc/dovecot/example-config", testpath/"example"
+    inreplace testpath/"example/conf.d/10-master.conf" do |s|
+      s.gsub! "#default_login_user = dovenull", "default_login_user = #{ENV["USER"]}"
+      s.gsub! "#default_internal_user = dovecot", "default_internal_user = #{ENV["USER"]}"
+    end
+    system bin/"doveconf", "-c", testpath/"example/dovecot.conf"
   end
 end

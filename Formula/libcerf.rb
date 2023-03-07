@@ -1,16 +1,25 @@
 class Libcerf < Formula
   desc "Numeric library for complex error functions"
   homepage "https://jugit.fz-juelich.de/mlz/libcerf"
-  url "https://jugit.fz-juelich.de/mlz/libcerf/-/archive/2.0/libcerf-2.0.tar.gz"
-  sha256 "9461f7fa38a666f13eaea888322e797d1bfb3ef9d923131d7cd723298aafaee9"
+  url "https://jugit.fz-juelich.de/mlz/libcerf/-/archive/v2.3/libcerf-v2.3.tar.gz"
+  sha256 "cceefee46e84ce88d075103390b4f9d04c34e4bc3b96d733292c36836d4f7065"
   license "MIT"
-  head "https://jugit.fz-juelich.de/mlz/libcerf.git"
+  version_scheme 1
+  head "https://jugit.fz-juelich.de/mlz/libcerf.git", branch: "master"
+
+  livecheck do
+    url "https://jugit.fz-juelich.de/api/v4/projects/269/releases"
+    regex(/libcerf[._-]v?((?!2\.0)\d+(?:\.\d+)+)/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "d1be9525402c49ed718ae3192d0990be1964428f740dd76812db78cbc7225037" => :catalina
-    sha256 "9027ca30f7747171aba44efcd83cfbe65f5db46441077b143a6c2cdc23bcffa8" => :mojave
-    sha256 "2551e26f4b79121e409a411901585d8aff3348921ba42e75e9947824962ac8d0" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "a5af0663e797d2634835277e1316894d4b52c86ba2290045e386a75a32fb790f"
+    sha256 cellar: :any,                 arm64_monterey: "7c5953ca89e4a87846cb36b64bc6a47acb2b6c74c913cede5e5a29eb61463a10"
+    sha256 cellar: :any,                 arm64_big_sur:  "b8f41b3d364035d9440a1f9a6cb4dd4ef821df94487e3c9f11076ab4ac3e85cc"
+    sha256 cellar: :any,                 ventura:        "27cac98b6c028053369bc89e6fabab0768dc7aee9ade40b8073484afaa469d47"
+    sha256 cellar: :any,                 monterey:       "16f8d9973dab633e5e759547c9029f8384bde177b5fce1cdb79ac4ed796e5b1b"
+    sha256 cellar: :any,                 big_sur:        "eb5e99339b766382160475399db448f795a7c1c1cab2600dca982527cfc3c4e7"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "c10a47d01e826e5c185efbeec58e1a9f3f4630547954c5781b5b8522f44afa18"
   end
 
   depends_on "cmake" => :build

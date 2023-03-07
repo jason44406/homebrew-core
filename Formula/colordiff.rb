@@ -1,21 +1,20 @@
 class Colordiff < Formula
   desc "Color-highlighted diff(1) output"
   homepage "https://www.colordiff.org/"
-  url "https://www.colordiff.org/colordiff-1.0.19.tar.gz"
-  mirror "https://dl.bintray.com/homebrew/mirror/colordiff-1.0.19.tar.gz"
-  sha256 "46e8c14d87f6c4b77a273cdd97020fda88d5b2be42cf015d5d84aca3dfff3b19"
-  license "GPL-2.0"
+  url "https://www.colordiff.org/colordiff-1.0.21.tar.gz"
+  sha256 "9b30f4257ef0f0806dea5a27c9ad8edc3f7999f05ddaff6f0627064dc927e615"
+  license "GPL-2.0-or-later"
+
+  livecheck do
+    url :homepage
+    regex(/href=.*?colordiff[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "f0433560a0417e350a57ad24a80d277cb3cc2665046a10d8db630ef432529603" => :catalina
-    sha256 "f0433560a0417e350a57ad24a80d277cb3cc2665046a10d8db630ef432529603" => :mojave
-    sha256 "f0433560a0417e350a57ad24a80d277cb3cc2665046a10d8db630ef432529603" => :high_sierra
+    sha256 cellar: :any_skip_relocation, all: "4f4ba10c742bc2036939397bf86b0f00a3d1992d1e72c08e7f20b77964d42b07"
   end
 
   depends_on "coreutils" => :build # GNU install
-
-  conflicts_with "cdiff", because: "both install `cdiff` binaries"
 
   def install
     man1.mkpath

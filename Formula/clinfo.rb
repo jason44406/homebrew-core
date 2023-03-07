@@ -1,18 +1,29 @@
 class Clinfo < Formula
   desc "Print information about OpenCL platforms and devices"
   homepage "https://github.com/Oblomov/clinfo"
-  url "https://github.com/Oblomov/clinfo/archive/2.2.18.04.06.tar.gz"
-  sha256 "f77021a57b3afcdebc73107e2254b95780026a9df9aa4f8db6aff11c03f0ec6c"
+  url "https://github.com/Oblomov/clinfo/archive/3.0.23.01.25.tar.gz"
+  sha256 "6dcdada6c115873db78c7ffc62b9fc1ee7a2d08854a3bccea396df312e7331e3"
   license "CC0-1.0"
-  head "https://github.com/Oblomov/clinfo.git"
+  head "https://github.com/Oblomov/clinfo.git", branch: "master"
+
+  livecheck do
+    url :homepage
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "860a35b3f6e571b54f7d7292446b9c1365b72f9fe9cc4d402641207156a58e17" => :catalina
-    sha256 "9678520a5637d07faa9cb50e9d490c5ea44da41ce332b70c0115ad6c2d2d14cc" => :mojave
-    sha256 "d10832aa0b4a2f8602efca713aa85a2a78ae6df19d61d9c256c3e3cd4c37aba1" => :high_sierra
-    sha256 "bc0233b23ba9f5ac6f037b206eb22ae66583853864c1334652bbc69b239307a3" => :sierra
-    sha256 "1d456b254b9686f01649e08cf0c76a3b208f1873deae3d8920e22f57cc0f258a" => :el_capitan
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "bdab44766ca458a88c221ea4f7449b186b9fd748db904f7eefde045fb6443fb0"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "2c1497f49082ece2d52fae1bfc65c5317e7c76a6b2d8272f95fcb69f6068a4a6"
+    sha256 cellar: :any_skip_relocation, ventura:        "2315c5f2eb3c44d67eed92f81680c2b0baef3d4a9d1e95a230b0e8a1664eecfb"
+    sha256 cellar: :any_skip_relocation, monterey:       "f1d18a57e2dd034e082d5df7b51ace021b656d6ea8539462a63ed11d8c2157b4"
+    sha256 cellar: :any_skip_relocation, big_sur:        "86e27c2acbdf720693e142d25e82f1ccd76a4445d9ed2e25901382735b28d6c6"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "0e7cd2b464087fe9304644a1c6ba611a3b95ff37387eb85ffa1b495d88030b70"
+  end
+
+  on_linux do
+    depends_on "opencl-headers" => :build
+    depends_on "opencl-icd-loader"
+    depends_on "pocl"
   end
 
   def install
@@ -20,6 +31,6 @@ class Clinfo < Formula
   end
 
   test do
-    assert_match /Device Type +CPU/, shell_output(bin/"clinfo")
+    assert_match(/Device Type +[CG]PU/, shell_output(bin/"clinfo"))
   end
 end

@@ -1,25 +1,40 @@
 class Bluepill < Formula
   desc "Testing tool for iOS that runs UI tests using multiple simulators"
-  homepage "https://github.com/linkedin/bluepill"
-  url "https://github.com/linkedin/bluepill.git",
-    tag:      "v5.4.2",
-    revision: "506e39951ea835b9240b15bd6a6bf593cf6534f9"
+  homepage "https://github.com/MobileNativeFoundation/bluepill"
+  url "https://github.com/MobileNativeFoundation/bluepill.git",
+      tag:      "v5.12.2",
+      revision: "304ddfb49eb73fa9d27104329e98d4fa2b62e856"
   license "BSD-2-Clause"
-  head "https://github.com/linkedin/bluepill.git"
+  head "https://github.com/MobileNativeFoundation/bluepill.git", branch: "master"
 
-  bottle do
-    cellar :any_skip_relocation
-    sha256 "695be1e8867ff14019e9604f7350ba90be43dc7f7794fdc830ee3311595f6a6d" => :catalina
-    sha256 "c99867b72bcaeb0198a69b7c957979b30ba0a6e4d9ca3b72dfa3ea27b50f2387" => :mojave
+  # Typically the preceding `v` is optional in livecheck regexes but we need it
+  # to be required here to omit older versions that break version comparison
+  # (e.g., 9.0.0). Note: We don't use the `GithubLatest` strategy here because
+  # the "latest" version is sometimes incorrect.
+  livecheck do
+    url :stable
+    regex(/^v(\d+(?:\.\d+)+)$/i)
   end
 
-  depends_on xcode: ["11.2", :build]
+  bottle do
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "e1b3a111875273ff1fac5ef0f0b198cf3fad3e19358990bbfcd453b0ff864e3d"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "1762224529b39fd7c55f12afbd650c93d6f7875c0543b0d1a1d5f405b78ea322"
+    sha256 cellar: :any_skip_relocation, ventura:        "9ccb25145d88fc887279aeecaa0cf68d1b6d99a8e9cbd62e4bd5af00b4794853"
+    sha256 cellar: :any_skip_relocation, monterey:       "8c7d92a43ad83512dffa244d97a358b23752ae27bb6caa520a73e528a7618ed2"
+  end
+
+  depends_on xcode: ["14.0", :build]
+  depends_on :macos
 
   def install
+    pbxprojs = ["bluepill", "bp"].map { |name| "#{name}/#{name}.xcodeproj/project.pbxproj" }
+    inreplace pbxprojs, "x86_64", Hardware::CPU.arch.to_s
+
     xcodebuild "-workspace", "Bluepill.xcworkspace",
                "-scheme", "bluepill",
                "-configuration", "Release",
-               "SYMROOT=../"
+               "SYMROOT=../",
+               "ARCHS=#{Hardware::CPU.arch}"
     bin.install "Release/bluepill", "Release/bp"
   end
 

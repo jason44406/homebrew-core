@@ -3,87 +3,86 @@ class Sslyze < Formula
 
   desc "SSL scanner"
   homepage "https://github.com/nabla-c0d3/sslyze"
-  license "AGPL-3.0"
+  license "AGPL-3.0-only"
 
   stable do
-    url "https://github.com/nabla-c0d3/sslyze/archive/3.0.8.tar.gz"
-    sha256 "9a4d2354a0db53a70a4329e63af9ecc4639c74f9048811c2a3f03a41695c3cbe"
+    url "https://files.pythonhosted.org/packages/a9/cf/8c5ac396f6d51cee5cfc5d4353bf64b9a1a1b00270699de09bb617177647/sslyze-5.1.1.tar.gz"
+    sha256 "17edf03121904b28be4c75938db192df706e6be1ba172b8741135921cfd661e5"
 
     resource "nassl" do
-      url "https://github.com/nabla-c0d3/nassl/archive/3.0.0.tar.gz"
-      sha256 "d340c176e497d8cf0a9233d36905195aec7d0ae9eabd9c837de8e0ad19019921"
+      url "https://github.com/nabla-c0d3/nassl/archive/5.0.0.tar.gz"
+      sha256 "b1529de53e1017a4b69ad656bcef762633aec54c86c9ec016879d657bf463297"
     end
   end
 
   bottle do
-    cellar :any
-    sha256 "b5a0b1691a0f599ba5e43e54c690ebcdcb71460363e837a4c37bf7a92d8210e6" => :catalina
-    sha256 "2b13136ca39b259fe1cf169f2fa0032ea554f0973b228e710c10b4fe15340bcf" => :mojave
-    sha256 "60928584ee62129c4ec2ef9bd3387ed0f0d08ec7b41d10b211fe54b47b4ba8a4" => :high_sierra
+    sha256 cellar: :any,                 ventura:      "9e3ce117c8b58e6a5d8b2fad1e3c7f70afc55999603ac5c21e406cfcc7074b67"
+    sha256 cellar: :any,                 monterey:     "3cae04cb9e8ed1bee11dd14c64c510713fba8886088c18b7f83fd662c3dbfddc"
+    sha256 cellar: :any,                 big_sur:      "9f3e2384c4fcb9c303e875c213bb15cf24a82d1e624443020f725183be704567"
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "dcb74982224beda452dabf47c8036db69e398255d5c3116fba1711e043cea53b"
   end
 
   head do
-    url "https://github.com/nabla-c0d3/sslyze.git"
+    url "https://github.com/nabla-c0d3/sslyze.git", branch: "release"
 
     resource "nassl" do
-      url "https://github.com/nabla-c0d3/nassl.git"
+      url "https://github.com/nabla-c0d3/nassl.git", branch: "release"
     end
   end
 
-  depends_on "pipenv" => :build
-  depends_on arch: :x86_64
-  depends_on "libffi"
+  depends_on "pyinvoke" => :build
+  depends_on "rust" => :build # for cryptography
+  depends_on arch: :x86_64 # https://github.com/nabla-c0d3/nassl/issues/83
   depends_on "openssl@1.1"
-  depends_on "python@3.8"
+  depends_on "python-typing-extensions"
+  depends_on "python@3.11"
+  uses_from_macos "libffi", since: :catalina
 
   resource "cffi" do
-    url "https://files.pythonhosted.org/packages/05/54/3324b0c46340c31b909fcec598696aaec7ddc8c18a63f2db352562d3354c/cffi-1.14.0.tar.gz"
-    sha256 "2d384f4a127a15ba701207f7639d94106693b6cd64173d6c8988e2c25f3ac2b6"
+    url "https://files.pythonhosted.org/packages/2b/a8/050ab4f0c3d4c1b8aaa805f70e26e84d0e27004907c5b8ecc1d31815f92a/cffi-1.15.1.tar.gz"
+    sha256 "d400bfb9a37b1351253cb402671cea7e89bdecc294e8016a707f6d1d8ac934f9"
   end
 
   resource "cryptography" do
-    url "https://files.pythonhosted.org/packages/9d/0a/d7060601834b1a0a84845d6ae2cd59be077aafa2133455062e47c9733024/cryptography-2.9.tar.gz"
-    sha256 "0cacd3ef5c604b8e5f59bf2582c076c98a37fe206b31430d0cd08138aff0986e"
+    url "https://files.pythonhosted.org/packages/e3/3f/41186b1f2fd86a542d399175f6b8e43f82cd4dfa51235a0b030a042b811a/cryptography-38.0.4.tar.gz"
+    sha256 "175c1a818b87c9ac80bb7377f5520b7f31b3ef2a0004e2420319beadedb67290"
   end
 
   resource "pycparser" do
-    url "https://files.pythonhosted.org/packages/0f/86/e19659527668d70be91d0369aeaa055b4eb396b0f387a4f92293a20035bd/pycparser-2.20.tar.gz"
-    sha256 "2d475327684562c3a96cc71adf7dc8c4f0565175cf86b6d7a404ff4c771f15f0"
+    url "https://files.pythonhosted.org/packages/5e/0b/95d387f5f4433cb0f53ff7ad859bd2c6051051cebbb564f139a999ab46de/pycparser-2.21.tar.gz"
+    sha256 "e644fdec12f7872f86c58ff790da456218b10f863970249516d60a5eaca77206"
   end
 
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/6b/34/415834bfdafca3c5f451532e8a8d9ba89a21c9743a0c59fbd0205c7f9426/six-1.15.0.tar.gz"
-    sha256 "30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"
+  resource "pydantic" do
+    url "https://files.pythonhosted.org/packages/53/17/34e54e352f6a3d304044e52d5ddd5cd621a62ec8fb7af08cc73af65dd3e1/pydantic-1.10.4.tar.gz"
+    sha256 "b9a3859f24eb4e097502a3be1fb4b2abb79b6103dd9e2e0edb70613a4459a648"
+  end
+
+  resource "pyOpenSSL" do
+    url "https://files.pythonhosted.org/packages/af/6e/0706d5e0eac08fcff586366f5198c9bf0a8b46f0f45b1858324e0d94c295/pyOpenSSL-23.0.0.tar.gz"
+    sha256 "c1cc5f86bcacefc84dada7d31175cae1b1518d5f60d3d0bb595a67822a868a6f"
   end
 
   resource "tls-parser" do
-    url "https://files.pythonhosted.org/packages/66/4e/da7f727a76bd9abee46f4035dbd7a4711cde408f286dae00c7a1f9dd9cbb/tls_parser-1.2.2.tar.gz"
-    sha256 "83e4cb15b88b00fad1a856ff54731cc095c7e4f1ff90d09eaa24a5f48854da93"
+    url "https://files.pythonhosted.org/packages/12/fc/282d5dd9e90d3263e759b0dfddd63f8e69760617a56b49ea4882f40a5fc5/tls_parser-2.0.0.tar.gz"
+    sha256 "3beccf892b0b18f55f7a9a48e3defecd1abe4674001348104823ff42f4cbc06b"
   end
 
   def install
-    venv = virtualenv_create(libexec, "python3.8")
+    venv = virtualenv_create(libexec, "python3.11")
+    venv.pip_install resources.reject { |r| r.name == "nassl" }
 
-    res = resources.map(&:name).to_set
-    res -= %w[nassl]
-
-    res.each do |r|
-      venv.pip_install resource(r)
-    end
-
+    ENV.prepend_path "PATH", libexec/"bin"
     resource("nassl").stage do
-      nassl_path = Pathname.pwd
-      inreplace "Pipfile", 'python_version = "3.7"', 'python_version = "3.8"'
-      system "pipenv", "install", "--dev"
-      system "pipenv", "run", "invoke", "build.all"
-      venv.pip_install nassl_path
+      system "invoke", "build.all"
+      venv.pip_install Pathname.pwd
     end
 
     venv.pip_install_and_link buildpath
   end
 
   test do
-    assert_match "SCAN COMPLETED", shell_output("#{bin}/sslyze --regular google.com")
-    assert_no_match /exception/, shell_output("#{bin}/sslyze --certinfo letsencrypt.org")
+    assert_match "SCANS COMPLETED", shell_output("#{bin}/sslyze --mozilla_config=old google.com")
+    refute_match("exception", shell_output("#{bin}/sslyze --certinfo letsencrypt.org"))
   end
 end

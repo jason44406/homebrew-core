@@ -5,33 +5,24 @@ class LiterateGit < Formula
   homepage "https://github.com/bennorth/literate-git"
   url "https://github.com/bennorth/literate-git/archive/v0.3.1.tar.gz"
   sha256 "f1dec77584236a5ab2bcee9169e16b5d976e83cd53d279512136bdc90b04940a"
-  license "GPL-3.0"
-  revision 3
+  license "GPL-3.0-or-later"
+  revision 13
 
   bottle do
-    cellar :any
-    sha256 "b704c927f102c0ce4fac2a02d6e0e3a93569179af257a0922b7b14b326d0bbe1" => :catalina
-    sha256 "6f82567697db68d8ff88fd5c493717cbba18869904252319daa4cfe26cc80b42" => :mojave
-    sha256 "237597cd7d2517d3b34144ba0eacd21a9d50d32e6bbe0ce496eaf8d1b9c9dab7" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "31e0c7b5e24fa754a3a9c093101535e64af4a5e00618fdfe4eea06afcca8ad2e"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "268a50887b3929b544fed71277bd93e65c8285fed93d3d81d70b30391fae72d6"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "e2f80196bf354dc363f82bfacc81bb8872deee508d1f8b2b3fec34d7d64e3c7a"
+    sha256 cellar: :any_skip_relocation, ventura:        "c4270a2bc1b79e32660ad64483746ef2c734a898edd98453976a468903b2c93f"
+    sha256 cellar: :any_skip_relocation, monterey:       "68117dad13005e6bbb6ec4b3e6759137d5a6c2cc9a1a3dc2081cdf4a39b6c637"
+    sha256 cellar: :any_skip_relocation, big_sur:        "9127986e4e878f5711f623f7198d10718e916528ebf81d2d8f70cf901e209fbc"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "cfdb32662011363420758133f66f4837af84e07ebdae57cf9416057eb66bf815"
   end
 
-  depends_on "libgit2"
-  depends_on "python@3.8"
-
-  uses_from_macos "libffi"
+  depends_on "pygit2"
+  depends_on "python@3.11"
 
   on_linux do
     depends_on "pkg-config" => :build
-  end
-
-  resource "cached-property" do
-    url "https://files.pythonhosted.org/packages/57/8e/0698e10350a57d46b3bcfe8eff1d4181642fd1724073336079cb13c5cf7f/cached-property-1.5.1.tar.gz"
-    sha256 "9217a59f14a5682da7c4b8829deadbfc194ac22e9908ccf7c8820234e80a1504"
-  end
-
-  resource "cffi" do
-    url "https://files.pythonhosted.org/packages/05/54/3324b0c46340c31b909fcec598696aaec7ddc8c18a63f2db352562d3354c/cffi-1.14.0.tar.gz"
-    sha256 "2d384f4a127a15ba701207f7639d94106693b6cd64173d6c8988e2c25f3ac2b6"
   end
 
   resource "docopt" do
@@ -40,28 +31,18 @@ class LiterateGit < Formula
   end
 
   resource "Jinja2" do
-    url "https://files.pythonhosted.org/packages/d8/03/e491f423379ea14bb3a02a5238507f7d446de639b623187bccc111fbecdf/Jinja2-2.11.1.tar.gz"
-    sha256 "93187ffbc7808079673ef52771baa950426fd664d3aad1d0fa3e95644360e250"
+    url "https://files.pythonhosted.org/packages/4f/e7/65300e6b32e69768ded990494809106f87da1d436418d5f1367ed3966fd7/Jinja2-2.11.3.tar.gz"
+    sha256 "a6d58433de0ae800347cab1fa3043cebbabe8baa9d29e668f1c768cb87a333c6"
   end
 
   resource "markdown2" do
-    url "https://files.pythonhosted.org/packages/e3/93/d37055743009d1a492b2670cc215831a388b3d6e4a28b7672fdf0f7854f5/markdown2-2.3.8.tar.gz"
-    sha256 "7ff88e00b396c02c8e1ecd8d176cfa418fb01fe81234dcea77803e7ce4f05dbe"
+    url "https://files.pythonhosted.org/packages/2b/26/1dd47bdf8adb98e1807b2283a88d6d4379911a2e1a1da266739c038ef8e2/markdown2-2.4.3.tar.gz"
+    sha256 "412520c7b6bba540c2c2067d6be3a523ab885703bf6a81d93963f848b55dfb9a"
   end
 
   resource "MarkupSafe" do
     url "https://files.pythonhosted.org/packages/b9/2e/64db92e53b86efccfaea71321f597fa2e1b2bd3853d8ce658568f7a13094/MarkupSafe-1.1.1.tar.gz"
     sha256 "29872e92839765e546828bb7754a68c418d927cd064fd4708fab9fe9c8bb116b"
-  end
-
-  resource "pycparser" do
-    url "https://files.pythonhosted.org/packages/68/9e/49196946aee219aead1290e00d1e7fdeab8567783e83e1b9ab5585e6206a/pycparser-2.19.tar.gz"
-    sha256 "a988718abfad80b6b157acce7bf130a30876d27603738ac39f140993246b25b3"
-  end
-
-  resource "pygit2" do
-    url "https://files.pythonhosted.org/packages/1d/c4/e0ba65178512a724a86b39565d7f9286c16d7f8e45e2f665973065c4a495/pygit2-1.1.1.tar.gz"
-    sha256 "9255d507d5d87bf22dfd57997a78908010331fc21f9a83eca121a53f657beb3c"
   end
 
   resource "Pygments" do

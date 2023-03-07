@@ -1,20 +1,25 @@
 class OsmiumTool < Formula
   desc "Libosmium-based command-line tool for processing OpenStreetMap data"
   homepage "https://osmcode.org/osmium-tool/"
-  url "https://github.com/osmcode/osmium-tool/archive/v1.12.1.tar.gz"
-  sha256 "c8945b2b85fda7898faaf97b57faf759a06a4cf6a2c591f857779dcc503f32f2"
-  license "GPL-3.0"
+  url "https://github.com/osmcode/osmium-tool/archive/v1.15.0.tar.gz"
+  sha256 "0b3be2f07d60dfb93f65d6a9f1af1fc9cf6ef68e5a460997d841c93079c3377b"
+  license "GPL-3.0-or-later"
 
   bottle do
-    cellar :any
-    sha256 "5bc39388890c18e37d0fa87b1644a7f3768860721980ac324fe5737d411eefca" => :catalina
-    sha256 "67e2e3075ab367207375d3d84dcd4c5cd014757fcae8213787cf45b3a2e262d0" => :mojave
-    sha256 "b892d8dabfb211da58b6a3e2ffa6a5a65c2d5f8ceb481979fa14667be4a1ba62" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "f06d9f6ae6a228b1fca37fad1bab9721760632c5f3f287d8b4c192beccbce372"
+    sha256 cellar: :any,                 arm64_monterey: "0cecfdad7eb06bdf718e7472ab6e40ad691a2733d79379b8b3114203b269a6d4"
+    sha256 cellar: :any,                 arm64_big_sur:  "a776cc479cb4a220b7179814464714f69e0dc7f60c96b21eb7807fb2906a6ae2"
+    sha256 cellar: :any,                 ventura:        "22a8add357c9ca575aed1d729942f7aee33d664029a19869edffe71c45006c51"
+    sha256 cellar: :any,                 monterey:       "c9a15aed4b8af602c9fa1131f63f1dbfd1bd056bac9e0d8d5b7261eb04771220"
+    sha256 cellar: :any,                 big_sur:        "fd6e881f2ff097715732c8e1904dc799da8ab7e78dae7bc67a9b9247ac7a6de7"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "0c82ba0a54458beefdff33686c3248ebeec6117f91f852520ecc2e51a47fd221"
   end
 
   depends_on "cmake" => :build
   depends_on "libosmium" => :build
+  depends_on "pandoc" => :build
   depends_on "boost"
+  depends_on "lz4"
 
   uses_from_macos "expat"
 
@@ -42,7 +47,7 @@ class OsmiumTool < Formula
       </osm>
     EOS
     output = shell_output("#{bin}/osmium fileinfo test.osm")
-    assert_match /Compression.+generator=handwritten/m, output
+    assert_match(/Compression.+generator=handwritten/m, output)
     system bin/"osmium", "tags-filter", "test.osm", "w/name=line", "-f", "osm"
   end
 end

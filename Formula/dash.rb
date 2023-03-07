@@ -1,40 +1,33 @@
 class Dash < Formula
   desc "POSIX-compliant descendant of NetBSD's ash (the Almquist SHell)"
   homepage "http://gondor.apana.org.au/~herbert/dash/"
+  url "http://gondor.apana.org.au/~herbert/dash/files/dash-0.5.12.tar.gz"
+  sha256 "6a474ac46e8b0b32916c4c60df694c82058d3297d8b385b74508030ca4a8f28a"
   license "BSD-3-Clause"
+  head "https://git.kernel.org/pub/scm/utils/dash/dash.git", branch: "master"
 
-  stable do
-    url "http://gondor.apana.org.au/~herbert/dash/files/dash-0.5.11.1.tar.gz"
-    sha256 "73c881f146e329ac54962766760fd62cb8bdff376cd6c2f5772eecc1570e1611"
-
-    # Fix compilation on MacOS
-    # See https://www.mail-archive.com/dash@vger.kernel.org/msg01963.html thread
-    # and https://www.mail-archive.com/dash@vger.kernel.org/msg01966.html thread
-    #
-    # Should be remove on the next release (along with autoconf and automake dependencies for stable)
-    patch do
-      url "https://raw.githubusercontent.com/NixOS/nixpkgs/3020abe5b591d201cc6b760f3a9c6e4b94cfca2d/pkgs/shells/dash/0001-fix-dirent64-et-al-on-darwin.patch"
-      sha256 "4295bf45f85b8b738e488a8d3d9e91e2a70a4c5464a74f5e7fc47badd9406c13"
-    end
-
-    depends_on "autoconf" => :build
-    depends_on "automake" => :build
+  livecheck do
+    url "http://gondor.apana.org.au/~herbert/dash/files/"
+    regex(/href=.*?dash[._-]v?(\d+(?:\.\d+)+)\.t/i)
   end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "17db29bb810402ff59bcd6d0f2ef1075b5d2d40e3ecf5667922c366d82797163" => :catalina
-    sha256 "166f69be4147a52713aaf636d1a90057bc0e4ef7764c478dfdf062ae249f8d70" => :mojave
-    sha256 "b8b2b9636d2cbc920180dae89e32b37b48cf915ef53136cc0be8d7d8b5764a38" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "f3f177c287fb59e325e09b7b94f5d64e3b562da1a4f6183cc49e06a1763a3502"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "a5f99ef9dc765177761f70b92777cefb0f17df859cd263d1addc0669ed95a52d"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "5f729292d1177fb664cc5548ef9b454f875c93fa0a1fbcbe51708f9264d21e69"
+    sha256 cellar: :any_skip_relocation, ventura:        "909fda81a80744fd2e8ac80694258a2abf4ee52a7412fd2617d07fa61fb36586"
+    sha256 cellar: :any_skip_relocation, monterey:       "5f282ad1ebb1967545d5fd96625943ef81fa89be33487da251c7fd780bb22564"
+    sha256 cellar: :any_skip_relocation, big_sur:        "e7c20c1749cc4272f95828ba80ff122e7f451f887ba84892227017146759d69d"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "22df39762896ca47c7d2463dd5a150a98ee005f382cfde38f6750f2a7937fd5a"
   end
 
-  head do
-    url "https://git.kernel.org/pub/scm/utils/dash/dash.git"
-    depends_on "autoconf" => :build
-    depends_on "automake" => :build
-  end
+  depends_on "autoconf" => :build
+  depends_on "automake" => :build
+
+  uses_from_macos "libedit"
 
   def install
+    ENV["ac_cv_func_stat64"] = "no" if Hardware::CPU.arm?
     system "./autogen.sh" if build.head?
 
     system "./configure", "--prefix=#{prefix}",

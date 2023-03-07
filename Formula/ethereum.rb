@@ -1,21 +1,36 @@
 class Ethereum < Formula
   desc "Official Go implementation of the Ethereum protocol"
-  homepage "https://ethereum.github.io/go-ethereum/"
-  url "https://github.com/ethereum/go-ethereum/archive/v1.9.19.tar.gz"
-  sha256 "3a5f4d6f2da037ccb8b864d76c008c33f0b226edf40f5fce1e3c0715a1619809"
+  homepage "https://geth.ethereum.org/"
+  url "https://github.com/ethereum/go-ethereum/archive/v1.11.2.tar.gz"
+  sha256 "0a61b4c9a54f0be8f95403c8880982459e823d7cac968123572bd25cad456bd4"
   license "LGPL-3.0-or-later"
-  head "https://github.com/ethereum/go-ethereum.git"
+  head "https://github.com/ethereum/go-ethereum.git", branch: "master"
+
+  livecheck do
+    url :stable
+    strategy :github_latest
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "4af6f7568b33fe01b1137369dee41fc409daad7ef9ea80c6460f19355116f6bf" => :catalina
-    sha256 "a20c74bba6941e4612051f0a9ffea05ff220809644566c8d8b577af9fe93766b" => :mojave
-    sha256 "143798cf9f88b9acb5fee1620d3a0631bcda944669937e3b9a1aa523fce434e9" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "c8c1408c55b47a878a959f5eead1554137701ab4f2e0e1a5139bded87ec751a3"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "93636a38af68603b71f9476d03cc1c163e88c29098df7d2e30769c4bdc5c416d"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "b5f12df1c492333f0681a11b9da0779d2c46f5f4867475b418db59e5c36acd73"
+    sha256 cellar: :any_skip_relocation, ventura:        "baf59f4181f924f6f44e62f553c0ddf9e5784da349c4a7576a412ed8bdae9ad2"
+    sha256 cellar: :any_skip_relocation, monterey:       "90da956bdb2af6eacb4b378db3ff3965bd4557599054c197563d6ce77e3f586e"
+    sha256 cellar: :any_skip_relocation, big_sur:        "5afa081c951a906fce5318c7e0acb0c1a5c60afc94f2c206110f62d3357ea1ed"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "d3b7788dd7a8c13ebdfb8d7c49ab411dc134391363a39b15057ad0a57c33d22b"
   end
 
   depends_on "go" => :build
 
+  conflicts_with "erigon", because: "both install `evm` binaries"
+
   def install
+    # Force superenv to use -O0 to fix "cgo-dwarf-inference:2:8: error:
+    # enumerator value for '__cgo_enum__0' is not an integer constant".
+    # See discussion in https://github.com/Homebrew/brew/issues/14763.
+    ENV.O0 if OS.linux?
+
     system "make", "all"
     bin.install Dir["build/bin/*"]
   end

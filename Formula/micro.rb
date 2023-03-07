@@ -2,16 +2,20 @@ class Micro < Formula
   desc "Modern and intuitive terminal-based text editor"
   homepage "https://github.com/zyedidia/micro"
   url "https://github.com/zyedidia/micro.git",
-      tag:      "v2.0.6",
-      revision: "60846f549ccd02598dea5889992f1e4cddc8e86d"
+      tag:      "v2.0.11",
+      revision: "225927b9a25f0d50ea63ea18bc7bb68e404c0cfd"
   license "MIT"
-  head "https://github.com/zyedidia/micro.git"
+  head "https://github.com/zyedidia/micro.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "be03936409bc31c0897e2df70b2c1387bcb7a9059ef484691bc5d8a4f68f7b18" => :catalina
-    sha256 "f88ea0a7ac16b204ddc9f1a34b6cb3ad98c964b0177682e1928854e476700348" => :mojave
-    sha256 "dc08b92df8eab987e5bbc012d624075cc98b63df9e7f603c12a7606d33639a74" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "face927b474172b6460f02bda11ffeee76f4abe623193d08e21446be11cff983"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "a38c0591d346653f2453d54d2f1a1eb4b38a5f6c252e0908b3f86b9969128bcc"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "ce9b212e2b846daebfff3621773936b2fc346f9cb3364adf7e8529930fe6735d"
+    sha256 cellar: :any_skip_relocation, ventura:        "3af758aff2740f1322e3380a0bdf709646d6c487bffda0d1e10c3095187475be"
+    sha256 cellar: :any_skip_relocation, monterey:       "6aaa311d1521194f4870b70d2b9d9a556a8094e7ea516ede0081ff347c92c8e7"
+    sha256 cellar: :any_skip_relocation, big_sur:        "a5c8c80a974e125c90c2b3ced8bafbaa4fd45317707a898f562ce4f9b50dd10c"
+    sha256 cellar: :any_skip_relocation, catalina:       "fb5679cefda546660ece77b25b34d3ab948e899493e4d910a4f2c8c29e6e10b3"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "2e8dad268f3cd12cef547100efe87f2ca402fff61d0d1322c60b02dbd8823207"
   end
 
   depends_on "go" => :build

@@ -5,16 +5,20 @@ class SqlTranslator < Formula
 
   desc "Manipulate structured data definitions (SQL and more)"
   homepage "https://github.com/dbsrgits/sql-translator/"
-  url "https://cpan.metacpan.org/authors/id/M/MS/MSTROUT/SQL-Translator-1.61.tar.gz"
-  sha256 "840e3c77cd48b47e1343c79ae8ef4fca46d036356d143d33528900740416dfe8"
-  # license ["Artistic-1.0", "GPL-1.0"] - pending https://github.com/Homebrew/brew/pull/7953
-  license "Artistic-1.0"
+  url "https://cpan.metacpan.org/authors/id/I/IL/ILMARI/SQL-Translator-1.62.tar.gz"
+  sha256 "0acd4ff9ac3a2f8d5d67199aac02cdc127e03888e479c51c7bbdc21b85c1ce24"
+  license any_of: ["Artistic-1.0-Perl", "GPL-1.0-or-later"]
+  revision 1
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "cf06c23d417650d888cf49edd10ae3697e92cb7c0dc33ef07c530d33493155aa" => :catalina
-    sha256 "d581943f0e91e5623b1ab053e212b6351513c81e04a77bc32b9626929f4e4667" => :mojave
-    sha256 "185ef1f4c9feb68f4b8f65a9cda078cdc8a9600163ba67caf60f91d3dc62ce76" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "a5b569d3339ab37e0c8e963f4c314f05cfa4a7607cabc0c3b8076171a1b98415"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "a5b569d3339ab37e0c8e963f4c314f05cfa4a7607cabc0c3b8076171a1b98415"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "1f655162409fb6814c1825c7ea6d6fc728fe48f92f2b8f0fd189e6e552112d97"
+    sha256 cellar: :any_skip_relocation, ventura:        "37aa9abf5b79546cd961291b7ce884cbeb774b8c00f8830fba7837001e47111e"
+    sha256 cellar: :any_skip_relocation, monterey:       "37aa9abf5b79546cd961291b7ce884cbeb774b8c00f8830fba7837001e47111e"
+    sha256 cellar: :any_skip_relocation, big_sur:        "6f0b5a13935877fdf7e614525082c532ef76af02644dfda6acfdc427b6904668"
+    sha256 cellar: :any_skip_relocation, catalina:       "e099ac2d4b73aca1beaa61f8a267c8334256c9ae5b0073f86a53a25e6f9ce9c5"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "90f5316e2c4de49810fdeb2825f12739c2420438648fdb374715fdde3154b8df"
   end
 
   uses_from_macos "perl"
@@ -107,7 +111,7 @@ class SqlTranslator < Formula
     # Disable dynamic selection of perl which may cause segfault when an
     # incompatible perl is picked up.
     # https://github.com/Homebrew/homebrew-core/issues/4936
-    bin.find { |f| rewrite_shebang detected_perl_shebang, f }
+    rewrite_shebang detected_perl_shebang, *bin.children
 
     bin.env_script_all_files libexec/"bin", PERL5LIB: ENV["PERL5LIB"]
   end

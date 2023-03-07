@@ -1,15 +1,12 @@
 class Mat2 < Formula
   desc "Metadata anonymization toolkit"
   homepage "https://0xacab.org/jvoisin/mat2"
-  url "https://0xacab.org/jvoisin/mat2/-/archive/0.11.0/mat2-0.11.0.tar.gz"
-  sha256 "c37be119f4bc6226257cd72048bba4eaf3bb24a62fd38c2a34d9b937e6bd36b7"
-  license "LGPL-3.0"
+  url "https://0xacab.org/jvoisin/mat2/-/archive/0.13.3/mat2-0.13.3.tar.gz"
+  sha256 "e1bb0161fa1c2f2adb1b933761f9569534309e90209568f96aca5fc8a74f511a"
+  license "LGPL-3.0-or-later"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "34a6c1014ecd99466de27658a669939047ab794d2d6272b483066a52988fb911" => :catalina
-    sha256 "34a6c1014ecd99466de27658a669939047ab794d2d6272b483066a52988fb911" => :mojave
-    sha256 "34a6c1014ecd99466de27658a669939047ab794d2d6272b483066a52988fb911" => :high_sierra
+    sha256 cellar: :any_skip_relocation, all: "592b41922c9a703cf1bf672b2da4d181957e790334780d3c6326727368fd727a"
   end
 
   depends_on "exiftool"
@@ -19,32 +16,38 @@ class Mat2 < Formula
   depends_on "poppler"
   depends_on "py3cairo"
   depends_on "pygobject3"
-  depends_on "python@3.8"
+  depends_on "python@3.11"
 
   resource "mutagen" do
-    url "https://files.pythonhosted.org/packages/96/9f/280220926cabbf4822f80e094a5190fb3df245209648e169c8bcf708697b/mutagen-1.44.0.tar.gz"
-    sha256 "56065d8a9ca0bc64610a4d0f37e2bd4453381dde3226b8835ee656faa3287be4"
+    url "https://files.pythonhosted.org/packages/b1/54/d1760a363d0fe345528e37782f6c18123b0e99e8ea755022fd51f1ecd0f9/mutagen-1.46.0.tar.gz"
+    sha256 "6e5f8ba84836b99fe60be5fb27f84be4ad919bbb6b49caa6ae81e70584b55e58"
+  end
+
+  # Fix pyproject.toml config, remove in next release
+  # https://0xacab.org/jvoisin/mat2/-/merge_requests/104
+  patch do
+    url "https://0xacab.org/jvoisin/mat2/-/commit/ed0ffa5693b6d710b19a9101d6cb0625f8b6f1fc.diff"
+    sha256 "b067ede2688af82b77438bf60891356f1aa5b33e78208e1f3ea485570626cbe2"
   end
 
   def install
-    version = Language::Python.major_minor_version Formula["python@3.8"].bin/"python3"
-    pygobject3 = Formula["pygobject3"]
-    ENV["PYTHONPATH"] = lib/"python#{version}/site-packages"
-    ENV.append_path "PYTHONPATH", pygobject3.opt_lib+"python#{version}/site-packages"
-    ENV.prepend_create_path "PYTHONPATH", libexec/"vendor/lib/python#{version}/site-packages"
+    python = "python3.11"
+
+    ENV.append_path "PYTHONPATH", prefix/Language::Python.site_packages(python)
+    ENV.append_path "PYTHONPATH", Formula["pygobject3"].opt_prefix/Language::Python.site_packages(python)
+    ENV.prepend_create_path "PYTHONPATH", libexec/"vendor"/Language::Python.site_packages(python)
 
     resources.each do |r|
       r.stage do
-        system Formula["python@3.8"].bin/"python3", *Language::Python.setup_install_args(libexec/"vendor")
+        system python, *Language::Python.setup_install_args(libexec/"vendor", python), "--install-data=#{prefix}"
       end
     end
 
-    system Formula["python@3.8"].bin/"python3", *Language::Python.setup_install_args(prefix)
-
+    system python, *Language::Python.setup_install_args(prefix, python)
     bin.env_script_all_files(libexec/"bin", PYTHONPATH: ENV["PYTHONPATH"])
   end
 
   test do
-    system "#{bin}/mat2", "-l"
+    system bin/"mat2", "-l"
   end
 end

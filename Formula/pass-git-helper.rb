@@ -3,24 +3,29 @@ class PassGitHelper < Formula
 
   desc "Git credential helper interfacing with pass"
   homepage "https://github.com/languitar/pass-git-helper"
-  url "https://github.com/languitar/pass-git-helper/archive/v1.1.0.tar.gz"
-  sha256 "85c9e2f1f544227da9129503d91ce5d502be127c83ad24cbc6dc8ba3ab746b8e"
-  license "LGPL-3.0"
+  url "https://github.com/languitar/pass-git-helper/archive/v1.2.0.tar.gz"
+  sha256 "d9ab12d81e283411a65285a0030cbfef2548dc580631d2337628e57f10e463aa"
+  license "LGPL-3.0-or-later"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "1f3954dd243690c880e3feb3a919e6c2778646ec90e56f0b1e285837c8441c20" => :catalina
-    sha256 "e08a67118a8d49dc0d3088dfd239b7f8869eebd1fcfd833aaa26bf799eb12fde" => :mojave
-    sha256 "1e05bbb2761624c80e9eb1c952f70a97ae6d214bc2e9cee9c17949e3eb099933" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "609d0338cceb01e6135eb7c1cffabb5455f4f1ad5cee2f59487c4491479421d9"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "609d0338cceb01e6135eb7c1cffabb5455f4f1ad5cee2f59487c4491479421d9"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "609d0338cceb01e6135eb7c1cffabb5455f4f1ad5cee2f59487c4491479421d9"
+    sha256 cellar: :any_skip_relocation, ventura:        "b19690d7bba99b3f5526ca73fecbf9ab3c422301d7ab799d9fc3173d808b36ae"
+    sha256 cellar: :any_skip_relocation, monterey:       "b19690d7bba99b3f5526ca73fecbf9ab3c422301d7ab799d9fc3173d808b36ae"
+    sha256 cellar: :any_skip_relocation, big_sur:        "b19690d7bba99b3f5526ca73fecbf9ab3c422301d7ab799d9fc3173d808b36ae"
+    sha256 cellar: :any_skip_relocation, catalina:       "b19690d7bba99b3f5526ca73fecbf9ab3c422301d7ab799d9fc3173d808b36ae"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "8a09385651c18600021ed097bb2a44d1a40d342198e618bf6621088561a61a3a"
   end
 
   depends_on "gnupg" => :test
   depends_on "pass"
-  depends_on "python@3.8"
+  depends_on "python@3.11"
 
   resource "pyxdg" do
-    url "https://files.pythonhosted.org/packages/47/6e/311d5f22e2b76381719b5d0c6e9dc39cd33999adae67db71d7279a6d70f4/pyxdg-0.26.tar.gz"
-    sha256 "fe2928d3f532ed32b39c32a482b54136fe766d19936afc96c8f00645f9da1a06"
+    url "https://files.pythonhosted.org/packages/b0/25/7998cd2dec731acbd438fbf91bc619603fc5188de0a9a17699a781840452/pyxdg-0.28.tar.gz"
+    sha256 "3267bb3074e934df202af2ee0868575484108581e6f3cb006af1da35395e88b4"
   end
 
   def install

@@ -3,20 +3,31 @@ class Bagit < Formula
 
   desc "Library for creation, manipulation, and validation of bags"
   homepage "https://libraryofcongress.github.io/bagit-python/"
-  url "https://files.pythonhosted.org/packages/ee/11/7a7fa81c0d43fb4d449d418eba57fc6c77959754c5c2259a215152810555/bagit-1.7.0.tar.gz"
-  sha256 "f248a3dad06fd3e5d329217baace6ade79d106579696b13e2c0bbc583101ded4"
+  url "https://files.pythonhosted.org/packages/e5/99/927b704237a1286f1022ea02a2fdfd82d5567cfbca97a4c343e2de7e37c4/bagit-1.8.1.tar.gz"
+  sha256 "37df1330d2e8640c8dee8ab6d0073ac701f0614d25f5252f9e05263409cee60c"
   license "CC0-1.0"
+  revision 1
   version_scheme 1
-  head "https://github.com/LibraryOfCongress/bagit-python.git"
+  head "https://github.com/LibraryOfCongress/bagit-python.git", branch: "master"
 
-  bottle do
-    cellar :any_skip_relocation
-    sha256 "e0be67c1d5a4b305daacc9589d5230ecebc106ccbd74ad668ce5b10d4a600039" => :catalina
-    sha256 "94a987817d26843f859a1f238b6f943576bc2a2a8f36c0f01c5309c4d2cecf02" => :mojave
-    sha256 "8b4295b73d506186e90b656331c1fc653ae52dd3be666b7f2695259b040b0a0e" => :high_sierra
+  livecheck do
+    url :stable
+    regex(%r{href=.*?/project/bagit/v?(\d+(?:\.\d+)+)/?["' >]}i)
   end
 
-  depends_on "python@3.8"
+  bottle do
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "60395129ac88a0d1a5e1d3c9772092d17a2645c202ee3b6969608c161315e9c1"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "60395129ac88a0d1a5e1d3c9772092d17a2645c202ee3b6969608c161315e9c1"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "60395129ac88a0d1a5e1d3c9772092d17a2645c202ee3b6969608c161315e9c1"
+    sha256 cellar: :any_skip_relocation, ventura:        "da64b9f36df90101ccf6702a55206eb9309d0ce2dcbc33722f3c709d00a87ec8"
+    sha256 cellar: :any_skip_relocation, monterey:       "da64b9f36df90101ccf6702a55206eb9309d0ce2dcbc33722f3c709d00a87ec8"
+    sha256 cellar: :any_skip_relocation, big_sur:        "da64b9f36df90101ccf6702a55206eb9309d0ce2dcbc33722f3c709d00a87ec8"
+    sha256 cellar: :any_skip_relocation, catalina:       "da64b9f36df90101ccf6702a55206eb9309d0ce2dcbc33722f3c709d00a87ec8"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "dc9585e81bfa176935a810e61cedbcddb08e5f82e96ae24496d1d11ad6e0f318"
+  end
+
+  depends_on "python@3.11"
 
   def install
     virtualenv_install_with_resources

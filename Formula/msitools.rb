@@ -1,50 +1,55 @@
 class Msitools < Formula
   desc "Windows installer (.MSI) tool"
   homepage "https://wiki.gnome.org/msitools"
-  url "https://download.gnome.org/sources/msitools/0.100/msitools-0.100.tar.xz"
-  sha256 "bbf1a6e3a9c2323b860a3227ac176736a3eafc4a44a67346c6844591f10978ea"
-  license "GPL-2.0"
+  url "https://download.gnome.org/sources/msitools/0.101/msitools-0.101.tar.xz"
+  sha256 "0cc4d2e0d108fa6f2b4085b9a97dd5bc6d9fcadecdd933f2094f86bafdbe85fe"
+  license "LGPL-2.1-or-later"
+
+  # msitools doesn't seem to use the GNOME version scheme, so we have to
+  # loosen the default `Gnome` strategy regex to match the latest version.
+  livecheck do
+    url :stable
+    regex(/msitools[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    sha256 "f9b65f68c973c323e96a0492df562bae32e3ede79d9e5a6f24b89f53ef085883" => :catalina
-    sha256 "b7646423954ae62a8dcb8ee413f98e0f5e1c4b8a73876255fcd2f0371e547f92" => :mojave
-    sha256 "fd8689ba0902ed4d784f85969d281a0e1c58bb76f0fe17a93d96ba2d3f845cdb" => :high_sierra
+    sha256 arm64_ventura:  "791534790bcc8e23c6def007f18407258258bede405d92375d256068123b0221"
+    sha256 arm64_monterey: "1738ad06a080d802f991037d76fe78069ba16e601a27ef5a2c71a65463985db0"
+    sha256 arm64_big_sur:  "a8efd95e41c4b40428c1e2c6f2b3abafa76f99781d26c64cbe0ca80f27b8ab06"
+    sha256 ventura:        "a2e1ead4ee47a0ec7f53106a6454e01ac6e82a9e8c5ee069e4d2515c9986a140"
+    sha256 monterey:       "1539a360dda3393169191eb9e2d97822814c9d84478bf788d4a80508966b9f58"
+    sha256 big_sur:        "ec00cadc6477adbd6c6b5ddd107586b31cfe8ecc78f9df7ff264c5b3b2990944"
+    sha256 catalina:       "f757655d692ef4acf1192c6fa4459a77b4480e0303589b158b862a0a1497afef"
+    sha256 mojave:         "ad7526c586e2bb15a4325798af37c278448315fe4434daa6553258a00ac13cd4"
+    sha256 x86_64_linux:   "c2113c131d937a5d93c81c7f0a1cb8b301bae73353e986b048ccfd45c525e811"
   end
 
-  depends_on "intltool" => :build
+  depends_on "bison" => :build
+  depends_on "gettext" => :build
+  depends_on "gobject-introspection" => :build
+  depends_on "meson" => :build
+  depends_on "ninja" => :build
   depends_on "pkg-config" => :build
-  depends_on "e2fsprogs"
+  depends_on "vala" => :build
   depends_on "gcab"
-  depends_on "gettext"
   depends_on "glib"
   depends_on "libgsf"
-  depends_on "vala"
 
-  # Workaround for https://gitlab.gnome.org/GNOME/msitools/issues/15
-  # Merged upstream in the following commits:
-  # https://gitlab.gnome.org/GNOME/msitools/commit/248450a2f2a23df59428fa816865a26f7e2496e0
-  # https://gitlab.gnome.org/GNOME/msitools/commit/9bbcc6da06ccf6144258c26ddcaab3262538d3ce
-  # Remove in next release.
-  patch do
-    url "https://gitlab.gnome.org/GNOME/msitools/commit/248450a2f2a23df59428fa816865a26f7e2496e0.diff"
-    sha256 "5046316e61af8af32a2b7d4ed2579a88fe0618e56d0aca32fea2c8a64b747f06"
-  end
+  uses_from_macos "libxml2"
 
-  patch do
-    url "https://gitlab.gnome.org/GNOME/msitools/commit/9bbcc6da06ccf6144258c26ddcaab3262538d3ce.diff"
-    sha256 "fadc1c5ade1afd8add5f5a4997a10098efa9f24a5788230a16af89965551c1c7"
+  on_macos do
+    depends_on "gettext"
   end
 
   def install
-    system "./configure", "--disable-dependency-tracking",
-                          "--disable-silent-rules",
-                          "--prefix=#{prefix}"
-    system "make", "install"
+    system "meson", "setup", "build", "-Dintrospection=true", *std_meson_args
+    system "meson", "compile", "-C", "build", "--verbose"
+    system "meson", "install", "-C", "build"
   end
 
   test do
     # wixl-heat: make an xml fragment
-    assert_match /<Fragment>/, pipe_output("#{bin}/wixl-heat --prefix test")
+    assert_match "<Fragment>", pipe_output("#{bin}/wixl-heat --prefix test")
 
     # wixl: build two installers
     1.upto(2) do |i|
@@ -86,7 +91,7 @@ class Msitools < Formula
     # msiinfo: show info for an installer
     out = `#{bin}/msiinfo suminfo installer1.msi`
     assert_equal 0, $CHILD_STATUS.exitstatus
-    assert_match /Author: BigCo/, out
+    assert_match(/Author: BigCo/, out)
 
     # msiextract: extract files from an installer
     mkdir "files"

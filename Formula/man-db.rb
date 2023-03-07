@@ -1,58 +1,55 @@
 class ManDb < Formula
   desc "Unix documentation system"
   homepage "https://www.nongnu.org/man-db/"
-  url "https://download.savannah.gnu.org/releases/man-db/man-db-2.9.3.tar.xz"
-  mirror "https://download-mirror.savannah.gnu.org/releases/man-db/man-db-2.9.3.tar.xz"
-  sha256 "fa5aa11ab0692daf737e76947f45669225db310b2801a5911bceb7551c5597b8"
+  url "https://download.savannah.gnu.org/releases/man-db/man-db-2.11.2.tar.xz", using: :homebrew_curl
+  mirror "https://download-mirror.savannah.gnu.org/releases/man-db/man-db-2.11.2.tar.xz"
+  sha256 "cffa1ee4e974be78646c46508e6dd2f37e7c589aaab2938cc1064f058fef9f8d"
+  license "GPL-2.0-or-later"
+
+  livecheck do
+    url "https://download.savannah.gnu.org/releases/man-db/"
+    regex(/href=.*?man-db[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    sha256 "1f203de0472712f459bee1b66dc93d4fa0c6fc190bdf467c018319add61a22ff" => :catalina
-    sha256 "3eb1e906db4927d45eaa4cd26d28bd69cf62eaa94316f32c3f29266d0070a978" => :mojave
-    sha256 "6827bc87f0ccf3b9e3f04adb8e0aba1d63497291704773bd9f6691d73cf4ee1d" => :high_sierra
+    sha256 arm64_ventura:  "77905671d6ddbaf21dabfe06f67346a505110753d2dbf577084a69ff6d8f52e9"
+    sha256 arm64_monterey: "5bbe2e835b01cabedcc72bff006de1ef98a5d01460ac8dfaa78569df80f09d39"
+    sha256 arm64_big_sur:  "e95369714002e785e6348856b98811a29660da71cfc68172d412750d9fb401a9"
+    sha256 ventura:        "f86c5c767da1a932e95f8a8b93e72b2ac8f6415b9ceeb61841029e157994236e"
+    sha256 monterey:       "a706bd336497f053137be73c5dfebdf4f092870a0231b6e6c63f6dfe2ebef0a0"
+    sha256 big_sur:        "785a834a0e34bd10579434073a6e336117649a5ac6e1193ab50375b96b90904f"
+    sha256 x86_64_linux:   "5b287e6d12ed222cbbc9ffe499cda3f0a2addd57f05cf4aead1a42e5eab311a6"
   end
 
   depends_on "pkg-config" => :build
+  depends_on "groff"
+  depends_on "libpipeline"
 
-  uses_from_macos "groff"
   uses_from_macos "zlib"
 
   on_linux do
     depends_on "gdbm"
   end
 
-  resource "libpipeline" do
-    url "https://download.savannah.gnu.org/releases/libpipeline/libpipeline-1.5.2.tar.gz"
-    sha256 "fd59c649c1ae9d67604d1644f116ad4d297eaa66f838e3dfab96b41e85b059fb"
-  end
-
   def install
-    resource("libpipeline").stage do
-      system "./configure",
-        "--disable-dependency-tracking",
-        "--disable-silent-rules",
-        "--prefix=#{buildpath}/libpipeline",
-        "--enable-static",
-        "--disable-shared"
-      system "make"
-      system "make", "install"
-    end
-
-    ENV["libpipeline_CFLAGS"] = "-I#{buildpath}/libpipeline/include"
-    ENV["libpipeline_LIBS"] = "-L#{buildpath}/libpipeline/lib -lpipeline"
-
+    man_db_conf = etc/"man_db.conf"
     args = %W[
-      --disable-dependency-tracking
       --disable-silent-rules
-      --prefix=#{prefix}
       --disable-cache-owner
       --disable-setuid
+      --disable-nls
       --program-prefix=g
+      --localstatedir=#{var}
+      --with-config-file=#{man_db_conf}
+      --with-systemdtmpfilesdir=#{etc}/tmpfiles.d
+      --with-systemdsystemunitdir=#{etc}/systemd/system
     ]
 
-    system "./configure", *args
-
-    system "make", "CFLAGS=#{ENV.cflags}"
+    system "./configure", *args, *std_configure_args
     system "make", "install"
+
+    # Use Homebrew's `var` directory instead of `/var`.
+    inreplace man_db_conf, "/var", var
 
     # Symlink commands without 'g' prefix into libexec/bin and
     # man pages into libexec/man
@@ -91,8 +88,14 @@ class ManDb < Formula
 
   test do
     ENV["PAGER"] = "cat"
-    output = shell_output("#{bin}/gman true")
-    assert_match "BSD General Commands Manual", output
-    assert_match "The true utility always returns with exit code zero", output
+    if OS.mac?
+      output = shell_output("#{bin}/gman true")
+      assert_match "BSD General Commands Manual", output
+      assert_match(/The true utility always returns with (an )?exit code (of )?zero/, output)
+    else
+      output = shell_output("#{bin}/gman gman")
+      assert_match "gman - an interface to the system reference manuals", output
+      assert_match "https://savannah.nongnu.org/bugs/?group=man-db", output
+    end
   end
 end

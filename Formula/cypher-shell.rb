@@ -1,28 +1,29 @@
 class CypherShell < Formula
   desc "Command-line shell where you can execute Cypher against Neo4j"
-  homepage "https://github.com/neo4j/cypher-shell"
-  url "https://github.com/neo4j/cypher-shell/releases/download/4.1.1/cypher-shell.zip"
-  sha256 "5216e57490fe95ff5e677f1790444bd0fda7522f81c5ffca133bb9edb8fddd25"
-  license "GPL-3.0"
+  homepage "https://neo4j.com"
+  url "https://dist.neo4j.org/cypher-shell/cypher-shell-5.5.0.zip"
+  sha256 "c1ca19018395d24df61865108bdf12bd820c1b6c04c6959b022ee66f7fac1cbe"
+  license "GPL-3.0-only"
   version_scheme 1
 
-  bottle :unneeded
+  livecheck do
+    url "https://neo4j.com/download-center/"
+    regex(/href=.*?cypher-shell[._-]v?(\d+(?:\.\d+)+)\.zip/i)
+  end
 
-  depends_on java: "1.8"
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "5db8dda7893e7d927d4bfa643ea7879ff3b46508adbad2fef52dfc39aef4edf9"
+  end
+
+  depends_on "openjdk"
 
   def install
-    rm_f Dir["bin/*.bat"]
-
-    # Needs the jar, but cannot go in bin
-    share.install ["cypher-shell.jar"]
-
-    # Copy the bin
-    bin.install ["cypher-shell"]
-    bin.env_script_all_files(share, NEO4J_HOME: ENV["NEO4J_HOME"])
+    libexec.install Dir["*"]
+    (bin/"cypher-shell").write_env_script libexec/"bin/cypher-shell", Language::Java.overridable_java_home_env
   end
 
   test do
     # The connection will fail and print the name of the host
-    assert_match /doesntexist/, shell_output("#{bin}/cypher-shell -a bolt://doesntexist 2>&1", 1)
+    assert_match "doesntexist", shell_output("#{bin}/cypher-shell -a bolt://doesntexist 2>&1", 1)
   end
 end

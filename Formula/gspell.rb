@@ -1,34 +1,46 @@
 class Gspell < Formula
   desc "Flexible API to implement spellchecking in GTK+ applications"
-  homepage "https://wiki.gnome.org/Projects/gspell"
-  url "https://download.gnome.org/sources/gspell/1.8/gspell-1.8.3.tar.xz"
-  sha256 "5ae514dd0216be069176accf6d0049d6a01cfa6a50df4bc06be85f7080b62de8"
+  homepage "https://gitlab.gnome.org/GNOME/gspell"
+  url "https://download.gnome.org/sources/gspell/1.12/gspell-1.12.0.tar.xz"
+  sha256 "40d2850f1bb6e8775246fa1e39438b36caafbdbada1d28a19fa1ca07e1ff82ad"
+  license "LGPL-2.1-or-later"
   revision 2
 
   bottle do
-    sha256 "491b662bd382e322b2041a255551dcd1a3ba6dbaa5a2fc825dc239241ac7a64a" => :catalina
-    sha256 "d471894ee5c85f31be7a2a9c5a122382a3619852f4b9a36f1d2778e669ad4cb0" => :mojave
-    sha256 "3b167053c54d962f2eed54e7bff70b2ce4b0a21ccb22be19a1091318e85bcbfc" => :high_sierra
+    rebuild 1
+    sha256 arm64_ventura:  "65c906574ff5e87056ca93c2f85d6c3b23eaa4650a1f24b5dee72da575101c9f"
+    sha256 arm64_monterey: "d7c62a15ae3002daa6e3b8a34db896890eb7e540d308b1af38fae9e934eb968b"
+    sha256 arm64_big_sur:  "afdc49aec4ce907138b80adfb2b85c9166850f3d405f646c919927d4d0bfc61a"
+    sha256 ventura:        "962ac8b16ebac953aa098fe234d6603e2bc7a388791dc40b5f23ba6f1f7775cf"
+    sha256 monterey:       "98e5a2909232aa846d11fa5b08ae36194953a29595e50a8abd2092d8ab145ba4"
+    sha256 big_sur:        "d8f6031f9bfa590015cd06a9390dab16ec90e0507d97b7f4b16ba683c9115791"
+    sha256 x86_64_linux:   "1dad36d3cd68e3c2b15b8ab4a0d82eb145276bdc58f017319512aafc9a25bd04"
   end
 
-  depends_on "autoconf" => :build
-  depends_on "automake" => :build
-  depends_on "gtk-doc" => :build
-  depends_on "libtool" => :build
-  depends_on "pkg-config" => :build
+  depends_on "gobject-introspection" => :build
+  depends_on "pkg-config" => [:build, :test]
+  depends_on "vala" => :build
   depends_on "enchant"
+  depends_on "glib"
   depends_on "gtk+3"
-  depends_on "gtk-mac-integration"
-  depends_on "iso-codes"
-  depends_on "vala"
+  depends_on "icu4c"
 
-  patch :DATA
+  on_macos do
+    depends_on "autoconf" => :build
+    depends_on "automake" => :build
+    depends_on "gtk-doc" => :build
+    depends_on "libtool" => :build
+    depends_on "gtk-mac-integration"
+
+    patch :DATA
+  end
 
   def install
-    system "autoreconf", "-if"
-    system "./configure", "--disable-dependency-tracking",
+    system "autoreconf", "--force", "--install", "--verbose" if OS.mac?
+    system "./configure", *std_configure_args,
                           "--disable-silent-rules",
-                          "--prefix=#{prefix}"
+                          "--enable-introspection=yes",
+                          "--enable-vala=yes"
     system "make", "install"
   end
 
@@ -41,64 +53,8 @@ class Gspell < Formula
         return 0;
       }
     EOS
-    atk = Formula["atk"]
-    cairo = Formula["cairo"]
-    enchant = Formula["enchant"]
-    fontconfig = Formula["fontconfig"]
-    freetype = Formula["freetype"]
-    gdk_pixbuf = Formula["gdk-pixbuf"]
-    gettext = Formula["gettext"]
-    glib = Formula["glib"]
-    gtkx3 = Formula["gtk+3"]
-    gtk_mac_integration = Formula["gtk-mac-integration"]
-    harfbuzz = Formula["harfbuzz"]
-    libepoxy = Formula["libepoxy"]
-    libpng = Formula["libpng"]
-    pango = Formula["pango"]
-    pixman = Formula["pixman"]
-    flags = %W[
-      -I#{atk.opt_include}/atk-1.0
-      -I#{cairo.opt_include}/cairo
-      -I#{enchant.opt_include}/enchant-2
-      -I#{fontconfig.opt_include}
-      -I#{freetype.opt_include}/freetype2
-      -I#{gdk_pixbuf.opt_include}/gdk-pixbuf-2.0
-      -I#{gettext.opt_include}
-      -I#{glib.opt_include}/gio-unix-2.0/
-      -I#{glib.opt_include}/glib-2.0
-      -I#{glib.opt_lib}/glib-2.0/include
-      -I#{gtk_mac_integration.opt_include}/gtkmacintegration
-      -I#{gtkx3.opt_include}/gtk-3.0
-      -I#{harfbuzz.opt_include}/harfbuzz
-      -I#{include}/gspell-1
-      -I#{libepoxy.opt_include}
-      -I#{libpng.opt_include}/libpng16
-      -I#{pango.opt_include}/pango-1.0
-      -I#{pixman.opt_include}/pixman-1
-      -DMAC_INTEGRATION
-      -D_REENTRANT
-      -L#{atk.opt_lib}
-      -L#{cairo.opt_lib}
-      -L#{gdk_pixbuf.opt_lib}
-      -L#{gettext.opt_lib}
-      -L#{glib.opt_lib}
-      -L#{gtkx3.opt_lib}
-      -L#{lib}
-      -L#{pango.opt_lib}
-      -latk-1.0
-      -lcairo
-      -lcairo-gobject
-      -lgdk-3
-      -lgdk_pixbuf-2.0
-      -lgio-2.0
-      -lglib-2.0
-      -lgobject-2.0
-      -lgspell-1
-      -lgtk-3
-      -lintl
-      -lpango-1.0
-      -lpangocairo-1.0
-    ]
+    ENV.prepend_path "PKG_CONFIG_PATH", Formula["icu4c"].opt_lib/"pkgconfig" if OS.mac?
+    flags = shell_output("pkg-config --cflags --libs gspell-1").chomp.split
     system ENV.cc, "test.c", "-o", "test", *flags
     ENV["G_DEBUG"] = "fatal-warnings"
 
@@ -117,7 +73,7 @@ index 076a9fd..6c67184 100644
 	$(BUILT_SOURCES)
 
  libgspell_core_la_LIBADD =	\
-+	$(GTK_MAC_LIBS)		\
++	$(GTK_MAC_LIBS) \
 	$(CODE_COVERAGE_LIBS)
 
  libgspell_core_la_CFLAGS =	\

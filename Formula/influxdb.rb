@@ -1,95 +1,132 @@
 class Influxdb < Formula
   desc "Time series, events, and metrics database"
   homepage "https://influxdata.com/time-series-platform/influxdb/"
-  url "https://github.com/influxdata/influxdb/archive/v1.8.2.tar.gz"
-  sha256 "59ee1d3bc591d932acad918f3a46b07207beed9c0e717ee28da8c9565e646eda"
+  url "https://github.com/influxdata/influxdb.git",
+      tag:      "v2.6.1",
+      revision: "9dcf880fe081b7b45117b56eafb1aa8acfa1565f"
   license "MIT"
-  head "https://github.com/influxdata/influxdb.git"
+  head "https://github.com/influxdata/influxdb.git", branch: "master"
+
+  # The regex below omits a rogue `v9.9.9` tag that breaks version comparison.
+  livecheck do
+    url :stable
+    regex(/^v?((?!9\.9\.9)\d+(?:\.\d+)+)$/i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "85487c01ca5b011374652ddb0dd4396d7f60cbc0227c8acef71caefea59d49d0" => :catalina
-    sha256 "84de2bb9137efe42a18464023160dbc620053aa43bfb7dc03aa5234a7d337bd3" => :mojave
-    sha256 "791fb60441f7ff352f0e4e929d02b7d472af56b200630ff90d42c195865fec5a" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "c7631840c61c20fc289748ee995b7f880c96143236b40766b04860f6dc77a4af"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "19828b7089a667999c35b5fd0230211e8f31fbfadf19ed1a7fc871de5647f5a0"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "eb73569a5e5e6c5d57a0726970b55263ec9f262746733959eaf83e867c0cd20c"
+    sha256 cellar: :any_skip_relocation, ventura:        "94f50e4434f9a3afb2430d134d87526c202e22383df70d32e7ef776edd3d3a2e"
+    sha256 cellar: :any_skip_relocation, monterey:       "088b718a0cc45d19a11b4a26b076421e3d98d25820f0c46802ad4cb8cca2202d"
+    sha256 cellar: :any_skip_relocation, big_sur:        "0c339719cc4f7fa6ec81dfab5d7ce7e5bd8627162373744aacf61e7a9ee8b036"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "1619d5a1cd7bae3b3c1b68de1121df2db8bde180bdbea4452571bedfb7743eb3"
   end
 
+  depends_on "breezy" => :build
   depends_on "go" => :build
+  depends_on "pkg-config" => :build
+  depends_on "protobuf" => :build
+  depends_on "rust" => :build
+
+  # NOTE: The version here is specified in the go.mod of influxdb.
+  # If you're upgrading to a newer influxdb version, check to see if this needs upgraded too.
+  resource "pkg-config-wrapper" do
+    url "https://github.com/influxdata/pkg-config/archive/refs/tags/v0.2.11.tar.gz"
+    sha256 "52b22c151163dfb051fd44e7d103fc4cde6ae8ff852ffc13adeef19d21c36682"
+
+    livecheck do
+      url "https://raw.githubusercontent.com/influxdata/influxdb/v#{LATEST_VERSION}/go.mod"
+      regex(/pkg-config\s+v?(\d+(?:\.\d+)+)/i)
+    end
+  end
+
+  # NOTE: The version/URL here is specified in scripts/fetch-ui-assets.sh in influxdb.
+  # If you're upgrading to a newer influxdb version, check to see if this needs upgraded too.
+  resource "ui-assets" do
+    url "https://github.com/influxdata/ui/releases/download/OSS-v2.6.1/build.tar.gz"
+    sha256 "345192ad60e62136163b651c4b6d1549baa456901646b44c23c94a6b67e6ef5c"
+
+    livecheck do
+      url "https://raw.githubusercontent.com/influxdata/influxdb/v#{LATEST_VERSION}/scripts/fetch-ui-assets.sh"
+      regex(/UI_RELEASE=["']?OSS[._-]v?(\d+(?:\.\d+)+)["']?$/i)
+    end
+  end
 
   def install
-    ENV["GOBIN"] = buildpath
-
-    system "go", "install", "-ldflags", "-X main.version=#{version}", "./..."
-    bin.install %w[influxd influx influx_tsm influx_stress influx_inspect]
-
-    etc.install "etc/config.sample.toml" => "influxdb.conf"
-    inreplace etc/"influxdb.conf" do |s|
-      s.gsub! "/var/lib/influxdb/data", "#{var}/influxdb/data"
-      s.gsub! "/var/lib/influxdb/meta", "#{var}/influxdb/meta"
-      s.gsub! "/var/lib/influxdb/wal", "#{var}/influxdb/wal"
+    # Set up the influxdata pkg-config wrapper to enable just-in-time compilation & linking
+    # of the Rust components in the server.
+    resource("pkg-config-wrapper").stage do
+      system "go", "build", *std_go_args(output: buildpath/"bootstrap/pkg-config")
     end
+    ENV.prepend_path "PATH", buildpath/"bootstrap"
 
-    (var/"influxdb/data").mkpath
-    (var/"influxdb/meta").mkpath
-    (var/"influxdb/wal").mkpath
+    # Extract pre-build UI resources to the location expected by go-bindata.
+    resource("ui-assets").stage(buildpath/"static/data/build")
+    # Embed UI files into the Go source code.
+    system "make", "generate-web-assets"
+
+    # Build the server.
+    ldflags = %W[
+      -s
+      -w
+      -X main.version=#{version}
+      -X main.commit=#{Utils.git_short_head(length: 10)}
+      -X main.date=#{time.iso8601}
+    ]
+
+    system "go", "build", *std_go_args(output: bin/"influxd", ldflags: ldflags),
+           "-tags", "assets,sqlite_foreign_keys,sqlite_json", "./cmd/influxd"
+
+    data = var/"lib/influxdb2"
+    data.mkpath
+
+    # Generate default config file.
+    config = buildpath/"config.yml"
+    config.write Utils.safe_popen_read(bin/"influxd", "print-config",
+                                       "--bolt-path=#{data}/influxdb.bolt",
+                                       "--engine-path=#{data}/engine")
+    (etc/"influxdb2").install config
+
+    # Create directory for DB stdout+stderr logs.
+    (var/"log/influxdb2").mkpath
   end
 
-  plist_options manual: "influxd -config #{HOMEBREW_PREFIX}/etc/influxdb.conf"
-
-  def plist
+  def caveats
     <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>KeepAlive</key>
-          <dict>
-            <key>SuccessfulExit</key>
-            <false/>
-          </dict>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{opt_bin}/influxd</string>
-            <string>-config</string>
-            <string>#{HOMEBREW_PREFIX}/etc/influxdb.conf</string>
-          </array>
-          <key>RunAtLoad</key>
-          <true/>
-          <key>WorkingDirectory</key>
-          <string>#{var}</string>
-          <key>StandardErrorPath</key>
-          <string>#{var}/log/influxdb.log</string>
-          <key>StandardOutPath</key>
-          <string>#{var}/log/influxdb.log</string>
-          <key>SoftResourceLimits</key>
-          <dict>
-            <key>NumberOfFiles</key>
-            <integer>10240</integer>
-          </dict>
-        </dict>
-      </plist>
+      This formula does not contain command-line interface; to install it, run:
+        brew install influxdb-cli
     EOS
   end
 
-  test do
-    (testpath/"config.toml").write shell_output("#{bin}/influxd config")
-    inreplace testpath/"config.toml" do |s|
-      s.gsub! %r{/.*/.influxdb/data}, "#{testpath}/influxdb/data"
-      s.gsub! %r{/.*/.influxdb/meta}, "#{testpath}/influxdb/meta"
-      s.gsub! %r{/.*/.influxdb/wal}, "#{testpath}/influxdb/wal"
-    end
+  service do
+    run bin/"influxd"
+    keep_alive true
+    working_dir HOMEBREW_PREFIX
+    log_path var/"log/influxdb2/influxd_output.log"
+    error_log_path var/"log/influxdb2/influxd_output.log"
+    environment_variables INFLUXD_CONFIG_PATH: etc/"influxdb2/config.yml"
+  end
 
-    begin
-      pid = fork do
-        exec "#{bin}/influxd -config #{testpath}/config.toml"
-      end
-      sleep 6
-      output = shell_output("curl -Is localhost:8086/ping")
-      assert_match /X-Influxdb-Version:/, output
-    ensure
-      Process.kill("SIGTERM", pid)
-      Process.wait(pid)
+  test do
+    influxd_port = free_port
+    influx_host = "http://localhost:#{influxd_port}"
+    ENV["INFLUX_HOST"] = influx_host
+
+    influxd = fork do
+      exec "#{bin}/influxd", "--bolt-path=#{testpath}/influxd.bolt",
+                             "--engine-path=#{testpath}/engine",
+                             "--http-bind-address=:#{influxd_port}",
+                             "--log-level=error"
     end
+    sleep 30
+
+    # Check that the server has properly bundled UI assets and serves them as HTML.
+    curl_output = shell_output("curl --silent --head #{influx_host}")
+    assert_match "200 OK", curl_output
+    assert_match "text/html", curl_output
+  ensure
+    Process.kill("TERM", influxd)
+    Process.wait influxd
   end
 end

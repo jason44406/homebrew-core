@@ -1,15 +1,24 @@
 class Libbluray < Formula
   desc "Blu-Ray disc playback library for media players like VLC"
   homepage "https://www.videolan.org/developers/libbluray.html"
-  url "https://download.videolan.org/videolan/libbluray/1.2.0/libbluray-1.2.0.tar.bz2"
-  sha256 "cd41ea06fd2512a77ebf63872873641908ef81ce2fe4e4c842f6035a47696c11"
-  license "LGPL-2.1"
+  url "https://download.videolan.org/videolan/libbluray/1.3.4/libbluray-1.3.4.tar.bz2"
+  sha256 "478ffd68a0f5dde8ef6ca989b7f035b5a0a22c599142e5cd3ff7b03bbebe5f2b"
+  license "LGPL-2.1-or-later"
+
+  livecheck do
+    url "https://download.videolan.org/pub/videolan/libbluray/"
+    regex(%r{href=["']?v?(\d+(?:\.\d+)+)/?["' >]}i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "ed5b295ee0b40b5c36ca2ceb289c106007f8fe9d475727288b61ea4dd5315bde" => :catalina
-    sha256 "bde7b947d717e7da2367bb3b38ab79eab3843cf3c109603d7fb0c84993872164" => :mojave
-    sha256 "a8a20bb4274ca8844ee7dc9ef27df6660dfe9cc180f85bbaebe11f1cc4edd053" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "c51fc3248e75d1cf23f9d3d2856d719e6298b913e4b161f066993b2485a79b66"
+    sha256 cellar: :any,                 arm64_monterey: "3369218f1258be668eca6975f82ac25b8a906e984d8a8344e9ed4d93657debfc"
+    sha256 cellar: :any,                 arm64_big_sur:  "b321152d681e4fcd8c7fe06dfbc6f5f2f66460b19bef0faffff975fcd98b791f"
+    sha256 cellar: :any,                 ventura:        "4f07968528f3799faa411a4fc304bb762a4b2d90eda3d0292dc322fcdbeadccf"
+    sha256 cellar: :any,                 monterey:       "675911bf2b50a1f33112fb2fb76acf33c03d56d465477439c34c54088eda848e"
+    sha256 cellar: :any,                 big_sur:        "18490d577635a9975be2e1f06efaa5d7b33fc238af966d3587758f3a13ceb6bf"
+    sha256 cellar: :any,                 catalina:       "ea15b923a467441fd884d25c339e12a5cdd6a71b39d670b301456af6428fcd0e"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "f5777913be5f68fb71aa0e5ed057ced402b9f8ab119a8ea74623bca2b5475f04"
   end
 
   head do
@@ -20,8 +29,6 @@ class Libbluray < Formula
     depends_on "libtool" => :build
   end
 
-  depends_on "ant" => :build
-  depends_on java: ["1.8", :build]
   depends_on "pkg-config" => :build
   depends_on "fontconfig"
   depends_on "freetype"
@@ -29,18 +36,7 @@ class Libbluray < Formula
   uses_from_macos "libxml2"
 
   def install
-    # Need to set JAVA_HOME manually since ant overrides 1.8 with 1.8+
-    cmd = Language::Java.java_home_cmd("1.8")
-    ENV["JAVA_HOME"] = Utils.safe_popen_read(cmd).chomp
-
-    # https://mailman.videolan.org/pipermail/libbluray-devel/2014-April/001401.html
-    ENV.append_to_cflags "-D_DARWIN_C_SOURCE"
-
-    # Work around Xcode 11 clang bug
-    # https://code.videolan.org/videolan/libbluray/issues/20
-    ENV.append_to_cflags "-fno-stack-check" if DevelopmentTools.clang_build_version >= 1010
-
-    args = %W[--prefix=#{prefix} --disable-dependency-tracking]
+    args = %W[--prefix=#{prefix} --disable-dependency-tracking --disable-silent-rules --disable-bdjava-jar]
 
     system "./bootstrap" if build.head?
     system "./configure", *args
@@ -53,6 +49,8 @@ class Libbluray < Formula
       #include <libbluray/bluray.h>
       int main(void) {
         BLURAY *bluray = bd_init();
+        bd_close(bluray);
+        return 0;
       }
     EOS
 

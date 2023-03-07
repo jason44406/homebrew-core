@@ -1,19 +1,25 @@
 class Memtester < Formula
   desc "Utility for testing the memory subsystem"
-  homepage "http://pyropus.ca/software/memtester/"
-  url "http://pyropus.ca/software/memtester/old-versions/memtester-4.3.0.tar.gz"
-  sha256 "f9dfe2fd737c38fad6535bbab327da9a21f7ce4ea6f18c7b3339adef6bf5fd88"
-  license "GPL-2.0"
+  homepage "https://pyropus.ca/software/memtester/"
+  url "https://pyropus.ca/software/memtester/old-versions/memtester-4.6.0.tar.gz", using: :homebrew_curl
+  sha256 "c9fe4eb7e80c8cef5202f9065c4c0682f5616647c0455e916a5700f98e3dbb2e"
+  license "GPL-2.0-only"
+
+  # Despite the name, all the versions are seemingly found on this page. If this
+  # doesn't end up being true over time, we can check the homepage instead.
+  livecheck do
+    url "https://pyropus.ca/software/memtester/old-versions/"
+    regex(/href=.*?memtester[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "8f2029ec6a035a7c0316410340114f6a954e3c423a08d928b956dd168bc271fe" => :catalina
-    sha256 "03b5970aafd201b0959c2ea339a1aa0cc97895e63707f3a441a5c9e3af8e9ace" => :mojave
-    sha256 "4c4e1dc949d00a6cd7728c5cc8502c81e2f7fb4bb6859bc3f87f6835928cbc70" => :high_sierra
-    sha256 "46f00de9e84e9c3b57533c7b16ef6410add54f13bc9af39a39dcce37d4b78751" => :sierra
-    sha256 "e9acbfc46d698da87473227fe344e9999642212289f8365dd4485bc52ce55238" => :el_capitan
-    sha256 "fc38d748b19b83c69547ab95bae6adce7009d14b6b21668e20417e7596691c6e" => :yosemite
-    sha256 "e2690d42f2744e37e9f0e119736653a92d0d1be2d10aed7ebc7364dad0eeb640" => :mavericks
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "41a41ca665729fff67552a31fb300107c07c5cd455b28eefbccbd72639f74fd7"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "6b540c6a252e4eb89b36bfbbce41ec3bfd01d907cf8a7bb3f60992c248e8dcad"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "d0d1f6ca41a92356b1730a6a18cb1504742a5c00570d5ae6f5c964bc356776e8"
+    sha256 cellar: :any_skip_relocation, ventura:        "99e25743f80404ddc89cf53826be6f286533ac63c9c5824c55ceffd01a89fca3"
+    sha256 cellar: :any_skip_relocation, monterey:       "be7d9dda10e0514edb563d68bbe0243de866f21d43e4cd6bec8c0bf3f0d0c78e"
+    sha256 cellar: :any_skip_relocation, big_sur:        "77696db97be5d12bc7e1fda39b1877d874c2a22abc8d623fbf8a5633564b9118"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "55598380121620207e07c7806304cdd0282e3d52b78b2945b3eaea8292fa23fd"
   end
 
   def install

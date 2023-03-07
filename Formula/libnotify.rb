@@ -1,15 +1,26 @@
 class Libnotify < Formula
   desc "Library that sends desktop notifications to a notification daemon"
-  homepage "https://developer.gnome.org/libnotify"
-  url "https://download.gnome.org/sources/libnotify/0.7/libnotify-0.7.9.tar.xz"
-  sha256 "66c0517ed16df7af258e83208faaf5069727dfd66995c4bbc51c16954d674761"
-  license "LGPL-2.1"
+  homepage "https://gitlab.gnome.org/GNOME/libnotify"
+  url "https://download.gnome.org/sources/libnotify/0.8/libnotify-0.8.2.tar.xz"
+  sha256 "c5f4ed3d1f86e5b118c76415aacb861873ed3e6f0c6b3181b828cf584fc5c616"
+  license "LGPL-2.1-or-later"
+
+  # libnotify uses GNOME's "even-numbered minor is stable" version scheme but
+  # we've been using a development version 0.7.x for many years, so we have to
+  # match development versions until we're on a stable release.
+  livecheck do
+    url :stable
+    regex(/libnotify-(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "367a8d51cb565452392b9bc92c753ca641c23f91fc4ff93fb6166b63f2beafda" => :catalina
-    sha256 "e6d5a6a87f885bf421e6a70c9cef1c6aaf89db46a98216af6c06754246a8f896" => :mojave
-    sha256 "0560e601843a3e42a4823904dd5534212efd823292444a9588f1cf99ea8bc8f5" => :high_sierra
+    sha256 cellar: :any, arm64_ventura:  "da8416027843b0efad2701b512782aa02a5e58dddbfd35ac3d0f6482ce1f70a8"
+    sha256 cellar: :any, arm64_monterey: "1e65844fef7f12da5d787fd4743efb679d75426be9cd29c95e90acd1cf796eae"
+    sha256 cellar: :any, arm64_big_sur:  "d6791d4b6740a03295e475b5c5c7aab55e1f8a43870bdc8780cbba2d09da54dd"
+    sha256 cellar: :any, ventura:        "f16ba567c4a40c0907c1a810f541588315656322436947b6d888ad9195519653"
+    sha256 cellar: :any, monterey:       "2960d4614787e4e103e3045e394da59512da87c16ec7656fff55b62e9a726fb2"
+    sha256 cellar: :any, big_sur:        "e0dc28e32a60b3c1c460fca8f68ec003006803166ca223ce126ea38575c08611"
+    sha256               x86_64_linux:   "c8a4030a410cfadc538b0c4b5913d00177ba5a6445ba8917f5e58827b95bf01b"
   end
 
   depends_on "docbook-xsl" => :build
@@ -24,7 +35,7 @@ class Libnotify < Formula
     ENV["XML_CATALOG_FILES"] = "#{etc}/xml/catalog"
 
     mkdir "build" do
-      system "meson", *std_meson_args, "-Dtests=false", ".."
+      system "meson", *std_meson_args, "-Dgtk_doc=false", "-Dman=false", "-Dtests=false", ".."
       system "ninja"
       system "ninja", "install"
     end
@@ -58,8 +69,8 @@ class Libnotify < Formula
       -lgio-2.0
       -lglib-2.0
       -lgobject-2.0
-      -lintl
     ]
+    flags << "-lintl" if OS.mac?
     system ENV.cc, "test.c", "-o", "test", *flags
     system "./test"
   end

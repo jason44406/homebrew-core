@@ -1,33 +1,45 @@
 class Yq < Formula
-  desc "Process YAML documents from the CLI"
+  desc "Process YAML, JSON, XML, CSV and properties documents from the CLI"
   homepage "https://github.com/mikefarah/yq"
-  url "https://github.com/mikefarah/yq/archive/3.3.2.tar.gz"
-  sha256 "28b34199aadafe0eef1e7becc6953675ad516383b31637a42080940e1c9318fb"
+  url "https://github.com/mikefarah/yq/archive/v4.31.2.tar.gz"
+  sha256 "82d5ef2ab01bc5065e7efe671d92fb82e53f41dc67b04cab6c3b22fd144bd009"
   license "MIT"
+  head "https://github.com/mikefarah/yq.git", branch: "master"
+
+  livecheck do
+    url :stable
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "1cd476d249fd7a11034e3e8581a099cc8dfff09cc1ff40c79b819a5562399137" => :catalina
-    sha256 "7b33668ea6670cc65b4ef92d640c0066d9fc0c54f7bea4136cd326d8b59d37e8" => :mojave
-    sha256 "d59fe8d26fa97d6fc26bfff73315d90d361e456bdecf1fdfc10084c3cadedd30" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "b0f90b8141b90347e22fad656d567a636cbd90b739e798ddebf8a89aa67d10a3"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "b0f90b8141b90347e22fad656d567a636cbd90b739e798ddebf8a89aa67d10a3"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "b0f90b8141b90347e22fad656d567a636cbd90b739e798ddebf8a89aa67d10a3"
+    sha256 cellar: :any_skip_relocation, ventura:        "387224c793ed2d18773f763482f3098ac0e27dcc8d392764c86fa2b1daac572c"
+    sha256 cellar: :any_skip_relocation, monterey:       "387224c793ed2d18773f763482f3098ac0e27dcc8d392764c86fa2b1daac572c"
+    sha256 cellar: :any_skip_relocation, big_sur:        "387224c793ed2d18773f763482f3098ac0e27dcc8d392764c86fa2b1daac572c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "451d55a153d217734aa6bb12ecbcffd79a1eac90f811051cc74a07bc7029d062"
   end
 
   depends_on "go" => :build
+  depends_on "pandoc" => :build
 
   conflicts_with "python-yq", because: "both install `yq` executables"
 
   def install
-    ENV["GOPATH"] = buildpath
-    (buildpath/"src/github.com/mikefarah/yq").install buildpath.children
+    system "go", "build", *std_go_args(ldflags: "-s -w")
 
-    cd "src/github.com/mikefarah/yq" do
-      system "go", "build", "-o", bin/"yq"
-      prefix.install_metafiles
-    end
+    # Install shell completions
+    generate_completions_from_executable(bin/"yq", "shell-completion")
+
+    # Install man pages
+    system "./scripts/generate-man-page-md.sh"
+    system "./scripts/generate-man-page.sh"
+    man1.install "yq.1"
   end
 
   test do
-    assert_equal "key: cat", shell_output("#{bin}/yq n key cat").chomp
-    assert_equal "cat", pipe_output("#{bin}/yq r - key", "key: cat", 0).chomp
+    assert_equal "key: cat", shell_output("#{bin}/yq eval --null-input --no-colors '.key = \"cat\"'").chomp
+    assert_equal "cat", pipe_output("#{bin}/yq eval \".key\" -", "key: cat", 0).chomp
   end
 end

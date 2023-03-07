@@ -3,64 +3,70 @@ class Fabric < Formula
 
   desc "Library and command-line tool for SSH"
   homepage "https://www.fabfile.org/"
-  url "https://github.com/fabric/fabric/archive/2.5.0.tar.gz"
-  sha256 "4b3f4c79bcc372de575e7756b50c89373ce1acb8565902a5e406b5e78c41389c"
+  url "https://files.pythonhosted.org/packages/2f/84/dbcbc78055397a783134f56b30c70a61a645fae568d73ec7aa301f5f93fd/fabric-3.0.0.tar.gz"
+  sha256 "bfe960c1ae904e7624af9d40ad5b9b99581ed9c4fd09349c0d02b7486e1d0f89"
   license "BSD-2-Clause"
-  revision 4
-  head "https://github.com/fabric/fabric.git"
+  revision 1
+  head "https://github.com/fabric/fabric.git", branch: "main"
 
   bottle do
-    cellar :any
-    sha256 "2604897f853a67a5cde05ab79bda786818b433c0c7d94f859c4184044568a0b4" => :catalina
-    sha256 "15cfced970c15e0f0a08019037d9f8a71cad17143f11fc5329bac9fcd3f7262f" => :mojave
-    sha256 "6184a88650faf46ef0ddf6d15ac57da7a1b6afed6e2a2ee37d6a7767be860e00" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "3e7a998cbf4c4b494913fd5b490993da538664297fd1914cc8515b690c884b18"
+    sha256 cellar: :any,                 arm64_monterey: "03e191da03a9635719ddf90cb9609694efd61bca6951f5546d598887464b2691"
+    sha256 cellar: :any,                 arm64_big_sur:  "f1c8329161860111aeee27be89c54b4b33ca9240a3d7bb16231ce278998e48b1"
+    sha256 cellar: :any,                 ventura:        "9020bd6bee66200685748c2bb2d7e88c6e67e3f1c14f76d0c9d541b50742ffa5"
+    sha256 cellar: :any,                 monterey:       "b0b5a088a0fe8edca05cd28bd58ce37ff61a7ba229d130e783fd053623f87ca6"
+    sha256 cellar: :any,                 big_sur:        "7be3304df4e392f04a6adc9990fb4e15467b71ce0129d4eb6d5ec1ef879836a6"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "e15b8c75bb33f2b76915cda69bead546dd2a6c354078820712dad79736a826c2"
   end
 
+  depends_on "rust" => :build
   depends_on "openssl@1.1"
-  depends_on "python@3.8"
+  depends_on "pyinvoke"
+  depends_on "python@3.11"
 
   resource "bcrypt" do
-    url "https://files.pythonhosted.org/packages/fa/aa/025a3ab62469b5167bc397837c9ffc486c42a97ef12ceaa6699d8f5a5416/bcrypt-3.1.7.tar.gz"
-    sha256 "0b0069c752ec14172c5f78208f1863d7ad6755a6fae6fe76ec2c80d13be41e42"
+    url "https://files.pythonhosted.org/packages/8c/ae/3af7d006aacf513975fd1948a6b4d6f8b4a307f8a244e1a3d3774b297aad/bcrypt-4.0.1.tar.gz"
+    sha256 "27d375903ac8261cfe4047f6709d16f7d18d39b1ec92aaf72af989552a650ebd"
   end
 
   resource "cffi" do
-    url "https://files.pythonhosted.org/packages/05/54/3324b0c46340c31b909fcec598696aaec7ddc8c18a63f2db352562d3354c/cffi-1.14.0.tar.gz"
-    sha256 "2d384f4a127a15ba701207f7639d94106693b6cd64173d6c8988e2c25f3ac2b6"
+    url "https://files.pythonhosted.org/packages/2b/a8/050ab4f0c3d4c1b8aaa805f70e26e84d0e27004907c5b8ecc1d31815f92a/cffi-1.15.1.tar.gz"
+    sha256 "d400bfb9a37b1351253cb402671cea7e89bdecc294e8016a707f6d1d8ac934f9"
   end
 
   resource "cryptography" do
-    url "https://files.pythonhosted.org/packages/9d/0a/d7060601834b1a0a84845d6ae2cd59be077aafa2133455062e47c9733024/cryptography-2.9.tar.gz"
-    sha256 "0cacd3ef5c604b8e5f59bf2582c076c98a37fe206b31430d0cd08138aff0986e"
+    url "https://files.pythonhosted.org/packages/6a/f5/a729774d087e50fffd1438b3877a91e9281294f985bda0fd15bf99016c78/cryptography-39.0.1.tar.gz"
+    sha256 "d1f6198ee6d9148405e49887803907fe8962a23e6c6f83ea7d98f1c0de375695"
   end
 
-  resource "invoke" do
-    url "https://files.pythonhosted.org/packages/b6/08/b345475cfaaa542ae78a172d5b23979ad0577f15a32b16e5e54b2a7e80c6/invoke-1.4.1.tar.gz"
-    sha256 "de3f23bfe669e3db1085789fd859eb8ca8e0c5d9c20811e2407fa042e8a5e15d"
+  resource "decorator" do
+    url "https://files.pythonhosted.org/packages/66/0c/8d907af351aa16b42caae42f9d6aa37b900c67308052d10fdce809f8d952/decorator-5.1.1.tar.gz"
+    sha256 "637996211036b6385ef91435e4fae22989472f9d571faba8927ba8253acbc330"
   end
 
   resource "paramiko" do
-    url "https://files.pythonhosted.org/packages/ac/15/4351003352e11300b9f44a13576bff52dcdc6e4a911129c07447bda0a358/paramiko-2.7.1.tar.gz"
-    sha256 "920492895db8013f6cc0179293147f830b8c7b21fdfc839b6bad760c27459d9f"
+    url "https://files.pythonhosted.org/packages/3b/6b/554c00e5e68cd573bda345322a4e895e22686e94c7fa51848cd0e0442a71/paramiko-3.0.0.tar.gz"
+    sha256 "fedc9b1dd43bc1d45f67f1ceca10bc336605427a46dcdf8dec6bfea3edf57965"
   end
 
   resource "pycparser" do
-    url "https://files.pythonhosted.org/packages/0f/86/e19659527668d70be91d0369aeaa055b4eb396b0f387a4f92293a20035bd/pycparser-2.20.tar.gz"
-    sha256 "2d475327684562c3a96cc71adf7dc8c4f0565175cf86b6d7a404ff4c771f15f0"
+    url "https://files.pythonhosted.org/packages/5e/0b/95d387f5f4433cb0f53ff7ad859bd2c6051051cebbb564f139a999ab46de/pycparser-2.21.tar.gz"
+    sha256 "e644fdec12f7872f86c58ff790da456218b10f863970249516d60a5eaca77206"
   end
 
   resource "PyNaCl" do
-    url "https://files.pythonhosted.org/packages/61/ab/2ac6dea8489fa713e2b4c6c5b549cc962dd4a842b5998d9e80cf8440b7cd/PyNaCl-1.3.0.tar.gz"
-    sha256 "0c6100edd16fefd1557da078c7a31e7b7d7a52ce39fdca2bec29d4f7b6e7600c"
-  end
-
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/21/9f/b251f7f8a76dec1d6651be194dfba8fb8d7781d10ab3987190de8391d08e/six-1.14.0.tar.gz"
-    sha256 "236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a"
+    url "https://files.pythonhosted.org/packages/a7/22/27582568be639dfe22ddb3902225f91f2f17ceff88ce80e4db396c8986da/PyNaCl-1.5.0.tar.gz"
+    sha256 "8ac7448f09ab85811607bdd21ec2464495ac8b7c66d146bf545b0f08fb9220ba"
   end
 
   def install
     virtualenv_install_with_resources
+
+    # we depend on pyinvoke, but that's a separate formula, so install a `.pth` file to link them
+    site_packages = Language::Python.site_packages("python3.11")
+    pyinvoke = Formula["pyinvoke"].opt_libexec
+    (libexec/site_packages/"homebrew-pyinvoke.pth").write pyinvoke/site_packages
   end
 
   test do

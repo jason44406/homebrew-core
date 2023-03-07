@@ -3,20 +3,22 @@ class Pyinvoke < Formula
 
   desc "Pythonic task management & command execution"
   homepage "https://www.pyinvoke.org/"
-  url "https://github.com/pyinvoke/invoke/archive/1.4.1.tar.gz"
-  sha256 "ac5880fb5d21f06cc1b29f89736cb8a43b85abea9204b4bb4277458ae025d0b7"
+  url "https://files.pythonhosted.org/packages/43/59/42a4d8336c01a8df19e62b25949b551f9d3dc0d4292eea25eddacc9e329e/invoke-2.0.0.tar.gz"
+  sha256 "7ab5dd9cd76b787d560a78b1a9810d252367ab595985c50612702be21d671dd7"
   license "BSD-2-Clause"
-  revision 1
-  head "https://github.com/pyinvoke/invoke.git"
+  head "https://github.com/pyinvoke/invoke.git", branch: "main"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "6e576690387b7433b3795c926672cebc76f51c1a78d64798db3a9b4fba2a584e" => :catalina
-    sha256 "576bd35748ea63fcc0a8bd6f42e68755e34c3736b5233adb0f86293dcaf912f3" => :mojave
-    sha256 "44224c0c6d1c175ddccf9bc20dcc6a0b3c48bd7ab72a30fde8f40db055406eee" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "09b53320771acc6b8d031a903e844aedab84556dbfc1cd3b7d09481778f8da98"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "09b53320771acc6b8d031a903e844aedab84556dbfc1cd3b7d09481778f8da98"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "09b53320771acc6b8d031a903e844aedab84556dbfc1cd3b7d09481778f8da98"
+    sha256 cellar: :any_skip_relocation, ventura:        "bb3a3b00a3ca790c0bc8012e4f7a584b0a65452e513148f283d36b89df9bd6d1"
+    sha256 cellar: :any_skip_relocation, monterey:       "bb3a3b00a3ca790c0bc8012e4f7a584b0a65452e513148f283d36b89df9bd6d1"
+    sha256 cellar: :any_skip_relocation, big_sur:        "bb3a3b00a3ca790c0bc8012e4f7a584b0a65452e513148f283d36b89df9bd6d1"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "40b169dcb888dd73ba6d3da2fc7fa871e215afa18157ddbd2029542f171af602"
   end
 
-  depends_on "python@3.8"
+  depends_on "python@3.11"
 
   def install
     virtualenv_install_with_resources

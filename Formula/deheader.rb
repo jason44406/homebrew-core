@@ -2,31 +2,33 @@ class Deheader < Formula
   include Language::Python::Shebang
 
   desc "Analyze C/C++ files for unnecessary headers"
-  homepage "http://www.catb.org/~esr/deheader"
-  url "http://www.catb.org/~esr/deheader/deheader-1.7.tar.gz"
-  sha256 "6856e4fa3efa664a0444b81c2e1f0209103be3b058455625c79abe65cf8db70d"
+  homepage "http://www.catb.org/~esr/deheader/"
+  url "http://www.catb.org/~esr/deheader/deheader-1.10.tar.gz"
+  sha256 "909d2683a3e62da54bfc660814b4d8af93f582e23858810cc41bfa081571f593"
   license "BSD-2-Clause"
-  revision 1
-  head "https://gitlab.com/esr/deheader.git"
+
+  livecheck do
+    url :homepage
+    regex(/href=.*?deheader[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "03645d8b8d1c27fb6b957fc1cf153f4d458e9377a3ce81b448adf07551b5338d" => :catalina
-    sha256 "03645d8b8d1c27fb6b957fc1cf153f4d458e9377a3ce81b448adf07551b5338d" => :mojave
-    sha256 "03645d8b8d1c27fb6b957fc1cf153f4d458e9377a3ce81b448adf07551b5338d" => :high_sierra
+    sha256 cellar: :any_skip_relocation, all: "67fb3c4990162be0ba10c9c6a934d6826a43fcf17bcd876d91777e408ad7258c"
   end
 
-  depends_on "xmlto" => :build
-  depends_on "python@3.8"
-
-  on_linux do
-    depends_on "libarchive" => :build
+  head do
+    url "https://gitlab.com/esr/deheader.git", branch: "master"
+    depends_on "xmlto" => :build
   end
+
+  depends_on "python@3.11"
 
   def install
-    ENV["XML_CATALOG_FILES"] = "#{etc}/xml/catalog"
+    if build.head?
+      ENV["XML_CATALOG_FILES"] = etc/"xml/catalog"
+      system "make"
+    end
 
-    system "make"
     bin.install "deheader"
     man1.install "deheader.1"
 

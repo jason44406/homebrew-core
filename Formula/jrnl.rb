@@ -2,19 +2,26 @@ class Jrnl < Formula
   include Language::Python::Virtualenv
 
   desc "Command-line note taker"
-  homepage "https://jrnl.sh/"
-  url "https://files.pythonhosted.org/packages/be/56/20e494eb2a7be914f05c43048ed1e42bc3eb34515319aa1a72e5fabb7d98/jrnl-2.4.5.tar.gz"
-  sha256 "a5f069efcaa3f5d95cc7712178b3f92915f67eed4034e5f257cc063c6b0e74d9"
-  license "GPL-3.0"
+  homepage "http://jrnl.sh/en/stable/"
+  url "https://files.pythonhosted.org/packages/97/5e/457cc704dfe59dadd0bbc5afaa92b6735cb2283856e95af6b7559a9218fa/jrnl-3.3.tar.gz"
+  sha256 "07e2d6a5a52024435110e25092144ba19357cf26f9a86595eb93e9edb8649b54"
+  license "GPL-3.0-only"
 
   bottle do
-    cellar :any
-    sha256 "fb6d2b1efb05d963283fd9dc09789aaf65f9d8856e04e248e0ac735edfc43613" => :catalina
-    sha256 "0b78d9c9d59b85e3499f19eb2d53999c6cac8f1b6636e4edffdbacb62bc838b4" => :mojave
-    sha256 "807b86ba7af383a7f75d41a1cc4125f8c7c5c1fece598ff30df42098259b4b79" => :high_sierra
+    rebuild 2
+    sha256 cellar: :any,                 arm64_ventura:  "d9f3cfe7646d2236936434eaa089120d27bbe63d8e9831e0104a731c670bec9a"
+    sha256 cellar: :any,                 arm64_monterey: "c55a41ef44bf5dbb531b09a178dc33e57d2be67bf8b1231b5447f6d85ab65e8b"
+    sha256 cellar: :any,                 arm64_big_sur:  "624b0029e5d5e0f2919e7fd841d22b4d72419e3c1a5b216b28b275929a162b48"
+    sha256 cellar: :any,                 ventura:        "5ba96493fa4b655f8f3af7191e30a9545414c01f53ccf9f43a6cd1694ce92056"
+    sha256 cellar: :any,                 monterey:       "3cb179640d7191db394073c354e63f530784c49c3081e8a0c0dd8a796a27a8ae"
+    sha256 cellar: :any,                 big_sur:        "833c95e632e0fd31e853379e53d9c0f4f23225d2c79dac4bff361a6dd9710e18"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "8bdfa8abf56b0fc99406b8ddef61f9137eebbcec6ed52560e40ba2e2756cef76"
   end
 
-  depends_on "python@3.8"
+  depends_on "rust" => :build
+  depends_on "pygments"
+  depends_on "python@3.11"
+  depends_on "six"
 
   uses_from_macos "expect" => :test
 
@@ -27,34 +34,44 @@ class Jrnl < Formula
     sha256 "ca0c740734cde59bf919f8ff2c386f74f9a369818cdc60efe94893d01ea8d9b7"
   end
 
-  resource "asteval" do
-    url "https://files.pythonhosted.org/packages/e4/3b/8aaee90977588fa3e88d7a495af306d6f4a1c1c01c8f0fe0de1fc43d0908/asteval-0.9.18.tar.gz"
-    sha256 "5d64e18b8a72c2c7ae8f9b70d1f80b68bbcaa98c1c0d7047c35489d03209bc86"
-  end
-
   resource "cffi" do
-    url "https://files.pythonhosted.org/packages/54/1d/15eae71ab444bd88a1d69f19592dcf32b9e3166ecf427dd9243ef0d3b7bc/cffi-1.14.1.tar.gz"
-    sha256 "b2a2b0d276a136146e012154baefaea2758ef1f56ae9f4e01c612b0831e0bd2f"
+    url "https://files.pythonhosted.org/packages/2b/a8/050ab4f0c3d4c1b8aaa805f70e26e84d0e27004907c5b8ecc1d31815f92a/cffi-1.15.1.tar.gz"
+    sha256 "d400bfb9a37b1351253cb402671cea7e89bdecc294e8016a707f6d1d8ac934f9"
   end
 
   resource "colorama" do
-    url "https://files.pythonhosted.org/packages/82/75/f2a4c0c94c85e2693c229142eb448840fba0f9230111faa889d1f541d12d/colorama-0.4.3.tar.gz"
-    sha256 "e96da0d330793e2cb9485e9ddfd918d456036c7149416295932478192f4436a1"
+    url "https://files.pythonhosted.org/packages/d8/53/6f443c9a4a8358a93a6792e2acffb9d9d5cb0a5cfd8802644b7b1c9a02e4/colorama-0.4.6.tar.gz"
+    sha256 "08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"
+  end
+
+  resource "commonmark" do
+    url "https://files.pythonhosted.org/packages/60/48/a60f593447e8f0894ebb7f6e6c1f25dafc5e89c5879fdc9360ae93ff83f0/commonmark-0.9.1.tar.gz"
+    sha256 "452f9dc859be7f06631ddcb328b6919c67984aca654e5fefb3914d54691aed60"
   end
 
   resource "cryptography" do
-    url "https://files.pythonhosted.org/packages/56/3b/78c6816918fdf2405d62c98e48589112669f36711e50158a0c15d804c30d/cryptography-2.9.2.tar.gz"
-    sha256 "a0c30272fb4ddda5f5ffc1089d7405b7a71b0b0f51993cb4e5dbb4590b2fc229"
+    url "https://files.pythonhosted.org/packages/6a/f5/a729774d087e50fffd1438b3877a91e9281294f985bda0fd15bf99016c78/cryptography-39.0.1.tar.gz"
+    sha256 "d1f6198ee6d9148405e49887803907fe8962a23e6c6f83ea7d98f1c0de375695"
+  end
+
+  resource "importlib-metadata" do
+    url "https://files.pythonhosted.org/packages/90/07/6397ad02d31bddf1841c9ad3ec30a693a3ff208e09c2ef45c9a8a5f85156/importlib_metadata-6.0.0.tar.gz"
+    sha256 "e354bedeb60efa6affdcc8ae121b73544a7aa74156d047311948f6d711cd378d"
+  end
+
+  resource "jaraco.classes" do
+    url "https://files.pythonhosted.org/packages/bf/02/a956c9bfd2dfe60b30c065ed8e28df7fcf72b292b861dca97e951c145ef6/jaraco.classes-3.2.3.tar.gz"
+    sha256 "89559fa5c1d3c34eff6f631ad80bb21f378dbcbb35dd161fd2c6b93f5be2f98a"
   end
 
   resource "keyring" do
-    url "https://files.pythonhosted.org/packages/a6/52/eb8a0e13b54ec9240c7dd68fcd0951c52f62033d438af372831af770f7cc/keyring-21.2.1.tar.gz"
-    sha256 "c53e0e5ccde3ad34284a40ce7976b5b3a3d6de70344c3f8ee44364cc340976ec"
+    url "https://files.pythonhosted.org/packages/55/fe/282f4c205add8e8bb3a1635cbbac59d6def2e0891b145aa553a0e40dd2d0/keyring-23.13.1.tar.gz"
+    sha256 "ba2e15a9b35e21908d0aaf4e0a47acc52d6ae33444df0da2b49d41a46ef6d678"
   end
 
-  resource "packaging" do
-    url "https://files.pythonhosted.org/packages/55/fd/fc1aca9cf51ed2f2c11748fa797370027babd82f87829c7a8e6dbe720145/packaging-20.4.tar.gz"
-    sha256 "4357f74f47b9c12db93624a82154e9b120fa8293699949152b22065d556079f8"
+  resource "more-itertools" do
+    url "https://files.pythonhosted.org/packages/13/b3/397aa9668da8b1f0c307bc474608653d46122ae0563d1d32f60e24fa0cbd/more-itertools-9.0.0.tar.gz"
+    sha256 "5a6257e40878ef0520b1803990e3e22303a41b5714006c32a3fd8304b26ea1ab"
   end
 
   resource "parsedatetime" do
@@ -62,44 +79,34 @@ class Jrnl < Formula
     sha256 "4cb368fbb18a0b7231f4d76119165451c8d2e35951455dfee97c62a87b04d455"
   end
 
-  resource "passlib" do
-    url "https://files.pythonhosted.org/packages/6d/6b/4bfca0c13506535289b58f9c9761d20f56ed89439bfe6b8e07416ce58ee1/passlib-1.7.2.tar.gz"
-    sha256 "8d666cef936198bc2ab47ee9b0410c94adf2ba798e5a84bf220be079ae7ab6a8"
-  end
-
   resource "pycparser" do
-    url "https://files.pythonhosted.org/packages/0f/86/e19659527668d70be91d0369aeaa055b4eb396b0f387a4f92293a20035bd/pycparser-2.20.tar.gz"
-    sha256 "2d475327684562c3a96cc71adf7dc8c4f0565175cf86b6d7a404ff4c771f15f0"
-  end
-
-  resource "pyparsing" do
-    url "https://files.pythonhosted.org/packages/c1/47/dfc9c342c9842bbe0036c7f763d2d6686bcf5eb1808ba3e170afdb282210/pyparsing-2.4.7.tar.gz"
-    sha256 "c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1"
+    url "https://files.pythonhosted.org/packages/5e/0b/95d387f5f4433cb0f53ff7ad859bd2c6051051cebbb564f139a999ab46de/pycparser-2.21.tar.gz"
+    sha256 "e644fdec12f7872f86c58ff790da456218b10f863970249516d60a5eaca77206"
   end
 
   resource "python-dateutil" do
-    url "https://files.pythonhosted.org/packages/be/ed/5bbc91f03fa4c839c4c7360375da77f9659af5f7086b7a7bdda65771c8e0/python-dateutil-2.8.1.tar.gz"
-    sha256 "73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"
+    url "https://files.pythonhosted.org/packages/4c/c4/13b4776ea2d76c115c1d1b84579f3764ee6d57204f6be27119f13a61d0a9/python-dateutil-2.8.2.tar.gz"
+    sha256 "0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"
   end
 
-  resource "pytz" do
-    url "https://files.pythonhosted.org/packages/f4/f6/94fee50f4d54f58637d4b9987a1b862aeb6cd969e73623e02c5c00755577/pytz-2020.1.tar.gz"
-    sha256 "c35965d010ce31b23eeb663ed3cc8c906275d6be1a34393a1d73a41febf4a048"
+  resource "pytz-deprecation-shim" do
+    url "https://files.pythonhosted.org/packages/94/f0/909f94fea74759654390a3e1a9e4e185b6cd9aa810e533e3586f39da3097/pytz_deprecation_shim-0.1.0.post0.tar.gz"
+    sha256 "af097bae1b616dde5c5744441e2ddc69e74dfdcb0c263129610d85b87445a59d"
   end
 
   resource "pyxdg" do
-    url "https://files.pythonhosted.org/packages/47/6e/311d5f22e2b76381719b5d0c6e9dc39cd33999adae67db71d7279a6d70f4/pyxdg-0.26.tar.gz"
-    sha256 "fe2928d3f532ed32b39c32a482b54136fe766d19936afc96c8f00645f9da1a06"
+    url "https://files.pythonhosted.org/packages/b0/25/7998cd2dec731acbd438fbf91bc619603fc5188de0a9a17699a781840452/pyxdg-0.28.tar.gz"
+    sha256 "3267bb3074e934df202af2ee0868575484108581e6f3cb006af1da35395e88b4"
   end
 
-  resource "PyYAML" do
-    url "https://files.pythonhosted.org/packages/64/c2/b80047c7ac2478f9501676c988a5411ed5572f35d1beff9cae07d321512c/PyYAML-5.3.1.tar.gz"
-    sha256 "b8eac752c5e14d3eca0e6dd9199cd627518cb5ec06add0de9d32baeee6fe645d"
+  resource "rich" do
+    url "https://files.pythonhosted.org/packages/11/23/814edf09ec6470d52022b9e95c23c1bef77f0bc451761e1504ebd09606d3/rich-12.6.0.tar.gz"
+    sha256 "ba3a3775974105c221d31141f2c116f4fd65c5ceb0698657a11e9f295ec93fd0"
   end
 
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/6b/34/415834bfdafca3c5f451532e8a8d9ba89a21c9743a0c59fbd0205c7f9426/six-1.15.0.tar.gz"
-    sha256 "30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"
+  resource "ruamel.yaml" do
+    url "https://files.pythonhosted.org/packages/46/a9/6ed24832095b692a8cecc323230ce2ec3480015fbfa4b79941bd41b23a3c/ruamel.yaml-0.17.21.tar.gz"
+    sha256 "8b7ce697a2f212752a35c1ac414471dc16c424c9573be4926b56ff3f5d23b7af"
   end
 
   resource "textwrap3" do
@@ -107,42 +114,42 @@ class Jrnl < Formula
     sha256 "5008eeebdb236f6303dcd68f18b856d355f6197511d952ba74bc75e40e0c3414"
   end
 
-  resource "tzlocal" do
-    url "https://files.pythonhosted.org/packages/ce/73/99e4cc30db6b21cba6c3b3b80cffc472cc5a0feaf79c290f01f1ac460710/tzlocal-2.1.tar.gz"
-    sha256 "643c97c5294aedc737780a49d9df30889321cbe1204eac2c2ec6134035a92e44"
+  resource "tzdata" do
+    url "https://files.pythonhosted.org/packages/5b/30/b7abfb11be6642d26de1c1840d25e8d90333513350ad0ebc03101d55e13b/tzdata-2022.7.tar.gz"
+    sha256 "fe5f866eddd8b96e9fcba978f8e503c909b19ea7efda11e52e39494bad3a7bfa"
   end
 
-  resource "asn1crypto" do
-    on_linux do
-      url "https://files.pythonhosted.org/packages/9f/3d/8beae739ed8c1c8f00ceac0ab6b0e97299b42da869e24cf82851b27a9123/asn1crypto-1.3.0.tar.gz"
-      sha256 "5a215cb8dc12f892244e3a113fe05397ee23c5c4ca7a69cd6e69811755efc42d"
-    end
+  resource "tzlocal" do
+    url "https://files.pythonhosted.org/packages/7d/b9/164d5f510e0547ae92280d0ca4a90407a15625901afbb9f57a19d9acd9eb/tzlocal-4.2.tar.gz"
+    sha256 "ee5842fa3a795f023514ac2d801c4a81d1743bbe642e3940143326b3a00addd7"
+  end
+
+  resource "zipp" do
+    url "https://files.pythonhosted.org/packages/1f/29/54ba1934c45af649698410456fa8a78a475c82efd5c562e51011079458d1/zipp-3.12.1.tar.gz"
+    sha256 "a3cac813d40993596b39ea9e93a18e8a2076d5c378b8bc88ec32ab264e04ad02"
   end
 
   resource "jeepney" do
     on_linux do
-      url "https://files.pythonhosted.org/packages/74/24/9b720cc6b2a73c908896a0ed64cb49780dcfbf4964e23a725aa6323f4452/jeepney-0.4.3.tar.gz"
-      sha256 "3479b861cc2b6407de5188695fa1a8d57e5072d7059322469b62628869b8e36e"
+      url "https://files.pythonhosted.org/packages/d6/f4/154cf374c2daf2020e05c3c6a03c91348d59b23c5366e968feb198306fdf/jeepney-0.8.0.tar.gz"
+      sha256 "5efe48d255973902f6badc3ce55e2aa6c5c3b3bc642059ef3a91247bcfcc5806"
     end
   end
 
-  resource "secretstorage" do
+  resource "SecretStorage" do
     on_linux do
-      url "https://files.pythonhosted.org/packages/fd/9f/36197c75d9a09b1ab63f56cb985af6cd858ca3fc41fd9cd890ce69bae5b9/SecretStorage-3.1.2.tar.gz"
-      sha256 "15da8a989b65498e29be338b3b279965f1b8f09b9668bd8010da183024c8bff6"
+      url "https://files.pythonhosted.org/packages/53/a4/f48c9d79cb507ed1373477dbceaba7401fd8a23af63b837fa61f1dcd3691/SecretStorage-3.3.3.tar.gz"
+      sha256 "2403533ef369eca6d2ba81718576c5e0f564d5cca1b58f73a8b23e7d4eeebd77"
     end
   end
 
   def install
-    # Avoid error "ModuleNotFoundError: No module named 'clikit'", which is only used in Poetry build process
-    rm_f "pyproject.toml"
-
     virtualenv_install_with_resources
   end
 
   test do
     (testpath/"tests.sh").write <<~EOS
-      #!/usr/bin/expect -f
+      #!/usr/bin/env expect
 
       set timeout 3
       match_max 100000
@@ -188,7 +195,7 @@ class Jrnl < Formula
       }
 
       expect {
-        -exact "Do you want to store the password in your keychain? \[Y/n\] " { send -- "n\r" }
+        -exact "Do you want to store the password in your keychain? [Y/n] " { send -- "n\r" }
         timeout { exit 1 }
       }
 

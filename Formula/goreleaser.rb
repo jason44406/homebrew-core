@@ -2,23 +2,35 @@ class Goreleaser < Formula
   desc "Deliver Go binaries as fast and easily as possible"
   homepage "https://goreleaser.com/"
   url "https://github.com/goreleaser/goreleaser.git",
-      tag:      "v0.142.0",
-      revision: "e014ad0ae88480406206c7758f3607168b45ced9"
+      tag:      "v1.16.0",
+      revision: "945b5453d953e36c7fcad8ff64206c021413271b"
   license "MIT"
+  head "https://github.com/goreleaser/goreleaser.git", branch: "main"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "c62050d65f3265cffa50be031c2df7eb2bd80878bda691bee51a29a971480156" => :catalina
-    sha256 "5783aad4e2977ae895584160f84e360634f6b4b33b3c1e54b8a3841c6a7374fd" => :mojave
-    sha256 "0f8074214c6da450b63da69d673d43355bb69278b5bee19e1f76357682d00aaf" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "83edd1089db7a525623e8ded57ad4826d5c1f9d7fd65cb1f2725ef134fd34d03"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "83edd1089db7a525623e8ded57ad4826d5c1f9d7fd65cb1f2725ef134fd34d03"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "83edd1089db7a525623e8ded57ad4826d5c1f9d7fd65cb1f2725ef134fd34d03"
+    sha256 cellar: :any_skip_relocation, ventura:        "9b4dc407f3a8914ed517971d5bcca74740f63c23bb50a660925a721d72d1605e"
+    sha256 cellar: :any_skip_relocation, monterey:       "9b4dc407f3a8914ed517971d5bcca74740f63c23bb50a660925a721d72d1605e"
+    sha256 cellar: :any_skip_relocation, big_sur:        "9b4dc407f3a8914ed517971d5bcca74740f63c23bb50a660925a721d72d1605e"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "198978709afd1af538b264f307982d1dc08931e6739c3d41ca06b7e8f81673fc"
   end
 
   depends_on "go" => :build
 
   def install
-    system "go", "build", "-ldflags",
-             "-s -w -X main.version=#{version} -X main.commit=#{stable.specs[:revision]} -X main.builtBy=homebrew",
-             *std_go_args
+    ldflags = %W[
+      -s -w
+      -X main.version=#{version}
+      -X main.commit=#{Utils.git_head}
+      -X main.builtBy=homebrew
+    ]
+
+    system "go", "build", *std_go_args(ldflags: ldflags)
+
+    # Install shell completions
+    generate_completions_from_executable(bin/"goreleaser", "completion")
   end
 
   test do

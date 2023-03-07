@@ -1,19 +1,29 @@
 class Logcheck < Formula
   desc "Mail anomalies in the system logfiles to the administrator"
   homepage "https://packages.debian.org/sid/logcheck"
-  url "https://deb.debian.org/debian/pool/main/l/logcheck/logcheck_1.3.20.tar.xz"
-  sha256 "9fb6d02b933470d0b1d1efb54ea186e0d0d27336f9d146be592f65ce60dfb3e6"
-  license "GPL-2.0"
+  url "https://deb.debian.org/debian/pool/main/l/logcheck/logcheck_1.4.2.tar.xz"
+  sha256 "0c651deb31dc201f1584ecea292b259932bae6e3e8cef846db3109e89a7f217e"
+  license "GPL-2.0-only"
+
+  livecheck do
+    url "https://packages.debian.org/unstable/logcheck"
+    regex(/href=.*?logcheck[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "9e354b3fe568c0751443a702251949b5227a5ce09e3bbae4c28664aa1d7f0631" => :catalina
-    sha256 "111520f51e26088aa012bd42dc772e0a00e41decec22011a2bcf71c2ee3e20cc" => :mojave
-    sha256 "111520f51e26088aa012bd42dc772e0a00e41decec22011a2bcf71c2ee3e20cc" => :high_sierra
-    sha256 "12caeda115373b2b964509c07c2101926ab2e67154176078bf72353f3aeab7a3" => :sierra
+    sha256 cellar: :any_skip_relocation, all: "80c5420361fea2b961a749a213e5a4c769d6784f8034528eecae7365b9fd252e"
+  end
+
+  on_macos do
+    depends_on "gnu-sed" => :build
   end
 
   def install
+    # use gnu-sed on macOS
+    ENV.prepend_path "PATH", Formula["gnu-sed"].libexec/"gnubin" if OS.mac?
+
+    # Fix dependency on `dpkg-parsechangelog`
+    inreplace "Makefile", "$$(dpkg-parsechangelog -S version)", version.to_s
     inreplace "Makefile", "$(DESTDIR)/$(CONFDIR)", "$(CONFDIR)"
     system "make", "install", "--always-make", "DESTDIR=#{prefix}",
                    "SBINDIR=sbin", "BINDIR=bin", "CONFDIR=#{etc}/logcheck"

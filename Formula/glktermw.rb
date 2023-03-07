@@ -5,17 +5,25 @@ class Glktermw < Formula
   version "1.0.4"
   sha256 "5968630b45e2fd53de48424559e3579db0537c460f4dc2631f258e1c116eb4ea"
 
+  livecheck do
+    url :homepage
+    regex(/href=.*?glktermw[._-]v?(?:\d+(?:\.\d+)*)\.t[^>]+?>\s*?GlkTerm library v?(\d+(?:\.\d+)+)/im)
+  end
+
   bottle do
-    cellar :any_skip_relocation
-    sha256 "6959c1eebd57b190196abeee87a79bceffe67dfb1454c78d0068a576648fc4aa" => :catalina
-    sha256 "cbb9467a9639470772bb010a05c79b396ab12bad33726f2fe6cb60dc29bda9b2" => :mojave
-    sha256 "c8ecb98e15edfdb02c5aed42590291e45c0dae29640a209428f1382991a23a2a" => :high_sierra
-    sha256 "8f62b5b2b920573742886d31a7c579b174bb60fad1bfeabae346f8893dc440cf" => :sierra
-    sha256 "5b302ada83cd6185c262277c3836d9e071a050a677fd41d86cab31aa0e8257d0" => :el_capitan
-    sha256 "9e1cce9e7bbc7d1bb1ea781bcd49c8cd1a3a933ca00637bf5c637a5dfa7c5ccc" => :yosemite
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "35a03fd6081b2bab477c9a75969119d92225a284f1178c043db3edd74d40d881"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "2aa0665da245b2b3d6e701aa45407b8a3ab9eb23c32381362caac287245ddbdf"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "291e5c7e7be0a93d71fb909fe40473a604e9990319bf86dc3d05b5a1787437ea"
+    sha256 cellar: :any_skip_relocation, ventura:        "1fe4217ba733bafb231019e146f8ec74ca9aa57fe09c94614dcbd3942c4bd9e3"
+    sha256 cellar: :any_skip_relocation, monterey:       "699e360251f685b222039f3847dbe00a3106db24e10fd306f6bc03d9cdb026b3"
+    sha256 cellar: :any_skip_relocation, big_sur:        "52731e29ed29632ef8e5e1bc069022498be1270ac2af0b47cd906313c643ee71"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "a3391048ffb327060e3cf8e18e253ac1a44de556fbef1c453ee0186c92b3b079"
   end
 
   keg_only "conflicts with other Glk libraries"
+
+  uses_from_macos "ncurses"
 
   def install
     inreplace "gtoption.h", "/* #define LOCAL_NCURSESW */", "#define LOCAL_NCURSESW"

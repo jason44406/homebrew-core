@@ -9,20 +9,25 @@
 class Gpac < Formula
   desc "Multimedia framework for research and academic purposes"
   homepage "https://gpac.wp.mines-telecom.fr/"
-  url "https://github.com/gpac/gpac/archive/v1.0.0.tar.gz"
-  sha256 "ebcca41993e51706c891dba4e9fe03b59bc671c41910bc6c303ba3feeb7f1b20"
-  license "LGPL-2.1"
-  head "https://github.com/gpac/gpac.git"
+  url "https://github.com/gpac/gpac/archive/v2.2.0.tar.gz"
+  sha256 "c20c204b57da76e4726109993c1abcdb3231a9b2ee2c8e21126d000cda7fc00d"
+  license "LGPL-2.1-or-later"
+  head "https://github.com/gpac/gpac.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "615c346a9a86fd6fcdc1591bf6c5a634ae408e0ba39e11ec1b9e011488e278e3" => :catalina
-    sha256 "167c5e24935a3f4b118e0d931f1d3ed2a4101a39b5de85910ec7384ee13f95b1" => :mojave
-    sha256 "420874d6129c931e0dd7051bb2a91fd492f40456ade36259de611546f409f539" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "d0558e09d42e44644581c62b64a8109d6968f07ea8e00a9f6e78453242c31f77"
+    sha256 cellar: :any,                 arm64_monterey: "e7bdaa0c5bfd09b4e29908df5ecace8c9c3f1ab7d04802357077c1ed1c31e4fa"
+    sha256 cellar: :any,                 arm64_big_sur:  "b8b0aca468db112cceea2ebbd9dca6ad2441095e8bcd85c99788a9bb6fdd5796"
+    sha256 cellar: :any,                 ventura:        "8e8ee917157aa2535ae182767e45eee02a77545d30535d3b2fa9b75ea437157e"
+    sha256 cellar: :any,                 monterey:       "79d93bb80dcc146cc18f2e5de8904060de7982a01061d0211c51639dfa18ecaf"
+    sha256 cellar: :any,                 big_sur:        "6e2b5266dda770fafe8159528424fb2e27cbd8ed3cac80accf6f2ab85506e8db"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "279485e406963ddacebdf8a1aec5331bf262915164c567b4a0725a015d802104"
   end
 
   depends_on "pkg-config" => :build
   depends_on "openssl@1.1"
+
+  uses_from_macos "zlib"
 
   conflicts_with "bento4", because: "both install `mp42ts` binaries"
 

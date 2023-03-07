@@ -1,21 +1,32 @@
 class Asio < Formula
   desc "Cross-platform C++ Library for asynchronous programming"
   homepage "https://think-async.com/Asio"
-  url "https://downloads.sourceforge.net/project/asio/asio/1.18.0%20%28Stable%29/asio-1.18.0.tar.bz2"
-  sha256 "9d539e7c09aa6394d512c433c5601c1f26dc4975f022ad7d5e8e57c3b635b370"
+  url "https://downloads.sourceforge.net/project/asio/asio/1.26.0%20%28Stable%29/asio-1.26.0.tar.bz2"
+  sha256 "858320108a0dfc6504cc1b3403182de8ccda1fb8f1c8a4e980e4cb03a11db34d"
   license "BSL-1.0"
-  head "https://github.com/chriskohlhoff/asio.git"
 
-  bottle do
-    cellar :any
-    sha256 "89dff3c575014d571875ebaf43772705c605f95ed9424a235a7755b13d523c37" => :catalina
-    sha256 "46d36e13b0f13a1d0e02be143bb96f244fecbc3525d1ca8fcb560b1a8ecaf095" => :mojave
-    sha256 "f074033735a3dab5d4d6962aab8f9b948dcc6d2148b74fe3706f4d35def11cff" => :high_sierra
+  livecheck do
+    url :stable
+    regex(%r{url=.*?Stable.*?/asio[._-]v?(\d+(?:\.\d+)+)\.t}i)
   end
 
-  depends_on "autoconf" => :build
-  depends_on "automake" => :build
-  depends_on "openssl@1.1"
+  bottle do
+    sha256 cellar: :any,                 arm64_ventura:  "a4c16df47b5b0e4e272cc4d3e5a59145dc1b11b031ffbd5daeda8e1e89317bbf"
+    sha256 cellar: :any,                 arm64_monterey: "204cf96a34629195e3f09f9c1e4b2e896f76a75207122cdb09447e7f66d00ed2"
+    sha256 cellar: :any,                 arm64_big_sur:  "7f81d62e95806c35522ff629c2145721c43efc7605f8e2d2403342150865830a"
+    sha256 cellar: :any,                 ventura:        "9e6e8e7be0a34b9de9769a881fc79ea4668092f2e9183d3622ea3fe66ddf5531"
+    sha256 cellar: :any,                 monterey:       "824e821c1147439f8a9fc22301dab82a4603198f1f5907d804b41fa717c16ca6"
+    sha256 cellar: :any,                 big_sur:        "eb3bacc9a7ce9079fcc4f6d17ecf9af340765aae1c5d45b57fa68deed3222226"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "45090f28798a426d6cbd2e822387a947878ce84a57713f464dde336c89f02a7f"
+  end
+
+  head do
+    url "https://github.com/chriskohlhoff/asio.git", branch: "master"
+    depends_on "autoconf" => :build
+    depends_on "automake" => :build
+  end
+
+  depends_on "openssl@3"
 
   def install
     ENV.cxx11
@@ -23,14 +34,12 @@ class Asio < Formula
     if build.head?
       cd "asio"
       system "./autogen.sh"
-    else
-      system "autoconf"
     end
 
-    system "./configure", "--disable-dependency-tracking",
+    system "./configure", *std_configure_args,
                           "--disable-silent-rules",
-                          "--prefix=#{prefix}",
-                          "--with-boost=no"
+                          "--with-boost=no",
+                          "--with-openssl=#{Formula["openssl@3"].opt_prefix}"
     system "make", "install"
     pkgshare.install "src/examples"
   end
@@ -45,10 +54,9 @@ class Asio < Formula
     end
     sleep 1
     begin
-      assert_match /404 Not Found/, shell_output("curl http://127.0.0.1:#{port}")
+      assert_match "404 Not Found", shell_output("curl http://127.0.0.1:#{port}")
     ensure
       Process.kill 9, pid
-      Process.wait pid
     end
   end
 end

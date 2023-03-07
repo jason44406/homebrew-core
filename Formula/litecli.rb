@@ -3,29 +3,37 @@ class Litecli < Formula
 
   desc "CLI for SQLite Databases with auto-completion and syntax highlighting"
   homepage "https://github.com/dbcli/litecli"
-  url "https://files.pythonhosted.org/packages/03/08/a124a13cf2a7b85e1bce3def574a451b761f0546a391142c5d2426a6bdc4/litecli-1.4.1.tar.gz"
-  sha256 "1404568ed6d2e738bf5d00f201522652602b2e3f31013cf58d9e239d715dab5c"
+  url "https://files.pythonhosted.org/packages/c1/92/b2eb5f098446a05b9a92e548bd83442f2169f87f3e1b37ffed7a5315c264/litecli-1.9.0.tar.gz"
+  sha256 "21af2cfa083dd4df1e3ccaa2a2117129b5f17212756f596ea090e296776c27a1"
   license "BSD-3-Clause"
+  revision 2
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "a5c32ad08cf648a27f4227a318fcaa0703ae5997b0eb305ff1b5922825e114df" => :catalina
-    sha256 "dad4c2dc18b9bd8d9902e021fc28772947e1fb99179edffa32218091ca330671" => :mojave
-    sha256 "eb2ebf6ab934ad00fe09c41be58e5bbd6fb347d0f2a79fdf3108587b5a0db639" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "5da1f7dea09d44b2ff9affbb2775f0df78e3db5bcbcfb540ff4f2d5994fd1e1e"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "39e05aef55a4bef5cedb2392bd231bac77248ef16ddb9868512b2bcdf4d9dba7"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "24f74a7040bf91fe5de379c5d6e884281d50e6f5948955fd7299e2b35ed945d4"
+    sha256 cellar: :any_skip_relocation, ventura:        "d4a559e3d03bd4baf95b33cd915d0e6aff3ae2af7f0ff78029a5697ab075080b"
+    sha256 cellar: :any_skip_relocation, monterey:       "0e56976717e0a01cd33f6e575f52087476035d90cefe7b1cefe0feacc41905d4"
+    sha256 cellar: :any_skip_relocation, big_sur:        "d6cd645d981824e518484b523d67ec2ccd2b590f642a1f13e7a1e6edc5282e8d"
+    sha256 cellar: :any_skip_relocation, catalina:       "05a5004d955ef6fef211ecdfce7c8bdc16ae78fad89caffdb78c15c01692b1fd"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "4b01d5f27e46df045d675b99812fd38741e4b603b8c31e031b4817c1e66a4c8b"
   end
 
-  depends_on "python@3.8"
+  depends_on "pygments"
+  depends_on "python-tabulate"
+  depends_on "python@3.11"
+  depends_on "six"
 
-  uses_from_macos "sqlite" => :test
+  uses_from_macos "sqlite"
 
   resource "cli-helpers" do
-    url "https://files.pythonhosted.org/packages/3f/3f/6ecd0ddf2394b698dd82ff3ddbcda235f8d6dadf124af6222eff49b32e87/cli_helpers-2.1.0.tar.gz"
-    sha256 "dd6f164310f7d86fa3da1f82043a9c784e44a02ad49be932a80624261e56979b"
+    url "https://files.pythonhosted.org/packages/27/01/6aaa4fc415274ac77372b4d259c234b9f5bfc8d78144c3fda1f3019d4690/cli_helpers-2.3.0.tar.gz"
+    sha256 "e7174d003a2b58fd3e31a73fbbc45d5aa513de62cbd42d437f78b9658bd5f967"
   end
 
   resource "click" do
-    url "https://files.pythonhosted.org/packages/27/6f/be940c8b1f1d69daceeb0032fee6c34d7bd70e3e649ccac0951500b4720e/click-7.1.2.tar.gz"
-    sha256 "d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a"
+    url "https://files.pythonhosted.org/packages/59/87/84326af34517fca8c58418d148f2403df25303e02736832403587318e9e8/click-8.1.3.tar.gz"
+    sha256 "7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e"
   end
 
   resource "configobj" do
@@ -34,33 +42,13 @@ class Litecli < Formula
   end
 
   resource "prompt-toolkit" do
-    url "https://files.pythonhosted.org/packages/69/19/3aa4bf17e1cbbdfe934eb3d5b394ae9a0a7fb23594a2ff27e0fdaf8b4c59/prompt_toolkit-3.0.5.tar.gz"
-    sha256 "563d1a4140b63ff9dd587bda9557cffb2fe73650205ab6f4383092fb882e7dc8"
-  end
-
-  resource "Pygments" do
-    url "https://files.pythonhosted.org/packages/6e/4d/4d2fe93a35dfba417311a4ff627489a947b01dc0cc377a3673c00cf7e4b2/Pygments-2.6.1.tar.gz"
-    sha256 "647344a061c249a3b74e230c739f434d7ea4d8b1d5f3721bc0f3558049b38f44"
-  end
-
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/6b/34/415834bfdafca3c5f451532e8a8d9ba89a21c9743a0c59fbd0205c7f9426/six-1.15.0.tar.gz"
-    sha256 "30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"
+    url "https://files.pythonhosted.org/packages/e2/d9/1009dbb3811fee624af34df9f460f92b51edac528af316eb5770f9fbd2e1/prompt_toolkit-3.0.32.tar.gz"
+    sha256 "e7f2129cba4ff3b3656bbdda0e74ee00d2f874a8bcdb9dd16f5fec7b3e173cae"
   end
 
   resource "sqlparse" do
-    url "https://files.pythonhosted.org/packages/67/4b/253b6902c1526885af6d361ca8c6b1400292e649f0e9c95ee0d2e8ec8681/sqlparse-0.3.1.tar.gz"
-    sha256 "e162203737712307dfe78860cc56c8da8a852ab2ee33750e33aeadf38d12c548"
-  end
-
-  resource "tabulate" do
-    url "https://files.pythonhosted.org/packages/57/6f/213d075ad03c84991d44e63b6516dd7d185091df5e1d02a660874f8f7e1e/tabulate-0.8.7.tar.gz"
-    sha256 "db2723a20d04bcda8522165c73eea7c300eda74e0ce852d9022e0159d7895007"
-  end
-
-  resource "terminaltables" do
-    url "https://files.pythonhosted.org/packages/9b/c4/4a21174f32f8a7e1104798c445dacdc1d4df86f2f26722767034e4de4bff/terminaltables-3.1.0.tar.gz"
-    sha256 "f3eb0eb92e3833972ac36796293ca0906e998dc3be91fbe1f8615b331b853b81"
+    url "https://files.pythonhosted.org/packages/ba/fa/5b7662b04b69f3a34b8867877e4dbf2a37b7f2a5c0bbb5a9eed64efd1ad1/sqlparse-0.4.3.tar.gz"
+    sha256 "69ca804846bb114d2ec380e4360a8a340db83f0ccf3afceeb1404df028f57268"
   end
 
   resource "wcwidth" do
@@ -89,20 +77,26 @@ class Litecli < Formula
       VALUES
         ('Homebrew');
     EOS
-    system "/usr/bin/sqlite3 test.db < test.sql"
+    system "sqlite3 test.db < test.sql"
 
     require "pty"
+    output = ""
+    PTY.spawn("#{bin}/litecli test.db") do |r, w, _pid|
+      sleep 2
+      w.puts "SELECT name FROM package_manager"
+      w.puts "quit"
 
-    r, w, pid = PTY.spawn("#{bin}/litecli test.db")
-    sleep 2
-    w.puts "SELECT name FROM package_manager"
-    w.puts "quit"
-    output = r.read
+      begin
+        r.each_line { |line| output += line }
+      rescue Errno::EIO
+        # GNU/Linux raises EIO when read is done on closed pty
+      end
+    end
 
     # remove ANSI colors
-    output.gsub! /\e\[([;\d]+)?m/, ""
+    output.gsub!(/\e\[([;\d]+)?m/, "")
     # normalize line endings
-    output.gsub! /\r\n/, "\n"
+    output.gsub!(/\r\n/, "\n")
 
     expected = <<~EOS
       name
@@ -111,8 +105,5 @@ class Litecli < Formula
     EOS
 
     assert_match expected, output
-
-    Process.wait(pid)
-    assert_equal 0, $CHILD_STATUS.exitstatus
   end
 end

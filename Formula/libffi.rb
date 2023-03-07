@@ -1,21 +1,23 @@
 class Libffi < Formula
   desc "Portable Foreign Function Interface library"
   homepage "https://sourceware.org/libffi/"
-  url "https://sourceware.org/pub/libffi/libffi-3.3.tar.gz"
-  mirror "https://deb.debian.org/debian/pool/main/libf/libffi/libffi_3.3.orig.tar.gz"
-  mirror "https://github.com/libffi/libffi/releases/download/v3.3/libffi-3.3.tar.gz"
-  sha256 "72fba7922703ddfa7a028d513ac15a85c8d54c8d67f55fa5a4802885dc652056"
+  url "https://github.com/libffi/libffi/releases/download/v3.4.4/libffi-3.4.4.tar.gz"
+  sha256 "d66c56ad259a82cf2a9dfc408b32bf5da52371500b84745f7fb8b645712df676"
   license "MIT"
 
   bottle do
-    cellar :any
-    sha256 "dd94d39946f53a8f11f78e998f22e46be9666bb265f80bb4714d5d63c1e16a68" => :catalina
-    sha256 "d6e5efd7521676dfc58fcba567514b898091c8580df4d6253f5dd40a7ee67c82" => :mojave
-    sha256 "7065f0d426921fa069c2494beded9de61e8720954f3f346103c8f871daa4ff8b" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "66d9dcb218283c43250b04e507b7b96f0cf18fb1017fcaf811729324d11127f7"
+    sha256 cellar: :any,                 arm64_monterey: "e7ea0921a053dc81e818c3893887e819ed26c0e231fd306e05e905b51b9ea902"
+    sha256 cellar: :any,                 arm64_big_sur:  "8d44b24963c114512934de23cc776a6190f5bcb65db8e6cc65e1b60122571747"
+    sha256 cellar: :any,                 ventura:        "a86ed7eb1b02a3d44cd6e75977c910466357a1715743f89be94416d000577133"
+    sha256 cellar: :any,                 monterey:       "9dd80c4c3d4451cc3216dbf1129a2bddec474aa9266b6bb5c603e0a6cce7605b"
+    sha256 cellar: :any,                 big_sur:        "b5c4e2054802f97a68b8f32d9ff2c6782f9a37223cd0a3b3d2175ecf04740a4f"
+    sha256 cellar: :any,                 catalina:       "1f53646211da139b423eb38f923bc38da1de86b7a68bfc2df5351098fe3c67e3"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "dcc9412995b5e319f64796a77b1eb8e684f1d1b6b5d7ac824f434ada692e4ff8"
   end
 
   head do
-    url "https://github.com/atgreen/libffi.git"
+    url "https://github.com/libffi/libffi.git", branch: "master"
     depends_on "autoconf" => :build
     depends_on "automake" => :build
     depends_on "libtool" => :build
@@ -24,14 +26,8 @@ class Libffi < Formula
   keg_only :provided_by_macos
 
   def install
-    # This can be removed in the future when libffi properly detects the CPU on ARM.
-    # https://github.com/libffi/libffi/issues/571#issuecomment-655223391
-    extra_args = []
-    extra_args << "--build=aarch64-apple-darwin#{`uname -r`.chomp}" if Hardware::CPU.arm?
-
     system "./autogen.sh" if build.head?
-    system "./configure", "--disable-debug", "--disable-dependency-tracking",
-                          "--prefix=#{prefix}", *extra_args
+    system "./configure", *std_configure_args
     system "make", "install"
   end
 

@@ -1,22 +1,32 @@
 class BaculaFd < Formula
   desc "Network backup solution"
   homepage "https://www.bacula.org/"
-  url "https://downloads.sourceforge.net/project/bacula/bacula/9.6.5/bacula-9.6.5.tar.gz"
-  sha256 "510f35b86138472abe6c559caded7bc773bf5eb1b9ee10905ee8f4f827c7c77a"
+  url "https://downloads.sourceforge.net/project/bacula/bacula/13.0.2/bacula-13.0.2.tar.gz"
+  sha256 "6e08bcbe6a4ab070e17e9e9c4e9bc4e944d2e5bd376521ca342c6fe96a20687d"
+  license "AGPL-3.0-only" => { with: "openvpn-openssl-exception" }
 
   bottle do
-    sha256 "9f60d58bc6f3709d3ed3fabb03a82d9197a76a4f8bea6f0b4d5cef24bec5e5ea" => :catalina
-    sha256 "af55545e264e8fb2b7b0ce417194d7d27ddb17d41d28e9664c8e9371164958d0" => :mojave
-    sha256 "a615488f494959d4d19cee5d863c4c306a2180ceab548742c93cef68fe8b688c" => :high_sierra
+    sha256                               arm64_ventura:  "82da2a843d76f03bdbc456c10ac52403c4937240718a996193b17d8aeb688a10"
+    sha256                               arm64_monterey: "110317c55f1ad9cde6679e52ee6df9f5f0a915dc655c5dbabbbd6d18a0ef4053"
+    sha256                               arm64_big_sur:  "b13b510999446703b023699a01130d08f69160e2d26c7dc2a366f06432fc808d"
+    sha256                               ventura:        "b7d9faaedab0adc479c600f5e3d462eaaea3ec8111bcbc760a55019f4731b4cf"
+    sha256                               monterey:       "36dff1d741e4c9d9676729c808e9e02bc7cea01d2f57b511fa5da53814260984"
+    sha256                               big_sur:        "7aa33848a3d4c1d251c35790555bed9a8b6c9d39f3e2fdaea96a896968dfd5a8"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "696f80dacb43185c4bef853807cc61218dcfd2a7624789cb46634113235fd10e"
   end
 
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
   depends_on "readline"
 
   uses_from_macos "zlib"
 
-  conflicts_with "bareos-client",
-    because: "both install a `bconsole` executable"
+  conflicts_with "bareos-client", because: "both install a `bconsole` executable"
+
+  # Fix -flat_namespace being used on Big Sur and later.
+  patch do
+    url "https://raw.githubusercontent.com/Homebrew/formula-patches/03cf8088210822aa2c1ab544ed58ea04c897d9c4/libtool/configure-pre-0.4.2.418-big_sur.diff"
+    sha256 "83af02f2aa2b746bb7225872cab29a253264be49db0ecebb12f841562d9a2923"
+  end
 
   def install
     # CoreFoundation is also used alongside IOKit
@@ -40,8 +50,7 @@ class BaculaFd < Formula
     system "make", "install"
 
     # Avoid references to the Homebrew shims directory
-    inreplace Dir[prefix/"etc/bacula_config"],
-              HOMEBREW_SHIMS_PATH/"mac/super/", ""
+    inreplace prefix/"etc/bacula_config", "#{Superenv.shims_path}/", ""
 
     (var/"lib/bacula").mkpath
   end
@@ -50,26 +59,9 @@ class BaculaFd < Formula
     (var/"run").mkpath
   end
 
-  plist_options startup: true, manual: "bacula-fd"
-
-  def plist
-    <<~EOS
-      <?xml version="0.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>RunAtLoad</key>
-          <true/>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{opt_bin}/bacula-fd</string>
-            <string>-f</string>
-          </array>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"bacula-fd", "-f"]
+    require_root true
   end
 
   test do

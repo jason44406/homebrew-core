@@ -1,15 +1,24 @@
 class Gtksourceview4 < Formula
   desc "Text view with syntax, undo/redo, and text marks"
   homepage "https://projects.gnome.org/gtksourceview/"
-  url "https://download.gnome.org/sources/gtksourceview/4.6/gtksourceview-4.6.1.tar.xz"
-  sha256 "63f487a7ab59612ffa9e7be1883dbd274ab1016afcede3239b93b0fc384df874"
-  license "LGPL-2.1"
-  revision 1
+  url "https://download.gnome.org/sources/gtksourceview/4.8/gtksourceview-4.8.4.tar.xz"
+  sha256 "7ec9d18fb283d1f84a3a3eff3b7a72b09a10c9c006597b3fbabbb5958420a87d"
+  license "LGPL-2.1-or-later"
+
+  livecheck do
+    url :stable
+    regex(/gtksourceview[._-]v?(4\.([0-8]\d*?)?[02468](?:\.\d+)*?)\.t/i)
+  end
 
   bottle do
-    sha256 "3372d364163e22dcbd3306835788a6cb6578bd8e6828a456f4d89bc8779aa756" => :catalina
-    sha256 "e0653a0d167b7daaf1642f322d4c3b40e4e068958328cefa0b5f473e0797bb00" => :mojave
-    sha256 "9ac5ec8943202490a696877b8df00395588f14cf9331c7badda0f316c8de6d97" => :high_sierra
+    sha256 arm64_ventura:  "3903d6c034674930d5d6bf536e91114ae09f7614b24fce1c510ae4b15e94e1b3"
+    sha256 arm64_monterey: "11505701bfe67d0eeeffaf5b263ebed353da572e07b149a5bfd4f0b080d6fcfd"
+    sha256 arm64_big_sur:  "9499176d44c00d31e8c09cefb3e8520ae3010d6c14b058a55c91a0299edc89b3"
+    sha256 ventura:        "c2bab12f7f63c4030a16612377f05f8a126d185616ff0b0467e7d086b4b94787"
+    sha256 monterey:       "9c81022374dc1c1b014b4b77295b2a7bd8c7c481997a9fa2d8f70f418a357de5"
+    sha256 big_sur:        "6aa779236bd2122276579b2f3c16d7f4baef8b5a576f52afd0cd9f801c0b5eb4"
+    sha256 catalina:       "3610af7c1030e44f504272fadddeea19dd84abbd9e0f27a3fd36b2c633b0510f"
+    sha256 x86_64_linux:   "23926b28dc6ec1f7588b82cccbe70db56ca535def8b080271922358b45f291f4"
   end
 
   depends_on "gobject-introspection" => :build
@@ -90,11 +99,15 @@ class Gtksourceview4 < Formula
       -lglib-2.0
       -lgobject-2.0
       -lgtk-3
-      -lgtksourceview-4.0
-      -lintl
       -lpango-1.0
       -lpangocairo-1.0
     ]
+    if OS.mac?
+      flags << "-lintl"
+      flags << "-lgtksourceview-4.0"
+    else
+      flags << "-lgtksourceview-4"
+    end
     system ENV.cc, "test.c", "-o", "test", *flags
     system "./test"
   end

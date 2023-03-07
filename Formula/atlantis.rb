@@ -1,30 +1,38 @@
 class Atlantis < Formula
   desc "Terraform Pull Request Automation tool"
   homepage "https://www.runatlantis.io/"
-  url "https://github.com/runatlantis/atlantis/archive/v0.15.0.tar.gz"
-  sha256 "2a2d94d86ac9d84a050e4766bb9e012d239d268ccafdc548571624f46bc701da"
+  url "https://github.com/runatlantis/atlantis/archive/v0.23.2.tar.gz"
+  sha256 "336b72b4ba2018b55d1106fb4b92d8ed41abae35a930bd0086ad32c6e979c0ea"
   license "Apache-2.0"
-  head "https://github.com/runatlantis/atlantis.git"
+  head "https://github.com/runatlantis/atlantis.git", branch: "master"
+
+  livecheck do
+    url :stable
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "58fcf557c5a06c4dc07552e00fdf303e9c3c6513d046bf2f5afe30f6a2069f1a" => :catalina
-    sha256 "6a1425019333fbd2d9078eefee342a751e41aaa969bfe095992672c7e9ce66cb" => :mojave
-    sha256 "b5d675ff7507025409fcc72993d8fdc3b54100c18686bc66ff78fdd03f113eb8" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "c9846e5e1c2e988e2d3d2ac25b26257a54a269973a61064ff515914df829200b"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "c9846e5e1c2e988e2d3d2ac25b26257a54a269973a61064ff515914df829200b"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "c9846e5e1c2e988e2d3d2ac25b26257a54a269973a61064ff515914df829200b"
+    sha256 cellar: :any_skip_relocation, ventura:        "92eeaa18aff0ccdf83ddb7a20a8d92e56b13b869a368440c66c455e2654c7c42"
+    sha256 cellar: :any_skip_relocation, monterey:       "92eeaa18aff0ccdf83ddb7a20a8d92e56b13b869a368440c66c455e2654c7c42"
+    sha256 cellar: :any_skip_relocation, big_sur:        "92eeaa18aff0ccdf83ddb7a20a8d92e56b13b869a368440c66c455e2654c7c42"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "d66c14d8bde79b75d3573f07c66266c0dea2f294e0148b4a60c300383091ef57"
   end
 
   depends_on "go" => :build
   depends_on "terraform"
 
   def install
-    system "go", "build", "-ldflags", "-s -w", "-trimpath", "-o", bin/"atlantis"
+    system "go", "build", *std_go_args(ldflags: "-s -w")
   end
 
   test do
     system bin/"atlantis", "version"
     port = free_port
     loglevel = "info"
-    gh_args = "--gh-user INVALID --gh-token INVALID --gh-webhook-secret INVALID --repo-whitelist INVALID"
+    gh_args = "--gh-user INVALID --gh-token INVALID --gh-webhook-secret INVALID --repo-allowlist INVALID"
     command = bin/"atlantis server --atlantis-url http://invalid/ --port #{port} #{gh_args} --log-level #{loglevel}"
     pid = Process.spawn(command)
     system "sleep", "5"

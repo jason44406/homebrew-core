@@ -1,19 +1,24 @@
 class NifiRegistry < Formula
   desc "Centralized storage & management of NiFi/MiNiFi shared resources"
   homepage "https://nifi.apache.org/registry"
-  url "https://www.apache.org/dyn/closer.lua?path=nifi/nifi-registry/nifi-registry-0.7.0/nifi-registry-0.7.0-bin.tar.gz"
-  mirror "https://archive.apache.org/dist/nifi/nifi-registry/nifi-registry-0.7.0/nifi-registry-0.7.0-bin.tar.gz"
-  sha256 "6e4ac84a60bdb49adeaa6e21c2c2eb95909efe9bb3d1e1e9c8738ef0599d7364"
+  url "https://www.apache.org/dyn/closer.lua?path=/nifi/1.20.0/nifi-registry-1.20.0-bin.zip"
+  mirror "https://archive.apache.org/dist/nifi/1.20.0/nifi-registry-1.20.0-bin.zip"
+  sha256 "a00c619dc523f697541288e94a06c92a7c90a37f6083c49ea828ea9aba205c8d"
   license "Apache-2.0"
 
-  bottle :unneeded
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "95803ac768210c3df9526da19851ed4e4158d217533818318808e13dec18ec2a"
+  end
+
+  depends_on "openjdk"
 
   def install
     libexec.install Dir["*"]
     rm Dir[libexec/"bin/*.bat"]
 
     bin.install libexec/"bin/nifi-registry.sh" => "nifi-registry"
-    bin.env_script_all_files libexec/"bin/", NIFI_REGISTRY_HOME: libexec
+    bin.env_script_all_files libexec/"bin/",
+                             Language::Java.overridable_java_home_env.merge(NIFI_REGISTRY_HOME: libexec)
   end
 
   test do

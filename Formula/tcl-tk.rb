@@ -1,45 +1,59 @@
 class TclTk < Formula
   desc "Tool Command Language"
   homepage "https://www.tcl-lang.org"
-  url "https://downloads.sourceforge.net/project/tcl/Tcl/8.6.10/tcl8.6.10-src.tar.gz"
-  mirror "https://ftp.osuosl.org/pub/blfs/conglomeration/tcl/tcl8.6.10-src.tar.gz"
-  sha256 "5196dbf6638e3df8d5c87b5815c8c2b758496eb6f0e41446596c9a4e638d87ed"
+  url "https://downloads.sourceforge.net/project/tcl/Tcl/8.6.13/tcl8.6.13-src.tar.gz"
+  mirror "https://fossies.org/linux/misc/tcl8.6.13-src.tar.gz"
+  sha256 "43a1fae7412f61ff11de2cfd05d28cfc3a73762f354a417c62370a54e2caf066"
   license "TCL"
+  revision 1
 
-  bottle do
-    rebuild 1
-    sha256 "4740b30b97f0308ecc59c1308945c38ddca5d3da528d779f38199a2dad905fa1" => :catalina
-    sha256 "1851fee12a3ee44648845d8663a192712ce6827ef8fe167301d2638ac9ddb96c" => :mojave
-    sha256 "d1d689cc3e9cf08b2a42d487db3c4142e7ee4ff322bef22d6187fc67a5b776b7" => :high_sierra
+  livecheck do
+    url :stable
+    regex(%r{url=.*?/(?:tcl|tk).?v?(\d+(?:\.\d+)+)[._-]src\.t}i)
   end
 
-  keg_only :provided_by_macos
+  bottle do
+    sha256 arm64_ventura:  "04956a3f259e2ac5091b0295ebfaf10566773d0a75182bc9fdcc196896bb14a5"
+    sha256 arm64_monterey: "47e4402ab80129db41a74525ab1f86757300db16b348922768b5e7f888e7a70c"
+    sha256 arm64_big_sur:  "c0dcd820995d197dc5289cddde431d8e3883263f095d88f4d11e5d22e2d50880"
+    sha256 ventura:        "371b2d9a2ed902a1fe83ec8571434d264a528f0f8e7523149c71bd94f5ee9a1f"
+    sha256 monterey:       "90c4841ae76f0dd83ffcd4da560028dcb191b0a33dcb7ccf927f91a5f4ba9e80"
+    sha256 big_sur:        "6237dab643b65a9b0b5a5de571aa6572bcdf7b0230b19929d078ed65d8c8633d"
+    sha256 x86_64_linux:   "252ef7ada74c055ddd55ab4fef5c2eb2a3be91151533fb4566687d95ba9a8c33"
+  end
 
   depends_on "openssl@1.1"
 
+  uses_from_macos "zlib"
+
   on_linux do
+    depends_on "freetype" => :build
     depends_on "pkg-config" => :build
+    depends_on "libx11"
+    depends_on "libxext"
+
+    conflicts_with "page", because: "both install `page` binaries" # from tcllib
   end
 
   resource "critcl" do
-    url "https://github.com/andreas-kupries/critcl/archive/3.1.18.tar.gz"
-    sha256 "6fb0263cc8dfb787ab162ae130570c19f665a03229b8a046ec1c11809c2ff70e"
+    url "https://github.com/andreas-kupries/critcl/archive/3.1.18.1.tar.gz"
+    sha256 "51bc4b099ecf59ba3bada874fc8e1611279dfd30ad4d4074257084763c49fd86"
   end
 
   resource "tcllib" do
-    url "https://downloads.sourceforge.net/project/tcllib/tcllib/1.20/tcllib-1.20.tar.xz"
-    sha256 "199e8ec7ee26220e8463bc84dd55c44965fc8ef4d4ac6e4684b2b1c03b1bd5b9"
+    url "https://downloads.sourceforge.net/project/tcllib/tcllib/1.21/tcllib-1.21.tar.xz"
+    sha256 "10c7749e30fdd6092251930e8a1aa289b193a3b7f1abf17fee1d4fa89814762f"
   end
 
   resource "tcltls" do
-    url "https://core.tcl-lang.org/tcltls/uv/tcltls-1.7.20.tar.gz"
-    sha256 "397a4e7cd4ea7a6dbf8a1a664e73945b91828c7c76d02474875261d22fb4e4ca"
+    url "https://core.tcl-lang.org/tcltls/uv/tcltls-1.7.22.tar.gz"
+    sha256 "e84e2b7a275ec82c4aaa9d1b1f9786dbe4358c815e917539ffe7f667ff4bc3b4"
   end
 
   resource "tk" do
-    url "https://downloads.sourceforge.net/project/tcl/Tcl/8.6.10/tk8.6.10-src.tar.gz"
-    mirror "https://fossies.org/linux/misc/tk8.6.10-src.tar.gz"
-    sha256 "63df418a859d0a463347f95ded5cd88a3dd3aaa1ceecaeee362194bc30f3e386"
+    url "https://downloads.sourceforge.net/project/tcl/Tcl/8.6.13/tk8.6.13-src.tar.gz"
+    mirror "https://fossies.org/linux/misc/tk8.6.13-src.tar.gz"
+    sha256 "2e65fa069a23365440a3c56c556b8673b5e32a283800d8d9b257e3f584ce0675"
   end
 
   resource "itk4" do
@@ -50,11 +64,13 @@ class TclTk < Formula
   def install
     args = %W[
       --prefix=#{prefix}
+      --includedir=#{include}/tcl-tk
       --mandir=#{man}
       --enable-threads
       --enable-64bit
     ]
 
+    ENV["TCL_PACKAGE_PATH"] = "#{HOMEBREW_PREFIX}/lib"
     cd "unix" do
       system "./configure", *args
       system "make"
@@ -68,8 +84,8 @@ class TclTk < Formula
 
     resource("tk").stage do
       cd "unix" do
-        system "./configure", *args, "--enable-aqua=yes",
-                              "--without-x", "--with-tcl=#{lib}"
+        args << "--enable-aqua=yes" if OS.mac?
+        system "./configure", *args, "--without-x", "--with-tcl=#{lib}"
         system "make"
         system "make", "install"
         system "make", "install-private-headers"
@@ -84,10 +100,9 @@ class TclTk < Formula
     resource("tcllib").stage do
       system "./configure", "--prefix=#{prefix}", "--mandir=#{man}"
       system "make", "install"
-      ENV["SDKROOT"] = MacOS.sdk_path
       system "make", "critcl"
       cp_r "modules/tcllibc", "#{lib}/"
-      ln_s "#{lib}/tcllibc/macosx-x86_64-clang", "#{lib}/tcllibc/macosx-x86_64"
+      ln_s "#{lib}/tcllibc/macosx-x86_64-clang", "#{lib}/tcllibc/macosx-x86_64" if OS.mac?
     end
 
     resource("tcltls").stage do
@@ -111,10 +126,27 @@ class TclTk < Formula
       system "make"
       system "make", "install"
     end
+
+    # Conflicts with perl
+    mv man/"man3/Thread.3", man/"man3/ThreadTclTk.3"
+
+    # Use the sqlite-analyzer formula instead
+    # https://github.com/Homebrew/homebrew-core/pull/82698
+    rm bin/"sqlite3_analyzer"
+  end
+
+  def caveats
+    <<~EOS
+      The sqlite3_analyzer binary is in the `sqlite-analyzer` formula.
+    EOS
   end
 
   test do
+    assert_match "#{HOMEBREW_PREFIX}/lib", pipe_output("#{bin}/tclsh", "puts $auto_path\n")
     assert_equal "honk", pipe_output("#{bin}/tclsh", "puts honk\n").chomp
+
+    # Fails with: no display name and no $DISPLAY environment variable
+    return if OS.linux? && ENV["HOMEBREW_GITHUB_ACTIONS"]
 
     test_itk = <<~EOS
       # Check that Itcl and Itk load, and that we can define, instantiate,

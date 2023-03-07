@@ -3,53 +3,47 @@ class Pygitup < Formula
 
   desc "Nicer 'git pull'"
   homepage "https://github.com/msiemens/PyGitUp"
-  url "https://files.pythonhosted.org/packages/46/45/32dc0bf07c620644a8ed899e381309f4f25b50f20a91e555285522592833/git-up-1.6.1.tar.gz"
-  sha256 "ea83441e7ab05011624e2e7333ef875c263124db5eed74507acd32b07c48473f"
+  url "https://files.pythonhosted.org/packages/55/13/2dd3d4c9a021eb5fa6d8afbb29eb9e6eb57faa56cf10effe879c9626eed1/git_up-2.2.0.tar.gz"
+  sha256 "1935f62162d0e3cc967cf9e6b446bd1c9e6e9902edb6a81396065095a5a0784e"
   license "MIT"
-  revision 2
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "8dff3146af82b507e97ba0305f76d4aa6296b53b1a094e6cb3ed8b5cd8a4608c" => :catalina
-    sha256 "bb4c2a88b4063544712c1f8a9704d7af97b11fb76d18ff9c6150a63d9bd59c5b" => :mojave
-    sha256 "9ca0aeb55d9722c77c77616f2b95d8d53a8c685f5a9c515ddce380b2ae5ad672" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "54ec5590c370ff9324b20f83bf468b821da26e655c3be10d302d46fc1e82ff1d"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "789e3cc5c6f94d144c88c6c82f4842aae2577a891c9aa6e54a81bcddd96b6f0d"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "d2c86a9197c67525c1078a73aff4fda7735e82427ae709ad31fb0ba3036e6bcd"
+    sha256 cellar: :any_skip_relocation, ventura:        "64b51de3dcd18192d073f4c98af6f81c56b0292f1dd309ff877688d701ec7d60"
+    sha256 cellar: :any_skip_relocation, monterey:       "21aa813f4880fcaa67ec86892b22257634f0011cca30bce2700a1e9d214aa8db"
+    sha256 cellar: :any_skip_relocation, big_sur:        "ddb7020507a20291c4bf6db26dee60d14de89d736496f16384c8655f3232283f"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "09128867a857960e49050eefd31c979b98bc8537d8302132771cdfc8d2809a1a"
   end
 
-  depends_on "python@3.8"
-
-  resource "click" do
-    url "https://files.pythonhosted.org/packages/f8/5c/f60e9d8a1e77005f664b76ff8aeaee5bc05d0a91798afd7f53fc998dbc47/Click-7.0.tar.gz"
-    sha256 "5b94b49521f6456670fdb30cd82a4eca9412788a93fa6dd6df72c94d5a8ff2d7"
-  end
+  depends_on "python-typing-extensions"
+  depends_on "python@3.11"
 
   resource "colorama" do
-    url "https://files.pythonhosted.org/packages/76/53/e785891dce0e2f2b9f4b4ff5bc6062a53332ed28833c7afede841f46a5db/colorama-0.4.1.tar.gz"
-    sha256 "05eed71e2e327246ad6b38c540c4a3117230b19679b875190486ddd2d721422d"
+    url "https://files.pythonhosted.org/packages/d8/53/6f443c9a4a8358a93a6792e2acffb9d9d5cb0a5cfd8802644b7b1c9a02e4/colorama-0.4.6.tar.gz"
+    sha256 "08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"
   end
 
-  resource "gitdb2" do
-    url "https://files.pythonhosted.org/packages/c4/5c/579abccd59187eaf6b3c8a4a6ecd86fce1dfd818155bfe4c52ac28dca6b7/gitdb2-2.0.5.tar.gz"
-    sha256 "83361131a1836661a155172932a13c08bda2db3674e4caa32368aa6eb02f38c2"
+  resource "gitdb" do
+    url "https://files.pythonhosted.org/packages/4b/47/dc98f3d5d48aa815770e31490893b92c5f1cd6c6cf28dd3a8ae0efffac14/gitdb-4.0.10.tar.gz"
+    sha256 "6eb990b69df4e15bad899ea868dc46572c3f75339735663b81de79b06f17eb9a"
   end
 
   resource "GitPython" do
-    url "https://files.pythonhosted.org/packages/4d/e8/98e06d3bc954e3c5b34e2a579ddf26255e762d21eb24fede458eff654c51/GitPython-2.1.11.tar.gz"
-    sha256 "8237dc5bfd6f1366abeee5624111b9d6879393d84745a507de0fda86043b65a8"
+    url "https://files.pythonhosted.org/packages/ef/8d/50658d134d89e080bb33eb8e2f75d17563b5a9dfb75383ea1a78e1df6fff/GitPython-3.1.30.tar.gz"
+    sha256 "769c2d83e13f5d938b7688479da374c4e3d49f71549aaf462b646db9602ea6f8"
   end
 
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/dd/bf/4138e7bfb757de47d1f4b6994648ec67a51efe58fa907c1e11e350cddfca/six-1.12.0.tar.gz"
-    sha256 "d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73"
-  end
-
-  resource "smmap2" do
-    url "https://files.pythonhosted.org/packages/3b/ba/e49102b3e8ffff644edded25394b2d22ebe3e645f3f6a8139129c4842ffe/smmap2-2.0.5.tar.gz"
-    sha256 "29a9ffa0497e7f2be94ca0ed1ca1aa3cd4cf25a1f6b4f5f87f74b46ed91d609a"
+  resource "smmap" do
+    url "https://files.pythonhosted.org/packages/21/2d/39c6c57032f786f1965022563eec60623bb3e1409ade6ad834ff703724f3/smmap-5.0.0.tar.gz"
+    sha256 "c840e62059cd3be204b0c9c9f74be2c09d5648eddd4580d9314c3ecde0b30936"
   end
 
   resource "termcolor" do
-    url "https://files.pythonhosted.org/packages/8a/48/a76be51647d0eb9f10e2a4511bf3ffb8cc1e6b14e9e4fab46173aa79f981/termcolor-1.1.0.tar.gz"
-    sha256 "1d6d69ce66211143803fbc56652b41d73b4a400a2891d7bf7a1cdf4c02de613b"
+    url "https://files.pythonhosted.org/packages/e5/4e/b2a54a21092ad2d5d70b0140e4080811bee06a39cc8481651579fe865c89/termcolor-2.2.0.tar.gz"
+    sha256 "dfc8ac3f350788f23b2947b3e6cfa5a53b630b612e6cd8965a015a776020b99a"
   end
 
   def install

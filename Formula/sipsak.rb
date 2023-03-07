@@ -1,20 +1,23 @@
 class Sipsak < Formula
   desc "SIP Swiss army knife"
   homepage "https://github.com/nils-ohlmeier/sipsak/"
-  url "https://github.com/nils-ohlmeier/sipsak/releases/download/0.9.7/sipsak-0.9.7.tar.gz"
-  sha256 "e07f32e692381d9db404d75868218b553e0aba414d35efc96d13024533a53f0f"
-  license "GPL-2.0"
-  revision 1
+  url "https://github.com/nils-ohlmeier/sipsak/releases/download/0.9.8.1/sipsak-0.9.8.1.tar.gz"
+  sha256 "c6faa022cd8c002165875d4aac83b7a2b59194f0491802924117fc6ac980c778"
+  license "GPL-2.0-or-later"
 
   bottle do
-    cellar :any
-    sha256 "84d9694858c95f7ce07829e602be3d9727b00602ea69bf8e191f79f399f53597" => :catalina
-    sha256 "5da0bb6fc866723e423714b275cbc6c64ac1e57f171cfe112bda6f9779385ae3" => :mojave
-    sha256 "6cc0007fe520e225bc0a6b9b646817468acbc1383cb6a4382ae8bf1243ae3e5b" => :high_sierra
-    sha256 "0d074a6356f127485211b79741fd7f45e7ed9435e4d708e539088a9e9154daea" => :sierra
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "fdf8e854dbe1034dbf7a71760e4246bc6550a322954888fd0673284eedfcbe55"
+    sha256 cellar: :any,                 arm64_monterey: "e125f43909ca4f4a28524262a30f0e9428db17ba255c9ebe99fae92d031ee1f2"
+    sha256 cellar: :any,                 arm64_big_sur:  "3ea5541c6c9e917890818c783eb555a6952ddb839ee431d4ab2fda5529e9a9d6"
+    sha256 cellar: :any,                 ventura:        "617c93ad77b71f6c68eb81eb2a6c8e6c084ece627be89a18b37fcf2fbad66aac"
+    sha256 cellar: :any,                 monterey:       "4346791be5ee36c5436de257f75ccf2ef31ac8f99883566c8679bf8e4d13d361"
+    sha256 cellar: :any,                 big_sur:        "f2f76d68fa6c9c88abcd0132201a395a54f2ad31c73ee49dcbfcb69dbfb20ede"
+    sha256 cellar: :any,                 catalina:       "3a756aed37b8bd2a3ff62c517847c82732fd2f9a7b5bf85dfac83704d18d6539"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "73f5a4948c437e0d89e33ff28f04842ef4c954fcfd9ed432da36620c20b6ca24"
   end
 
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
 
   def install
     ENV.append "CFLAGS", "-std=gnu89"

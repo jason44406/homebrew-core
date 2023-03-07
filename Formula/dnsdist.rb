@@ -1,14 +1,24 @@
 class Dnsdist < Formula
   desc "Highly DNS-, DoS- and abuse-aware loadbalancer"
   homepage "https://www.dnsdist.org/"
-  url "https://downloads.powerdns.com/releases/dnsdist-1.5.0.tar.bz2"
-  sha256 "2c07c4ef0c497f5223909ff181fe3ba7c6016962a2855cffe26b7f3609f27b58"
+  url "https://downloads.powerdns.com/releases/dnsdist-1.7.3.tar.bz2"
+  sha256 "7eaf6fac2f26565c5d8658d42a213799e05f4d3bc68e7c716e7174df41315886"
+  license "GPL-2.0-only"
   revision 1
 
+  livecheck do
+    url "https://downloads.powerdns.com/releases/"
+    regex(/href=.*?dnsdist[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
+
   bottle do
-    sha256 "966e52196b218954cb252457453a653a0b0d6fc3bc96633c5bff789670f5f7bd" => :catalina
-    sha256 "81133ff0d602c33f22835012446e8c9e38c00c2b38dd6f634bbe8cf5f3a1a61a" => :mojave
-    sha256 "a6d4f91fb0fc868d795d219fbe89ad549fb72785dcae09fd1c15de1adab24c9c" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "c4d65f10359eab43970c34d46faf4b0d6a3d41c4d92a78ac6ff19467cb9acdc3"
+    sha256 cellar: :any,                 arm64_monterey: "0f7aecead6e27dc1c2807a76ab7f8a37eceee2f3c41a197b4b78651900edfc96"
+    sha256 cellar: :any,                 arm64_big_sur:  "174c4cb6f4952f7fbb4f94c5c8ef4b42069134b1e0bd7a0f7f4d0a21e9ec80b0"
+    sha256 cellar: :any,                 ventura:        "22d6a2d33298b1a7cf41cbba83946571ef343021c95d09d6f29e27c4561abd0a"
+    sha256 cellar: :any,                 monterey:       "90933cf68e3090800c8d3198f907e9dc559e3ab879f507c87d199397db07b6f7"
+    sha256 cellar: :any,                 big_sur:        "334533a0ac8cae2f8f6c06b729ad7746697a7b68a545352a813dc56df26654bb"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "7afb19ba1959f023005234423c428823f94b0d18ec11852c9ff14a56044176c2"
   end
 
   depends_on "boost" => :build
@@ -24,10 +34,9 @@ class Dnsdist < Formula
 
   uses_from_macos "libedit"
 
-  def install
-    # error: unknown type name 'mach_port_t'
-    ENV["SDKROOT"] = MacOS.sdk_path if MacOS.version == :sierra
+  fails_with gcc: "5"
 
+  def install
     system "./configure", "--disable-dependency-tracking",
                           "--disable-silent-rules",
                           "--prefix=#{prefix}",

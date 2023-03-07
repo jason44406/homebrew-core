@@ -3,14 +3,19 @@ class Libmemcached < Formula
   homepage "https://libmemcached.org/"
   url "https://launchpad.net/libmemcached/1.0/1.0.18/+download/libmemcached-1.0.18.tar.gz"
   sha256 "e22c0bb032fde08f53de9ffbc5a128233041d9f33b5de022c0978a2149885f82"
+  license "BSD-3-Clause"
   revision 2
 
   bottle do
-    cellar :any
-    rebuild 1
-    sha256 "24c7d9597b28d79f50f86777aa506b1955737d9e3298e1d79c3ad95b74fb66f8" => :catalina
-    sha256 "203121f43d48b8245a1bb963eded3d56aa44ec921176b9819004e62b12acdc48" => :mojave
-    sha256 "59032bd9e04061aaa7ffafdda12e66535f2e73da25571da0cede2dc21bc62f22" => :high_sierra
+    rebuild 2
+    sha256 cellar: :any,                 arm64_ventura:  "0511d48bcc88a6860030c5c6bec5d36818068b43f11d67561f1519ce0dbf6b73"
+    sha256 cellar: :any,                 arm64_monterey: "37977639be769bfd5ef97d38f408f57cf84f3607ce881c4d6f2c2d7c70a9b2a4"
+    sha256 cellar: :any,                 arm64_big_sur:  "2ec7b12e9181c83bbbd45b62ba2a1a0e2958fe2caaa0d94be1da2319831de3be"
+    sha256 cellar: :any,                 ventura:        "2807a08a7c29739bd49450c44ec6f926e7c626b3b2104b1ed160226820a5465b"
+    sha256 cellar: :any,                 monterey:       "902c0e16ba5ec76696c3f45888ef0c61b840a10b344149242bec812a7c99ee0d"
+    sha256 cellar: :any,                 big_sur:        "c41f0bfdc440d240f8d0653dcc87270bd315571eab6979ff94d3271f863cb0e7"
+    sha256 cellar: :any,                 catalina:       "70c6e1e3dd76241e343a4a3b38a62fae5bea6d2e2405739b11473d084f4409a9"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "b551d4cc72d953e3018369057901f77a88b1b633661f5acfedcf6bba37385a8b"
   end
 
   depends_on "memcached" => :test
@@ -19,6 +24,12 @@ class Libmemcached < Formula
   patch do
     url "https://raw.githubusercontent.com/Homebrew/formula-patches/60f3532/libmemcached/1.0.18.patch"
     sha256 "592f10fac729bd2a2b79df26086185d6e08f8667cb40153407c08d4478db89fb"
+  end
+
+  # Fix -flat_namespace being used on Big Sur and later.
+  patch do
+    url "https://raw.githubusercontent.com/Homebrew/formula-patches/03cf8088210822aa2c1ab544ed58ea04c897d9c4/libtool/configure-pre-0.4.2.418-big_sur.diff"
+    sha256 "83af02f2aa2b746bb7225872cab29a253264be49db0ecebb12f841562d9a2923"
   end
 
   def install
@@ -34,7 +45,8 @@ class Libmemcached < Formula
       #include <libmemcached-1.0/memcached.h>
 
       int main(int argc, char **argv) {
-          const char *conf = "--SERVER=localhost:11211";
+          char conf[50] = "--SERVER=127.0.0.1:";
+          strncat(conf, argv[1], 5);
           memcached_st *memc = memcached(conf, strlen(conf));
           assert(memc != NULL);
 
@@ -60,13 +72,13 @@ class Libmemcached < Formula
           memcached_free(memc);
       }
     EOS
-    system ENV.cc, "-I#{include}", "-L#{lib}", "-lmemcached", "test.c", "-o", "test"
+    system ENV.cc, "test.c", "-I#{include}", "-L#{lib}", "-lmemcached", "-o", "test"
 
     memcached = Formula["memcached"].bin/"memcached"
-    # Assumes port 11211 is not already taken
-    io = IO.popen("#{memcached} --listen=localhost:11211")
+    port = free_port
+    io = IO.popen("#{memcached} -l 127.0.0.1 -p #{port}")
     sleep 1
-    system "./test"
+    system "./test", port
     Process.kill "TERM", io.pid
   end
 end

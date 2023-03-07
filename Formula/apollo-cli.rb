@@ -3,16 +3,20 @@ require "language/node"
 class ApolloCli < Formula
   desc "Command-line tool for Apollo GraphQL"
   homepage "https://apollographql.com"
-  url "https://registry.npmjs.org/apollo/-/apollo-2.30.2.tgz"
-  sha256 "4b2ad42823f5da95c021757149bfae471077c701ec0a5f0c9a23f5140c0b4fc6"
+  url "https://registry.npmjs.org/apollo/-/apollo-2.33.4.tgz"
+  sha256 "a32f25b86e2a200f08c762100239ec69a76990fc53ce4b8f6b355a966f6a84a0"
   license "MIT"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "bd1ad9765220fb3317eab0f84c667d2f2eb0af11a76ecc8cd776e25839a1e5e8" => :catalina
-    sha256 "9c029c2fdb537ed3fc76e0d3b0f6a342d2b1702dee195dd902ccef4fbde373af" => :mojave
-    sha256 "9d144b554da26516ed39d170127208091be284cb38725b4637144b6ace50053c" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "394ce99bc7c26f5690980007a6e92e998acc682378b67fd8dd370655d7e87f39"
+    sha256 cellar: :any_skip_relocation, big_sur:       "177b60ba635cb722708dabf6f29cfdff587b33331e82d27450bba242cca10b5c"
+    sha256 cellar: :any_skip_relocation, catalina:      "177b60ba635cb722708dabf6f29cfdff587b33331e82d27450bba242cca10b5c"
+    sha256 cellar: :any_skip_relocation, mojave:        "177b60ba635cb722708dabf6f29cfdff587b33331e82d27450bba242cca10b5c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "8080e3a3d1c62e3f7fc42ff39aa13a4fd59a3317e4a57073ee004fd1fded9d44"
   end
+
+  # https://github.com/apollographql/apollo-tooling/issues/2551#issuecomment-1032071672
+  deprecate! date: "2022-01-21", because: :deprecated_upstream
 
   depends_on "node"
 

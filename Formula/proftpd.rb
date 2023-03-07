@@ -1,17 +1,32 @@
 class Proftpd < Formula
   desc "Highly configurable GPL-licensed FTP server software"
   homepage "http://www.proftpd.org/"
-  url "ftp://ftp.proftpd.org/distrib/source/proftpd-1.3.7a.tar.gz"
-  mirror "https://fossies.org/linux/misc/proftpd-1.3.7a.tar.gz"
-  mirror "https://ftp.osuosl.org/pub/blfs/conglomeration/proftpd/proftpd-1.3.7a.tar.gz"
-  sha256 "8b7bbf9757988935352d9dec5ebf96b6a1e6b63a6cdac2e93202ac6c42c4cd96"
-  license "GPL-2.0"
+  url "https://github.com/proftpd/proftpd/archive/refs/tags/v1.3.8.tar.gz"
+  mirror "https://fossies.org/linux/misc/proftpd-1.3.8.tar.gz"
+  mirror "https://ftp.osuosl.org/pub/blfs/conglomeration/proftpd/proftpd-1.3.8.tar.gz"
+  sha256 "f7139e7377a2cb059b8b9b14d76a6df5f440e3181cb15ae890d43bbcae574748"
+  license "GPL-2.0-or-later"
+
+  # Proftpd uses an incrementing letter after the numeric version for
+  # maintenance releases. Versions like `1.2.3a` and `1.2.3b` are not alpha and
+  # beta respectively. Prerelease versions use a format like `1.2.3rc1`.
+  livecheck do
+    url :stable
+    strategy :github_latest
+    regex(%r{href=.*?/tag/v?(\d+(?:\.\d+)+[a-z]?)["' >]}i)
+  end
 
   bottle do
-    sha256 "b30ef0c9ea4f2642cb98e863c51ef8b337605ca5d9a3df8d2d9995ac00c6e9be" => :catalina
-    sha256 "2f529091ef2c1e07ca1db9ec0a974f639530cca275e2f3ebbd910b42a3cb5f12" => :mojave
-    sha256 "af399e07592ed468d356963c8a2b27318476dd422499ba0148d1579e4d80cd69" => :high_sierra
+    sha256 arm64_ventura:  "33f8063b1091a4ed78261a858a6469addd60fce2fae3bf662d800b695d214bed"
+    sha256 arm64_monterey: "daad1aaa7a68c37157ffe1413b7b42a6ccb84861dc364e7ed6f18fb5c42e61c0"
+    sha256 arm64_big_sur:  "5bda56800a66fa203e0e4ee496bce2495e86791900c59e34af486a5c0799b6e5"
+    sha256 ventura:        "7ae1010fc5a818f9d34f3af95d17d1b199a74ff54ea18a05fdfd852b049032e6"
+    sha256 monterey:       "9059bb7d481426b7c40c42203301ddb8db983ef87a6b81c7bd559cbe4d740471"
+    sha256 big_sur:        "a5295fda88d783978f9c9eb8b8af88c5ccf606a8e32dbe520fa574fdf2966b78"
+    sha256 x86_64_linux:   "f550c15a70adfbcee4149723ccb3ed8d8eb5ceaf78d788ca361116e61e7cfa6a"
   end
+
+  uses_from_macos "libxcrypt"
 
   def install
     # fixes unknown group 'nogroup'
@@ -19,46 +34,25 @@ class Proftpd < Formula
     inreplace "sample-configurations/basic.conf", "nogroup", "nobody"
 
     system "./configure", "--prefix=#{prefix}",
+                          "--sbindir=#{sbin}",
                           "--sysconfdir=#{etc}",
                           "--localstatedir=#{var}"
     ENV.deparallelize
     install_user = ENV["USER"]
-    install_group = `groups`.split[0]
+    install_group = Utils.safe_popen_read("groups").split.first
+    system "make", "all"
     system "make", "INSTALL_USER=#{install_user}", "INSTALL_GROUP=#{install_group}", "install"
   end
 
-  plist_options manual: "proftpd"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>RunAtLoad</key>
-          <true/>
-          <key>KeepAlive</key>
-          <false/>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{opt_sbin}/proftpd</string>
-          </array>
-          <key>UserName</key>
-          <string>root</string>
-          <key>WorkingDirectory</key>
-          <string>#{HOMEBREW_PREFIX}</string>
-          <key>StandardErrorPath</key>
-          <string>/dev/null</string>
-          <key>StandardOutPath</key>
-          <string>/dev/null</string>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_sbin/"proftpd"]
+    keep_alive false
+    working_dir HOMEBREW_PREFIX
+    log_path "/dev/null"
+    error_log_path "/dev/null"
   end
 
   test do
-    assert_match version.to_s, shell_output("#{opt_sbin}/proftpd -v")
+    assert_match "ProFTPD Version #{version}", shell_output("#{opt_sbin}/proftpd -v")
   end
 end

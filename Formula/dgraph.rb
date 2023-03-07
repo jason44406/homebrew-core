@@ -1,25 +1,30 @@
 class Dgraph < Formula
   desc "Fast, Distributed Graph DB"
   homepage "https://dgraph.io"
-  url "https://github.com/dgraph-io/dgraph/archive/v20.07.0.tar.gz"
-  sha256 "46b5deac70d09343644ce10fa69fc313589c7474d974ec720c24504883dd65c1"
+  url "https://github.com/dgraph-io/dgraph/archive/v20.11.3.tar.gz"
+  sha256 "cf0ed5d61dff1d0438dc5b211972d8f64b40dcadebf35355060918c3cf0a6e62"
   # Source code in this repository is variously licensed under the Apache Public License 2.0 (APL)
   # and the Dgraph Community License (DCL). A copy of each license can be found in the licenses directory.
   license "Apache-2.0"
-  head "https://github.com/dgraph-io/dgraph.git"
+  head "https://github.com/dgraph-io/dgraph.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "eb57d3ff53372468f23d277e0bf0a39d147a2c7a1b0882d32f53c9200d8721f5" => :catalina
-    sha256 "0358f83ea5a545ef452ced5cb123c34d6880bc848ad2006e042801c19e2f0770" => :mojave
-    sha256 "290e72cb04f180ed4a11850d2aff0a42d5cde1c780191f0a920ae7578ef64e5a" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "88693da8a26b8104d2362cc17f6f4311de51d96d1e0bd608e9042f77cdd6bf15"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "28d00b7cc12ab6eb34da4240b7075ee322ff51cd94223d7a8892c823f91bf5cc"
+    sha256 cellar: :any_skip_relocation, monterey:       "e9e8e32d5a6def3565d2d5f68dd1b6cf2a5d40f768fad0862213d24d1493a03b"
+    sha256 cellar: :any_skip_relocation, big_sur:        "9e2da2c025d3b8f89d4716be724942f7c284c9d0ac70c77fed7c287a31abdb56"
+    sha256 cellar: :any_skip_relocation, catalina:       "9d2545b3b0e293d8e48b4c23887bef147f1f1444735dacbf70eb9585bd25502e"
+    sha256 cellar: :any_skip_relocation, mojave:         "57fa2f974e4e0313fb58f7e35e2d9547a4d43319af7e84a4fc6619238e862885"
   end
 
+  disable! date: "2022-07-31", because: :unsupported
+
   depends_on "go" => :build
+  depends_on "jemalloc"
 
   def install
     ENV["GOBIN"] = bin
-    system "make", "oss_install"
+    system "make", "HAS_JEMALLOC=jemalloc", "oss_install"
   end
 
   test do

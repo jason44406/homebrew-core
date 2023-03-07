@@ -1,28 +1,27 @@
 class Libmodbus < Formula
   desc "Portable modbus library"
   homepage "https://libmodbus.org/"
-  url "https://libmodbus.org/releases/libmodbus-3.1.6.tar.gz"
-  sha256 "d7d9fa94a16edb094e5fdf5d87ae17a0dc3f3e3d687fead81835d9572cf87c16"
-  license "LGPL-2.1"
+  url "https://github.com/stephane/libmodbus/archive/v3.1.10.tar.gz"
+  sha256 "e93503749cd89fda4c8cf1ee6371a3a9cc1f0a921c165afbbc4fd96d4813fa1a"
+  license "LGPL-2.1-or-later"
+  head "https://github.com/stephane/libmodbus.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "dd69c46175e27a8a79938c12dbdcbdb67d3d1b74a0c4ad067a394eaa7a5869ca" => :catalina
-    sha256 "0dd32373b5988d09317728357780b3cdc54cad290afcb51b390f33a50fa653e0" => :mojave
-    sha256 "d821c77d787cf51c96811c37374d5cc42c7948636c84d7b7b6251a7e0afa29a0" => :high_sierra
-    sha256 "462dd4e48e87bab1e48ef64f3f3a907392994a9f8c0753c8b739ca5207882b32" => :sierra
+    sha256 cellar: :any,                 arm64_ventura:  "585781b5c3f26d145faf3b0c06e58bd9789ace242f6631689edfc4dee3ab5b1f"
+    sha256 cellar: :any,                 arm64_monterey: "782038c57d82103f1c245d8d76f9acec4fd25b9bbb38c90fc8558c63ff00ddb5"
+    sha256 cellar: :any,                 arm64_big_sur:  "870b055e0964bde546ca96ac9a381f6d47de22e1bda504e9332800eefa2478bf"
+    sha256 cellar: :any,                 ventura:        "20eb8bf548c71959c9269981ec3d95b30871cca5074b32d60780356ee2930bb2"
+    sha256 cellar: :any,                 monterey:       "aaf518a16cbfdcc17b4355d4edb497607363b3b8f78d57e5b1c7d5af67588532"
+    sha256 cellar: :any,                 big_sur:        "25ad3c494672c5006f15cb27bd69cedb91d5a14ada0f52a4e8c622dbdec76d6c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "b04b946ea68e47136a06d01734d22e1a6c6eb9ed21514394f28f9b30364e1f54"
   end
 
-  head do
-    url "https://github.com/stephane/libmodbus.git"
-
-    depends_on "autoconf" => :build
-    depends_on "automake" => :build
-    depends_on "libtool" => :build
-  end
+  depends_on "autoconf" => :build
+  depends_on "automake" => :build
+  depends_on "libtool" => :build
 
   def install
-    system "./autogen.sh" if build.head?
+    system "./autogen.sh"
     system "./configure", "--prefix=#{prefix}"
     system "make", "install"
   end

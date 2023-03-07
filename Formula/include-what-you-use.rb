@@ -1,26 +1,41 @@
 class IncludeWhatYouUse < Formula
   desc "Tool to analyze #includes in C and C++ source files"
   homepage "https://include-what-you-use.org/"
-  url "https://include-what-you-use.org/downloads/include-what-you-use-0.14.src.tar.gz"
-  sha256 "43184397db57660c32e3298a6b1fd5ab82e808a1f5ab0591d6745f8d256200ef"
+  url "https://include-what-you-use.org/downloads/include-what-you-use-0.19.src.tar.gz"
+  sha256 "2b10157b60ea08adc08e3896b4921c73fcadd5ec4eb652b29a34129d501e5ee0"
   license "NCSA"
+  head "https://github.com/include-what-you-use/include-what-you-use.git", branch: "master"
+
+  # This omits the 3.3, 3.4, and 3.5 versions, which come from the older
+  # version scheme like `Clang+LLVM 3.5` (25 November 2014). The current
+  # versions are like: `include-what-you-use 0.15 (aka Clang+LLVM 11)`
+  # (21 November 2020).
+  livecheck do
+    url "https://include-what-you-use.org/downloads/"
+    regex(/href=.*?include-what-you-use[._-]v?((?!3\.[345])\d+(?:\.\d+)+)[._-]src\.t/i)
+  end
 
   bottle do
-    sha256 "045a0b40290cc8da9122eef0a51c8badbd972ae1a90a3bf101f9e26f90fb6b25" => :catalina
-    sha256 "4624e7bc1b0c8775db0ab2a48c6bdafcf51dea562e3e9f227940746db375c783" => :mojave
-    sha256 "8ae01240a58564995908d2ffae8a87cf678be65511b36ad29da804ba93509aa9" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "9cd980ebf2328c24e34e5b8f383f845e8c5de2d29d5904f61d5c1ec1e5f7758f"
+    sha256 cellar: :any,                 arm64_monterey: "74bffb0dc7dce47d0dc66a334ae2f97d706832527d8238d87b1b55ac7f774426"
+    sha256 cellar: :any,                 arm64_big_sur:  "395a9b31cb4e9024488e33dff157836d6c833cdda34b57f1882aa18140027870"
+    sha256 cellar: :any,                 ventura:        "5055c407f01109a7c2791335c3ae8d49cf5e43eb30d8d39a99c83a582da088e7"
+    sha256 cellar: :any,                 monterey:       "a3c265161618434e2f7309e3a40d4450a52be8a2ad10ad6866b3fbc489a62ede"
+    sha256 cellar: :any,                 big_sur:        "d468ab80a9508cd22dc08d5fba619209aef43d3b527db3522fc2a13dfaabec27"
+    sha256 cellar: :any,                 catalina:       "7c460a64c73fc4b03690b68c1928b2a0bd8afb1aa4a62a11ba2f28898a47833f"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "3518a3e1f2fa504af9571c3988f626df0b3b0842f2c811d9b3c89d85e1c011eb"
   end
 
   depends_on "cmake" => :build
-  depends_on "llvm@9" # include-what-you-use 0.14 is compatible with llvm 9.0
+  depends_on "llvm"
 
   uses_from_macos "ncurses"
   uses_from_macos "zlib"
 
-  # patch to make the build work with llvm9
-  patch do
-    url "https://github.com/include-what-you-use/include-what-you-use/commit/576c30a31ec3f6592a0fd68b0d19cb0880203569.diff?full_index=1"
-    sha256 "fe0ecc5a018d12a8865297747d293546f9fc35be22935ec74dc2a34234f90a73"
+  fails_with gcc: "5" # LLVM is built with GCC
+
+  def llvm
+    deps.map(&:to_formula).find { |f| f.name.match?(/^llvm(@\d+(\.\d+)*)?$/) }
   end
 
   def install
@@ -28,18 +43,11 @@ class IncludeWhatYouUse < Formula
     # so install to libexec to ensure that the resource path, which is always
     # computed relative to the location of the include-what-you-use executable
     # and is not configurable, is also located under libexec.
-    args = std_cmake_args + %W[
-      -DCMAKE_INSTALL_PREFIX=#{libexec}
-      -DCMAKE_PREFIX_PATH=#{Formula["llvm@9"].opt_lib}
-    ]
+    system "cmake", "-S", ".", "-B", "build", *std_cmake_args(install_prefix: libexec)
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
 
-    mkdir "build" do
-      system "cmake", *args, ".."
-      system "make"
-      system "make", "install"
-    end
-
-    bin.write_exec_script Dir["#{libexec}/bin/*"]
+    bin.write_exec_script libexec.glob("bin/*")
 
     # include-what-you-use needs a copy of the clang and libc++ headers to be
     # located in specific folders under its resource path. These may need to be
@@ -48,11 +56,10 @@ class IncludeWhatYouUse < Formula
     # formula. This would be indicated by include-what-you-use failing to
     # locate stddef.h and/or stdlib.h when running the test block below.
     # https://clang.llvm.org/docs/LibTooling.html#libtooling-builtin-includes
-    mkdir_p libexec/"lib/clang/#{Formula["llvm@9"].version}"
-    cp_r Formula["llvm@9"].opt_lib/"clang/#{Formula["llvm@9"].version}/include",
-      libexec/"lib/clang/#{Formula["llvm@9"].version}"
-    mkdir_p libexec/"include"
-    cp_r Formula["llvm@9"].opt_include/"c++", libexec/"include"
+    (libexec/"lib").mkpath
+    ln_sf (llvm.opt_lib/"clang").relative_path_from(libexec/"lib"), libexec/"lib"
+    (libexec/"include").mkpath
+    ln_sf (llvm.opt_include/"c++").relative_path_from(libexec/"include"), libexec/"include"
   end
 
   test do
@@ -81,7 +88,7 @@ class IncludeWhatYouUse < Formula
       ---
     EOS
     assert_match expected_output,
-      shell_output("#{bin}/include-what-you-use main.c 2>&1", 4)
+      shell_output("#{bin}/include-what-you-use main.c 2>&1")
 
     (testpath/"main.cc").write <<~EOS
       #include <iostream>
@@ -94,6 +101,6 @@ class IncludeWhatYouUse < Formula
       (main.cc has correct #includes/fwd-decls)
     EOS
     assert_match expected_output,
-      shell_output("#{bin}/include-what-you-use main.cc 2>&1", 2)
+      shell_output("#{bin}/include-what-you-use main.cc 2>&1")
   end
 end

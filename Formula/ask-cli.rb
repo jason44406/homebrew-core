@@ -3,15 +3,19 @@ require "language/node"
 class AskCli < Formula
   desc "CLI tool for Alexa Skill Kit"
   homepage "https://www.npmjs.com/package/ask-cli"
-  url "https://registry.npmjs.org/ask-cli/-/ask-cli-2.14.0.tgz"
-  sha256 "f5a98e49873a7e86136bfe469b1d663941b66de3e5fe6def23b649a3a90d3af3"
+  url "https://registry.npmjs.org/ask-cli/-/ask-cli-2.28.0.tgz"
+  sha256 "2a48779a0caf4609155547a9ac4020f0defd98a78781177d2b1705d54a1d188c"
   license "Apache-2.0"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "fd45c6ab011fe5d001e9fa36d4cbf0dc5abcbbc9b3c36e5e402a234ebce6ad8a" => :catalina
-    sha256 "c8f41317c8bac36e0bb13fbae2bba5cb4e28d31bc5e20b107a81446fad73bddb" => :mojave
-    sha256 "b474a0c0759a594cd683b1b42f2943e52afd93413a1d807ca76dd21dc587214b" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "6987ca9ca56fdc7049bca53d8ab928a21f77ffbbb2ada472f68fab4b059516b5"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "01c411a937865505b03caa56fb77bd007aa013fc700ce18df80ce156ed6f042a"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "894bab76ed98768ec3f1487a4e89c4d58daaf1587ff73a22f22904d32f59f4c9"
+    sha256 cellar: :any_skip_relocation, ventura:        "4d267d5ad92a40d0b815187cf7b9f58b6e78c716098c13f9d0859dfe7d9e1efe"
+    sha256 cellar: :any_skip_relocation, monterey:       "741719b5541e431ca00c3d95d377ec96d5661092892578e3fe3bbf5272b5181b"
+    sha256 cellar: :any_skip_relocation, big_sur:        "0bb6b2cc0fb14bfa2851459729b23fb048c9ea5a6f2ca0f56ed6866238d7957c"
+    sha256 cellar: :any_skip_relocation, catalina:       "5fb344f87d678113601e87c46e82a5c89148b52a123e8f2d53f6cbe9184a6071"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "61424d7db537fb060c7f9021d02d5040f0b279f28872cdcb29f6cddcc9472cf8"
   end
 
   depends_on "node"
@@ -19,6 +23,9 @@ class AskCli < Formula
   def install
     system "npm", "install", *Language::Node.std_npm_install_args(libexec)
     bin.write_exec_script libexec/"bin/ask"
+
+    # Replace universal binaries with native slices
+    deuniversalize_machos
   end
 
   test do

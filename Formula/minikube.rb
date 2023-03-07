@@ -2,16 +2,19 @@ class Minikube < Formula
   desc "Run a Kubernetes cluster locally"
   homepage "https://minikube.sigs.k8s.io/"
   url "https://github.com/kubernetes/minikube.git",
-      tag:      "v1.12.3",
-      revision: "2243b4b97c131e3244c5f014faedca0d846599f5"
+      tag:      "v1.29.0",
+      revision: "ddac20b4b34a9c8c857fc602203b6ba2679794d3"
   license "Apache-2.0"
-  head "https://github.com/kubernetes/minikube.git"
+  head "https://github.com/kubernetes/minikube.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "eea174b37eb1d6a3f740d0d584f5f30a22895c178d2617a61edd37e77e1dace8" => :catalina
-    sha256 "1620f78a138602df2ef42bffde3e9bef7c7df3de3884f2818864f45be8b651c0" => :mojave
-    sha256 "00b35e0cd6042a3a794ef11c273a7ee4a4770e11c71ec01ca123793377721c45" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "a290cff04bd396b39c8cc1ab48410f33aa5c3b474027133ddee2985e779ed8d0"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "ee202a22192cc2f1756aab60b18420283cee37d1963fed0da28437db242ee3e6"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "ced9949d34ff27e935ecc4f3812899126cd3a2f1c19ef0dfd38765adc13a5da5"
+    sha256 cellar: :any_skip_relocation, ventura:        "2d6fa42f3895d9e5876664b40669e88901b260ac605816d8604e03369f3754e6"
+    sha256 cellar: :any_skip_relocation, monterey:       "9d1cbc391cf6a913c8f1c3b8c2450c5abfacaefae86afe4092cddf7dab495bc3"
+    sha256 cellar: :any_skip_relocation, big_sur:        "dd3b76420ed1797727ee383b0a77f19f6de6bccb6653edfeebfee23515f3b64f"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "112a0de922c3c3df8ef09fb3ec203af4d643b0b5127b1add3b61784d7a704212"
   end
 
   depends_on "go" => :build
@@ -22,11 +25,7 @@ class Minikube < Formula
     system "make"
     bin.install "out/minikube"
 
-    output = Utils.safe_popen_read("#{bin}/minikube", "completion", "bash")
-    (bash_completion/"minikube").write output
-
-    output = Utils.safe_popen_read("#{bin}/minikube", "completion", "zsh")
-    (zsh_completion/"_minikube").write output
+    generate_completions_from_executable(bin/"minikube", "completion")
   end
 
   test do

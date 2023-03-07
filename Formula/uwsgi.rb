@@ -1,43 +1,39 @@
 class Uwsgi < Formula
   desc "Full stack for building hosting services"
   homepage "https://uwsgi-docs.readthedocs.io/en/latest/"
-  revision 4
-  head "https://github.com/unbit/uwsgi.git"
-
-  stable do
-    url "https://projects.unbit.it/downloads/uwsgi-2.0.18.tar.gz"
-    sha256 "4972ac538800fb2d421027f49b4a1869b66048839507ccf0aa2fda792d99f583"
-
-    # Fix "library not found for -lgcc_s.10.5" with 10.14 SDK
-    # Remove in next release
-    patch do
-      url "https://github.com/unbit/uwsgi/commit/6b1b397f.diff?full_index=1"
-      sha256 "b2c3a22f980a4e3bd2ab2fe5c5356d8a91e567a3ab3e6ccbeeeb2ba4efe4568a"
-    end
-  end
+  url "https://files.pythonhosted.org/packages/b3/8e/b4fb9f793745afd6afcc0d2443d5626132e5d3540de98f28a8b8f5c753f9/uwsgi-2.0.21.tar.gz"
+  sha256 "35a30d83791329429bc04fe44183ce4ab512fcf6968070a7bfba42fc5a0552a9"
+  license "GPL-2.0-or-later"
+  head "https://github.com/unbit/uwsgi.git", branch: "master"
 
   bottle do
-    sha256 "6c82bba2d7564bd3409867d304c578c7823d7c1db019d8b4c8223ae569a5f247" => :catalina
-    sha256 "2a3b1c26400d68491409b8625f56c730a2f69bbb5acc2596c80ea4cba3435fad" => :mojave
-    sha256 "2c511739e0317173b7c82b15a87a0eade429ed88be667801b477c95dc2affd72" => :high_sierra
+    rebuild 1
+    sha256 arm64_ventura:  "7f14aa760665a509bf46d1abb5639cac6174ed616047c7f372bdadae6312f465"
+    sha256 arm64_monterey: "5453ff8bcb1637f404c16fa05aeb016a7343254ea1327253336207394ca65918"
+    sha256 arm64_big_sur:  "025fca9344cb4240ff9bf8e2bf50970af379abe9f05bb483f8a4f69c204e6b87"
+    sha256 ventura:        "27a8c1cc7e4ab54604ff3d02e6e29cb47874d04c2895e2b3085d621253d2614e"
+    sha256 monterey:       "e3c7683d1359132dd1186de5617abc382f44a40fba22baf78c3b2b76800b7cb1"
+    sha256 big_sur:        "b55da7aab455f3e3521686e99f2ba5261d798c0364fd346498879944a0ab40e0"
+    sha256 x86_64_linux:   "3d32743d10ebefde4fdb6f4c7d2ae171de4d322da53fc9f8732d593cd43d6092"
   end
 
   depends_on "pkg-config" => :build
   depends_on "openssl@1.1"
-  depends_on "pcre"
-  depends_on "python@3.8"
+  depends_on "pcre" # PCRE2 issue: https://github.com/unbit/uwsgi/issues/2486
+  depends_on "python@3.11"
   depends_on "yajl"
 
   uses_from_macos "curl"
+  uses_from_macos "libxcrypt"
   uses_from_macos "libxml2"
   uses_from_macos "openldap"
   uses_from_macos "perl"
 
-  def install
-    # Fix file not found errors for /usr/lib/system/libsystem_symptoms.dylib and
-    # /usr/lib/system/libsystem_darwin.dylib on 10.11 and 10.12, respectively
-    ENV["SDKROOT"] = MacOS.sdk_path if MacOS.version == :sierra || MacOS.version == :el_capitan
+  on_linux do
+    depends_on "linux-pam"
+  end
 
+  def install
     openssl = Formula["openssl@1.1"]
     ENV.prepend "CFLAGS", "-I#{openssl.opt_include}"
     ENV.prepend "LDFLAGS", "-L#{openssl.opt_lib}"
@@ -53,11 +49,12 @@ class Uwsgi < Formula
       embedded_plugins = null
     EOS
 
-    system "python3", "uwsgiconfig.py", "--verbose", "--build", "brew"
+    python3 = "python3.11"
+    system python3, "uwsgiconfig.py", "--verbose", "--build", "brew"
 
-    plugins = %w[airbrake alarm_curl alarm_speech asyncio cache
+    plugins = %w[airbrake alarm_curl asyncio cache
                  carbon cgi cheaper_backlog2 cheaper_busyness
-                 corerouter curl_cron cplusplus dumbloop dummy
+                 corerouter curl_cron dumbloop dummy
                  echo emperor_amqp fastrouter forkptyrouter gevent
                  http logcrypto logfile ldap logpipe logsocket
                  msgpack notfound pam ping psgi pty rawrouter
@@ -71,51 +68,24 @@ class Uwsgi < Formula
                  transformation_chunked transformation_gzip
                  transformation_offload transformation_tofile
                  transformation_toupper ugreen webdav zergpool]
+    plugins << "alarm_speech" if OS.mac?
+    plugins << "cplusplus" if OS.linux?
 
     (libexec/"uwsgi").mkpath
     plugins.each do |plugin|
-      system "python3", "uwsgiconfig.py", "--verbose", "--plugin", "plugins/#{plugin}", "brew"
+      system python3, "uwsgiconfig.py", "--verbose", "--plugin", "plugins/#{plugin}", "brew"
     end
 
-    system "python3", "uwsgiconfig.py", "--verbose", "--plugin", "plugins/python", "brew", "python3"
+    system python3, "uwsgiconfig.py", "--verbose", "--plugin", "plugins/python", "brew", "python3"
 
     bin.install "uwsgi"
   end
 
-  plist_options manual: "uwsgi"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>RunAtLoad</key>
-          <true/>
-          <key>KeepAlive</key>
-          <true/>
-          <key>ProgramArguments</key>
-          <array>
-              <string>#{opt_bin}/uwsgi</string>
-              <string>--uid</string>
-              <string>_www</string>
-              <string>--gid</string>
-              <string>_www</string>
-              <string>--master</string>
-              <string>--die-on-term</string>
-              <string>--autoload</string>
-              <string>--logto</string>
-              <string>#{HOMEBREW_PREFIX}/var/log/uwsgi.log</string>
-              <string>--emperor</string>
-              <string>#{HOMEBREW_PREFIX}/etc/uwsgi/apps-enabled</string>
-          </array>
-          <key>WorkingDirectory</key>
-          <string>#{HOMEBREW_PREFIX}</string>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"uwsgi", "--uid", "_www", "--gid", "_www", "--master", "--die-on-term", "--autoload", "--logto",
+         HOMEBREW_PREFIX/"var/log/uwsgi.log", "--emperor", HOMEBREW_PREFIX/"etc/uwsgi/apps-enabled"]
+    keep_alive true
+    working_dir HOMEBREW_PREFIX
   end
 
   test do

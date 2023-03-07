@@ -1,15 +1,20 @@
 class Saxon < Formula
   desc "XSLT and XQuery processor"
-  homepage "https://saxon.sourceforge.io"
-  url "https://downloads.sourceforge.net/project/saxon/Saxon-HE/9.9/SaxonHE9-9-1-7J.zip"
-  version "9.9.1.7"
-  sha256 "5d33c9e7f7326064da528e158c02e72ffe4b5ff78da2645a2dd0ebbefbc9d211"
+  homepage "https://github.com/Saxonica/Saxon-HE"
+  url "https://github.com/Saxonica/Saxon-HE/blob/main/12/Java/SaxonHE12-0J.zip?raw=true"
+  version "12.0"
+  sha256 "c476746275dd5a0de1d203e89c21a249a02efe33350b560c4086cb08b0816be7"
+  license all_of: ["BSD-3-Clause", "MIT", "MPL-2.0"]
 
-  bottle :unneeded
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "f251d15ee9c43c8c24034263f84fe9b5b81bddec4507e4891d657597964b078b"
+  end
+
+  depends_on "openjdk"
 
   def install
-    libexec.install Dir["*.jar", "doc", "notices"]
-    bin.write_jar_script libexec/"saxon9he.jar", "saxon"
+    libexec.install Dir["*.jar", "doc", "lib", "notices"]
+    bin.write_jar_script libexec/"saxon-he-#{version.major_minor}.jar", "saxon"
   end
 
   test do
@@ -28,7 +33,7 @@ class Saxon < Formula
       </xsl:stylesheet>
     EOS
     assert_equal <<~EOS.chop, shell_output("#{bin}/saxon test.xml test.xsl")
-      <html>
+      <!DOCTYPE HTML><html>
          <body>
             <p>It works!</p>
          </body>

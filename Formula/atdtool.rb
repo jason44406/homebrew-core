@@ -6,16 +6,21 @@ class Atdtool < Formula
   url "https://files.pythonhosted.org/packages/83/d1/55150f2dd9afda92e2f0dcb697d6f555f8b1f578f1df4d685371e8b81089/atdtool-1.3.3.tar.gz"
   sha256 "a83f50e7705c65e7ba5bc339f1a0624151bba9f7cdec7fb1460bb23e9a02dab9"
   license "BSD-3-Clause"
-  revision 3
+  revision 5
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "f02a78aa9dbb19e8ca8670a6890f3d51949d014e6890ba5039fd9695bc1f46ce" => :catalina
-    sha256 "17b2ed63f8b4f8aa53e367572b53344fa3e6fa8569e5a9fb48f3a0d5257d04cc" => :mojave
-    sha256 "0f301757a596e02344c15171a834557e19e4c4145fd440cd9e960b72993e459a" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "00860b394d9167bc00b8a31a3edf07aa02ecca3434ad379d2b48e1914f0be191"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "00860b394d9167bc00b8a31a3edf07aa02ecca3434ad379d2b48e1914f0be191"
+    sha256 cellar: :any_skip_relocation, monterey:       "32171ec53c6f52a2e877ba0b1506be093e42f4d594418a2727675a327daef1c7"
+    sha256 cellar: :any_skip_relocation, big_sur:        "32171ec53c6f52a2e877ba0b1506be093e42f4d594418a2727675a327daef1c7"
+    sha256 cellar: :any_skip_relocation, catalina:       "32171ec53c6f52a2e877ba0b1506be093e42f4d594418a2727675a327daef1c7"
+    sha256 cellar: :any_skip_relocation, mojave:         "32171ec53c6f52a2e877ba0b1506be093e42f4d594418a2727675a327daef1c7"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "e982a3e891104e18964da29892efef84c79da560c3c2525467fcaa48bb28819f"
   end
 
-  depends_on "python@3.8"
+  disable! date: "2022-07-31", because: :repo_archived
+
+  depends_on "python@3.10"
 
   def install
     virtualenv_install_with_resources

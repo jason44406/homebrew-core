@@ -1,17 +1,19 @@
 class Eigen < Formula
   desc "C++ template library for linear algebra"
   homepage "https://eigen.tuxfamily.org/"
-  url "https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.tar.bz2"
-  sha256 "685adf14bd8e9c015b78097c1dc22f2f01343756f196acdc76a678e1ae352e11"
+  url "https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz"
+  sha256 "8586084f71f9bde545ee7fa6d00288b264a2b7ac3607b974e54d13e7162c1c72"
   license "MPL-2.0"
-  head "https://gitlab.com/libeigen/eigen"
+  revision 1
+  head "https://gitlab.com/libeigen/eigen.git", branch: "master"
+
+  livecheck do
+    url :stable
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    rebuild 1
-    sha256 "7770e95151199c72350c1f3990bfa153026fbe2f8e73ffc1d0cdbaf9774215e8" => :catalina
-    sha256 "7770e95151199c72350c1f3990bfa153026fbe2f8e73ffc1d0cdbaf9774215e8" => :mojave
-    sha256 "7770e95151199c72350c1f3990bfa153026fbe2f8e73ffc1d0cdbaf9774215e8" => :high_sierra
+    sha256 cellar: :any_skip_relocation, all: "211fd7f1d58b383e3d64335c08a376a7d8433007ce61410ead0320df34b6f4bd"
   end
 
   depends_on "cmake" => :build

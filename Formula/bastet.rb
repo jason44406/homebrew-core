@@ -3,18 +3,21 @@ class Bastet < Formula
   homepage "https://fph.altervista.org/prog/bastet.html"
   url "https://github.com/fph/bastet/archive/0.43.2.tar.gz"
   sha256 "f219510afc1d83e4651fbffd5921b1e0b926d5311da4f8fa7df103dc7f2c403f"
-  license "GPL-3.0"
+  license "GPL-3.0-or-later"
+  revision 4
 
   bottle do
-    rebuild 1
-    sha256 "0dfeabb0071431e426ac18b366ff5d065067075e7d3f4572e55a281e6702e215" => :catalina
-    sha256 "d1315f05616c060c8b5e83a9ae494f2ffecd2f78d53ef554192bb0e12ef451ef" => :mojave
-    sha256 "188658452934d4ef5d48d6837fb0c6bf3e3875488e0c1da8dcf62ca37c1ee998" => :high_sierra
-    sha256 "8133c13d1b98d96eacf5d420d30378fbfcd9cbe898b0f13b188112618f4338f5" => :sierra
-    sha256 "e3745b716c09ce7f3834f4fc30163fa132f93feeec4c301dc9d46b0bc9ca564f" => :el_capitan
+    sha256 arm64_ventura:  "48a54ed15a7a18cd95c2c19c11fd231214cbe238be1d8631c96f8d6fbe8df4db"
+    sha256 arm64_monterey: "f610547eed513dbbcc8d56188789f39f9c6248333ff93b5e44ffa9e2e9976706"
+    sha256 arm64_big_sur:  "05f022697690ec5cc7351e5ce5993d4bcebc99ea9b0ad209e680cd7797512202"
+    sha256 ventura:        "457f59e816566c6648f24d8cc3453494e4a14bc377863e19720090057b4d92bc"
+    sha256 monterey:       "f726b6e48c5a626a6f3bb8e7e793c8692c6ab2a483d8a04d27e33bd49f2d5086"
+    sha256 big_sur:        "4d64c918a60640b75f0c511481b7d72d574c0ea27dd03b088629e6dc1c07f88b"
+    sha256 x86_64_linux:   "e7c7b021b4506c317ece8793476739e32452c4faf92e2b9d877be34e433f1ff3"
   end
 
   depends_on "boost"
+  uses_from_macos "ncurses"
 
   # Fix compilation with Boost >= 1.65, remove for next release
   patch do

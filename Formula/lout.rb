@@ -1,18 +1,19 @@
 class Lout < Formula
   desc "Text formatting like TeX, but simpler"
   homepage "https://savannah.nongnu.org/projects/lout"
-  url "https://download.savannah.gnu.org/releases/lout/lout-3.40.tar.gz"
-  sha256 "3d16f1ce3373ed96419ba57399c2e4d94f88613c2cb4968cb0331ecac3da68bd"
-  license "GPL-3.0"
+  url "https://github.com/william8000/lout/archive/refs/tags/3.42.2.tar.gz"
+  sha256 "521fcbf9368b248015eac4a836067a68d604949fd29c8ee269159f18d44f8d98"
+  license "GPL-3.0-or-later"
 
   bottle do
-    sha256 "67aec968bd2e1957d7b4fe7a2ae201b701ef45dd98c9766ffbc7a0ae3ca1af70" => :catalina
-    sha256 "2f69e0d4097fbf53f05855b5eeb2def0efcaf08c3a5b2487b1fa041031c2eacc" => :mojave
-    sha256 "2de1b1b7526f7427b8a57b6239a5a8c199ee05365ead7ed8d722a9e7e3123a0e" => :high_sierra
-    sha256 "2cfc68ddba21e6f485a4a57df9e810b6996d5364374c66e77b06d41ce230f060" => :sierra
-    sha256 "2fbc90ffc3f12312dc11e31996ba94da3b8a4ba1c55f33ca60a5d81aef4e137f" => :el_capitan
-    sha256 "366023d41536d0220a3d226a9f7a5e65b89fcf8ec212bfd6e53f8c2b4110abce" => :yosemite
-    sha256 "7cbcdcbf720e5e93c7e8d41861fedbcb0f1b46233414c7897e94671e4e42a9fa" => :mavericks
+    sha256 arm64_ventura:  "8c410ce3f37c6f9c3bdb3242221be764c0088527fb04e0d2162e7cf6d3da7d47"
+    sha256 arm64_monterey: "4f441eb3dae5b3177b2fa97c45560052388a01ef190d7a4a5e6de0d10fe3c20a"
+    sha256 arm64_big_sur:  "8a88cbdcd832cd802454a7895e9ddee449ce5c221237e85ea8352b11b2907593"
+    sha256 ventura:        "688f5d95ead102ea669a7c795f60d4ce4b6f461581f3ed52ef5d0d98b23884d0"
+    sha256 monterey:       "b0d5caf6b3f0f11c78b0ca20e07371be67e417119c8801e406819c6b191bcb89"
+    sha256 big_sur:        "6f854396e27fcde9548e2134aa5ee807050d2575134a80c0fc8250312399e736"
+    sha256 catalina:       "30fee71b8a0dff7b5b189734fb23f6d1cc7e8919f88ea88e142a7f6b3c047352"
+    sha256 x86_64_linux:   "339d1a881b67599feaa47478c743ea32be1536b2b4361b1a3947c10779291e03"
   end
 
   def install
@@ -31,6 +32,6 @@ class Lout < Formula
       The quick brown fox jumps over the lazy dog.
       @End @Text
     EOS
-    assert_match /^\s+Blindtext\s+The quick brown fox.*\n+$/, shell_output("#{bin}/lout -p #{input}")
+    assert_match(/^\s+Blindtext\s+The quick brown fox.*\n+$/, shell_output("#{bin}/lout -p #{input}"))
   end
 end

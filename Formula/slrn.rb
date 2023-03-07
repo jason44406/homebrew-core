@@ -1,19 +1,29 @@
 class Slrn < Formula
   desc "Powerful console-based newsreader"
-  homepage "https://slrn.sourceforge.io/"
+  homepage "https://slrn.info/"
   url "https://jedsoft.org/releases/slrn/slrn-1.0.3a.tar.bz2"
   sha256 "3ba8a4d549201640f2b82d53fb1bec1250f908052a7983f0061c983c634c2dac"
+  license "GPL-2.0-or-later"
   revision 1
-  head "git://git.jedsoft.org/git/slrn.git"
+  head "git://git.jedsoft.org/git/slrn.git", branch: "master"
 
-  bottle do
-    sha256 "de190a3f3793acd7d8e50dc82231e7ad94535621bc4c37a34efcc1907c295296" => :catalina
-    sha256 "9dcfea5ecabef7b65a480fec81ab5b1dcc7a67d45bb8fab0d35821684ab56d0e" => :mojave
-    sha256 "417197dcbd30a8330f2a3a1e5171b2f3c2ed7869cca8d2fb302108ae391f4072" => :high_sierra
-    sha256 "dac0b018eb8f1d53b69ae27ca121510806f0eb9bbdcdbdd119295bd022a8faaf" => :sierra
+  livecheck do
+    url "https://jedsoft.org/releases/slrn/"
+    regex(/href=.*?slrn[._-]v?(\d+(?:\.\d+)+(?:[a-z]?\d*)?)\.t/i)
   end
 
-  depends_on "openssl@1.1"
+  bottle do
+    rebuild 2
+    sha256 arm64_ventura:  "f802b3c9ffb6f3974d353225cf25e52605d6c25fa85dbfd9b9710a33d075218b"
+    sha256 arm64_monterey: "03933542674c0ea7206e58e91879b25b068609a954231a7fe1bf64b9636a7ca3"
+    sha256 arm64_big_sur:  "deb43212975b4d77acb6d79eb556990588a71d47a94029f24736bc1661bb18eb"
+    sha256 ventura:        "409721aae6f317e0e3e0b471c7488dd634585a193957c4feb7916a6a645768a1"
+    sha256 monterey:       "8018c76bf03539804c59b85442cb2c8b578208f0a8b0ea325b559b810cc4a8cf"
+    sha256 big_sur:        "e29042ebfccfb58c2ce1883f763173da76c5a38d190e98255abebf6dc632e343"
+    sha256 x86_64_linux:   "5bf9ff614629b46445541310dd089e4893dbfa2e463944aff5596cb14476f812"
+  end
+
+  depends_on "openssl@3"
   depends_on "s-lang"
 
   def install
@@ -21,9 +31,12 @@ class Slrn < Formula
     man1.mkpath
     mkdir_p "#{var}/spool/news/slrnpull"
 
-    system "./configure", "--disable-debug", "--disable-dependency-tracking",
-                          "--prefix=#{prefix}",
-                          "--with-ssl=#{Formula["openssl@1.1"].opt_prefix}",
+    # Work around configure issues with Xcode 12.  Hopefully this will not be
+    # needed after next slrn release.
+    ENV.append "CFLAGS", "-Wno-implicit-function-declaration"
+
+    system "./configure", *std_configure_args,
+                          "--with-ssl=#{Formula["openssl@3"].opt_prefix}",
                           "--with-slrnpull=#{var}/spool/news/slrnpull",
                           "--with-slang=#{HOMEBREW_PREFIX}"
     system "make", "all", "slrnpull"

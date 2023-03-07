@@ -1,30 +1,50 @@
 class Pnetcdf < Formula
   desc "Parallel netCDF library for scientific data using the OpenMPI library"
   homepage "https://parallel-netcdf.github.io/index.html"
-  url "https://parallel-netcdf.github.io/Release/pnetcdf-1.12.1.tar.gz"
-  sha256 "56f5afaa0ddc256791c405719b6436a83b92dcd5be37fe860dea103aee8250a2"
+  url "https://parallel-netcdf.github.io/Release/pnetcdf-1.12.3.tar.gz"
+  sha256 "439e359d09bb93d0e58a6e3f928f39c2eae965b6c97f64e67cd42220d6034f77"
   license "NetCDF"
   revision 1
 
+  livecheck do
+    url "https://parallel-netcdf.github.io/wiki/Download.html"
+    regex(/href=.*?pnetcdf[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
+
   bottle do
-    sha256 "89fe221a5cfb46dac697259ace423488721524a62cf9753e2f2b0824a5092316" => :catalina
-    sha256 "ca2024aecf06507fa3f5018773f59aaa2b6be3291107b73565002f19ed0def02" => :mojave
-    sha256 "218b5b009bb564ed50117a0ad5842ee2d20b4b29cc134587fd5e30a3e703412b" => :high_sierra
+    sha256 arm64_ventura:  "3cc09465237f96557310cbb640b65b64361ec6b5bc953260b95d54a122006b5a"
+    sha256 arm64_monterey: "1543e607fd7d317f0d235655c746f6e23e9b1f2646d366c4503008cab3b2ee1d"
+    sha256 arm64_big_sur:  "3835889299b0058c33d17b94b2f1c57b21d10a00694d9a43c19ea95079035200"
+    sha256 ventura:        "b854eb65a2c00049c3dc4fc5dc73894b6c611b22aa5b641099e6d138a1b3d9bf"
+    sha256 monterey:       "026bca86c31dc0ce029f790e93db11616877121173a780aa4a3954864ebd347a"
+    sha256 big_sur:        "2708f28a2cc2b81cb4ef5338219fdc644e23a666001ab0c622f3cfe97c731479"
+    sha256 catalina:       "1d5b9405435f5c0621fd1214e2678e8a52c84b27da7f7540a3a6e7a4ccac7c50"
+    sha256 x86_64_linux:   "315a952a703528f06ded6287166bfd92373ae53a8de6774ac32a638d322431a8"
   end
 
   depends_on "gcc"
   depends_on "open-mpi"
+
+  uses_from_macos "m4" => :build
+
+  # Fix -flat_namespace being used on Big Sur and later.
+  patch do
+    url "https://raw.githubusercontent.com/Homebrew/formula-patches/03cf8088210822aa2c1ab544ed58ea04c897d9c4/libtool/configure-big_sur.diff"
+    sha256 "35acd6aebc19843f1a2b3a63e880baceb0f5278ab1ace661e57a502d9d78c93c"
+  end
 
   def install
     system "./configure", "--disable-debug",
                           "--disable-dependency-tracking",
                           "--disable-silent-rules",
                           "--prefix=#{prefix}",
-                          "--enable-shared",
-                          # Fix for GCC 10, remove in next version
-                          # https://github.com/Parallel-NetCDF/PnetCDF/pull/63
-                          "FFLAGS=-fallow-argument-mismatch",
-                          "FCFLAGS=-fallow-argument-mismatch"
+                          "--enable-shared"
+
+    cd "src/utils" do
+      # Avoid references to Homebrew shims
+      inreplace ["pnetcdf-config", "pnetcdf_version/Makefile"], Superenv.shims_path, "/usr/bin"
+    end
+
     system "make", "install"
   end
 

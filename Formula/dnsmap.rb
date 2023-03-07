@@ -1,23 +1,28 @@
 class Dnsmap < Formula
   desc "Passive DNS network mapper (a.k.a. subdomains bruteforcer)"
-  homepage "https://code.google.com/archive/p/dnsmap/"
-  url "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/dnsmap/dnsmap-0.30.tar.gz"
-  sha256 "fcf03a7b269b51121920ac49f7d450241306cfff23c76f3da94b03792f6becbc"
+  homepage "https://github.com/resurrecting-open-source-projects/dnsmap"
+  url "https://github.com/resurrecting-open-source-projects/dnsmap/archive/refs/tags/0.36.tar.gz"
+  sha256 "f52d6d49cbf9a60f601c919f99457f108d51ecd011c63e669d58f38d50ad853c"
+  head "https://github.com/resurrecting-open-source-projects/dnsmap.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "c27b047492145254a37464c3fdebcd656ed25a6e8b0b6d863a5012d00a0d7253" => :catalina
-    sha256 "4172919faa189face592aa272a8a45b62c05dc3056f75ed26e505d1e35118b5c" => :mojave
-    sha256 "3c45ae4ec1149775df005f3438c0a24971291094bc47814a8a60e4ca67dbce79" => :high_sierra
-    sha256 "2015e3fdee32fcdbc0501f522ba720280e8cb07a75f8166fd62a9f876ea12124" => :sierra
-    sha256 "57d5f7ea4a8a73b454bbc60e38fdb9a55e07c2d97f0b5acf38db0408e83b197b" => :el_capitan
-    sha256 "6ede00304c268f3a0013f8aa708f5bfc314acbac1db7a3547e8381dc620b18eb" => :yosemite
-    sha256 "8ed334077b5c440a7e7015e0b178f0e9500d816d6ee99d00e81a532b8e028e26" => :mavericks
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "62d1f525a5c4d2770b488d65670cde33d377a460987e5e0568eea506b592ebd0"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "8eb47816e6f0177b5e7a7358540055bf5d0346888bc921f6220ebd2e4a15cfda"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "af20d1658eb8b3f6191712debd39b3ab21afe033da12fb1e6a94b413f17b1d84"
+    sha256 cellar: :any_skip_relocation, ventura:        "4c3b82bafb59e5ad12ecb2c8233f54bf9b218728e453aa9be75f42524f125cf3"
+    sha256 cellar: :any_skip_relocation, monterey:       "48eeee1b5697a45f09c625d67cd2780964e4183c94d9d7a667d267c0b56f2359"
+    sha256 cellar: :any_skip_relocation, big_sur:        "194967d9aa003034d0c6e8f917cc0adffd5dff7715e085f3c44521e44afa3fb4"
+    sha256 cellar: :any_skip_relocation, catalina:       "de4e15536fa71c6bf75f0821909002652eaf6b7c8a7d25c9229a85edddada4cf"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "165264ad85acecb8f79932782e3e0a1eba9110462ac627379ddc3d07ef4190b4"
   end
 
+  depends_on "autoconf" => :build
+  depends_on "automake" => :build
+
   def install
-    system "make", "CC=#{ENV.cc}", "CFLAGS=#{ENV.cflags}",
-                   "BINDIR=#{bin}", "install"
+    system "./autogen.sh"
+    system "./configure", *std_configure_args
+    system "make", "install"
   end
 
   test do

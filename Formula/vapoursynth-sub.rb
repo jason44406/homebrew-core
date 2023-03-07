@@ -1,48 +1,46 @@
 class VapoursynthSub < Formula
   desc "VapourSynth filters - Subtitling filter"
-  homepage "http://www.vapoursynth.com"
-  url "https://github.com/vapoursynth/vapoursynth/archive/R50.tar.gz"
-  sha256 "b9dc7ce904c6a3432df7491b7052bc4cf09ccf1e7a703053f8079a2267522f97"
-  license "LGPL-2.1"
-  revision 1
-  head "https://github.com/vapoursynth/vapoursynth.git"
+  homepage "https://www.vapoursynth.com"
+  url "https://github.com/vapoursynth/subtext/archive/R3.tar.gz"
+  sha256 "d0a1cf9bdbab5294eaa2e8859a20cfe162103df691604d87971a6eb541bebd83"
+  license "MIT"
+  version_scheme 1
+
+  head "https://github.com/vapoursynth/subtext.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "61aa955a21de088cb8f53ef014a6ed0bbca3435ee70ac958f38bdec42540ca79" => :catalina
-    sha256 "deeea5620be2867e3fab4a89bbf93074bf9e8d10a3b01fba9e8161f333293bd3" => :mojave
-    sha256 "1f4e14c3572fcb8e1e65b59f41639bab5a7e28ff4509de6af42afc8e7f8931ff" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "3e41cfe022f1dd9b00d6cb39e1b3667420f6f17c09cdfaf4d95d7f81df3833fa"
+    sha256 cellar: :any,                 arm64_monterey: "598c2f969d228c6aad738f79102fd549d47facea2ebfd8fd25b1f3d7e85edbd2"
+    sha256 cellar: :any,                 arm64_big_sur:  "b279a50abb9df0e703a3ed9edbc2f65146e5ee2cedc0e49fd9d593a8001e1f42"
+    sha256 cellar: :any,                 ventura:        "30aee030ba554779da80c915bda3eb809b6dd9edcc0495b31829a146eaa1cec0"
+    sha256 cellar: :any,                 monterey:       "adeb08c0941dbfb5ade18eb806408659a450c1bc3f0a84501e2bb2e24023c190"
+    sha256 cellar: :any,                 big_sur:        "022a82b6d201fbdf76b421695bd6338fe2c02710f5fae1e17b9d304a9ef228a3"
+    sha256 cellar: :any,                 catalina:       "eaa0081cf6b8569686e3d6405267aa9825e2e1021e63a7128f37c269f4bd4fdc"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "f74fda462cb23aadfd9c57d0f98dd67980f5dfbd303015a864143def16ebf356"
   end
 
-  depends_on "autoconf" => :build
-  depends_on "automake" => :build
-  depends_on "libtool" => :build
-  depends_on "nasm" => :build
+  depends_on "cmake" => :build
   depends_on "pkg-config" => :build
   depends_on "ffmpeg"
   depends_on "libass"
   depends_on "vapoursynth"
 
-  def install
-    system "./autogen.sh"
-    inreplace "Makefile.in", "pkglibdir = $(libdir)", "pkglibdir = $(exec_prefix)"
-    system "./configure", "--prefix=#{prefix}",
-                          "--disable-core",
-                          "--disable-vsscript",
-                          "--disable-plugins",
-                          "--enable-subtext"
-    system "make", "install"
-    rm prefix/"vapoursynth/libsubtext.la"
-  end
+  fails_with gcc: "5" # ffmpeg is compiled with GCC
 
-  def post_install
-    (HOMEBREW_PREFIX/"lib/vapoursynth").mkpath
-    (HOMEBREW_PREFIX/"lib/vapoursynth").install_symlink prefix/"vapoursynth/libsubtext.dylib" => "libsubtext.dylib"
+  def install
+    # A meson-based install method has been added but is not present
+    # in this release. Switch to it in the next release to avoid
+    # manually installing the shared library.
+    system "cmake", "-S", ".", "-B", "build"
+    system "cmake", "--build", "build"
+    (lib/"vapoursynth").install "build/#{shared_library("libsubtext")}"
   end
 
   test do
-    xy = Language::Python.major_minor_version Formula["python@3.8"].opt_bin/"python3"
-    ENV.prepend_path "PYTHONPATH", lib/"python#{xy}/site-packages"
-    system Formula["python@3.8"].opt_bin/"python3", "-c", "from vapoursynth import core; core.sub"
+    python = Formula["vapoursynth"].deps
+                                   .find { |d| d.name.match?(/^python@\d\.\d+$/) }
+                                   .to_formula
+                                   .opt_libexec/"bin/python"
+    system python, "-c", "from vapoursynth import core; core.sub"
   end
 end

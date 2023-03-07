@@ -1,16 +1,19 @@
 class Libltc < Formula
   desc "POSIX-C Library for handling Linear/Logitudinal Time Code (LTC)"
   homepage "https://x42.github.io/libltc/"
-  url "https://github.com/x42/libltc/releases/download/v1.3.1/libltc-1.3.1.tar.gz"
-  sha256 "50e63eb3b767151bc0159a3cc5d426d03a42fd69029bc9b3b7c346555f4b709c"
+  url "https://github.com/x42/libltc/releases/download/v1.3.2/libltc-1.3.2.tar.gz"
+  sha256 "0a6d42cd6c21e925a27fa560dc45ac80057d275f23342102825909c02d3b1249"
   license "LGPL-3.0"
 
   bottle do
-    cellar :any
-    sha256 "c73e9da760961fc899dcd41c52f4e74cf2e29fb8ea619920c06c9ace25f717ab" => :catalina
-    sha256 "aecfd413335e0981c5ac452bc0b81bee57d3a4e5974237f5b6a64aae734369cf" => :mojave
-    sha256 "30f7ddada1d191c63214d44d9acec4862e71bca2ee67368c8546ec7240f65a9a" => :high_sierra
-    sha256 "1c51db3447916e208601775d43fb248bdc76f3b29b6f309ccc74eddc0a11c9c6" => :sierra
+    sha256 cellar: :any,                 arm64_ventura:  "317e8d1f146e9c5118dabea794de694186057e4c71688523946fb24859ed4de7"
+    sha256 cellar: :any,                 arm64_monterey: "8289e0f5389ee652949981fbde5d3955d78048707c2731619e2d9d046cf1f89a"
+    sha256 cellar: :any,                 arm64_big_sur:  "d003af07740326535cc95332c180cc467b29eaab2d227438e1486c8891bd5560"
+    sha256 cellar: :any,                 ventura:        "846224f71e3bc2254b94c41e62e8f02bb125d421bc24e9559fd6fca16ee8da44"
+    sha256 cellar: :any,                 monterey:       "9a4cdb442f640d04e8886b888bbc5427b448cc9d7a160672a505fda5fa1371c8"
+    sha256 cellar: :any,                 big_sur:        "a8a22a13e7faa84038e3833a7ad379d5ca3afe26670476fad9f87afc5312338a"
+    sha256 cellar: :any,                 catalina:       "2489b05efb1e77a52635ff5cded3850b9c1abe861b01145bccba7a2f6edaafaa"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "c160950aa4d33232070cb6607deec9ed4fc9b070dd5dcf0c3221404199016c46"
   end
 
   def install

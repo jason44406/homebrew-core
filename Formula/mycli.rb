@@ -3,91 +3,103 @@ class Mycli < Formula
 
   desc "CLI for MySQL with auto-completion and syntax highlighting"
   homepage "https://www.mycli.net/"
-  url "https://files.pythonhosted.org/packages/67/51/89811ac28b7ae365be43359e7612d19c4342a12483880d7a963e6d31193a/mycli-1.22.2.tar.gz"
-  sha256 "fb2e5dc74a8ec75049ebf02c0d7f14238a279a7eacb31138ac6d8f524aea02d3"
+  url "https://files.pythonhosted.org/packages/d6/e9/e3555839dec9ddbb94e20e5f5b7b633efc603986cffe1113f99048306887/mycli-1.26.1.tar.gz"
+  sha256 "8c03035c9b4526dbfa0b0859654e2974a0e77592a9e9b27f40f5a8daae83beb1"
+  license "BSD-3-Clause"
+  revision 1
 
   bottle do
-    cellar :any
-    sha256 "4108a77b1152c559a28687bf762cd9a1d20b2a99b4ed7c2dd4a828f0b3731fa6" => :catalina
-    sha256 "6c365b5897b6430d59e6b8fea6ed02b2209706bac00324ed2624521c28322f24" => :mojave
-    sha256 "717947e541840c072eedddb6358ce4bdaf869ee8a9e86cf3ddc85377eef40c61" => :high_sierra
+    rebuild 2
+    sha256 cellar: :any,                 arm64_ventura:  "03bae901b11bab34471ad3ae9a60724fe070c39aab56e69234d75839f08c9894"
+    sha256 cellar: :any,                 arm64_monterey: "86958cc8f00b6839642dfeea836d1302e6f06d58079a83e5a3feb12d5dff09d2"
+    sha256 cellar: :any,                 arm64_big_sur:  "e2d4a95290e13660f0a53e5a1807b0e2a1d1a98d3b9105c95f939449bbbcafe0"
+    sha256 cellar: :any,                 ventura:        "dd993cbe26743c61bdb5b662a8a47234b87064ae72d966a23500fcfb68a693ac"
+    sha256 cellar: :any,                 monterey:       "77711194f05b41351dafc18adfe49bea0791a23da84010ac4fad39439922c6fb"
+    sha256 cellar: :any,                 big_sur:        "0f73a5c64a42d4d3ccd3d55ccd4ff5fe77151df8a5dc88bbb4d0b6c0c5331657"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "aab23d7af25367a1b3ebc66ab8e94d31ad64894e6cf6efb12d8ed44a39ce51c2"
   end
 
+  depends_on "rust" => :build
   depends_on "openssl@1.1"
-  depends_on "python@3.8"
+  depends_on "pygments"
+  depends_on "python-tabulate"
+  depends_on "python@3.11"
+  depends_on "six"
+
+  uses_from_macos "libffi"
 
   on_linux do
     depends_on "pkg-config" => :build
   end
 
   resource "cffi" do
-    url "https://files.pythonhosted.org/packages/54/1d/15eae71ab444bd88a1d69f19592dcf32b9e3166ecf427dd9243ef0d3b7bc/cffi-1.14.1.tar.gz"
-    sha256 "b2a2b0d276a136146e012154baefaea2758ef1f56ae9f4e01c612b0831e0bd2f"
+    url "https://files.pythonhosted.org/packages/2b/a8/050ab4f0c3d4c1b8aaa805f70e26e84d0e27004907c5b8ecc1d31815f92a/cffi-1.15.1.tar.gz"
+    sha256 "d400bfb9a37b1351253cb402671cea7e89bdecc294e8016a707f6d1d8ac934f9"
   end
 
   resource "cli-helpers" do
-    url "https://files.pythonhosted.org/packages/3f/3f/6ecd0ddf2394b698dd82ff3ddbcda235f8d6dadf124af6222eff49b32e87/cli_helpers-2.1.0.tar.gz"
-    sha256 "dd6f164310f7d86fa3da1f82043a9c784e44a02ad49be932a80624261e56979b"
+    url "https://files.pythonhosted.org/packages/27/01/6aaa4fc415274ac77372b4d259c234b9f5bfc8d78144c3fda1f3019d4690/cli_helpers-2.3.0.tar.gz"
+    sha256 "e7174d003a2b58fd3e31a73fbbc45d5aa513de62cbd42d437f78b9658bd5f967"
   end
 
   resource "click" do
-    url "https://files.pythonhosted.org/packages/27/6f/be940c8b1f1d69daceeb0032fee6c34d7bd70e3e649ccac0951500b4720e/click-7.1.2.tar.gz"
-    sha256 "d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a"
+    url "https://files.pythonhosted.org/packages/59/87/84326af34517fca8c58418d148f2403df25303e02736832403587318e9e8/click-8.1.3.tar.gz"
+    sha256 "7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e"
   end
 
   resource "configobj" do
-    url "https://files.pythonhosted.org/packages/64/61/079eb60459c44929e684fa7d9e2fdca403f67d64dd9dbac27296be2e0fab/configobj-5.0.6.tar.gz"
-    sha256 "a2f5650770e1c87fb335af19a9b7eb73fc05ccf22144eb68db7d00cd2bcb0902"
+    url "https://files.pythonhosted.org/packages/cb/87/17d4c6d634c044ab08b11c0cd2a8a136d103713d438f8792d7be2c5148fb/configobj-5.0.8.tar.gz"
+    sha256 "6f704434a07dc4f4dc7c9a745172c1cad449feb548febd9f7fe362629c627a97"
   end
 
   resource "cryptography" do
-    url "https://files.pythonhosted.org/packages/bf/ac/552fc8729d90393845cc3a2062facf4a89dcbe206fa78771d60ddaae7554/cryptography-3.0.tar.gz"
-    sha256 "8e924dbc025206e97756e8903039662aa58aa9ba357d8e1d8fc29e3092322053"
+    url "https://files.pythonhosted.org/packages/10/a7/51953e73828deef2b58ba1604de9167843ee9cd4185d8aaffcb45dd1932d/cryptography-36.0.2.tar.gz"
+    sha256 "70f8f4f7bb2ac9f340655cbac89d68c527af5bb4387522a8413e841e3e6628c9"
+  end
+
+  resource "importlib-resources" do
+    url "https://files.pythonhosted.org/packages/2e/f8/be5c59ff2545362397cbc989f5cd3835326fc4092433d50dfaf21616bc71/importlib_resources-5.10.2.tar.gz"
+    sha256 "e4a96c8cc0339647ff9a5e0550d9f276fc5a01ffa276012b58ec108cfd7b8484"
   end
 
   resource "prompt-toolkit" do
-    url "https://files.pythonhosted.org/packages/69/19/3aa4bf17e1cbbdfe934eb3d5b394ae9a0a7fb23594a2ff27e0fdaf8b4c59/prompt_toolkit-3.0.5.tar.gz"
-    sha256 "563d1a4140b63ff9dd587bda9557cffb2fe73650205ab6f4383092fb882e7dc8"
+    url "https://files.pythonhosted.org/packages/fb/93/180be2342f89f16543ec4eb3f25083b5b84eba5378f68efff05409fb39a9/prompt_toolkit-3.0.36.tar.gz"
+    sha256 "3e163f254bef5a03b146397d7c1963bd3e2812f0964bb9a24e6ec761fd28db63"
+  end
+
+  resource "pyaes" do
+    url "https://files.pythonhosted.org/packages/44/66/2c17bae31c906613795711fc78045c285048168919ace2220daa372c7d72/pyaes-1.6.1.tar.gz"
+    sha256 "02c1b1405c38d3c370b085fb952dd8bea3fadcee6411ad99f312cc129c536d8f"
   end
 
   resource "pycparser" do
-    url "https://files.pythonhosted.org/packages/0f/86/e19659527668d70be91d0369aeaa055b4eb396b0f387a4f92293a20035bd/pycparser-2.20.tar.gz"
-    sha256 "2d475327684562c3a96cc71adf7dc8c4f0565175cf86b6d7a404ff4c771f15f0"
-  end
-
-  resource "Pygments" do
-    url "https://files.pythonhosted.org/packages/6e/4d/4d2fe93a35dfba417311a4ff627489a947b01dc0cc377a3673c00cf7e4b2/Pygments-2.6.1.tar.gz"
-    sha256 "647344a061c249a3b74e230c739f434d7ea4d8b1d5f3721bc0f3558049b38f44"
+    url "https://files.pythonhosted.org/packages/5e/0b/95d387f5f4433cb0f53ff7ad859bd2c6051051cebbb564f139a999ab46de/pycparser-2.21.tar.gz"
+    sha256 "e644fdec12f7872f86c58ff790da456218b10f863970249516d60a5eaca77206"
   end
 
   resource "PyMySQL" do
-    url "https://files.pythonhosted.org/packages/20/89/f336b217bfa06a0c672d8653774361d0faec008f7d008ff04f538a5da6f4/PyMySQL-0.10.0.tar.gz"
-    sha256 "e14070bc84e050e0f80bf6063e31d276f03a0bb4d46b9eca2854566c4ae19837"
+    url "https://files.pythonhosted.org/packages/60/ea/33b8430115d9b617b713959b21dfd5db1df77425e38efea08d121e83b712/PyMySQL-1.0.2.tar.gz"
+    sha256 "816927a350f38d56072aeca5dfb10221fe1dc653745853d30a216637f5d7ad36"
   end
 
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/6b/34/415834bfdafca3c5f451532e8a8d9ba89a21c9743a0c59fbd0205c7f9426/six-1.15.0.tar.gz"
-    sha256 "30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"
+  resource "pyperclip" do
+    url "https://files.pythonhosted.org/packages/a7/2c/4c64579f847bd5d539803c8b909e54ba087a79d01bb3aba433a95879a6c5/pyperclip-1.8.2.tar.gz"
+    sha256 "105254a8b04934f0bc84e9c24eb360a591aaf6535c9def5f29d92af107a9bf57"
+  end
+
+  resource "sqlglot" do
+    url "https://files.pythonhosted.org/packages/9f/94/e28696f966305c717710fc93ce297ab64b294dde2d6d56d13b611c444818/sqlglot-11.0.1.tar.gz"
+    sha256 "2bdeeaa20c215d48ec28a61057d76568d6a9aeb19af79b0470f7c2e42619aa0c"
   end
 
   resource "sqlparse" do
-    url "https://files.pythonhosted.org/packages/67/4b/253b6902c1526885af6d361ca8c6b1400292e649f0e9c95ee0d2e8ec8681/sqlparse-0.3.1.tar.gz"
-    sha256 "e162203737712307dfe78860cc56c8da8a852ab2ee33750e33aeadf38d12c548"
-  end
-
-  resource "tabulate" do
-    url "https://files.pythonhosted.org/packages/57/6f/213d075ad03c84991d44e63b6516dd7d185091df5e1d02a660874f8f7e1e/tabulate-0.8.7.tar.gz"
-    sha256 "db2723a20d04bcda8522165c73eea7c300eda74e0ce852d9022e0159d7895007"
-  end
-
-  resource "terminaltables" do
-    url "https://files.pythonhosted.org/packages/9b/c4/4a21174f32f8a7e1104798c445dacdc1d4df86f2f26722767034e4de4bff/terminaltables-3.1.0.tar.gz"
-    sha256 "f3eb0eb92e3833972ac36796293ca0906e998dc3be91fbe1f8615b331b853b81"
+    url "https://files.pythonhosted.org/packages/ba/fa/5b7662b04b69f3a34b8867877e4dbf2a37b7f2a5c0bbb5a9eed64efd1ad1/sqlparse-0.4.3.tar.gz"
+    sha256 "69ca804846bb114d2ec380e4360a8a340db83f0ccf3afceeb1404df028f57268"
   end
 
   resource "wcwidth" do
-    url "https://files.pythonhosted.org/packages/89/38/459b727c381504f361832b9e5ace19966de1a235d73cdbdea91c771a1155/wcwidth-0.2.5.tar.gz"
-    sha256 "c4d647b99872929fdb7bdcaa4fbe7f01413ed3d98077df798530e5b04f116c83"
+    url "https://files.pythonhosted.org/packages/5e/5f/1e4bd82a9cc1f17b2c2361a2d876d4c38973a997003ba5eb400e8a932b6c/wcwidth-0.2.6.tar.gz"
+    sha256 "a5220780a404dbe3353789870978e472cfe477761f06ee55077256e509b156d0"
   end
 
   def install

@@ -1,16 +1,20 @@
 class Luaradio < Formula
   desc "Lightweight, embeddable flow graph signal processing framework for SDR"
   homepage "https://luaradio.io/"
-  url "https://github.com/vsergeev/luaradio/archive/v0.7.0.tar.gz"
-  sha256 "7414c7bafc4ca3a9b0ac33e436987080602df53d0476f3618f0f37801e854aa6"
+  url "https://github.com/vsergeev/luaradio/archive/v0.11.0.tar.gz"
+  sha256 "abd6077d32a2e83ec9e4bbda1f84ccb540c9d5195d30d7a8ebeb12676e33eb2e"
   license "MIT"
-  head "https://github.com/vsergeev/luaradio.git"
+  head "https://github.com/vsergeev/luaradio.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "df3f0b9ba19651e37c5b7c8e6bbe04658f852bd909fcebc14d9c08c9926e1061" => :catalina
-    sha256 "909850451f26146b3c9e65129177afd31a715e463223c2713b414d345929376d" => :mojave
-    sha256 "6d16f13182248aac79fcda6cbc11284ddbfa0e660cb9ba38a4b5e76262113e26" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "2425ad1e4cc63d76223da8d3b4d3c7ce2d13eada579b4c9fb33e52714fa3d2cc"
+    sha256 cellar: :any,                 arm64_monterey: "ea3c5a2a64239596ddbcedca7bf98f38a2c3e7142c0bb9e15e371394a8bc3f48"
+    sha256 cellar: :any,                 arm64_big_sur:  "d8a8170a23202d459a0bc42f7f128d98bbc5ca0c683245703193250aa971663e"
+    sha256 cellar: :any,                 ventura:        "32603d888a275632c553b1508ea3da7817b4264a5e9cc5754ebca63a20010867"
+    sha256 cellar: :any,                 monterey:       "19dafaaeba49dfb959160cbe219045edcb4cf3b23accc5a024a09522c63d820a"
+    sha256 cellar: :any,                 big_sur:        "0eb6b7bb4b742724c4edc84caec47e2409a0eeb0543d61ac4b9dc69b9e341ae7"
+    sha256 cellar: :any,                 catalina:       "a4d29caa526850bfc74f55efe829e10279d840986183c2f8ff1a80a97bd6b0c9"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "7d7cf352a29e4917fb03b64ced6278562518ec30fec3a189f3e75b869f560150"
   end
 
   depends_on "pkg-config" => :build
@@ -19,16 +23,7 @@ class Luaradio < Formula
   depends_on "luajit"
 
   def install
-    cd "embed" do
-      # Ensure file placement is compatible with HOMEBREW_SANDBOX.
-      inreplace "Makefile" do |s|
-        s.gsub! "install -d $(DESTDIR)$(INSTALL_CMOD)",
-                "install -d $(PREFIX)/lib/lua/5.1"
-        s.gsub! "$(DESTDIR)$(INSTALL_CMOD)/radio.so",
-                "$(PREFIX)/lib/lua/5.1/radio.so"
-      end
-      system "make", "install", "PREFIX=#{prefix}"
-    end
+    system "make", "-C", "embed", "PREFIX=#{prefix}", "INSTALL_CMOD=#{lib}/lua/5.1", "install"
   end
 
   test do

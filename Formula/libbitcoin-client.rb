@@ -4,32 +4,41 @@ class LibbitcoinClient < Formula
   url "https://github.com/libbitcoin/libbitcoin-client/archive/v3.6.0.tar.gz"
   sha256 "75969ac0a358458491b101cae784de90452883b5684199d3e3df619707802420"
   license "AGPL-3.0"
-  revision 4
+  revision 8
 
   bottle do
-    cellar :any
-    sha256 "b30c1fd90b3ba80f002950486891a669eaf5418e763cbb15f2d58f406775563d" => :catalina
-    sha256 "310d8bb305ce06cde2354fa1b93c89b037ec166892b8386aa9b130a6366e6a46" => :mojave
-    sha256 "4a3d2184f8e7b81fb4262b2f3fcae060dc42eabb46b5ea24011be070e65ac2bd" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "b89e10498e220be618efdacc2e33d15d8d5cfe54b7b1986fde9e16c180c92c02"
+    sha256 cellar: :any,                 arm64_monterey: "c39d34c74a9162ff8fe454100407ff6aefe8dedcdfd144df5435ed321d1a243b"
+    sha256 cellar: :any,                 arm64_big_sur:  "9940b9110b8ff68a6be7c67dbeabe7c7f8d42114185990d637753ec799ac2a92"
+    sha256 cellar: :any,                 ventura:        "4d5874a7e85e5bfbd3dcb988aa0549f9e80ab0ecea08388d3d1b8a9b0cf45246"
+    sha256 cellar: :any,                 monterey:       "da7f7247c47202c3fa6d43ab62a815a1514b8453040776844df05688462ce583"
+    sha256 cellar: :any,                 big_sur:        "9b9131622c37929c721083d3ae02d5db5b74d47730617ecdff0e5345bd326b56"
+    sha256 cellar: :any,                 catalina:       "d0198baac9163a586987faf548f8f27f1918291a3454ed2e397a7c6040b87170"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "ddf5a6b6f46abdca1942682e3863fc1ae75f53195f60419089b15cedb1e90d15"
   end
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
   depends_on "libtool" => :build
   depends_on "pkg-config" => :build
+  # https://github.com/libbitcoin/libbitcoin-system/issues/1234
+  depends_on "boost@1.76"
   depends_on "libbitcoin-protocol"
 
   def install
+    ENV.cxx11
     ENV.prepend_path "PKG_CONFIG_PATH", Formula["libbitcoin"].opt_libexec/"lib/pkgconfig"
 
     system "./autogen.sh"
     system "./configure", "--disable-dependency-tracking",
                           "--disable-silent-rules",
-                          "--prefix=#{prefix}"
+                          "--prefix=#{prefix}",
+                          "--with-boost-libdir=#{Formula["boost@1.76"].opt_lib}"
     system "make", "install"
   end
 
   test do
+    boost = Formula["boost@1.76"]
     (testpath/"test.cpp").write <<~EOS
       #include <bitcoin/client.hpp>
       class stream_fixture
@@ -87,9 +96,10 @@ class LibbitcoinClient < Formula
       }
     EOS
     system ENV.cxx, "-std=c++11", "test.cpp", "-o", "test",
+                    "-I#{boost.include}",
                     "-L#{Formula["libbitcoin"].opt_lib}", "-lbitcoin",
                     "-L#{lib}", "-lbitcoin-client",
-                    "-L#{Formula["boost"].opt_lib}", "-lboost_system"
+                    "-L#{boost.lib}", "-lboost_system"
     system "./test"
   end
 end

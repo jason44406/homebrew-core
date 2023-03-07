@@ -1,35 +1,49 @@
 class GstPython < Formula
   desc "Python overrides for gobject-introspection-based pygst bindings"
   homepage "https://gstreamer.freedesktop.org/modules/gst-python.html"
-  url "https://gstreamer.freedesktop.org/src/gst-python/gst-python-1.16.2.tar.xz"
-  sha256 "208df3148d73d9f416d016564737585d8ea763d91201732d44b5fe688c6288a8"
-  revision 1
+  url "https://gstreamer.freedesktop.org/src/gst-python/gst-python-1.22.0.tar.xz"
+  sha256 "6c63ad364ca4617eb2cbb3975ab26c66760eb3c7a6adf5be69f99c11e21ef3a5"
+  license "LGPL-2.1-or-later"
 
-  bottle do
-    cellar :any
-    sha256 "c81ba537e1ffcf118f451c9bfd14316130b6fef8c4783200cab52a6b5eb494f9" => :catalina
-    sha256 "baccf8cd73d36aba4ce9418639c70c15c48b1675a3bf4b8629cc6814f4014678" => :mojave
-    sha256 "4f97f255287bcefc62d520f4c29111c3ec1012a582cc5251c00779c29b8a4a02" => :high_sierra
+  livecheck do
+    url "https://gstreamer.freedesktop.org/src/gst-python/"
+    regex(/href=.*?gst-python[._-]v?(\d+\.\d*[02468](?:\.\d+)*)\.t/i)
   end
 
+  bottle do
+    sha256 arm64_ventura:  "627f61e862103cfd5d37f3f8d362486c8f130681bd3803021f5ba7405eda733f"
+    sha256 arm64_monterey: "ec8f6d3ca790262c049df58b4d703e22cfd7b50fbc50290c99ef09893f30d1cf"
+    sha256 arm64_big_sur:  "f70c45aa848b1caf06d6579557e33b5b4795b0f1c7473d014fbd06d9ad5fe779"
+    sha256 ventura:        "b4ca5abcc0e8f24e1c05d7c907bdb979e3d195e0e778bd83203b84e182b5704a"
+    sha256 monterey:       "37cbf8dae7e320e4eeee532a197713cd10d1bddf29a29c2655b333534ef1b2d8"
+    sha256 big_sur:        "8f81a557d990a051ab91909ecce271a8a80de6f832ef06e3fdefb09d35195f43"
+    sha256 x86_64_linux:   "eeac212bb8c9b0b172117c32ff51362a70c280698b5f6baddebc074463425130"
+  end
+
+  depends_on "meson" => :build
+  depends_on "ninja" => :build
   depends_on "gst-plugins-base"
   depends_on "pygobject3"
-  depends_on "python@3.8"
+  depends_on "python@3.11"
+
+  # Avoid overlinking
+  patch :DATA
+
+  def python3
+    which("python3.11")
+  end
 
   def install
-    python_version = Language::Python.major_minor_version Formula["python@3.8"].opt_bin/"python3"
-    # pygi-overrides-dir switch ensures files don't break out of sandbox.
-    system "./configure", "--disable-dependency-tracking",
-                          "--disable-silent-rules",
-                          "--prefix=#{prefix}",
-                          "--with-pygi-overrides-dir=#{lib}/python#{python_version}/site-packages/gi/overrides",
-                          "PYTHON=#{Formula["python@3.8"].opt_bin}/python3",
-                          "LDFLAGS=-undefined dynamic_lookup"
-    system "make", "install"
+    site_packages = prefix/Language::Python.site_packages(python3)
+    system "meson", "setup", "build", "-Dpygi-overrides-dir=#{site_packages}/gi/overrides",
+                                      "-Dpython=#{python3}",
+                                      *std_meson_args
+    system "meson", "compile", "-C", "build", "--verbose"
+    system "meson", "install", "-C", "build"
   end
 
   test do
-    system Formula["python@3.8"].opt_bin/"python3", "-c", <<~EOS
+    system python3, "-c", <<~EOS
       import gi
       gi.require_version('Gst', '1.0')
       from gi.repository import Gst
@@ -37,3 +51,30 @@ class GstPython < Formula
     EOS
   end
 end
+__END__
+diff --git a/gi/overrides/meson.build b/gi/overrides/meson.build
+index 5977ee3..1b399af 100644
+--- a/gi/overrides/meson.build
++++ b/gi/overrides/meson.build
+@@ -3,13 +3,20 @@ install_data(pysources,
+     install_dir: pygi_override_dir,
+     install_tag: 'python-runtime')
+ 
++# avoid overlinking
++if host_machine.system() == 'windows'
++    python_ext_dep = python_dep
++else
++    python_ext_dep = python_dep.partial_dependency(compile_args: true)
++endif
++
+ gstpython = python.extension_module('_gi_gst',
+     sources: ['gstmodule.c'],
+     install: true,
+     install_dir : pygi_override_dir,
+     install_tag: 'python-runtime',
+     include_directories : [configinc],
+-    dependencies : [gst_dep, python_dep, pygobject_dep])
++    dependencies : [gst_dep, python_ext_dep, pygobject_dep])
+ 
+ env = environment()
+ env.prepend('_GI_OVERRIDES_PATH', [

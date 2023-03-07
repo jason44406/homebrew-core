@@ -1,97 +1,64 @@
 class Nest < Formula
-  desc "The Neural Simulation Tool (NEST) with Python3 bindings (PyNEST)"
+  desc "Neural Simulation Tool (NEST) with Python3 bindings (PyNEST)"
   homepage "https://www.nest-simulator.org/"
-  url "https://github.com/nest/nest-simulator/archive/v2.20.0.tar.gz"
-  sha256 "40e33187c22d6e843d80095b221fa7fd5ebe4dbc0116765a91fc5c425dd0eca4"
-  license "GPL-2.0"
-  revision 1
+  url "https://github.com/nest/nest-simulator/archive/v3.4.tar.gz"
+  sha256 "c56699111f899045ba48e55e87d14eca8763b48ebbb3648beee701a36aa3af20"
+  license "GPL-2.0-or-later"
 
   bottle do
-    sha256 "38bfd492f381cd059a495122d1c3342e8fb5095501c0422e6c9e04e861cc0d31" => :catalina
-    sha256 "fa62ef7c40613906f8c038d40a8ae0bbda04b070943056829d03c5febaed130f" => :mojave
-    sha256 "c69623f995b427d9ea0a4da78011656a76935d9358f1e9f8470d280670a25aac" => :high_sierra
+    sha256 arm64_ventura:  "fc93f6246137d84c772a77aed2745693dc36c593f89bc5736386ec5ac382c453"
+    sha256 arm64_monterey: "3b4d7bb1aa43efeb5f168668e6c4304476e738dd00e6e2575ecc4c9ec8420357"
+    sha256 arm64_big_sur:  "ed824604ce01c87ef555cc0ce71d923e9f53c236e8f356ffe77b916cc52b65e8"
+    sha256 ventura:        "4d89f6810fa548716be37e5cf41242435e5d187f6041f6cc4f95db541dc9d28b"
+    sha256 monterey:       "04b8bd41ba16be78537d33b6d4e8d3b45ec2852b250c07da70f1837b9405926d"
+    sha256 big_sur:        "9a59224bedeb71ec0febab939414fd82105a26c5e74ca83e12272c5061961f98"
+    sha256 x86_64_linux:   "5fab36854a9a878c85e4c8011312b18cd531d07c53437e6a126641fb41489824"
   end
 
   depends_on "cmake" => :build
   depends_on "cython" => :build
   depends_on "gsl"
-  depends_on "libomp"
   depends_on "libtool"
   depends_on "numpy"
-  depends_on "python@3.8"
+  depends_on "python@3.11"
   depends_on "readline"
-  depends_on "scipy"
 
-  resource "nose" do
-    url "https://files.pythonhosted.org/packages/58/a5/0dc93c3ec33f4e281849523a5a913fa1eea9a3068acfa754d44d88107a44/nose-1.3.7.tar.gz"
-    sha256 "f1bffef9cbc82628f6e7d7b40d7e255aefaa1adb6a1b1d26c69a8b79e6208a98"
-  end
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/6b/34/415834bfdafca3c5f451532e8a8d9ba89a21c9743a0c59fbd0205c7f9426/six-1.15.0.tar.gz"
-    sha256 "30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"
+  uses_from_macos "ncurses"
+
+  on_macos do
+    depends_on "libomp"
   end
 
   def install
-    args = ["-DCMAKE_INSTALL_PREFIX:PATH=#{prefix}"]
+    # Help FindReadline find macOS system ncurses library
+    sdk = MacOS.sdk_path_if_needed
+    args = sdk ? ["-DNCURSES_LIBRARY=#{sdk}/usr/lib/libncurses.tbd"] : []
 
-    libomp = Formula["libomp"]
-    args << "-Dwith-python=3"
-    args << "-Dwith-openmp=ON"
-    args << "-Dwith-libraries=#{libomp.opt_lib}/libomp.dylib"
-    args << "-DOpenMP_C_FLAGS=-Xpreprocessor\ -fopenmp\ -I#{libomp.opt_include}"
-    args << "-DOpenMP_C_LIB_NAMES=omp"
-    args << "-DOpenMP_CXX_FLAGS=-Xpreprocessor\ -fopenmp\ -I#{libomp.opt_include}"
-    args << "-DOpenMP_CXX_LIB_NAMES=omp"
-    args << "-DOpenMP_omp_LIBRARY=#{libomp.opt_lib}/libomp.dylib"
-    python = Formula["python@3.8"]
-    python_exec = python.opt_bin/"python3"
+    system "cmake", "-S", ".", "-B", "build", *std_cmake_args, *args
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
 
-    resource("nose").stage do
-      system python_exec, *Language::Python.setup_install_args(libexec)
-    end
-    resource("six").stage do
-      system python_exec, *Language::Python.setup_install_args(libexec)
-    end
-    version = Language::Python.major_minor_version python.opt_bin/"python3"
-    site_packages = "lib/python#{version}/site-packages"
-    pth_contents = "import site; site.addsitedir('#{libexec/site_packages}')\n"
-    (prefix/site_packages/"homebrew-nest.pth").write pth_contents
-
-    ENV.prepend_create_path "PATH", libexec/"bin"
-    ENV.prepend_create_path "PYTHONPATH", libexec/site_packages
-
-    mkdir "build" do
-      system "cmake", "..", *args
-      system "make"
-      system "make", "install"
-      system "make", "installcheck"
-    end
-
-    # Replace internally accessible gcc with externally accesible version
+    # Replace internally accessible gcc with externally accessible version
     # in nest-config if required
-    inreplace bin/"nest-config",
-        %r{#{HOMEBREW_REPOSITORY}/Library/Homebrew/shims.*/super},
-        "#{HOMEBREW_PREFIX}/bin"
+    inreplace bin/"nest-config", Superenv.shims_path/ENV.cxx, ENV.cxx
   end
 
   def caveats
-    python = Formula["python@3.8"]
     <<~EOS
-      The PyNEST bindings and its dependencies are installed with the python@3.8 formula.
+      The PyNEST bindings and its dependencies are installed with the python@3.11 formula.
       If you want to use PyNEST, use the Python interpreter from this path:
 
-          #{python.bin}
+          #{Formula["python@3.11"].bin}
 
       You may want to add this to your PATH.
     EOS
   end
 
   test do
-    python = Formula["python@3.8"]
     # check whether NEST was compiled & linked
     system bin/"nest", "--version"
 
     # check whether NEST is importable form python
-    system python.bin/"python3.8", "-c", "'import nest'"
+    system Formula["python@3.11"].bin/"python3.11", "-c", "'import nest'"
   end
 end

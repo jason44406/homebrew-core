@@ -1,15 +1,24 @@
 class MingwW64 < Formula
   desc "Minimalist GNU for Windows and GCC cross-compilers"
   homepage "https://sourceforge.net/projects/mingw-w64/"
-  url "https://downloads.sourceforge.net/project/mingw-w64/mingw-w64/mingw-w64-release/mingw-w64-v7.0.0.tar.bz2"
-  sha256 "aa20dfff3596f08a7f427aab74315a6cb80c2b086b4a107ed35af02f9496b628"
+  url "https://downloads.sourceforge.net/project/mingw-w64/mingw-w64/mingw-w64-release/mingw-w64-v10.0.0.tar.bz2"
+  sha256 "ba6b430aed72c63a3768531f6a3ffc2b0fde2c57a3b251450dcf489a894f0894"
   license "ZPL-2.1"
-  revision 2
+  revision 4
+
+  livecheck do
+    url :stable
+    regex(%r{url=.*?release/mingw-w64[._-]v?(\d+(?:\.\d+)+)\.t}i)
+  end
 
   bottle do
-    sha256 "092d1d30ae9f2de677a35f14ec2907d285b85f9b4ed465a506f72a970deea715" => :catalina
-    sha256 "cdefb18e91d0102ba193caa2c6994d83c30742fa03e03e12b3fc5864ca6b003c" => :mojave
-    sha256 "2658e687bbfee45cfa9d0d74c9c129f9ffc2ac1de017143d25b4017aa899404f" => :high_sierra
+    sha256 arm64_ventura:  "39b804fa198652bd2e9d473565c56a046277900d461ae3655c0c8b682883af6d"
+    sha256 arm64_monterey: "0521776568eb0e9679786f018d039d34812707e612dd7e9c4386b68dd9795719"
+    sha256 arm64_big_sur:  "a79dd245e41408d99c8c56058abc92dff217226c75f7a295487f4f8decdb32b2"
+    sha256 ventura:        "6428be6af902e84e7140e14ac3b0c8020e9cf1a4fc5d3d1572b71cfcf4d9c6a5"
+    sha256 monterey:       "74ba47e2c89fa34b659c5de15c043f4d351614b31aa521087319cc45e5cb18f0"
+    sha256 big_sur:        "aaca080d095b87555a9e6112704ac9185ef50ef8b7f44e636cb7c1b78a4222df"
+    sha256 x86_64_linux:   "c0537e835211b32f2744d62f103aff2793eaaf59028e6ef3920819c48bfdc9d5"
   end
 
   # Apple's makeinfo is old and has bugs
@@ -21,15 +30,15 @@ class MingwW64 < Formula
   depends_on "mpfr"
 
   resource "binutils" do
-    url "https://ftp.gnu.org/gnu/binutils/binutils-2.34.tar.xz"
-    mirror "https://ftpmirror.gnu.org/binutils/binutils-2.34.tar.xz"
-    sha256 "f00b0e8803dc9bab1e2165bd568528135be734df3fabf8d0161828cd56028952"
+    url "https://ftp.gnu.org/gnu/binutils/binutils-2.40.tar.xz"
+    mirror "https://ftpmirror.gnu.org/binutils/binutils-2.40.tar.xz"
+    sha256 "0f8a4c272d7f17f369ded10a4aca28b8e304828e95526da482b0ccc4dfc9d8e1"
   end
 
   resource "gcc" do
-    url "https://ftp.gnu.org/gnu/gcc/gcc-9.3.0/gcc-9.3.0.tar.xz"
-    mirror "https://ftpmirror.gnu.org/gcc/gcc-9.3.0/gcc-9.3.0.tar.xz"
-    sha256 "71e197867611f6054aa1119b13a0c0abac12834765fe2d81f35ac57f84f742d1"
+    url "https://ftp.gnu.org/gnu/gcc/gcc-12.2.0/gcc-12.2.0.tar.xz"
+    mirror "https://ftpmirror.gnu.org/gcc/gcc-12.2.0/gcc-12.2.0.tar.xz"
+    sha256 "e549cf9cf3594a00e27b6589d4322d70e0720cdd213f39beb4181e06926230ff"
   end
 
   def target_archs
@@ -48,6 +57,7 @@ class MingwW64 < Formula
           --prefix=#{arch_dir}
           --enable-targets=#{target}
           --disable-multilib
+          --disable-nls
         ]
         mkdir "build-#{arch}" do
           system "../configure", *args
@@ -74,7 +84,7 @@ class MingwW64 < Formula
         --target=#{target}
         --with-sysroot=#{arch_dir}
         --prefix=#{arch_dir}
-        --with-bugurl=https://github.com/Homebrew/homebrew-core/issues
+        --with-bugurl=#{tap.issues_url}
         --enable-languages=c,c++,fortran
         --with-ld=#{arch_dir}/bin/#{target}-ld
         --with-as=#{arch_dir}/bin/#{target}-as
@@ -82,7 +92,9 @@ class MingwW64 < Formula
         --with-mpfr=#{Formula["mpfr"].opt_prefix}
         --with-mpc=#{Formula["libmpc"].opt_prefix}
         --with-isl=#{Formula["isl"].opt_prefix}
+        --with-zstd=no
         --disable-multilib
+        --disable-nls
         --enable-threads=posix
       ]
 
@@ -111,8 +123,15 @@ class MingwW64 < Formula
 
       mkdir "mingw-w64-crt/build-#{arch}" do
         system "../configure", *args
-        system "make"
-        system "make", "install"
+        # Resolves "Too many open files in system"
+        # bfd_open failed open stub file dfxvs01181.o: Too many open files in system
+        # bfd_open failed open stub file: dvxvs00563.o: Too many open files in systembfd_open
+        # https://sourceware.org/bugzilla/show_bug.cgi?id=24723
+        # https://sourceware.org/bugzilla/show_bug.cgi?id=23573#c18
+        ENV.deparallelize do
+          system "make"
+          system "make", "install"
+        end
       end
 
       # Build the winpthreads library
@@ -128,6 +147,18 @@ class MingwW64 < Formula
         --prefix=#{arch_dir}/#{target}
       ]
       mkdir "mingw-w64-libraries/winpthreads/build-#{arch}" do
+        system "../configure", *args
+        system "make"
+        system "make", "install"
+      end
+
+      args = %W[
+        --host=#{target}
+        --with-sysroot=#{arch_dir}/#{target}
+        --prefix=#{arch_dir}
+        --program-prefix=#{target}-
+      ]
+      mkdir "mingw-w64-tools/widl/build-#{arch}" do
         system "../configure", *args
         system "make"
         system "make", "install"
@@ -159,9 +190,25 @@ class MingwW64 < Formula
     (testpath/"hello.f90").write <<~EOS
       program hello ; print *, "Hello, world!" ; end program hello
     EOS
+    # https://docs.microsoft.com/en-us/windows/win32/rpc/using-midl
+    (testpath/"example.idl").write <<~EOS
+      [
+        uuid(ba209999-0c6c-11d2-97cf-00c04f8eea45),
+        version(1.0)
+      ]
+      interface MyInterface
+      {
+        const unsigned short INT_ARRAY_LEN = 100;
+
+        void MyRemoteProc(
+            [in] int param1,
+            [out] int outArray[INT_ARRAY_LEN]
+        );
+      }
+    EOS
 
     ENV["LC_ALL"] = "C"
-    ENV.remove_macosxsdk
+    ENV.remove_macosxsdk if OS.mac?
     target_archs.each do |arch|
       target = "#{arch}-w64-mingw32"
       outarch = (arch == "i686") ? "i386" : "x86-64"
@@ -174,6 +221,9 @@ class MingwW64 < Formula
 
       system "#{bin}/#{target}-gfortran", "-o", "test.exe", "hello.f90"
       assert_match "file format pei-#{outarch}", shell_output("#{bin}/#{target}-objdump -a test.exe")
+
+      system "#{bin}/#{target}-widl", "example.idl"
+      assert_predicate testpath/"example_s.c", :exist?, "example_s.c should have been created"
     end
   end
 end

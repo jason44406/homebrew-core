@@ -1,17 +1,22 @@
 class Rocksdb < Formula
   desc "Embeddable, persistent key-value store for fast storage"
   homepage "https://rocksdb.org/"
-  url "https://github.com/facebook/rocksdb/archive/v6.11.4.tar.gz"
-  sha256 "6793ef000a933af4a834b59b0cd45d3a03a3aac452a68ae669fb916ddd270532"
-  license "GPL-2.0"
+  url "https://github.com/facebook/rocksdb/archive/v7.10.2.tar.gz"
+  sha256 "4619ae7308cd3d11cdd36f0bfad3fb03a1ad399ca333f192b77b6b95b08e2f78"
+  license any_of: ["GPL-2.0-only", "Apache-2.0"]
+  head "https://github.com/facebook/rocksdb.git", branch: "main"
 
   bottle do
-    cellar :any
-    sha256 "e480342b56120c038d7d29de482eea256f3d4b4b173701a37fdf9afddf92b9a9" => :catalina
-    sha256 "230c7bb4164b9a819da6b8118252c650e6b71a04769bfd242d3e561ab9361cc2" => :mojave
-    sha256 "c08fc8d6ad16f159fe8a2dccf118752e730fad45840c95ed2cf34cf875474c66" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "b58a67659752ec9970c69496daa26d630669363c6f608e9603cab404491b2dc5"
+    sha256 cellar: :any,                 arm64_monterey: "9934116ba59fc31bf6beb1e6d9910e5924961b35fa6f8495e5720ed12f7c1aca"
+    sha256 cellar: :any,                 arm64_big_sur:  "0bc0087f1aaeb3d5794e709a338ecd9c36cbefe827f94460399601abe465a1ae"
+    sha256 cellar: :any,                 ventura:        "e6a294dd61db80fd9341ddb1cbf4db56c40b199e13a4e9ac3ecf6239abef6218"
+    sha256 cellar: :any,                 monterey:       "26c977994d9123393984cd5ab924a1ca6ce231d86e3774b1d1fc48322ecba5fa"
+    sha256 cellar: :any,                 big_sur:        "e6d9f0588fff59ad95a87162ede770bcba0f0a4b617713fe529481791d816466"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "d1ae4b260b1143f2815608c41b152f30e85521c88726ecbea6ad56de4dd87539"
   end
 
+  depends_on "cmake" => :build
   depends_on "gflags"
   depends_on "lz4"
   depends_on "snappy"
@@ -20,37 +25,56 @@ class Rocksdb < Formula
   uses_from_macos "bzip2"
   uses_from_macos "zlib"
 
+  fails_with :gcc do
+    version "6"
+    cause "Requires C++17 compatible compiler."
+  end
+
   def install
-    ENV.cxx11
-    ENV["PORTABLE"] = "1"
-    ENV["DEBUG_LEVEL"] = "0"
-    ENV["USE_RTTI"] = "1"
-    ENV["ROCKSDB_DISABLE_ALIGNED_NEW"] = "1" if MacOS.version <= :sierra
-    ENV["DISABLE_JEMALLOC"] = "1" # prevent opportunistic linkage
-
-    # build regular rocksdb
-    system "make", "clean"
-    system "make", "static_lib"
-    system "make", "shared_lib"
-    system "make", "tools"
-    system "make", "install", "INSTALL_PATH=#{prefix}"
-
-    bin.install "sst_dump" => "rocksdb_sst_dump"
-    bin.install "db_sanity_test" => "rocksdb_sanity_test"
-    bin.install "db_stress" => "rocksdb_stress"
-    bin.install "write_stress" => "rocksdb_write_stress"
-    bin.install "ldb" => "rocksdb_ldb"
-    bin.install "db_repl_stress" => "rocksdb_repl_stress"
-    bin.install "rocksdb_dump"
-    bin.install "rocksdb_undump"
+    base_args = std_cmake_args + %W[
+      -DPORTABLE=ON
+      -DUSE_RTTI=ON
+      -DWITH_BENCHMARK_TOOLS=OFF
+      -DWITH_BZ2=ON
+      -DWITH_LZ4=ON
+      -DWITH_SNAPPY=ON
+      -DWITH_ZLIB=ON
+      -DWITH_ZSTD=ON
+      -DCMAKE_EXE_LINKER_FLAGS=-Wl,-rpath,#{rpath}
+    ]
 
     # build rocksdb_lite
-    ENV.append_to_cflags "-DROCKSDB_LITE=1"
-    ENV["LIBNAME"] = "librocksdb_lite"
-    system "make", "clean"
-    system "make", "static_lib"
-    system "make", "shared_lib"
-    system "make", "install", "INSTALL_PATH=#{prefix}"
+    lite_args = base_args + %w[
+      -DROCKSDB_LITE=ON
+      -DARTIFACT_SUFFIX=_lite
+      -DWITH_CORE_TOOLS=OFF
+      -DWITH_TOOLS=OFF
+    ]
+    mkdir "build_lite" do
+      system "cmake", "..", *lite_args
+      system "make", "install"
+    end
+    p = lib/"cmake/rocksdb/RocksDB"
+    ["Targets.cmake", "Targets-release.cmake"].each do |s|
+      File.rename "#{p}#{s}", "#{p}_Lite#{s}"
+    end
+
+    # build regular rocksdb
+    mkdir "build" do
+      system "cmake", "..", *base_args
+      system "make", "install"
+
+      cd "tools" do
+        bin.install "sst_dump" => "rocksdb_sst_dump"
+        bin.install "db_sanity_test" => "rocksdb_sanity_test"
+        bin.install "write_stress" => "rocksdb_write_stress"
+        bin.install "ldb" => "rocksdb_ldb"
+        bin.install "db_repl_stress" => "rocksdb_repl_stress"
+        bin.install "rocksdb_dump"
+        bin.install "rocksdb_undump"
+      end
+      bin.install "db_stress_tool/db_stress" => "rocksdb_stress"
+    end
   end
 
   test do
@@ -65,15 +89,30 @@ class Rocksdb < Formula
       }
     EOS
 
+    extra_args = []
+    if OS.mac?
+      extra_args << "-stdlib=libc++"
+      extra_args << "-lstdc++"
+    end
     system ENV.cxx, "test.cpp", "-o", "db_test", "-v",
-                                "-std=c++11", "-stdlib=libc++", "-lstdc++",
+                                "-std=c++17",
+                                *extra_args,
+                                "-lz", "-lbz2",
+                                "-L#{lib}", "-lrocksdb",
+                                "-L#{Formula["snappy"].opt_lib}", "-lsnappy",
+                                "-L#{Formula["lz4"].opt_lib}", "-llz4",
+                                "-L#{Formula["zstd"].opt_lib}", "-lzstd"
+    system "./db_test"
+    system ENV.cxx, "test.cpp", "-o", "db_test_lite", "-v",
+                                "-std=c++17",
+                                *extra_args,
                                 "-lz", "-lbz2",
                                 "-L#{lib}", "-lrocksdb_lite",
                                 "-DROCKSDB_LITE=1",
                                 "-L#{Formula["snappy"].opt_lib}", "-lsnappy",
                                 "-L#{Formula["lz4"].opt_lib}", "-llz4",
                                 "-L#{Formula["zstd"].opt_lib}", "-lzstd"
-    system "./db_test"
+    system "./db_test_lite"
 
     assert_match "sst_dump --file=", shell_output("#{bin}/rocksdb_sst_dump --help 2>&1")
     assert_match "rocksdb_sanity_test <path>", shell_output("#{bin}/rocksdb_sanity_test --help 2>&1", 1)
@@ -83,5 +122,17 @@ class Rocksdb < Formula
     assert_match "rocksdb_repl_stress:", shell_output("#{bin}/rocksdb_repl_stress --help 2>&1", 1)
     assert_match "rocksdb_dump:", shell_output("#{bin}/rocksdb_dump --help 2>&1", 1)
     assert_match "rocksdb_undump:", shell_output("#{bin}/rocksdb_undump --help 2>&1", 1)
+
+    db = testpath / "db"
+    %w[no snappy zlib bzip2 lz4 zstd].each_with_index do |comp, idx|
+      key = "key-#{idx}"
+      value = "value-#{idx}"
+
+      put_cmd = "#{bin}/rocksdb_ldb put --db=#{db} --create_if_missing --compression_type=#{comp} #{key} #{value}"
+      assert_equal "OK", shell_output(put_cmd).chomp
+
+      get_cmd = "#{bin}/rocksdb_ldb get --db=#{db} #{key}"
+      assert_equal value, shell_output(get_cmd).chomp
+    end
   end
 end

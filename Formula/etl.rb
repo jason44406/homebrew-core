@@ -1,17 +1,22 @@
 class Etl < Formula
   desc "Extensible Template Library"
   homepage "https://synfig.org"
-  url "https://downloads.sourceforge.net/project/synfig/releases/1.2.2/source/ETL-1.2.2.tar.gz"
-  sha256 "0dc19c5a6c9e964054ca3af6dacd6ab0c198d78071cfab2aebac178afe454d8b"
-  license "GPL-3.0"
+  url "https://downloads.sourceforge.net/project/synfig/development/1.5.1/ETL-1.5.1.tar.gz"
+  mirror "https://github.com/synfig/synfig/releases/download/v1.5.1/ETL-1.5.1.tar.gz"
+  sha256 "125c04f1892f285febc2f9cc06f932f7708e3c9f94c3a3004cd1803197197b4a"
+  license "GPL-2.0-or-later"
+
+  livecheck do
+    url :stable
+    regex(%r{url=.*?/ETL[._-]v?(\d+(?:\.\d+)+)\.t}i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "1ff4de15ba9b82ef2afe44be648f1c42031d7bc4e9e1538e3e1951cfa353ecaa" => :catalina
-    sha256 "b775dfeb3634c3b4ff3828239250394328b5c971e472cb775a0590d94bcdc6f8" => :mojave
-    sha256 "b775dfeb3634c3b4ff3828239250394328b5c971e472cb775a0590d94bcdc6f8" => :high_sierra
-    sha256 "507d4f4b35d0e075869446600e36e0f9f382014e99bf16a07d77f2c256cbc594" => :sierra
+    sha256 cellar: :any_skip_relocation, all: "890b88cbc8b5bdc6b068132feff930406712b1d7a85670e45b5e18dd1d5c0430"
   end
+
+  depends_on "pkg-config" => :build
+  depends_on "glibmm@2.66"
 
   def install
     system "./configure", "--disable-debug",
@@ -30,7 +35,7 @@ class Etl < Formula
       }
     EOS
     flags = %W[
-      -I#{include}
+      -I#{include}/ETL
       -lpthread
     ]
     system ENV.cxx, "test.cpp", "-o", "test", *flags

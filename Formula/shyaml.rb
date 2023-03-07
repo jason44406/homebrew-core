@@ -3,26 +3,26 @@ class Shyaml < Formula
 
   desc "Command-line YAML parser"
   homepage "https://github.com/0k/shyaml"
-  url "https://files.pythonhosted.org/packages/bc/ca/d8c47fad7a6ce01ddd2b7093673433dbfae414015f971ea7ffda56da125f/shyaml-0.6.1.tar.gz"
-  sha256 "3a57e380f66043c661d417106a0f101f8068c80caa2afef57c90447b88526c3d"
+  url "https://files.pythonhosted.org/packages/b9/59/7e6873fa73a476de053041d26d112b65d7e1e480b88a93b4baa77197bd04/shyaml-0.6.2.tar.gz"
+  sha256 "696e94f1c49d496efa58e09b49c099f5ebba7e24b5abe334f15e9759740b7fd0"
   license "BSD-2-Clause"
-  revision 1
-  head "https://github.com/0k/shyaml.git"
+  revision 2
+  head "https://github.com/0k/shyaml.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "510026ded6fc62625ee9bd2cab4d94d03155e94270ae0aa38947b894282c2808" => :catalina
-    sha256 "c850436b06215814c879e02db80331c3b94e63ccfa03df8bd25915ef4dfac668" => :mojave
-    sha256 "d52705a99a5f376d41d2ead578d73f5eb309b0efa595215364ea42cb4191eed6" => :high_sierra
+    rebuild 2
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "97c0a29a8a83f03d4fb8f04cee9932cc696308b9ceec4590cfb4f30caa8be9c8"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "97c0a29a8a83f03d4fb8f04cee9932cc696308b9ceec4590cfb4f30caa8be9c8"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "97c0a29a8a83f03d4fb8f04cee9932cc696308b9ceec4590cfb4f30caa8be9c8"
+    sha256 cellar: :any_skip_relocation, ventura:        "083e980a2579d509ae832e64e27b676d32b15b4ab8c5b85ac381f9a116e5c706"
+    sha256 cellar: :any_skip_relocation, monterey:       "083e980a2579d509ae832e64e27b676d32b15b4ab8c5b85ac381f9a116e5c706"
+    sha256 cellar: :any_skip_relocation, big_sur:        "083e980a2579d509ae832e64e27b676d32b15b4ab8c5b85ac381f9a116e5c706"
+    sha256 cellar: :any_skip_relocation, catalina:       "083e980a2579d509ae832e64e27b676d32b15b4ab8c5b85ac381f9a116e5c706"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "9692d49037767d99705665957e0b26aa3a9f5619b06ed57d09a63aa4c176c510"
   end
 
-  depends_on "libyaml"
-  depends_on "python@3.8"
-
-  resource "PyYAML" do
-    url "https://files.pythonhosted.org/packages/64/c2/b80047c7ac2478f9501676c988a5411ed5572f35d1beff9cae07d321512c/PyYAML-5.3.1.tar.gz"
-    sha256 "b8eac752c5e14d3eca0e6dd9199cd627518cb5ec06add0de9d32baeee6fe645d"
-  end
+  depends_on "python@3.11"
+  depends_on "pyyaml"
 
   def install
     virtualenv_install_with_resources

@@ -1,21 +1,27 @@
 class Wordgrinder < Formula
   desc "Unicode-aware word processor that runs in a terminal"
   homepage "https://cowlark.com/wordgrinder"
-  url "https://github.com/davidgiven/wordgrinder/archive/0.7.2.tar.gz"
-  sha256 "4e1bc659403f98479fe8619655f901c8c03eb87743374548b4d20a41d31d1dff"
+  url "https://github.com/davidgiven/wordgrinder/archive/0.8.tar.gz"
+  sha256 "856cbed2b4ccd5127f61c4997a30e642d414247970f69932f25b4b5a81b18d3f"
+  license "MIT"
   revision 1
-  head "https://github.com/davidgiven/wordgrinder.git"
+  head "https://github.com/davidgiven/wordgrinder.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "79fa0f89e7e123f7746ab934514834eaaecd35fa228a64e243d620825e508f7d" => :catalina
-    sha256 "daa17cb7ea4b7ad382352a18b359deaa7f1a9cd8b2c7c8949b2f6dca41f0674c" => :mojave
-    sha256 "735f8f1c7d405d11e0fd464d937d3f943c192c939126ca610a388f145da1a7da" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "b89498bd5c54678e5460ccf146084abdde90853f465f17775657298fe1ba5c91"
+    sha256 cellar: :any,                 arm64_monterey: "3eb4bf8cff526d9a6e6c9e285ba2a63879eb157a6ba091dff6be7ad49da749b3"
+    sha256 cellar: :any,                 arm64_big_sur:  "370093b3705f72a5d6b87bacd2e64e229f3d6ac82e52e92fe147c037d65f210b"
+    sha256 cellar: :any,                 ventura:        "1a575a0eff9cd74e4a48a4ede1694349892f5a07c089d9e5bd1be74560eaf5ac"
+    sha256 cellar: :any,                 monterey:       "2ab17d2541132790b1b134a5d33e5e9178ce96b7afeadf28819a9694f87712da"
+    sha256 cellar: :any,                 big_sur:        "d2cb8d569e0a7a02abae8deb32adf8a564042cfd6cddaeef4bc1dc16ab05e53b"
+    sha256 cellar: :any,                 catalina:       "e084da6193fd984ac541e7c21044f80927b60b85ab69512d3824255be1c54d17"
+    sha256 cellar: :any,                 mojave:         "143c53429552e244089211458fc42bcdbb79171d5f98ae17db9c7175208c8ae4"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "07fdfa2bd3da72697fbd54cc93a8bc59b2c3afc3ddbfd55a46cde0e557011ca4"
   end
 
+  depends_on "lua" => :build
   depends_on "ninja" => :build
   depends_on "pkg-config" => :build
-  depends_on "lua"
   depends_on "ncurses"
 
   uses_from_macos "zlib"

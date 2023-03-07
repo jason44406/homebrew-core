@@ -1,33 +1,41 @@
 class Htop < Formula
   desc "Improved top (interactive process viewer)"
-  homepage "https://hisham.hm/htop/"
-  url "https://hisham.hm/htop/releases/2.2.0/htop-2.2.0.tar.gz"
-  sha256 "d9d6826f10ce3887950d709b53ee1d8c1849a70fa38e91d5896ad8cbc6ba3c57"
-  license "GPL-2.0"
-  revision 1
+  homepage "https://htop.dev/"
+  url "https://github.com/htop-dev/htop/archive/3.2.2.tar.gz"
+  sha256 "3829c742a835a0426db41bb039d1b976420c21ec65e93b35cd9bfd2d57f44ac8"
+  license "GPL-2.0-or-later"
+  head "https://github.com/htop-dev/htop.git", branch: "main"
+
+  livecheck do
+    url :stable
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "c06ff60960f64f5c8395f53d7419cbcce2a22ee87f0cb0138352c8a88111d21c" => :catalina
-    sha256 "77aa302765353b4085dcad52356d3264183e06310dda8d5bac64642299ea2902" => :mojave
-    sha256 "0ebfb655b91566ba31f8effc94d642a43305ff95bdc9b30b46fadc132e2ced0c" => :high_sierra
-    sha256 "ed93b86f011de155c5d261b8c9cc9cb81fd0017667bf3ebe26ee090716bcd650" => :sierra
+    sha256 cellar: :any,                 arm64_ventura:  "87daed2cfe0d478a778b09b5f29428f05b15ff081f0e70b9a2609cf479572721"
+    sha256 cellar: :any,                 arm64_monterey: "76872761874d2148c1da382b3922b25916f245ef1d05fa21f95dbc1baa5ff8d4"
+    sha256 cellar: :any,                 arm64_big_sur:  "52bdaef69f06d6808896cd8325ff6b2be3f96643660cc5475e1d45ba850a594d"
+    sha256 cellar: :any,                 ventura:        "38dcedb23adca849a1e1952c4a0d3249406b625f0e2094dfc47028be7df304b2"
+    sha256 cellar: :any,                 monterey:       "078c94ade63f91b01334d300f00489592361bdfef3600c0ca7f6ad3ce2032281"
+    sha256 cellar: :any,                 big_sur:        "7620c57b8abc846f264fb7906b96f3da07da7c6d2b43bde1579c29e04c77fc64"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "bb45255abf5f0cd1d886bb8ea68b26c60517771268cf18ac3cec875b572b1fc6"
   end
 
-  head do
-    url "https://github.com/hishamhm/htop.git"
-
-    depends_on "autoconf" => :build
-    depends_on "automake" => :build
-    depends_on "libtool" => :build
-  end
-
+  depends_on "autoconf" => :build
+  depends_on "automake" => :build
+  depends_on "libtool" => :build
   depends_on "pkg-config" => :build
   depends_on "ncurses" # enables mouse scroll
 
+  on_linux do
+    depends_on "lm-sensors"
+  end
+
   def install
-    system "./autogen.sh" if build.head?
-    system "./configure", "--prefix=#{prefix}"
+    system "./autogen.sh"
+    args = ["--prefix=#{prefix}"]
+    args << "--enable-sensors" if OS.linux?
+    system "./configure", *args
     system "make", "install"
   end
 

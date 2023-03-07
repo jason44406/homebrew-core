@@ -1,33 +1,39 @@
 class Avfs < Formula
   desc "Virtual file system that facilitates looking inside archives"
   homepage "https://avf.sourceforge.io/"
-  url "https://downloads.sourceforge.net/project/avf/avfs/1.1.3/avfs-1.1.3.tar.bz2"
-  sha256 "4f4ec1e8c0d5da94949e3dab7500ee29fa3e0dda723daf8e7d60e5f3ce4450df"
+  url "https://downloads.sourceforge.net/project/avf/avfs/1.1.5/avfs-1.1.5.tar.bz2"
+  sha256 "ad9f3b64104d6009a058c70f67088f799309bf8519b14b154afad226a45272cf"
+  license all_of: [
+    "GPL-2.0-only",
+    "LGPL-2.0-only", # for shared library
+    "GPL-2.0-or-later", # modules/dav_ls.c
+    "Zlib", # zlib/*
+  ]
+
+  livecheck do
+    url :stable
+    regex(%r{url=.*?/avfs[._-]v?(\d+(?:\.\d+)+)\.t}i)
+  end
 
   bottle do
-    sha256 "6f496a30b6bd1c8eba1005e4bc0da26b53353effab3f447cf8d43a669ad7a6b5" => :catalina
-    sha256 "1e75ce4753a0d9a9af12e4a718537a9e2398fd535413b72505dd126a33610fe6" => :mojave
-    sha256 "690fbe0161f0c5ce4ec737e67624b54bfcd7825efa8b554e1773691365dcd6ed" => :high_sierra
+    sha256 x86_64_linux: "971594b47123ee130e2bb1eba3c0cb5b6235e943cd4c596de8b667b14ce4a927"
   end
 
   depends_on "pkg-config" => :build
-  depends_on macos: :sierra # needs clock_gettime
-  depends_on "openssl@1.1"
-  depends_on :osxfuse
+  depends_on "bzip2"
+  depends_on "libfuse@2"
+  depends_on :linux # on macOS, requires closed-source macFUSE
   depends_on "xz"
+  depends_on "zlib"
 
   def install
-    args = %W[
-      --prefix=#{prefix}
-      --disable-debug
-      --disable-dependency-tracking
-      --disable-silent-rules
-      --enable-fuse
-      --enable-library
-      --with-ssl=#{Formula["openssl@1.1"].opt_prefix}
-    ]
-
-    system "./configure", *args
+    system "./configure", *std_configure_args,
+                          "--disable-silent-rules",
+                          "--enable-fuse",
+                          "--enable-library",
+                          "--with-system-zlib",
+                          "--with-system-bzlib",
+                          "--with-xz"
     system "make", "install"
   end
 

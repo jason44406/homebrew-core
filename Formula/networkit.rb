@@ -3,43 +3,53 @@ class Networkit < Formula
 
   desc "Performance toolkit for large-scale network analysis"
   homepage "https://networkit.github.io"
-  url "https://github.com/networkit/networkit.git",
-      tag:      "7.0",
-      revision: "d8e952f1e4d5e2758e4744e7c6ea7429a59c7cdf"
+  url "https://github.com/networkit/networkit/archive/10.0.tar.gz"
+  sha256 "77187a96dea59e5ba1f60de7ed63d45672671310f0b844a1361557762c2063f3"
   license "MIT"
+  revision 2
 
   bottle do
-    sha256 "6c31d49396ef373700c7c852fb9a0df5793fedb882b8b32fb5149bfc8c4bcffe" => :catalina
-    sha256 "53fcb186c2e3b629a6edbe33f9ceff4cb2fefed36f21c721f6273d75e7fb2af2" => :mojave
-    sha256 "fe03e0e1716b223d4a0319a36e39c7391477454203fcc3a0a65f5684fce5cf62" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "225043994ead9033a8edcdcab33b4b2cd8c911058260432712916f528ddd7d3b"
+    sha256 cellar: :any,                 arm64_monterey: "b3b2832093a52d3d961fe42465e054ed671fe42dd5ed61e8bd60824e726c8ef5"
+    sha256 cellar: :any,                 arm64_big_sur:  "e9e5c140bfb05a6332828086675d8e4bcf068c2c04029ee3d0cc259358c61f23"
+    sha256 cellar: :any,                 ventura:        "e7a30d8fcc8c1c0e2201dc0ccf8f29c29adc6fb83bf5cf379b7defad4edc9821"
+    sha256 cellar: :any,                 monterey:       "481afe37e6d16ced50eae8d67ad9740eaba8f696eef74d14af6fee662b11f4ee"
+    sha256 cellar: :any,                 big_sur:        "216f7679271686d87637ab1ffbba1b785af560e0b5938da6095891d6d79589f0"
+    sha256 cellar: :any,                 catalina:       "3a4d7a959f666b9dfdfa2df033f208de73feb1b08c4f70b72c54ce925760c569"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "ef01d0f3dc7aa13b1953783ebabae54a1913e0687212cc8e3e96d59f83d89787"
   end
 
   depends_on "cmake" => :build
-  depends_on "cython" => :build
+  depends_on "libcython" => :build
+  depends_on "ninja" => :build
+  depends_on "tlx" => :build
+
   depends_on "libnetworkit"
   depends_on "numpy"
-  depends_on "python@3.8"
+  depends_on "python@3.11"
   depends_on "scipy"
 
-  def install
-    xy = Language::Python.major_minor_version Formula["python@3.8"].opt_bin/"python3"
-    rpath_addons = Formula["libnetworkit"].opt_lib
+  def python3
+    "python3.11"
+  end
 
-    ENV.prepend_create_path "PYTHONPATH", libexec+"lib/python#{xy}/site-packages/"
-    system Formula["python@3.8"].opt_bin/"python3", "setup.py", "build_ext",
-          "--networkit-external-core",
-           "--rpath=@loader_path;#{rpath_addons}"
-    system Formula["python@3.8"].opt_bin/"python3", "setup.py", "install",
-           "--single-version-externally-managed",
-           "--record=installed.txt",
-           "--prefix=#{libexec}"
-    site_packages = "lib/python#{xy}/site-packages"
-    pth_contents = "import site; site.addsitedir('#{libexec/site_packages}')\n"
-    (prefix/site_packages/"homebrew-networkit.pth").write pth_contents
+  def install
+    site_packages = Language::Python.site_packages(python3)
+
+    ENV.prepend_create_path "PYTHONPATH", prefix/site_packages
+    ENV.append_path "PYTHONPATH", Formula["libcython"].opt_libexec/site_packages
+
+    networkit_site_packages = prefix/site_packages/"networkit"
+    extra_rpath = rpath(source: networkit_site_packages, target: Formula["libnetworkit"].opt_lib)
+    system python3, "setup.py", "build_ext", "--networkit-external-core",
+                                             "--external-tlx=#{Formula["tlx"].opt_prefix}",
+                                             "--rpath=#{loader_path};#{extra_rpath}"
+
+    system python3, *Language::Python.setup_install_args(prefix, python3)
   end
 
   test do
-    system Formula["python@3.8"].opt_bin/"python3", "-c", <<~EOS
+    system python3, "-c", <<~EOS
       import networkit as nk
       G = nk.graph.Graph(3)
       G.addEdge(0,1)

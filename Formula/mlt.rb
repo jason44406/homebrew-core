@@ -1,26 +1,23 @@
 class Mlt < Formula
   desc "Author, manage, and run multitrack audio/video compositions"
   homepage "https://www.mltframework.org/"
-  license "LGPL-2.1"
-  head "https://github.com/mltframework/mlt.git"
-
-  stable do
-    url "https://github.com/mltframework/mlt/archive/v6.22.1.tar.gz"
-    sha256 "a3debdf0b8811f0d20c902cc3df3d05dad7d3ff36d1db16c0a7338d0d5989998"
-
-    # fix compilaton with opencv4
-    patch do
-      url "https://github.com/mltframework/mlt/commit/08ed33a9551a0e4c0685e13da3b98bf37e08ecad.diff?full_index=1"
-      sha256 "837adafbf67bc5c916f76512c989bcbc2ff1646bf7d1311d614e8e5728ad76c7"
-    end
-  end
+  url "https://github.com/mltframework/mlt/releases/download/v7.12.0/mlt-7.12.0.tar.gz"
+  sha256 "48b385e83cbd5bf68bfc88631273868fbee36a41b3b7e2acd97f12b095b0083c"
+  license "LGPL-2.1-only"
+  revision 1
+  head "https://github.com/mltframework/mlt.git", branch: "master"
 
   bottle do
-    sha256 "a76839cab867bc3f0345b629e642dfbf542edf28e111d5225fd9d3e1281696c6" => :catalina
-    sha256 "868ca9a9b4c3f99fbc97c45caab08ccef2d779fbdfb2a19c6b61ab0ddd42d198" => :mojave
-    sha256 "bb877a698c14051f85c5e0af915ac485b58e4e1498a2a232a990eb3dffead742" => :high_sierra
+    sha256 arm64_ventura:  "2c4651f63550c5c19bfac52e73a2e1d7a19856cfe1fd3da9ca030175d08f9d87"
+    sha256 arm64_monterey: "1de7a585b4b194ae22c0e9cfe63138c7ea259004c5fd614db4d43827329e75f9"
+    sha256 arm64_big_sur:  "c199677b5ff1ce8d2bddb419d2e737cf73a5c5ab8acfe6ceb338a2f6482a8c37"
+    sha256 ventura:        "2fbcb49848d82667ce73e3c1eb682d4479f8ed1d0f1b45108d5bc0c197e9d8d1"
+    sha256 monterey:       "3bbb6451dd55a7f13d51a2b3cdcb202676f67c93f12c717c0b64de0b0d26e12a"
+    sha256 big_sur:        "0d28fd842a31c83afbc4c2b146f1f3e29b708f0b5a4bc405b6d021cc951bd309"
+    sha256 x86_64_linux:   "c35b40e1e63c5c1c5a88fe9db561e5693509cabc36b1629f55ed9c80f2403b88"
   end
 
+  depends_on "cmake" => :build
   depends_on "pkg-config" => :build
   depends_on "ffmpeg"
   depends_on "fftw"
@@ -32,26 +29,33 @@ class Mlt < Formula
   depends_on "libvorbis"
   depends_on "opencv"
   depends_on "pango"
-  depends_on "qt"
+  depends_on "qt@5"
   depends_on "sdl2"
   depends_on "sox"
 
-  def install
-    args = ["--prefix=#{prefix}",
-            "--disable-jackrack",
-            "--disable-swfdec",
-            "--disable-sdl",
-            "--enable-motion_est",
-            "--enable-gpl",
-            "--enable-gpl3",
-            "--enable-opencv"]
+  fails_with gcc: "5"
 
-    system "./configure", *args
-    system "make"
-    system "make", "install"
+  def install
+    rpaths = [rpath, rpath(source: lib/"mlt")]
+
+    system "cmake", "-S", ".", "-B", "build",
+                    "-DCMAKE_INSTALL_RPATH=#{rpaths.join(";")}",
+                    "-DGPL=ON",
+                    "-DGPL3=ON",
+                    "-DMOD_OPENCV=ON",
+                    "-DMOD_JACKRACK=OFF",
+                    "-DMOD_SDL1=OFF",
+                    "-DRELOCATABLE=OFF",
+                    *std_cmake_args
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
+
+    # Workaround as current `mlt` doesn't provide an unversioned mlt++.pc file.
+    # Remove if mlt readds or all dependents (e.g. `synfig`) support versioned .pc
+    (lib/"pkgconfig").install_symlink "mlt++-#{version.major}.pc" => "mlt++.pc"
   end
 
   test do
-    system "#{bin}/melt", "-version"
+    assert_match "help", shell_output("#{bin}/melt -help")
   end
 end

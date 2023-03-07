@@ -1,16 +1,13 @@
 class TranslateShell < Formula
   desc "Command-line translator using Google Translate and more"
   homepage "https://www.soimort.org/translate-shell"
-  url "https://github.com/soimort/translate-shell/archive/v0.9.6.12.tar.gz"
-  sha256 "4c4843a8c66276190535b8435775ecb5d9c8286083a33cdbe2db608eba93ca97"
+  url "https://github.com/soimort/translate-shell/archive/v0.9.7.1.tar.gz"
+  sha256 "f949f379779b9e746bccb20fcd180d041fb90da95816615575b49886032bcefa"
   license "Unlicense"
   head "https://github.com/soimort/translate-shell.git", branch: "develop"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "858d52386202bbcb1313a72b642d9d5f4cbfe2ca35fd9556f6cf5275d7d2b9a1" => :catalina
-    sha256 "858d52386202bbcb1313a72b642d9d5f4cbfe2ca35fd9556f6cf5275d7d2b9a1" => :mojave
-    sha256 "858d52386202bbcb1313a72b642d9d5f4cbfe2ca35fd9556f6cf5275d7d2b9a1" => :high_sierra
+    sha256 cellar: :any_skip_relocation, all: "e4e1003f63ebe71cf50e49f32093a3af1e777c5e24b2c7b4b996c753be83e5f7"
   end
 
   depends_on "fribidi"
@@ -37,7 +34,8 @@ class TranslateShell < Formula
   end
 
   test do
+    ENV["LC_ALL"] = "en_US.UTF-8"
     assert_equal "hello\n",
-      shell_output("#{bin}/trans -no-init -b -s fr -t en bonjour").downcase
+      shell_output("#{bin}/trans -no-init -b -s es -t en hola").downcase
   end
 end

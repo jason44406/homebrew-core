@@ -1,16 +1,23 @@
 class Winetricks < Formula
   desc "Automatic workarounds for problems in Wine"
   homepage "https://github.com/Winetricks/winetricks"
-  url "https://github.com/Winetricks/winetricks/archive/20200412.tar.gz"
-  sha256 "4b0aa4f11dbc30d10a8edd2bb83fcc34f9b143ab58ccce7b99cd54ebff7ec260"
-  license "LGPL-2.1"
-  head "https://github.com/Winetricks/winetricks.git"
+  url "https://github.com/Winetricks/winetricks/archive/refs/tags/20230212.tar.gz"
+  sha256 "2b1b5e540a9941e602dde2ed27d0eb2c80dcba45d8021fed95b39b32438b4ea3"
+  license "LGPL-2.1-or-later"
+  head "https://github.com/Winetricks/winetricks.git", branch: "master"
 
-  bottle :unneeded
+  livecheck do
+    url :stable
+    regex(/^v?(\d{6,8})$/i)
+  end
+
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "ead5dbc1a97c48c64e6fd117e4011483253f2779c127054837e6d2b2c87712b2"
+  end
 
   depends_on "cabextract"
   depends_on "p7zip"
-  depends_on "unrar"
+  depends_on "unzip"
 
   def install
     bin.install "src/winetricks"

@@ -1,27 +1,28 @@
 class Ant < Formula
   desc "Java build tool"
   homepage "https://ant.apache.org/"
-  url "https://www.apache.org/dyn/closer.lua?path=ant/binaries/apache-ant-1.10.8-bin.tar.xz"
-  mirror "https://archive.apache.org/dist/ant/binaries/apache-ant-1.10.8-bin.tar.xz"
-  sha256 "8be685aacf2bfe8515a1249fbebb0ccd861dfe05ee2c027c89fd7912c1ce2c2a"
+  url "https://www.apache.org/dyn/closer.lua?path=ant/binaries/apache-ant-1.10.13-bin.tar.xz"
+  mirror "https://archive.apache.org/dist/ant/binaries/apache-ant-1.10.13-bin.tar.xz"
+  sha256 "de0a860bf339e6975558f426772a6aa2c6ae0856215dd9aaf57aa2476d665664"
   license "Apache-2.0"
-  revision 1
-  head "https://git-wip-us.apache.org/repos/asf/ant.git"
+  head "https://git-wip-us.apache.org/repos/asf/ant.git", branch: "master"
 
-  bottle :unneeded
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "592b81d01d7daff43e4a5a5eb555f14457410ccac8a623982a65ab412709a394"
+  end
 
   depends_on "openjdk"
 
   resource "ivy" do
-    url "https://www.apache.org/dyn/closer.lua?path=ant/ivy/2.4.0/apache-ivy-2.4.0-bin.tar.gz"
-    mirror "https://archive.apache.org/dist/ant/ivy/2.4.0/apache-ivy-2.4.0-bin.tar.gz"
-    sha256 "7a3d13a80b69d71608191463dfc2a74fff8ef638ce0208e70d54d28ba9785ee9"
+    url "https://www.apache.org/dyn/closer.lua?path=ant/ivy/2.5.1/apache-ivy-2.5.1-bin.tar.gz"
+    mirror "https://archive.apache.org/dist/ant/ivy/2.5.1/apache-ivy-2.5.1-bin.tar.gz"
+    sha256 "ce9d3d5e37f6bc3c95a21efc94ae4ab73ec27b3e8d0d86515b44b562c4bb431e"
   end
 
   resource "bcel" do
-    url "https://www.apache.org/dyn/closer.lua?path=commons/bcel/binaries/bcel-6.4.1-bin.tar.gz"
-    mirror "https://archive.apache.org/dist/commons/bcel/binaries/bcel-6.4.1-bin.tar.gz"
-    sha256 "1621dfa6418c6c2df83ea4da5eda9eb84955a3332c8e2580dd96e2db95fd8085"
+    url "https://www.apache.org/dyn/closer.lua?path=commons/bcel/binaries/bcel-6.7.0-bin.tar.gz"
+    mirror "https://archive.apache.org/dist/commons/bcel/binaries/bcel-6.7.0-bin.tar.gz"
+    sha256 "d1bee25e9da24f0a9c808dc8137fcfc7fe662d3d3ac95eaee477586e8bb1ea2e"
   end
 
   def install

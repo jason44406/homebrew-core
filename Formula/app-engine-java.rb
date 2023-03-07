@@ -1,12 +1,17 @@
 class AppEngineJava < Formula
   desc "Google App Engine for Java"
   homepage "https://cloud.google.com/appengine/docs/java/"
-  url "https://storage.googleapis.com/appengine-sdks/featured/appengine-java-sdk-1.9.72.zip"
-  sha256 "66af92c909c0403730aba7c4b9fbdc6d7ceb0f5310e7c2f1a653622dfa76c6fb"
+  url "https://storage.googleapis.com/appengine-sdks/featured/appengine-java-sdk-1.9.83.zip"
+  sha256 "1d585a36303c14f4fa44790bba97d5d8b75a889ad48ffce8187333488511e43e"
 
-  bottle :unneeded
+  bottle do
+    sha256 cellar: :any, all: "6c906b7bc3896476230775f5b32b4864576768a2a3d5e3b160db0fd7b31ce346"
+  end
 
-  depends_on java: "1.8"
+  # https://cloud.google.com/appengine/docs/standard/java/sdk-gcloud-migration
+  disable! date: "2022-07-31", because: :deprecated_upstream
+
+  depends_on "openjdk@8"
 
   def install
     rm Dir["bin/*.cmd"]
@@ -16,7 +21,7 @@ class AppEngineJava < Formula
       bin.install libexec/"bin/#{f}"
     end
 
-    bin.env_script_all_files(libexec/"bin", Language::Java.java_home_env("1.8"))
+    bin.env_script_all_files(libexec/"bin", JAVA_HOME: Formula["openjdk@8"].opt_prefix)
   end
 
   test do
@@ -26,7 +31,7 @@ class AppEngineJava < Formula
     Process.setsid
     IO.popen("#{bin}/dev_appserver.sh . 2>&1") do |io|
       until $LAST_READ_LINE == "INFO: Dev App Server is now running\n"
-        assert_not_nil io.gets, "Dev App Server terminated prematurely"
+        refute_nil io.gets, "Dev App Server terminated prematurely"
       end
       Signal.trap "INT", "IGNORE"
       Process.kill "INT", 0

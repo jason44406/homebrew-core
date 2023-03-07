@@ -2,50 +2,87 @@ class Bash < Formula
   desc "Bourne-Again SHell, a UNIX command interpreter"
   homepage "https://www.gnu.org/software/bash/"
   license "GPL-3.0-or-later"
-  head "https://git.savannah.gnu.org/git/bash.git"
+  head "https://git.savannah.gnu.org/git/bash.git", branch: "master"
 
   stable do
-    url "https://ftp.gnu.org/gnu/bash/bash-5.0.tar.gz"
-    mirror "https://ftpmirror.gnu.org/bash/bash-5.0.tar.gz"
-    mirror "https://mirrors.kernel.org/gnu/bash/bash-5.0.tar.gz"
-    mirror "https://mirrors.ocf.berkeley.edu/gnu/bash/bash-5.0.tar.gz"
-    sha256 "b4a80f2ac66170b2913efbfb9f2594f1f76c7b1afd11f799e22035d63077fb4d"
-    version "5.0.18"
+    url "https://ftp.gnu.org/gnu/bash/bash-5.2.tar.gz"
+    mirror "https://ftpmirror.gnu.org/bash/bash-5.2.tar.gz"
+    mirror "https://mirrors.kernel.org/gnu/bash/bash-5.2.tar.gz"
+    mirror "https://mirrors.ocf.berkeley.edu/gnu/bash/bash-5.2.tar.gz"
+    sha256 "a139c166df7ff4471c5e0733051642ee5556c1cc8a4a78f145583c5c81ab32fb"
+    version "5.2.15"
 
     %w[
-      001 f2fe9e1f0faddf14ab9bfa88d450a75e5d028fedafad23b88716bd657c737289
-      002 87e87d3542e598799adb3e7e01c8165bc743e136a400ed0de015845f7ff68707
-      003 4eebcdc37b13793a232c5f2f498a5fcbf7da0ecb3da2059391c096db620ec85b
-      004 14447ad832add8ecfafdce5384badd933697b559c4688d6b9e3d36ff36c62f08
-      005 5bf54dd9bd2c211d2bfb34a49e2c741f2ed5e338767e9ce9f4d41254bf9f8276
-      006 d68529a6ff201b6ff5915318ab12fc16b8a0ebb77fda3308303fcc1e13398420
-      007 17b41e7ee3673d8887dd25992417a398677533ab8827938aa41fad70df19af9b
-      008 eec64588622a82a5029b2776e218a75a3640bef4953f09d6ee1f4199670ad7e3
-      009 ed3ca21767303fc3de93934aa524c2e920787c506b601cc40a4897d4b094d903
-      010 d6fbc325f0b5dc54ddbe8ee43020bced8bd589ddffea59d128db14b2e52a8a11
-      011 2c4de332b91eaf797abbbd6c79709690b5cbd48b12e8dfe748096dbd7bf474ea
-      012 2943ee19688018296f2a04dbfe30b7138b889700efa8ff1c0524af271e0ee233
-      013 f5d7178d8da30799e01b83a0802018d913d6aa972dd2ddad3b927f3f3eb7099a
-      014 5d6eee6514ee6e22a87bba8d22be0a8621a0ae119246f1c5a9a35db1f72af589
-      015 a517df2dda93b26d5cbf00effefea93e3a4ccd6652f152f4109170544ebfa05e
-      016 ffd1d7a54a99fa7f5b1825e4f7e95d8c8876bc2ca151f150e751d429c650b06d
-      017 4cf3b9fafb8a66d411dd5fc9120032533a4012df1dc6ee024c7833373e2ddc31
-      018 7c314e375a105a6642e8ed44f3808b9def89d15f7492fe2029a21ba9c0de81d3
+      001 f42f2fee923bc2209f406a1892772121c467f44533bedfe00a176139da5d310a
+      002 45cc5e1b876550eee96f95bffb36c41b6cb7c07d33f671db5634405cd00fd7b8
+      003 6a090cdbd334306fceacd0e4a1b9e0b0678efdbbdedbd1f5842035990c8abaff
+      004 38827724bba908cf5721bd8d4e595d80f02c05c35f3dd7dbc4cd3c5678a42512
+      005 ece0eb544368b3b4359fb8464caa9d89c7a6743c8ed070be1c7d599c3675d357
+      006 d1e0566a257d149a0d99d450ce2885123f9995e9c01d0a5ef6df7044a72a468c
+      007 2500a3fc21cb08133f06648a017cebfa27f30ea19c8cbe8dfefdf16227cfd490
+      008 6b4bd92fd0099d1bab436b941875e99e0cb3c320997587182d6267af1844b1e8
+      009 f95a817882eaeb0cb78bce82859a86bbb297a308ced730ebe449cd504211d3cd
+      010 c7705e029f752507310ecd7270aef437e8043a9959e4d0c6065a82517996c1cd
+      011 831b5f25bf3e88625f3ab315043be7498907c551f86041fa3b914123d79eb6f4
+      012 2fb107ce1fb8e93f36997c8b0b2743fc1ca98a454c7cc5a3fcabec533f67d42c
+      013 094b4fd81bc488a26febba5d799689b64d52a5505b63e8ee854f48d356bc7ce6
+      014 3ef9246f2906ef1e487a0a3f4c647ae1c289cbd8459caa7db5ce118ef136e624
+      015 ef73905169db67399a728e238a9413e0d689462cb9b72ab17a05dba51221358a
     ].each_slice(2) do |p, checksum|
       patch :p0 do
-        url "https://ftp.gnu.org/gnu/bash/bash-5.0-patches/bash50-#{p}"
-        mirror "https://ftpmirror.gnu.org/bash/bash-5.0-patches/bash50-#{p}"
-        mirror "https://mirrors.ocf.berkeley.edu/gnu/bash/bash-5.0-patches/bash50-#{p}"
-        mirror "https://mirrors.kernel.org/gnu/bash/bash-5.0-patches/bash50-#{p}"
+        url "https://ftp.gnu.org/gnu/bash/bash-5.2-patches/bash52-#{p}"
+        mirror "https://ftpmirror.gnu.org/bash/bash-5.2-patches/bash52-#{p}"
+        mirror "https://mirrors.kernel.org/gnu/bash/bash-5.2-patches/bash52-#{p}"
+        mirror "https://mirrors.ocf.berkeley.edu/gnu/bash/bash-5.2-patches/bash52-#{p}"
         sha256 checksum
       end
     end
   end
 
+  # We're not using `url :stable` here because we need `url` to be a string
+  # when we use it in the `strategy` block.
+  livecheck do
+    url "https://ftp.gnu.org/gnu/bash/?C=M&O=D"
+    regex(/href=.*?bash[._-]v?(\d+(?:\.\d+)+)\.t/i)
+    strategy :gnu do |page, regex|
+      # Match versions from files
+      versions = page.scan(regex)
+                     .flatten
+                     .uniq
+                     .map { |v| Version.new(v) }
+                     .sort
+      next versions if versions.blank?
+
+      # Assume the last-sorted version is newest
+      newest_version = versions.last
+
+      # Simply return the found versions if there isn't a patches directory
+      # for the "newest" version
+      patches_directory = page.match(%r{href=.*?(bash[._-]v?#{newest_version.major_minor}[._-]patches/?)["' >]}i)
+      next versions if patches_directory.blank?
+
+      # Fetch the page for the patches directory
+      patches_page = Homebrew::Livecheck::Strategy.page_content(URI.join(@url, patches_directory[1]).to_s)
+      next versions if patches_page[:content].blank?
+
+      # Generate additional major.minor.patch versions from the patch files in
+      # the directory and add those to the versions array
+      patches_page[:content].scan(/href=.*?bash[._-]?v?\d+(?:\.\d+)*[._-]0*(\d+)["' >]/i).each do |match|
+        versions << "#{newest_version.major_minor}.#{match[0]}"
+      end
+
+      versions
+    end
+  end
+
   bottle do
-    sha256 "c6e7b7a521a1cfb21f2872bde253bfd40150bd4ba36ada62c05fcdb73ae094c6" => :catalina
-    sha256 "ba0617f6d3f4e691f9863e2f73596da94671f4c0ca21a95b99f19eced315f2d4" => :mojave
-    sha256 "46023d0bafe68b838ada45ff6a66e63f7eac814eeb84e15a09d4b84a790ef49d" => :high_sierra
+    sha256 arm64_ventura:  "f3a42b9282e6779504034485634a2f3e6e3bddfc70b9990e09e66e3c8c926b7d"
+    sha256 arm64_monterey: "5e7e3e3387fc60e907683b437ac6e64879e117a3c5c1421fe6e6257f6aaa3c69"
+    sha256 arm64_big_sur:  "d19858831275271cc8aa9a1a28de6223faa44c6ebbc88e83898fd559de5b627e"
+    sha256 ventura:        "fd01a9dbdc56f6313a725cb345a3b991cfdaa9e1a91b08fd9791a0e695b55723"
+    sha256 monterey:       "05a5f9435c9e9ffe8377b03e0ca6b27bbb32cc01aff47dd1692cd8d7e735ab3a"
+    sha256 big_sur:        "680dd3b37e17cc4fa1af6dd8c51c774dd0c9aa3e594e96527020845516b1ea77"
+    sha256 x86_64_linux:   "6185e7cdba0e671528c9f38b104c4af58a670240672f83537bfc95983476fbc2"
   end
 
   def install

@@ -1,16 +1,19 @@
 class Futhark < Formula
   desc "Data-parallel functional programming language"
   homepage "https://futhark-lang.org/"
-  url "https://github.com/diku-dk/futhark/archive/v0.16.3.tar.gz"
-  sha256 "a4b98145699942ac138d9723e832967c1b188611df2d3ff1e9f75ed17a052808"
+  url "https://github.com/diku-dk/futhark/archive/v0.23.1.tar.gz"
+  sha256 "e6be2bb84ac655fd060f9c7a8625880ce8d72087ada6dfe349584a320974d6d1"
   license "ISC"
-  head "https://github.com/diku-dk/futhark.git"
+  head "https://github.com/diku-dk/futhark.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "19ab139db827ea98e40f3e54ad104e66e2ad66705ba0f5fe25fbc2af5158a415" => :catalina
-    sha256 "6791ebc1c3860f1615745e6bb3ed8416781557238e14ea0495bb2e30a4acf194" => :mojave
-    sha256 "d509a075e561d263071a8a0fc8e082252b67bc7a6c6705bdbad5d6d5e705b57d" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "9f22ed7743b8626c7f28b238a28a3e90e5aaa1dfbc7398e8f959bb4a5d5bb7d0"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "4b05698fd66729cfaf8a7abbab96a1d8b4c2622ee00dc1de04f090dc443bacc5"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "b6585901ca2aa73bdfdec71145e0f74971ae696677bf196d18a0de5fd2270a92"
+    sha256 cellar: :any_skip_relocation, ventura:        "2281a0f86330b5f5c16fb62c1b820b8cc3f5e96334fb6ce30bc23bb8184a9779"
+    sha256 cellar: :any_skip_relocation, monterey:       "997434fd4f09cb564d46c470607ecc99e5dfb0c2b7aa8e460bc9f33d6c6e7e05"
+    sha256 cellar: :any_skip_relocation, big_sur:        "220cfea50807cdba9d9c853f53f12b708b0447ed8a4af14b77f65e37d3f3b97f"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "f2a57e65c1e87fa04a828431ad1785cf51feb6af1c62f498056d13ba828c72fa"
   end
 
   depends_on "cabal-install" => :build
@@ -30,7 +33,7 @@ class Futhark < Formula
 
   test do
     (testpath/"test.fut").write <<~EOS
-      let main (n: i32) = reduce (*) 1 (1...n)
+      def main (n: i32) = reduce (*) 1 (1...n)
     EOS
     system "#{bin}/futhark", "c", "test.fut"
     assert_equal "3628800i32", pipe_output("./test", "10", 0).chomp

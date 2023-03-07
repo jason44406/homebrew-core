@@ -1,17 +1,28 @@
 class Qhull < Formula
   desc "Computes convex hulls in n dimensions"
   homepage "http://www.qhull.org/"
-  url "http://www.qhull.org/download/qhull-2020-src-8.0.0.tgz"
-  version "2020.1"
-  sha256 "1ac92a5538f61e297c72aebe4d4ffd731ceb3e6045d6d15faf1c212713798df4"
+  url "http://www.qhull.org/download/qhull-2020-src-8.0.2.tgz"
+  version "2020.2"
+  sha256 "b5c2d7eb833278881b952c8a52d20179eab87766b00b865000469a45c1838b7e"
   license "Qhull"
-  head "https://github.com/qhull/qhull.git"
+  head "https://github.com/qhull/qhull.git", branch: "master"
+
+  # It's necessary to match the version from the link text, as the filename
+  # only contains the year (`2020`), not a full version like `2020.2`.
+  livecheck do
+    url "http://www.qhull.org/download/"
+    regex(/href=.*?qhull[._-][^"' >]+?[._-]src[^>]*?\.t[^>]+?>[^<]*Qhull v?(\d+(?:\.\d+)*)/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "45f8b6efc0a77e4fd613ef527d6c55545908f860106d4355bd753ad07a934bd1" => :catalina
-    sha256 "61a2fab7f2854401bdffe54b889a1e2b9d90f6a11e52aba80688875b8f7d08a5" => :mojave
-    sha256 "36e0e4a621e0c89746584562634768ccb93e71fc500230133620db030b1cc05a" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "33bd3b7b6225c502fa1a21501cdd2ce72f92ab942bc9b5092f3c9172a2312f22"
+    sha256 cellar: :any,                 arm64_monterey: "6d207280ccb3591c233825c16707691f2502b2e1d65d5e0c18fa66342cd8bea3"
+    sha256 cellar: :any,                 arm64_big_sur:  "7aae401ecc2b918c1a860e6ead74141cbb0b58b2d797f5c5a214fb7ca088424d"
+    sha256 cellar: :any,                 ventura:        "8c5922f72dbf8061a0e6e0b459e6eca4898ee2236223965daae35fca77309b5c"
+    sha256 cellar: :any,                 monterey:       "67ee6237ae95266f7acbb4e19ec2db41fd3fe22faa60060d9988e87cd473e073"
+    sha256 cellar: :any,                 big_sur:        "dfd8138816f958dece1b6f30188ad3bfa53c3c8c74abf2ab22f3462477924b84"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "1dc32a7258d2f678417041a1dbd2ea922369e67209062ada7b19caee4fd2c55c"
   end
 
   depends_on "cmake" => :build

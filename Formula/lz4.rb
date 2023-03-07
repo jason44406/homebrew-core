@@ -1,17 +1,27 @@
 class Lz4 < Formula
   desc "Extremely Fast Compression algorithm"
-  homepage "https://lz4.org/"
-  url "https://github.com/lz4/lz4/archive/v1.9.2.tar.gz"
-  sha256 "658ba6191fa44c92280d4aa2c271b0f4fbc0e34d249578dd05e50e76d0e5efcc"
+  homepage "https://lz4.github.io/lz4/"
+  url "https://github.com/lz4/lz4/archive/v1.9.4.tar.gz"
+  mirror "http://fresh-center.net/linux/misc/lz4-1.9.4.tar.gz"
+  mirror "http://fresh-center.net/linux/misc/legacy/lz4-1.9.4.tar.gz"
+  sha256 "0b0e3aa07c8c063ddf40b082bdf7e37a1562bda40a0ff5272957f3e987e0e54b"
   license "BSD-2-Clause"
-  head "https://github.com/lz4/lz4.git"
+  head "https://github.com/lz4/lz4.git", branch: "dev"
+
+  livecheck do
+    url :stable
+    strategy :github_latest
+  end
 
   bottle do
-    cellar :any
-    sha256 "7de6165d86c7a7ae01d254a5d0ea0a6d5876f90cffb63a2570942d46cca6373a" => :catalina
-    sha256 "67ca428e60e2c2f6e524dd3de42629c1a616d28b2c743b66bf4cbdcc3b28ea46" => :mojave
-    sha256 "7f60879b81a3a9ee52b3e9b87ed265c4934058b841e8f5320044f826b4660a92" => :high_sierra
-    sha256 "00d3610cf09b0fcde34928890f5dac870ebcaffacd6eb51eaea05b754753e462" => :sierra
+    sha256 cellar: :any,                 arm64_ventura:  "cd29e40287b0a2d665a647acbea5512e8db4c371687147aab5c60bf9059b2cca"
+    sha256 cellar: :any,                 arm64_monterey: "284fa580570efdc8056e4fc95dc05f7b0546aa0c346795dd616d4cec8eb99426"
+    sha256 cellar: :any,                 arm64_big_sur:  "8cf59a354786ad0ed95a7b531d7149ae03612081818dcdf2d9ca8cb4fe28c07a"
+    sha256 cellar: :any,                 ventura:        "6a911ee2a3ea072f414d2983d532b28c34b63a68ff388a0008e1528dc0668838"
+    sha256 cellar: :any,                 monterey:       "88b369cea90a0a119c24aa96a614fe7d77de58d18cb1803023dc925679eb905f"
+    sha256 cellar: :any,                 big_sur:        "aafb93487e108d302d060265898e4eaa82f5c806ff36dec50871db1c33fdc04d"
+    sha256 cellar: :any,                 catalina:       "ddb59c42498843638f1f9d80bd0c7b7126910c4fc8ee7c69fa8784dd4bc95c1f"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "1757fefc3840e11c4822e4c2a95aa62aca44a4eaccce6f5c414ea51d1e58bf8e"
   end
 
   def install

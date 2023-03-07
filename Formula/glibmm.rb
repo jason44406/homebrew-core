@@ -1,26 +1,33 @@
 class Glibmm < Formula
   desc "C++ interface to glib"
   homepage "https://www.gtkmm.org/"
-  url "https://download.gnome.org/sources/glibmm/2.64/glibmm-2.64.2.tar.xz"
-  sha256 "a75282e58d556d9b2bb44262b6f5fb76c824ac46a25a06f527108bec86b8d4ec"
-  license "LGPL-2.1"
+  url "https://download.gnome.org/sources/glibmm/2.74/glibmm-2.74.0.tar.xz"
+  sha256 "2b472696cbac79db8e405724118ec945219c5b9b18af63dc8cfb7f1d89b0f1fa"
+  license "LGPL-2.1-or-later"
 
   bottle do
-    cellar :any
-    sha256 "8b39f15570f8ec9281554ec8db93e4011ad2e13a1248047c18c7f8570a548d53" => :catalina
-    sha256 "316a5f0f84491a62cf1c48a12cd4f8d9b7f7de9aa8092f72256f5114aa8730d3" => :mojave
-    sha256 "7d224a2283e08715a1f7f286fcdc3e1c5cc277101bb3e2cc4bce488ec776cc02" => :high_sierra
+    sha256 cellar: :any, arm64_ventura:  "e49ef477f2779e88d125131dbb474894fdde113cf667630ef8947821d64cb0a4"
+    sha256 cellar: :any, arm64_monterey: "9bed07ed0bc12a9eeb415a900d2a01b5163de1f595cdbdf77523c605410f7b56"
+    sha256 cellar: :any, arm64_big_sur:  "94c4d0b2ef01fa6f52f59e3eac7527f5b28c1aa71ccd60de4479402eefc7b34c"
+    sha256 cellar: :any, ventura:        "ede6b35b4de6f4ac9418f20db8b3249f3c8160257561d6d94c69663c32c62974"
+    sha256 cellar: :any, monterey:       "271bf32165f1e0c4566f7006a3d29346ed9a62f16e1bf14e2ceb710edaec0f0c"
+    sha256 cellar: :any, big_sur:        "ec798cefd26699800dd2ea6a6f0898f3c1f422b75e66eab54099b25f8ba7b0cd"
+    sha256 cellar: :any, catalina:       "7ef9ed7c63ea3d68e26f153b9bf77c1468f6811abead311f9f5c824b5eaa3550"
+    sha256               x86_64_linux:   "af31cc06c35171195312c20dbea1bcf188b6c09e770e160b0c12f64850ee57ec"
   end
 
-  depends_on "pkg-config" => :build
+  depends_on "meson" => :build
+  depends_on "ninja" => :build
+  depends_on "pkg-config" => [:build, :test]
   depends_on "glib"
-  depends_on "libsigc++@2"
+  depends_on "libsigc++"
+
+  fails_with gcc: "5"
 
   def install
-    ENV.cxx11
-
-    system "./configure", "--disable-dependency-tracking", "--prefix=#{prefix}"
-    system "make", "install"
+    system "meson", "setup", "build", "-Dbuild-examples=false", *std_meson_args
+    system "meson", "compile", "-C", "build", "--verbose"
+    system "meson", "install", "-C", "build"
   end
 
   test do
@@ -33,28 +40,8 @@ class Glibmm < Formula
          return 0;
       }
     EOS
-    gettext = Formula["gettext"]
-    glib = Formula["glib"]
-    libsigcxx = Formula["libsigc++@2"]
-    flags = %W[
-      -I#{gettext.opt_include}
-      -I#{glib.opt_include}/glib-2.0
-      -I#{glib.opt_lib}/glib-2.0/include
-      -I#{include}/glibmm-2.4
-      -I#{libsigcxx.opt_include}/sigc++-2.0
-      -I#{libsigcxx.opt_lib}/sigc++-2.0/include
-      -I#{lib}/glibmm-2.4/include
-      -L#{gettext.opt_lib}
-      -L#{glib.opt_lib}
-      -L#{libsigcxx.opt_lib}
-      -L#{lib}
-      -lglib-2.0
-      -lglibmm-2.4
-      -lgobject-2.0
-      -lintl
-      -lsigc-2.0
-    ]
-    system ENV.cxx, "-std=c++11", "test.cpp", "-o", "test", *flags
+    flags = shell_output("pkg-config --cflags --libs glibmm-2.68").chomp.split
+    system ENV.cxx, "-std=c++17", "test.cpp", "-o", "test", *flags
     system "./test"
   end
 end

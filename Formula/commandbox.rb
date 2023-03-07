@@ -1,20 +1,30 @@
 class Commandbox < Formula
   desc "CFML embedded server, package manager, and app scaffolding tools"
   homepage "https://www.ortussolutions.com/products/commandbox"
-  url "https://downloads.ortussolutions.com/ortussolutions/commandbox/5.1.1/commandbox-bin-5.1.1.zip"
-  sha256 "0b6b358ae2466297a7ddbd16d72a8b8a83c66d3f6cada0c8ff1e786d2a88af8b"
+  url "https://downloads.ortussolutions.com/ortussolutions/commandbox/5.8.0/commandbox-bin-5.8.0.zip"
+  sha256 "d6acc9d93cbe72e247f7d1a4e51fe561c918951b555370f882fe312c98c45a69"
+  license "LGPL-3.0-or-later"
 
-  bottle :unneeded
+  livecheck do
+    url :homepage
+    regex(/Download CommandBox v?(\d+(?:\.\d+)+)/i)
+  end
 
-  depends_on "openjdk"
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "b41b5675ae94d3eec22e92ec66a924314564f2e2a4c44a43de3b5de426a2bd73"
+  end
+
+  # not yet compatible with Java 17 on ARM
+  depends_on "openjdk@11"
 
   resource "apidocs" do
-    url "https://downloads.ortussolutions.com/ortussolutions/commandbox/5.1.1/commandbox-apidocs-5.1.1.zip"
-    sha256 "81611cd5d6d7f5d33ca26672faeb06ec0e46e9796c986a05947ed3d460d7a7fb"
+    url "https://downloads.ortussolutions.com/ortussolutions/commandbox/5.8.0/commandbox-apidocs-5.8.0.zip"
+    sha256 "7000c9d605bb0c0e459b8975d9cd00ce005972d47bc8d8074c0af7b93696088f"
   end
 
   def install
-    bin.install "box"
+    (libexec/"bin").install "box"
+    (bin/"box").write_env_script libexec/"bin/box", Language::Java.java_home_env("11")
     doc.install resource("apidocs")
   end
 

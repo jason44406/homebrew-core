@@ -1,24 +1,29 @@
 class Httpd < Formula
   desc "Apache HTTP server"
   homepage "https://httpd.apache.org/"
-  url "https://www.apache.org/dyn/closer.lua?path=httpd/httpd-2.4.46.tar.bz2"
-  mirror "https://archive.apache.org/dist/httpd/httpd-2.4.46.tar.bz2"
-  sha256 "740eddf6e1c641992b22359cabc66e6325868c3c5e2e3f98faf349b61ecf41ea"
+  url "https://dlcdn.apache.org/httpd/httpd-2.4.55.tar.bz2"
+  mirror "https://downloads.apache.org/httpd/httpd-2.4.55.tar.bz2"
+  sha256 "11d6ba19e36c0b93ca62e47e6ffc2d2f2884942694bce0f23f39c71bdc5f69ac"
   license "Apache-2.0"
 
   bottle do
-    sha256 "8c6b348427bd5c43d784dd5ae6261304e4218607cace3f264e016819c3118527" => :catalina
-    sha256 "e561f825dc044083a10d85d0faa4f785d95466e827d20264702078c58fd900ac" => :mojave
-    sha256 "aede7239a3d25119c493644cac072fc953f3b1d5a4c490558781ad9ac5000504" => :high_sierra
+    sha256 arm64_ventura:  "29b7e065c8bca28f5dbbb96c728dc7541dde4bdd8aebad2930e96060d67733cf"
+    sha256 arm64_monterey: "fbde191d9f99fa0bdd43dd1d95e5ef9846205dfdb947c88f919affb6e9f1bbf9"
+    sha256 arm64_big_sur:  "88a5297c07660d2a74cd4c75436761c1cbceb090ae497ffcbf0c8516d0709be2"
+    sha256 ventura:        "739fcfb3aeb43d3c0f4c34e750f9d2b65481fc13255371db6fea4ac24e47f450"
+    sha256 monterey:       "ebe85c61470f0480799f7b562d715a9ac131b68673a4e266d132b4ae5fbc469f"
+    sha256 big_sur:        "6b66f7fc0dd506b20985575beb048cf530e218c14588cbeec29e0f79c958425d"
+    sha256 x86_64_linux:   "149a5c61fcd70efa73fe18ea46f7ebc9bd930f39ba7ea91dfaa5b06fb7ba242d"
   end
 
   depends_on "apr"
   depends_on "apr-util"
   depends_on "brotli"
-  depends_on "nghttp2"
+  depends_on "libnghttp2"
   depends_on "openssl@1.1"
-  depends_on "pcre"
+  depends_on "pcre2"
 
+  uses_from_macos "libxml2"
   uses_from_macos "zlib"
 
   def install
@@ -42,6 +47,13 @@ class Httpd < Formula
       s.gsub! "${datadir}/icons",   "#{pkgshare}/icons"
     end
 
+    libxml2 = "#{MacOS.sdk_path_if_needed}/usr"
+    libxml2 = Formula["libxml2"].opt_prefix if OS.linux?
+    zlib = if OS.mac?
+      "#{MacOS.sdk_path_if_needed}/usr"
+    else
+      Formula["zlib"].opt_prefix
+    end
     system "./configure", "--enable-layout=Slackware-FHS",
                           "--prefix=#{prefix}",
                           "--sbindir=#{bin}",
@@ -62,15 +74,16 @@ class Httpd < Formula
                           "--with-apr=#{Formula["apr"].opt_prefix}",
                           "--with-apr-util=#{Formula["apr-util"].opt_prefix}",
                           "--with-brotli=#{Formula["brotli"].opt_prefix}",
-                          "--with-libxml2=#{MacOS.sdk_path_if_needed}/usr",
+                          "--with-libxml2=#{libxml2}",
                           "--with-mpm=prefork",
-                          "--with-nghttp2=#{Formula["nghttp2"].opt_prefix}",
+                          "--with-nghttp2=#{Formula["libnghttp2"].opt_prefix}",
                           "--with-ssl=#{Formula["openssl@1.1"].opt_prefix}",
-                          "--with-pcre=#{Formula["pcre"].opt_prefix}",
-                          "--with-z=#{MacOS.sdk_path_if_needed}/usr",
+                          "--with-pcre=#{Formula["pcre2"].opt_prefix}/bin/pcre2-config",
+                          "--with-z=#{zlib}",
                           "--disable-lua",
                           "--disable-luajit"
     system "make"
+    ENV.deparallelize if OS.linux?
     system "make", "install"
 
     # suexec does not install without root
@@ -85,7 +98,7 @@ class Httpd < Formula
       #{include}/httpd/ap_config_layout.h
       #{lib}/httpd/build/config_vars.mk
     ] do |s|
-      s.gsub! "#{lib}/httpd/modules", "#{HOMEBREW_PREFIX}/lib/httpd/modules"
+      s.gsub! lib/"httpd/modules", HOMEBREW_PREFIX/"lib/httpd/modules"
     end
 
     inreplace %W[
@@ -100,10 +113,10 @@ class Httpd < Formula
     end
 
     inreplace "#{lib}/httpd/build/config_vars.mk" do |s|
-      pcre = Formula["pcre"]
+      pcre = Formula["pcre2"]
       s.gsub! pcre.prefix.realpath, pcre.opt_prefix
-      s.gsub! "${prefix}/lib/httpd/modules",
-              "#{HOMEBREW_PREFIX}/lib/httpd/modules"
+      s.gsub! "${prefix}/lib/httpd/modules", HOMEBREW_PREFIX/"lib/httpd/modules"
+      s.gsub! Superenv.shims_path, HOMEBREW_PREFIX/"bin"
     end
   end
 
@@ -121,27 +134,10 @@ class Httpd < Formula
     EOS
   end
 
-  plist_options manual: "apachectl start"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-      <dict>
-        <key>Label</key>
-        <string>#{plist_name}</string>
-        <key>ProgramArguments</key>
-        <array>
-          <string>#{opt_bin}/httpd</string>
-          <string>-D</string>
-          <string>FOREGROUND</string>
-        </array>
-        <key>RunAtLoad</key>
-        <true/>
-      </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"httpd", "-D", "FOREGROUND"]
+    environment_variables PATH: std_service_path_env
+    run_type :immediate
   end
 
   test do
@@ -173,6 +169,9 @@ class Httpd < Formula
       sleep 3
 
       assert_match expected_output, shell_output("curl -s 127.0.0.1:#{port}")
+
+      # Check that `apxs` can find `apu-1-config`.
+      system bin/"apxs", "-q", "APU_CONFIG"
     ensure
       Process.kill("TERM", pid)
       Process.wait(pid)

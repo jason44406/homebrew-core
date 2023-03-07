@@ -1,15 +1,24 @@
 class Xmrig < Formula
   desc "Monero (XMR) CPU miner"
   homepage "https://github.com/xmrig/xmrig"
-  url "https://github.com/xmrig/xmrig/archive/v6.3.2.tar.gz"
-  sha256 "495d93f26f1bc24c35a366d33d7a4fffa25a4b5c1f0396f42d282c67aca90984"
+  url "https://github.com/xmrig/xmrig/archive/v6.19.0.tar.gz"
+  sha256 "772f947058e5b89ca9bf34128487def47796870b547439a9b0524ddd1899420c"
   license "GPL-3.0-or-later"
-  head "https://github.com/xmrig/xmrig.git"
+  head "https://github.com/xmrig/xmrig.git", branch: "dev"
+
+  livecheck do
+    url :stable
+    strategy :github_latest
+  end
 
   bottle do
-    sha256 "849927e31bf9602ddf9474c46bf40e62e9b1c607a7a06b8151990f1270f54da7" => :catalina
-    sha256 "ad643ec1cf6c35848c640b3154998b5526b51c9dd930598796503f37637b8b94" => :mojave
-    sha256 "0c375d33ada13d7cea8506855a1110f5ad4c07ed9ef87c8e871d9d3a2091a986" => :high_sierra
+    sha256                               arm64_ventura:  "d6cec80eb30c7a7ff4f99978423bcb7d03eb26c55d66e2ce012dc90c051324de"
+    sha256                               arm64_monterey: "a8b9c6d7c268f933d72968c2cee3137059540ce01be053dd312c344c9cd4f717"
+    sha256                               arm64_big_sur:  "1356c2658808854823655eb92519a81d23596c42941bc8823ee7150bc85b8112"
+    sha256                               ventura:        "6623a97cbd00eb0534dac7c9123ea6c2c23edd0095aabfb8ed8543afe8ef446f"
+    sha256                               monterey:       "79832403da7a03ecdfbd1d25319cfd872dca6dac2a887001edf728eb83098876"
+    sha256                               big_sur:        "19481861a3288ba44192afa33f9937badfb348a4c6c2544c263645186ad482d2"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "556978b294fe2ca556d8319fab08371b515d51504abcd92c24acdfab4f751324"
   end
 
   depends_on "cmake" => :build
@@ -28,22 +37,34 @@ class Xmrig < Formula
   end
 
   test do
+    require "pty"
     assert_match version.to_s, shell_output("#{bin}/xmrig -V")
-    test_server="donotexist.localhost:65535"
-    timeout=10
-    begin
-      read, write = IO.pipe
-      pid = fork do
-        exec "#{bin}/xmrig", "--no-color", "--max-cpu-usage=1", "--print-time=1",
-             "--threads=1", "--retries=1", "--url=#{test_server}", out: write
-      end
-      start_time=Time.now
-      loop do
-        assert (Time.now - start_time <= timeout), "No server connect after timeout"
-        break if read.gets.include? "#{test_server} DNS error: \"unknown node or service\""
-      end
-    ensure
+    test_server = "donotexist.localhost:65535"
+    output = ""
+    args = %W[
+      --no-color
+      --max-cpu-usage=1
+      --print-time=1
+      --threads=1
+      --retries=1
+      --url=#{test_server}
+    ]
+    PTY.spawn(bin/"xmrig", *args) do |r, _w, pid|
+      sleep 5
       Process.kill("SIGINT", pid)
+      begin
+        r.each_line { |line| output += line }
+      rescue Errno::EIO
+        # GNU/Linux raises EIO when read is done on closed pty
+      end
+    end
+
+    assert_match(/POOL #1\s+#{Regexp.escape(test_server)} algo auto/, output)
+
+    if OS.mac?
+      assert_match "#{test_server} DNS error: \"unknown node or service\"", output
+    else
+      assert_match "#{test_server} 127.0.0.1 connect error: \"connection refused\"", output
     end
   end
 end

@@ -1,11 +1,18 @@
 class Proguard < Formula
   desc "Java class file shrinker, optimizer, and obfuscator"
   homepage "https://www.guardsquare.com/en/products/proguard"
-  url "https://github.com/Guardsquare/proguard/releases/download/v7.0.0/proguard-7.0.0.tar.gz"
-  sha256 "699f16644024000e90c2555083fa6f78a9cdf1d71f384535e82bf987d764f9fb"
-  license "GPL-2.0"
+  url "https://github.com/Guardsquare/proguard/releases/download/v7.3.1/proguard-7.3.1.tar.gz"
+  sha256 "bff2350704c0ffc76eeb76566a088475431e0c33570379d8b369d0e950eba7bd"
+  license "GPL-2.0-or-later"
 
-  bottle :unneeded
+  livecheck do
+    url :stable
+    strategy :github_latest
+  end
+
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "ee399762f96f01f8fda47482e15cf27fec0d94356817afdc825b1fdc5de2c868"
+  end
 
   depends_on "openjdk"
 
@@ -27,8 +34,8 @@ class Proguard < Formula
 
     expect = <<~EOS
       Picked up _JAVA_OPTIONS: #{ENV["_JAVA_OPTIONS"]}
-      Usage: java proguard.retrace.ReTrace [-regex <regex>] [-verbose] <mapping_file> [<stacktrace_file>]
+      Usage: java proguard.retrace.ReTrace [-regex <regex>] [-allclassnames] [-verbose] <mapping_file> [<stacktrace_file>]
     EOS
-    assert_equal expect, pipe_output("#{bin}/retrace 2>&1")
+    assert_match expect, pipe_output("#{bin}/retrace 2>&1")
   end
 end

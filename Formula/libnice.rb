@@ -1,18 +1,27 @@
 class Libnice < Formula
   desc "GLib ICE implementation"
   homepage "https://wiki.freedesktop.org/nice/"
-  url "https://nice.freedesktop.org/releases/libnice-0.1.17.tar.gz"
-  sha256 "1952a0dec58b5c9ccc3f25193df4e2d1244cb382cac611b71e25afcd7b069526"
-  # license ["LGPL-2.1", "MPL-1.1"] - pending https://github.com/Homebrew/brew/pull/7953
-  license "LGPL-2.1"
+  url "https://libnice.freedesktop.org/releases/libnice-0.1.21.tar.gz"
+  sha256 "72e73a2acf20f59093e21d5601606e405873503eb35f346fa621de23e99b3b39"
+  license any_of: ["LGPL-2.1-only", "MPL-1.1"]
 
-  bottle do
-    cellar :any
-    sha256 "1ebb405afa6b66fddbf4c90ab97f3d9e528f1ce3a11c571bc4d5f10c97a812e6" => :catalina
-    sha256 "0d2f05d15e8e188b56758da0c7aaa05109bb85a6c3088e0f9b863d2c10a76961" => :mojave
-    sha256 "7851630de0b1da7adf67c514f4d6df037c05ba4e1a426d22029ac8aa20d38877" => :high_sierra
+  livecheck do
+    url "https://github.com/libnice/libnice.git"
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
   end
 
+  bottle do
+    sha256 cellar: :any, arm64_ventura:  "d03740d14e2009f6020c2aa22f0c54e91ab541e9ddce13b170b7e6a653a233f3"
+    sha256 cellar: :any, arm64_monterey: "43a9ca6f5f47660e216a8944e0632cfa2bb37d8a6d7ef0c6172be7ee21a67c14"
+    sha256 cellar: :any, arm64_big_sur:  "89ac0d78a723256971b3a55a94cf1df6837efb7984bce54e27a38b7ef6e5a1a7"
+    sha256 cellar: :any, ventura:        "dbb917600a8a1ca8e182bda8e04e257d33516aab50560200f3919daf451dd5fd"
+    sha256 cellar: :any, monterey:       "131822c8212f7e84014a6cfc395d0714fd34c57508cc6c8f8759cf42f9f25db9"
+    sha256 cellar: :any, big_sur:        "b14dc9baa15c60604d3927bb71116b8dd61c0d8490a710a6b9a986d4948dc55b"
+    sha256               x86_64_linux:   "a1276510091d4feb7ab30df7dd2da106be0d61b26c2f441eec3d7e623b83d51d"
+  end
+
+  depends_on "meson" => :build
+  depends_on "ninja" => :build
   depends_on "pkg-config" => :build
   depends_on "glib"
   depends_on "gnutls"
@@ -23,10 +32,11 @@ class Libnice < Formula
   end
 
   def install
-    system "./configure", "--disable-dependency-tracking",
-                          "--disable-silent-rules",
-                          "--prefix=#{prefix}"
-    system "make", "install"
+    mkdir "build" do
+      system "meson", *std_meson_args, ".."
+      system "ninja", "-v"
+      system "ninja", "install", "-v"
+    end
   end
 
   test do
@@ -63,10 +73,10 @@ class Libnice < Formula
       -lgio-2.0
       -lglib-2.0
       -lgobject-2.0
-      -lintl
       -lnice
     ]
-    system ENV.cc, *flags, "test.c", "-o", "test"
+    flags << "-lintl" if OS.mac?
+    system ENV.cc, "test.c", "-o", "test", *flags
     system "./test"
   end
 end

@@ -2,24 +2,29 @@ class SourceToImage < Formula
   desc "Tool for building source and injecting into docker images"
   homepage "https://github.com/openshift/source-to-image"
   url "https://github.com/openshift/source-to-image.git",
-      tag:      "v1.3.0",
-      revision: "eed2850f2187435ef5d83487e05bf3dc18622ceb"
+      tag:      "v1.3.2",
+      revision: "78363eee76a5c52f23df3bbffb4e2e8393b4a043"
   license "Apache-2.0"
-  revision 1
-  head "https://github.com/openshift/source-to-image.git"
+  head "https://github.com/openshift/source-to-image.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "1082f391a8b448d93865d97431856b29ca5c2d845686f04c5ae4425dc0ead5c5" => :catalina
-    sha256 "db15e9cff473ac13375703f67b00907016001d2888b4a89c6ec065b2dc460d76" => :mojave
-    sha256 "3c107497236774e24628577c13c67372d9814967c9a6f97651d8c05935bd8aa0" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "5d6b262477f1d9c8fe6c34765ba9ab6eff75f0ea7027ce9da707946239431178"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "6e8be455200735713e114d0846b16837140b1ce18025328a917e81a62a163d5e"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "5eb939249e6146297743726682ba7eb09f7685fd3c77863b9d434ddcb8b1bca7"
+    sha256 cellar: :any_skip_relocation, ventura:        "270e5b6d889d9c47e71f513d16e175f39dcb3fcda7a87adab29478140a2d601f"
+    sha256 cellar: :any_skip_relocation, monterey:       "398f509b1602cca1b26db587883a751ec3d0d5af82544874f6a338b72dd482ec"
+    sha256 cellar: :any_skip_relocation, big_sur:        "fabbc3327917ab8467c3ee7ca29d14c549cf6a8f7785b51dabb55e218473c85d"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "8b5805a5977b3b58135a3b221f59c899715a9a64d9b87a104a8de9f83c5a8732"
   end
 
   depends_on "go" => :build
 
   def install
     system "hack/build-go.sh"
-    bin.install "_output/local/bin/darwin/amd64/s2i"
+    arch = Hardware::CPU.intel? ? "amd64" : Hardware::CPU.arch.to_s
+    bin.install "_output/local/bin/#{OS.kernel_name.downcase}/#{arch}/s2i"
+
+    generate_completions_from_executable(bin/"s2i", "completion", shells: [:bash, :zsh], base_name: "s2i")
   end
 
   test do

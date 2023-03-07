@@ -3,21 +3,29 @@ class Gprof2dot < Formula
 
   desc "Convert the output from many profilers into a Graphviz dot graph"
   homepage "https://github.com/jrfonseca/gprof2dot"
-  url "https://files.pythonhosted.org/packages/fd/77/3158821acc45cc26d5815d4250275d03c254572ff53c0388af8df168ce78/gprof2dot-2019.11.30.tar.gz"
-  sha256 "b43fe04ebb3dfe181a612bbfc69e90555b8957022ad6a466f0308ed9c7f22e99"
-  license "LGPL-3.0"
-  revision 1
-  head "https://github.com/jrfonseca/gprof2dot.git"
+  url "https://files.pythonhosted.org/packages/ab/0b/fc056b26a90c1836aa6c6e1332372dc13050d384f017e388131854ead8cf/gprof2dot-2022.7.29.tar.gz"
+  sha256 "45b4d298bd36608fccf9511c3fd88a773f7a1abc04d6cd39445b11ba43133ec5"
+  license "LGPL-3.0-or-later"
+  head "https://github.com/jrfonseca/gprof2dot.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "974b8737cdc5d07b94c0292b27e015085ab8475757ea95b6cb42067fcafd5418" => :catalina
-    sha256 "c7ff44d15b136ccc9618d0f1e2363a75983bc6587924826e00fb283099edf235" => :mojave
-    sha256 "5626ffada5afc1e44178f1da5a4e041d733f6abe684e666de9679a791247d224" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "54d2c550983bcbc7d974c926f90f95a9d339db13551790772149aa94b5b1d47e"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "68791ba75d96fce85372e3fc54cd25576b38a6fbea077032096b7f297c3b26e7"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "5b50a7ebf952acaf260fabef9c6a8e2dd64cd2fa5b0c8f526b126eed6036aa91"
+    sha256 cellar: :any_skip_relocation, ventura:        "baeaf28578b2f2c920fc45bddd496c797aba212eebd07ffdc3e70be04d423455"
+    sha256 cellar: :any_skip_relocation, monterey:       "dabb15b4183ef5c1094a36f8efe73f9c3e722aee48b749b9c0b7e37e396031c2"
+    sha256 cellar: :any_skip_relocation, big_sur:        "a5eb84239ac7fb8d99effac8c63952dafccd7458173dc29222d5df693b3cf50a"
+    sha256 cellar: :any_skip_relocation, catalina:       "da12fce96bf11d5c06a5c93ae9b1ca4faa317997dd588951166377a114e0328e"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "fd505c606eed32d550e8ac628f596aec1d88cb6c09ea7dbe95a712164d6e3f09"
   end
 
   depends_on "graphviz"
-  depends_on "python@3.8"
+  depends_on "python@3.11"
+
+  on_linux do
+    depends_on "libx11"
+  end
 
   def install
     virtualenv_install_with_resources

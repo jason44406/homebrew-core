@@ -3,23 +3,24 @@ class RstLint < Formula
 
   desc "ReStructuredText linter"
   homepage "https://github.com/twolfson/restructuredtext-lint"
-  url "https://github.com/twolfson/restructuredtext-lint/archive/1.3.1.tar.gz"
-  sha256 "469fcc0dae4f511da5a28f5d0f9b5d0f477dabca4a44cd8c84e20b8a99791b89"
+  url "https://files.pythonhosted.org/packages/48/9c/6d8035cafa2d2d314f34e6cd9313a299de095b26e96f1c7312878f988eec/restructuredtext_lint-1.4.0.tar.gz"
+  sha256 "1b235c0c922341ab6c530390892eb9e92f90b9b75046063e047cacfb0f050c45"
   license "Unlicense"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "45b5248c1e791f738f6cf2b645cec9d94d9992caa3a7d00594ad9ed2b12a11e6" => :catalina
-    sha256 "e77f597dd712f47fe96b8b83130f9a85b51a1ce9113622443d36077b020bcd01" => :mojave
-    sha256 "18c09b7c8bad5976c12dd900e827f2a036929a853707b2dd139c258278ccf548" => :high_sierra
+    rebuild 2
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "977a9d1c0f562445d972e95d59e883d26a7966b18ca3a124577936d8dde74018"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "977a9d1c0f562445d972e95d59e883d26a7966b18ca3a124577936d8dde74018"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "977a9d1c0f562445d972e95d59e883d26a7966b18ca3a124577936d8dde74018"
+    sha256 cellar: :any_skip_relocation, ventura:        "c8bbc56f35fe2f218241996e273e173cbb2e19535ca95dd77bf97c6ce6ca5479"
+    sha256 cellar: :any_skip_relocation, monterey:       "c8bbc56f35fe2f218241996e273e173cbb2e19535ca95dd77bf97c6ce6ca5479"
+    sha256 cellar: :any_skip_relocation, big_sur:        "c8bbc56f35fe2f218241996e273e173cbb2e19535ca95dd77bf97c6ce6ca5479"
+    sha256 cellar: :any_skip_relocation, catalina:       "c8bbc56f35fe2f218241996e273e173cbb2e19535ca95dd77bf97c6ce6ca5479"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "680297bd09a922363c112da4ce90736e24c732d5907727684625aa639ac777c3"
   end
 
-  depends_on "python@3.8"
-
-  resource "docutils" do
-    url "https://files.pythonhosted.org/packages/2f/e0/3d435b34abd2d62e8206171892f174b180cd37b09d57b924ca5c2ef2219d/docutils-0.16.tar.gz"
-    sha256 "c2de3a60e9e7d07be26b7f2b00ca0309c207e06c100f9cc2a94931fc75a478fc"
-  end
+  depends_on "docutils"
+  depends_on "python@3.11"
 
   def install
     virtualenv_install_with_resources

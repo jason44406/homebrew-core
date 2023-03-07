@@ -2,16 +2,19 @@ class Pulumi < Formula
   desc "Cloud native development platform"
   homepage "https://pulumi.io/"
   url "https://github.com/pulumi/pulumi.git",
-      tag:      "v2.9.0",
-      revision: "bfb43f047d4ef08bd65dfc6f287c9e3b5a9ba480"
+      tag:      "v3.56.0",
+      revision: "e145adc27c6bb41e922db3846324205333256436"
   license "Apache-2.0"
-  head "https://github.com/pulumi/pulumi.git"
+  head "https://github.com/pulumi/pulumi.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "75633f61b952937a4b73169e18125e1de5106b69ecfd939c94b2c3a1d98926bf" => :catalina
-    sha256 "e139279c8d26d6ffb36d060284c861c37f338039c0429c125dbe339d41af9021" => :mojave
-    sha256 "36d32b75557a508933f63c58ee869fe2e8d4790ed52251f9eb171ba4827250b7" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "74e5e0ead0cc836f20ea76ad8427993b26f6dfe368b64dd5cc9c2ca4e07e4023"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "b5711a4f106e14729e8fb626868686f6cd8556f02da7e05a77101b12c8301f2e"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "6863213fef7e48a6da4585e536237e5d6c0b3ae67605d7ccadaf9885769a13a8"
+    sha256 cellar: :any_skip_relocation, ventura:        "a6bb49763decc35c58629cd3640887026b761649309b7e018f4b8399b58c1eec"
+    sha256 cellar: :any_skip_relocation, monterey:       "fc40e10cc8642b552862e31256febdfabf943ad4f2b3444a47f67b7d1d8b090e"
+    sha256 cellar: :any_skip_relocation, big_sur:        "ad67c719156d0ad7962da25587e65771e7cff5d58710e93c58b20d0d6a581e8a"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "2c0252cb1f7ed01afe4de039eb3fe7f85ea7b6e337b31f253629191e68c65aa6"
   end
 
   depends_on "go" => :build
@@ -29,9 +32,7 @@ class Pulumi < Formula
     bin.install Dir["#{ENV["GOPATH"]}/bin/pulumi*"]
 
     # Install shell completions
-    (bash_completion/"pulumi.bash").write Utils.safe_popen_read(bin/"pulumi", "gen-completion", "bash")
-    (zsh_completion/"_pulumi").write Utils.safe_popen_read(bin/"pulumi", "gen-completion", "zsh")
-    (fish_completion/"pulumi.fish").write Utils.safe_popen_read(bin/"pulumi", "gen-completion", "fish")
+    generate_completions_from_executable(bin/"pulumi", "gen-completion")
   end
 
   test do

@@ -1,22 +1,26 @@
 class GitlabGem < Formula
   desc "Ruby client and CLI for GitLab API"
   homepage "https://github.com/NARKOZ/gitlab"
-  url "https://github.com/NARKOZ/gitlab/archive/v4.16.1.tar.gz"
-  sha256 "f3c291a4bafb96ae2156d3b3d84aba549dc657a62832a57e254a6e4d2b6c1105"
+  url "https://github.com/NARKOZ/gitlab/archive/v4.19.0.tar.gz"
+  sha256 "f747fa76db258d4df54d564eb7f7c164d15a9f4937583e885d79aab3f04023fe"
   license "BSD-2-Clause"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "25266a76b57a3a19d41e17adc9a9989b89933f5dcaed509189bd10769fb505e6" => :catalina
-    sha256 "f232c6d9192d9d6383b2fee68c83e3649954212aaaceb205878acdd731acdc2c" => :mojave
-    sha256 "d0a85575ea14b6d88a0be7e540026b8415bca7032d8685e9fb56f270b4226cb9" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "86b43558c3f09fc837044a34807dcf485098351a237f81394b52dfa4467416b9"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "86b43558c3f09fc837044a34807dcf485098351a237f81394b52dfa4467416b9"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "b163e735208a52ae23a48b72b21e838062e834e112aa0e215e0aca85ca8d52c4"
+    sha256 cellar: :any_skip_relocation, ventura:        "86b43558c3f09fc837044a34807dcf485098351a237f81394b52dfa4467416b9"
+    sha256 cellar: :any_skip_relocation, monterey:       "86b43558c3f09fc837044a34807dcf485098351a237f81394b52dfa4467416b9"
+    sha256 cellar: :any_skip_relocation, big_sur:        "b163e735208a52ae23a48b72b21e838062e834e112aa0e215e0aca85ca8d52c4"
+    sha256 cellar: :any_skip_relocation, catalina:       "b163e735208a52ae23a48b72b21e838062e834e112aa0e215e0aca85ca8d52c4"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "95066291140c4f67a5b74667427a3ead59f5d7e5b6dbd7611a5f5fbe2cdae83f"
   end
 
   uses_from_macos "ruby", since: :catalina
 
   resource "httparty" do
-    url "https://rubygems.org/gems/httparty-0.18.1.gem"
-    sha256 "878fe8038e344b219dbba9e20c442914a2be251d2f4a20bcdeb31f25dcb2f79d"
+    url "https://rubygems.org/gems/httparty-0.20.0.gem"
+    sha256 "490d2a028a5accc611f1685d479d80ef80b129140d24a93c53c119f578614867"
   end
 
   resource "mime-types" do

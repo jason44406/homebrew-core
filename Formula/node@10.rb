@@ -1,17 +1,20 @@
 class NodeAT10 < Formula
   desc "Platform built on V8 to build network applications"
   homepage "https://nodejs.org/"
-  url "https://nodejs.org/dist/v10.22.0/node-v10.22.0.tar.xz"
-  sha256 "e07575455cbb6670e3f30d2f846d3078ef2c181255ff0932089182529443e1db"
+  url "https://nodejs.org/dist/v10.24.1/node-v10.24.1.tar.xz"
+  sha256 "d72fc2c244603b4668da94081dc4d6067d467fdfa026e06a274012f16600480c"
+  license "MIT"
+  revision 2
 
   bottle do
-    cellar :any
-    sha256 "c404f9b76f4bdaeb2bb9c43867d3c49be3fa80544046fa69b2749f1dfc673deb" => :catalina
-    sha256 "4e05e675bcd5c60a809eccbcb85d6b1f4907bffb219b3d60fe556f9b2e81e4a3" => :mojave
-    sha256 "7e86e74f335c0c33c82a7191eb67d6e82feb4fbab9838554ff24e89a2bd604af" => :high_sierra
+    sha256 cellar: :any, monterey: "00f77d95e0903bd845a11e90d382066c6ffe493bd3ee8ba25d57663f1f4f3585"
+    sha256 cellar: :any, big_sur:  "564df395699ebca8cea0f6df252f7c4b0cc3dcfb54b965475d65edeabe9af00f"
+    sha256 cellar: :any, catalina: "8bfa95ea0017e43a1e32120655e84e75de4570f0a90ec0c8e9143aa66d8f4a35"
   end
 
   keg_only :versioned_formula
+
+  disable! date: "2022-07-31", because: :unsupported
 
   depends_on "pkg-config" => :build
   depends_on "icu4c"

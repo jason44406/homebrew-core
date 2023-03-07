@@ -2,57 +2,35 @@ class Auditbeat < Formula
   desc "Lightweight Shipper for Audit Data"
   homepage "https://www.elastic.co/products/beats/auditbeat"
   url "https://github.com/elastic/beats.git",
-      tag:      "v7.9.0",
-      revision: "b2ee705fc4a59c023136c046803b56bc82a16c8d"
+      tag:      "v8.6.2",
+      revision: "9b77c2c135c228c2eedc310f6e975bb1a76169b1"
   license "Apache-2.0"
-  head "https://github.com/elastic/beats.git"
+  head "https://github.com/elastic/beats.git", branch: "main"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "646df43e06585364a3a718ac35faf934c9c9e2fdf80a6eea4e78fc506d10daad" => :catalina
-    sha256 "36cc1b49a519870cbb95ab28529fcb494ebd20adb76f9b46b47138095ec1ebb0" => :mojave
-    sha256 "5adc3c73396e8d623c3d94bc57d687f88556c33ec3860fcda8dcf0cd436c5f20" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "8841c3c3bf575865a50c0cc19b983035622bb5ef538436f7092cb3eca0051ee3"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "67ae08c355bdac71f654a2f2537ff996f1ec1e190a3e2d01421859001071a7f9"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "40a685929aaf9800c52375e672bc0b3169a76936f69728d0819a7fdf00de5b53"
+    sha256 cellar: :any_skip_relocation, ventura:        "986175254973672f1c09e4b1d682c126932ca64c0d1e04495b7b1348208a46f0"
+    sha256 cellar: :any_skip_relocation, monterey:       "572e7eca1fb61d6e4342daca2db1ea6aaf6f461df853cc5a8aab91a56f72479e"
+    sha256 cellar: :any_skip_relocation, big_sur:        "5eab463e32e70253b8b92991e858895d1a849d09a03e6ad3ac1a6a49dafc1546"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "9e2173f18b616f9275f696b71d5a29eaa3e987b627c9f14f946bea072ee8447e"
   end
 
   depends_on "go" => :build
-  depends_on "python@3.8" => :build
-
-  resource "virtualenv" do
-    url "https://files.pythonhosted.org/packages/d4/0c/9840c08189e030873387a73b90ada981885010dd9aea134d6de30cd24cb8/virtualenv-15.1.0.tar.gz"
-    sha256 "02f8102c2436bb03b3ee6dede1919d1dac8a427541652e5ec95171ec8adbc93a"
-  end
-
-  # Update MarkupSafe to 1.1.1, remove with next release
-  # https://github.com/elastic/beats/pull/20105
-  patch do
-    url "https://github.com/elastic/beats/commit/5a6ca609259956ff5dd8e4ec80b73e6c96ff54b2.patch?full_index=1"
-    sha256 "b362f8921611297a0879110efcb88a04cf660d120ad81cd078356d502ba4c2ce"
-  end
+  depends_on "mage" => :build
+  depends_on "python@3.11" => :build
 
   def install
     # remove non open source files
     rm_rf "x-pack"
 
-    ENV["GOPATH"] = buildpath
-    (buildpath/"src/github.com/elastic/beats").install buildpath.children
-
-    xy = Language::Python.major_minor_version "python3"
-    ENV.prepend_create_path "PYTHONPATH", buildpath/"vendor/lib/python#{xy}/site-packages"
-
-    resource("virtualenv").stage do
-      system Formula["python@3.8"].opt_bin/"python3", *Language::Python.setup_install_args(buildpath/"vendor")
-    end
-
-    ENV.prepend_path "PATH", buildpath/"vendor/bin" # for virtualenv
-    ENV.prepend_path "PATH", buildpath/"bin" # for mage (build tool)
-
-    cd "src/github.com/elastic/beats/auditbeat" do
+    cd "auditbeat" do
       # don't build docs because it would fail creating the combined OSS/x-pack
       # docs and we aren't installing them anyway
       inreplace "magefile.go", "devtools.GenerateModuleIncludeListGo, Docs)",
                                "devtools.GenerateModuleIncludeListGo)"
 
-      system "make", "mage"
       # prevent downloading binary wheels during python setup
       system "make", "PIP_INSTALL_PARAMS=--no-binary :all", "python-env"
       system "mage", "-v", "build"
@@ -63,8 +41,6 @@ class Auditbeat < Formula
       prefix.install "build/kibana"
     end
 
-    prefix.install_metafiles buildpath/"src/github.com/elastic/beats"
-
     (bin/"auditbeat").write <<~EOS
       #!/bin/sh
       exec #{libexec}/bin/auditbeat \
@@ -74,6 +50,9 @@ class Auditbeat < Formula
         --path.logs #{var}/log/auditbeat \
         "$@"
     EOS
+
+    chmod 0555, bin/"auditbeat"
+    generate_completions_from_executable(bin/"auditbeat", "completion", shells: [:bash, :zsh])
   end
 
   def post_install
@@ -81,24 +60,8 @@ class Auditbeat < Formula
     (var/"log/auditbeat").mkpath
   end
 
-  plist_options manual: "auditbeat"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN"
-      "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>Program</key>
-          <string>#{opt_bin}/auditbeat</string>
-          <key>RunAtLoad</key>
-          <true/>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run opt_bin/"auditbeat"
   end
 
   test do
@@ -117,10 +80,12 @@ class Auditbeat < Formula
     end
     sleep 5
     touch testpath/"files/touch"
+
     sleep 30
-    s = IO.readlines(testpath/"auditbeat/auditbeat").last(1)[0]
-    assert_match /"action":\["(initial_scan|created)"\]/, s
-    realdirpath = File.realdirpath(testpath)
-    assert_match "\"path\":\"#{realdirpath}/files/touch\"", s
+
+    assert_predicate testpath/"data/beat.db", :exist?
+
+    output = JSON.parse((testpath/"data/meta.json").read)
+    assert_includes output, "first_start"
   end
 end

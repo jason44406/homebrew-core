@@ -1,18 +1,27 @@
 class Algol68g < Formula
   desc "Algol 68 compiler-interpreter"
   homepage "https://jmvdveer.home.xs4all.nl/algol.html"
-  url "https://jmvdveer.home.xs4all.nl/algol68g-2.8.5.tar.gz"
-  sha256 "0f757c64a8342fe38ec501bde68b61d26d051dffd45742ca58b7288a99c7e2d8"
-  license "GPL-3.0"
+  url "https://jmvdveer.home.xs4all.nl/algol68g-3.1.2.tar.gz"
+  sha256 "bcac9a5e20ef14c8c693ef418988cb056e76c290fc9d6fa1f6564231dc78261d"
+  license "GPL-3.0-or-later"
+
+  livecheck do
+    url "https://jmvdveer.home.xs4all.nl/en.download.algol-68-genie-current.html"
+    regex(/href=.*?algol68g[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    sha256 "046ba5e9ec0d0856557085fdf1acde227cd829d9955da28046e98c9a5ee84c09" => :catalina
-    sha256 "7e1acd53615ebc407aaae64eb23af6047dbbd42f967e422b3fcfa0c6d01307b6" => :mojave
-    sha256 "18013401e3eed914022e0a34c6b9b1ed415ec679113de78970d74aa52b0a35e8" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "5e3c1b6022f9c95d43ac177889330b2aeab5cc4c75bec0d9c81e6bc3a4e52bad"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "f37748c1160655c380dc27e2b6702f4c1ddf822eeb4efae01218d05b22e82985"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "3d4ba4e02d88e183fb54a96e1702e229b930e603c11fbdd20071c7e4931a0076"
+    sha256                               ventura:        "922c5dfa253374741d669ae51d9a525670f1b797ed302520963ad1d8cf76cf7d"
+    sha256                               monterey:       "0d3222188e840cdea444f4da1c40fc3737c7dfa8f8463c7b7adc08726224b002"
+    sha256                               big_sur:        "7044219f656b07cf34c3e96a429cb51aa6eb5c0e7d86441201c342e350afbda6"
+    sha256                               x86_64_linux:   "92de0b7334e0346c309dfa18e2d930e8b58ad111bd3d30a91bcbe25bdfd45f46"
   end
 
   on_linux do
-    depends_on "postgresql"
+    depends_on "libpq"
   end
 
   def install

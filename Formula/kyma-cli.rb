@@ -1,30 +1,37 @@
 class KymaCli < Formula
   desc "Kyma command-line interface"
   homepage "https://kyma-project.io"
-  url "https://github.com/kyma-project/cli.git",
-      tag:      "1.14.0",
-      revision: "6e3d444dcfac01e8e45e419970f48cf122d26af2"
+  url "https://github.com/kyma-project/cli/archive/2.11.2.tar.gz"
+  sha256 "460ed5b6a754046271649493f425859a0f1ff01d59460baa8803b6e1abdfce84"
   license "Apache-2.0"
-  revision 1
-  head "https://github.com/kyma-project/cli.git"
+  head "https://github.com/kyma-project/cli.git", branch: "main"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "e7b1991137eb437e19ea6c762a229624ca059fdfbb1019aa73a6b79b40fd18c3" => :catalina
-    sha256 "1e805ffd81b1ebd8ce6cdbb35070927eb43ee6ead2e18f94422374b7655fad39" => :mojave
-    sha256 "7aaeb534aff89029902fbb8134cd71c99742c21a5360098771f51d2a8209a323" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "c0325862eb0aaf69b6fd2576c8f2405a1a9361a3762e4126d31ef83e487c1dad"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "91e43ea1a900a88722b066561fc453b611aee0fe2fbdb9b98de8dfe1e290bfa8"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "a4526cb89ead26753219271058e4800fd42ceac02db79893ac5a814484f8d3e8"
+    sha256 cellar: :any_skip_relocation, ventura:        "f60abdf93fee6d3796b88051e7b6141b02539e8681a48fe52d78bc110be8064b"
+    sha256 cellar: :any_skip_relocation, monterey:       "93f25b20e17843275ac9b035a7e55be760c1719cf03d5f9654ca555196328587"
+    sha256 cellar: :any_skip_relocation, big_sur:        "444188b09dcc52d847a0803b441fde8539e86e4b515a821bc26f9a9de76881d0"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "be76a7533e836a81c3af599b28f8e67854e6ea555ad8ad64e8dc337854eb1007"
   end
 
-  depends_on "go@1.14" => :build
+  depends_on "go" => :build
 
   def install
-    system "make", "build-darwin"
-    bin.install "bin/kyma-darwin" => "kyma"
+    ldflags = %W[
+      -s -w
+      -X github.com/kyma-project/cli/cmd/kyma/version.Version=#{version}
+    ]
+
+    system "go", "build", *std_go_args(output: bin/"kyma", ldflags: ldflags), "./cmd"
+
+    generate_completions_from_executable(bin/"kyma", "completion", base_name: "kyma")
   end
 
   test do
     touch testpath/"kubeconfig"
     assert_match "invalid configuration",
-      shell_output("#{bin}/kyma install --kubeconfig ./kubeconfig 2>&1", 1)
+      shell_output("#{bin}/kyma deploy --kubeconfig ./kubeconfig 2>&1", 1)
   end
 end

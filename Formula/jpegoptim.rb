@@ -1,26 +1,25 @@
 class Jpegoptim < Formula
   desc "Utility to optimize JPEG files"
   homepage "https://github.com/tjko/jpegoptim"
-  url "https://github.com/tjko/jpegoptim/archive/RELEASE.1.4.6.tar.gz"
-  sha256 "c44dcfac0a113c3bec13d0fc60faf57a0f9a31f88473ccad33ecdf210b4c0c52"
-  license "GPL-2.0"
-  head "https://github.com/tjko/jpegoptim.git"
+  url "https://github.com/tjko/jpegoptim/archive/v1.5.2.tar.gz"
+  sha256 "e8701cc85c065e05747a15da72ebb403056ebecaa98e2806cf69cdd443397910"
+  license "GPL-3.0-or-later"
+  head "https://github.com/tjko/jpegoptim.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "f6acdfbe5b3ff49f922bfccb936c39609bb1a0f9dbebd1289d1679bf7fe5b2a4" => :catalina
-    sha256 "c60d59cfe20db5ad448c4da58d7c43ca072f15a31502b989a51b9020da445880" => :mojave
-    sha256 "9588bffa63f2041939e480ff8dbce25a004ef2414fc7ea9d5b5177a38bfb8eaf" => :high_sierra
-    sha256 "89b7f8465e95066c6bf19515affed14037841ea5d0a86b8c3d6cf026f507e938" => :sierra
-    sha256 "cc6c60a27cba7bb5f0e1b4a7c8ae3567db4eeaf1e1384488b818da7a1409f837" => :el_capitan
+    sha256 cellar: :any,                 arm64_ventura:  "a4e84a197e57cad5030cb1a0236729e42b8fb8812bff3af4750eea5a421f951b"
+    sha256 cellar: :any,                 arm64_monterey: "0b84fa4d614118e5ad31c904b21b14d0e838ddb2b868dda33e23aa728f0dd3f5"
+    sha256 cellar: :any,                 arm64_big_sur:  "2d053fd692342f8e0ffc3bf73cde05b414212b679e7f0c550dc16e72cc8259fa"
+    sha256 cellar: :any,                 ventura:        "a7118ac5b89a31a18251fe3bb669449e18d143961068167efe26d39e52894157"
+    sha256 cellar: :any,                 monterey:       "1bfcb4ad450508a3072766b65ad975b22fd37b20eb77888a044960d012900ed4"
+    sha256 cellar: :any,                 big_sur:        "a548d4a4621dacb702f3af88bcaab382d899dd570c8e1428ece5f846b58f4a7e"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "cc2fa149032fa3622ad418e4f32510a6ebfa047758b20cf1ba49328b1a118418"
   end
 
-  depends_on "jpeg"
+  depends_on "jpeg-turbo"
 
   def install
-    system "./configure", "--disable-debug",
-                          "--disable-dependency-tracking",
-                          "--prefix=#{prefix}"
+    system "./configure", *std_configure_args
     ENV.deparallelize # Install is not parallel-safe
     system "make", "install"
   end

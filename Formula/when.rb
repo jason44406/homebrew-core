@@ -1,15 +1,19 @@
 class When < Formula
   desc "Tiny personal calendar"
-  homepage "http://www.lightandmatter.com/when/when.html"
-  url "https://github.com/bcrowell/when/archive/1.1.40.tar.gz"
-  sha256 "1363d48c32c4bb528514abf012ae0a61e7c686504a047ce870e72e791447c3d1"
-  head "https://github.com/bcrowell/when.git"
+  homepage "https://www.lightandmatter.com/when/when.html"
+  url "https://github.com/bcrowell/when/archive/1.1.45.tar.gz"
+  sha256 "86c4f7dba0648173b08222439d60662715dd0b28fd2083098871eaff6537e5ca"
+  license "GPL-2.0-only"
+  head "https://github.com/bcrowell/when.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "88a5d4653d7062e0ac6d9913d35390126c1739fe04f0f458624f0199046d0fcd" => :catalina
-    sha256 "18c0460162e7dcb98d499fb8622a471162897a91f4f844fe46f42a52182cc69e" => :mojave
-    sha256 "a0623fd31e458f82217956bd98e72964634f5d632025336386e824a27fe654ae" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "932e4d3a5887293dc38afaf08f11ffb073784eeaaab09828608278c0e3dd5a3a"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "932e4d3a5887293dc38afaf08f11ffb073784eeaaab09828608278c0e3dd5a3a"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "932e4d3a5887293dc38afaf08f11ffb073784eeaaab09828608278c0e3dd5a3a"
+    sha256 cellar: :any_skip_relocation, ventura:        "932e4d3a5887293dc38afaf08f11ffb073784eeaaab09828608278c0e3dd5a3a"
+    sha256 cellar: :any_skip_relocation, monterey:       "932e4d3a5887293dc38afaf08f11ffb073784eeaaab09828608278c0e3dd5a3a"
+    sha256 cellar: :any_skip_relocation, big_sur:        "932e4d3a5887293dc38afaf08f11ffb073784eeaaab09828608278c0e3dd5a3a"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "d49cbde109823dc26ff8f009d3ea47ec366f0fe459e3e36373797c486fc5ab08"
   end
 
   def install

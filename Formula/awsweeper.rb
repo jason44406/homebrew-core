@@ -1,17 +1,20 @@
 class Awsweeper < Formula
   desc "CLI tool for cleaning your AWS account"
   homepage "https://github.com/jckuester/awsweeper/"
-  url "https://github.com/jckuester/awsweeper/archive/v0.10.1.tar.gz"
-  sha256 "0b97b127312d65ef4d08972a0f337d8ceb1550940160b50ada0d1aaa3c723d9c"
+  url "https://github.com/jckuester/awsweeper/archive/v0.12.0.tar.gz"
+  sha256 "43468e1af20dab757da449b07330f7b16cbb9f77e130782f88f30a7744385c5e"
   license "MPL-2.0"
-  head "https://github.com/jckuester/awsweeper.git"
+  head "https://github.com/jckuester/awsweeper.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    rebuild 1
-    sha256 "584e94945ee6f5e5d1d436cfa6817d60405787ed0dd8390919d8ada6da750a26" => :catalina
-    sha256 "844e62f7429517656ad31c7fe590b023950b2ee87200fe6288a03dd337a2e9fd" => :mojave
-    sha256 "5e397a0b681188855c9ace13381aa06083b56e67159413cc76b26a5047d81656" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "6aaf2bf93c063a5ab9d409f70d77ad32d5c5b8d42f3b9d2b167e83817de89baa"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "dabe2797d6b3a7f40fa31dff1fc8bc7f7c94918f024f6f866c9fedb43d8ce485"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "b4b48419aaa4619449078a64b28ed9bde4b3bb1c05cf096d6852fa92596f2260"
+    sha256 cellar: :any_skip_relocation, ventura:        "f45b885d958f4b7752e02dc778e64d88a604021bfb0635a80444ff07c78f2e95"
+    sha256 cellar: :any_skip_relocation, monterey:       "54bc928c085313ad7b2cd353bbf4b7e49df992527526348ee0eb01437f9ca87b"
+    sha256 cellar: :any_skip_relocation, big_sur:        "1855fe15c7d95a0dddf4487692bf75d6dc234c3ecd25457dffaeab3a2312ece8"
+    sha256 cellar: :any_skip_relocation, catalina:       "76710715dee67793f3715dc1a902b18f259b4ed4b42515fbf13b641339b1f899"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "81776b638e309f839a362f70ba7d0621c2ca9e80f6472f334c5472049cbc3374"
   end
 
   depends_on "go" => :build
@@ -20,10 +23,10 @@ class Awsweeper < Formula
     ldflags = %W[
       -s -w
       -X github.com/jckuester/awsweeper/internal.version=#{version}
-      -X github.com/jckuester/awsweeper/internal.date=#{Date.today}
+      -X github.com/jckuester/awsweeper/internal.date=#{time.strftime("%F")}
     ]
 
-    system "go", "build", *std_go_args, "-ldflags", ldflags.join(" ")
+    system "go", "build", *std_go_args(ldflags: ldflags)
   end
 
   test do
@@ -34,7 +37,7 @@ class Awsweeper < Formula
             Name: foo
     EOS
 
-    assert_match "failed to initialize Terraform AWS Providers",
+    assert_match "Error: failed to configure provider (name=aws",
       shell_output("#{bin}/awsweeper --dry-run #{testpath}/filter.yml 2>&1", 1)
   end
 end

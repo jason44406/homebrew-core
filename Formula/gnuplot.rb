@@ -1,19 +1,22 @@
 class Gnuplot < Formula
   desc "Command-driven, interactive function plotting"
   homepage "http://www.gnuplot.info/"
-  url "https://downloads.sourceforge.net/project/gnuplot/gnuplot/5.4.0/gnuplot-5.4.0.tar.gz"
-  sha256 "eb4082f03a399fd1e9e2b380cf7a4f785e77023d8dcc7e17570c1b5570a49c47"
+  url "https://downloads.sourceforge.net/project/gnuplot/gnuplot/5.4.6/gnuplot-5.4.6.tar.gz"
+  sha256 "bef7b9618079c724f19d3b0e1d7830b5b407a56b303f2b9e3690a4ce8ce0a89c"
   license "gnuplot"
-  revision 1
 
   bottle do
-    sha256 "07e87a593917fbb66d6eef8efe30ee04531bde21c5d4a45775bae98b5314b42d" => :catalina
-    sha256 "221b581e96e34f346ef8de648e8e4ddadf66250ec1b1d5d9a894d12846c11f0a" => :mojave
-    sha256 "43bd44cae7f514c857f548f671c6b600b31e077c2aa783d1b63d5295c467a2ad" => :high_sierra
+    sha256 arm64_ventura:  "e1ee33c426c0e999d2130719993b1325b8581a6e24dc0b7607a1126ca37d85a4"
+    sha256 arm64_monterey: "a5377332f5d9267465592e995b75caa03072ac5bc7c97199f8c7a5223c16f424"
+    sha256 arm64_big_sur:  "bc29f9bdc331596efbe2d0dbaec5d58ba906f43e36da196f39bc6171ef78b28e"
+    sha256 ventura:        "592d1e63ed1991415bd7910cd88329f691b32094d5a2758584e8f009f17f436c"
+    sha256 monterey:       "2929fe528e2e302fab4311dad74fdf2a76d13ae7cac80373fd27adf1a0ea5ea2"
+    sha256 big_sur:        "8f73b87113230e18359d82e1b0baf46b4b6515db5538fdb0d1bad274e55c0699"
+    sha256 x86_64_linux:   "0769eaadb11f6912558530b4527c6eeb95a85adc2ef35de70a9a3f5d6f94d30d"
   end
 
   head do
-    url "https://git.code.sf.net/p/gnuplot/gnuplot-main.git"
+    url "https://git.code.sf.net/p/gnuplot/gnuplot-main.git", branch: "master"
 
     depends_on "autoconf" => :build
     depends_on "automake" => :build
@@ -25,8 +28,10 @@ class Gnuplot < Formula
   depends_on "libcerf"
   depends_on "lua"
   depends_on "pango"
-  depends_on "qt"
+  depends_on "qt@5"
   depends_on "readline"
+
+  fails_with gcc: "5"
 
   def install
     # Qt5 requires c++11 (and the other backends do not care)
@@ -41,6 +46,7 @@ class Gnuplot < Formula
       --disable-wxwidgets
       --with-qt
       --without-x
+      --without-latex
     ]
 
     system "./prepare" if build.head?

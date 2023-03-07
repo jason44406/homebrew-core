@@ -1,72 +1,45 @@
 class PythonYq < Formula
+  include Language::Python::Virtualenv
+
   desc "Command-line YAML and XML processor that wraps jq"
   homepage "https://kislyuk.github.io/yq/"
-  url "https://files.pythonhosted.org/packages/b5/b6/84cf7ea7f30c340f8bb40e29ff4b154f787d0fdacf2d47a7c180e3d2b256/yq-2.10.1.tar.gz"
-  sha256 "f6252a0757d0c2a9e55b4402e176a7e41a99e0e6dd5be4f9d5a4d651eeb4d6c0"
+  url "https://files.pythonhosted.org/packages/6e/94/e8401c429419a1d5fa8e2996fdcfa564367a29b88f97d8bfef9138ff5f39/yq-3.1.1.tar.gz"
+  sha256 "853f342b1562ddee979038ec8ecee5405cdd9b6a7cb81ed6cdb8018c9e802633"
   license "Apache-2.0"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "01134f6bc2acd0c2cc57c572e8d17e31f16ec258f442a87c43a86a2e40839bc7" => :catalina
-    sha256 "01134f6bc2acd0c2cc57c572e8d17e31f16ec258f442a87c43a86a2e40839bc7" => :mojave
-    sha256 "01134f6bc2acd0c2cc57c572e8d17e31f16ec258f442a87c43a86a2e40839bc7" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "f39946c75ed346f336025878451f89c050d87e5742db9553d2c15d82f7e94bb5"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "2adad568d731c2edc2c01749662013a71497c50563e64f723b6372d2b3495d00"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "0616b28424ae076d9d69b2122988eb993614d04dce20cdb636f00d3a8b8c9581"
+    sha256 cellar: :any_skip_relocation, ventura:        "7133a60fe44b9ac23c7c2b7f1acdf8b347bd25666baa7cc1559b80bc30ac5399"
+    sha256 cellar: :any_skip_relocation, monterey:       "ff3d26f949489f6bfab593cc57efbd2dd1f9f2f99f08e00754c26008aa97fafa"
+    sha256 cellar: :any_skip_relocation, big_sur:        "3a700884cd22a3caac6ae2eae49f7f64b49a3ae8b378e2fd67435108758a2d08"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "c974b566846e4e53eac1735730468cafd789b9b6f8f374a8f2da6a37bc49e9de"
   end
 
   depends_on "jq"
-  depends_on "python@3.8"
+  depends_on "python@3.11"
+  depends_on "pyyaml"
 
   conflicts_with "yq", because: "both install `yq` executables"
 
   resource "argcomplete" do
-    url "https://files.pythonhosted.org/packages/84/44/ad7f3fc9483b776dcee11d0a1dcadb6e55c456e06ae611073b82bc8d63d2/argcomplete-1.11.0.tar.gz"
-    sha256 "783d6a12c6c84a33653dc5bac4d6c0640ba64d1037c2662acd9dbe410c26056f"
+    url "https://files.pythonhosted.org/packages/05/f8/67851ae4fe5396ba6868c5d84219b81ea6a5d53991a6853616095c30adc0/argcomplete-2.0.0.tar.gz"
+    sha256 "6372ad78c89d662035101418ae253668445b391755cfe94ea52f1b9d22425b20"
   end
 
-  resource "importlib-metadata" do
-    url "https://files.pythonhosted.org/packages/8c/0e/10e247f40c89ba72b7f2a2104ccf1b65de18f79562ffe11bfb837b711acf/importlib_metadata-1.4.0.tar.gz"
-    sha256 "f17c015735e1a88296994c0697ecea7e11db24290941983b08c9feb30921e6d8"
-  end
-
-  resource "more-itertools" do
-    url "https://files.pythonhosted.org/packages/4e/b2/e9e512cccde6c54bf66a8e5820a2af779eb8235028627002ca90d4f75bea/more-itertools-8.0.2.tar.gz"
-    sha256 "b84b238cce0d9adad5ed87e745778d20a3f8487d0f0cb8b8a586816c7496458d"
-  end
-
-  resource "PyYAML" do
-    url "https://files.pythonhosted.org/packages/3d/d9/ea9816aea31beeadccd03f1f8b625ecf8f645bd66744484d162d84803ce5/PyYAML-5.3.tar.gz"
-    sha256 "e9f45bd5b92c7974e59bcd2dcc8631a6b6cc380a904725fce7bc08872e691615"
+  resource "toml" do
+    url "https://files.pythonhosted.org/packages/be/ba/1f744cdc819428fc6b5084ec34d9b30660f6f9daaf70eead706e3203ec3c/toml-0.10.2.tar.gz"
+    sha256 "b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f"
   end
 
   resource "xmltodict" do
-    url "https://files.pythonhosted.org/packages/58/40/0d783e14112e064127063fbf5d1fe1351723e5dfe9d6daad346a305f6c49/xmltodict-0.12.0.tar.gz"
-    sha256 "50d8c638ed7ecb88d90561beedbf720c9b4e851a9fa6c47ebd64e99d166d8a21"
-  end
-
-  resource "zipp" do
-    url "https://files.pythonhosted.org/packages/57/dd/585d728479d97d25aeeb9aa470d36a4ad8d0ba5610f84e14770128ce6ff7/zipp-0.6.0.tar.gz"
-    sha256 "3718b1cbcd963c7d4c5511a8240812904164b7f381b647143a89d3b98f9bcd8e"
+    url "https://files.pythonhosted.org/packages/39/0d/40df5be1e684bbaecdb9d1e0e40d5d482465de6b00cbb92b84ee5d243c7f/xmltodict-0.13.0.tar.gz"
+    sha256 "341595a488e3e01a85a9d8911d8912fd922ede5fecc4dce437eb4b6c8d037e56"
   end
 
   def install
-    xy = Language::Python.major_minor_version "python3"
-    ENV["PYTHONPATH"] = libexec/"lib/python#{xy}/site-packages"
-    ENV.prepend_create_path "PYTHONPATH", libexec/"vendor/lib/python#{xy}/site-packages"
-
-    resources.each do |r|
-      r.stage do
-        system "python3", *Language::Python.setup_install_args(libexec/"vendor")
-      end
-    end
-
-    ENV.prepend_create_path "PYTHONPATH", libexec/"lib/python#{xy}/site-packages"
-    system "python3", *Language::Python.setup_install_args(libexec)
-
-    bin.install Dir[libexec/"bin/*"]
-    env = {
-      PATH:       "#{Formula["jq"].opt_bin}:$PATH",
-      PYTHONPATH: ENV["PYTHONPATH"],
-    }
-    bin.env_script_all_files(libexec/"bin", env)
+    virtualenv_install_with_resources
   end
 
   test do

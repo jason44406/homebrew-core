@@ -1,32 +1,34 @@
 class Jose < Formula
   desc "C-language implementation of Javascript Object Signing and Encryption"
   homepage "https://github.com/latchset/jose"
-  url "https://github.com/latchset/jose/releases/download/v10/jose-10.tar.bz2"
-  sha256 "5c9cdcfb535c4d9f781393d7530521c72b1dd81caa9934cab6dd752cc7efcd72"
+  url "https://github.com/latchset/jose/releases/download/v11/jose-11.tar.xz"
+  sha256 "e272afe7717e22790c383f3164480627a567c714ccb80c1ee96f62c9929d8225"
   license "Apache-2.0"
-  revision 1
 
   bottle do
-    cellar :any
-    sha256 "359c58b36bb631623273a77d13431f29ff467e9602f1500f9e4fa761ed0719be" => :catalina
-    sha256 "358a06afd49f1390ca917969dbb434a75a91bd0de3d8ac981d3eab969670cfe2" => :mojave
-    sha256 "7a84bdaece281b98dc4a7b0a7fbf05976297126966d14ee2862e007521cdd4ea" => :high_sierra
-    sha256 "1669bf780ac07ee9a7d216185139aaa6e5c44add352e6da25f02c079694e7ad1" => :sierra
+    rebuild 1
+    sha256 cellar: :any, arm64_ventura:  "21f4ddb24fe7718c027343713fb09aab4cbcf6d4c096f6e3fe8e09bd2e459344"
+    sha256 cellar: :any, arm64_monterey: "551e1333f5bac04c13a4a2cf957ea2da84fb8c9d34a6ea18f8a661b9307bbb08"
+    sha256 cellar: :any, arm64_big_sur:  "16e0db736b62521077a5ab096d43f0fd2aec7ea89a3f4839f71814582c268308"
+    sha256 cellar: :any, ventura:        "f0ac20b30d42d9ddd0ef62458059475c50b236ce8d163d7ff26ad33eeffa8ee9"
+    sha256 cellar: :any, monterey:       "7ef2c4173e81fbc601be37ac515d41b5240fa69ad2a252c67c9fe13d22530f51"
+    sha256 cellar: :any, big_sur:        "3dac5c9fd2153330aebae3f18438eb9833ab8b524ca1e524828c5ef398d252a0"
+    sha256 cellar: :any, catalina:       "29a910cbfe5af5c12b8f007e1fe7abacc167eb6875f76e67260de54fb3911825"
+    sha256               x86_64_linux:   "dbfb98cddbd5634d5a96d6a036949fd7f664d1cd5a84ee33bf9ee934a0f88597"
   end
 
+  depends_on "meson" => :build
+  depends_on "ninja" => :build
   depends_on "pkg-config" => :build
   depends_on "jansson"
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
 
   uses_from_macos "zlib"
 
   def install
-    system "./configure", "--disable-dependency-tracking",
-                          "--disable-silent-rules",
-                          "--prefix=#{prefix}"
-    system "make"
-    system "make", "check"
-    system "make", "install"
+    system "meson", *std_meson_args, "build"
+    system "meson", "compile", "-C", "build", "--verbose"
+    system "meson", "install", "-C", "build"
   end
 
   test do

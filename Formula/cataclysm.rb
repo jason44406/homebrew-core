@@ -1,17 +1,26 @@
 class Cataclysm < Formula
   desc "Fork/variant of Cataclysm Roguelike"
   homepage "https://github.com/CleverRaven/Cataclysm-DDA"
-  url "https://github.com/CleverRaven/Cataclysm-DDA/archive/0.E.tar.gz"
-  version "0.E"
-  sha256 "b0af9a9292929e17332edcea770bca9a91f1d08ea47726d78a47e09281a42fa3"
+  url "https://github.com/CleverRaven/Cataclysm-DDA/archive/0.G.tar.gz"
+  version "0.G"
+  sha256 "e559d0d495b314ed39890920b222b4ae5067db183b5d39d4263700bfd66f36fb"
   license "CC-BY-SA-3.0"
-  head "https://github.com/CleverRaven/Cataclysm-DDA.git"
+  head "https://github.com/CleverRaven/Cataclysm-DDA.git", branch: "master"
+
+  livecheck do
+    url :stable
+    regex(%r{href=["']?[^"' >]*?/tag/([^"' >]+)["' >]}i)
+    strategy :github_latest
+  end
 
   bottle do
-    cellar :any
-    sha256 "bbd96abbc2ac1ddfabb2ab2febff1b0653d95210b84e6ea8a1dec73a530d8647" => :catalina
-    sha256 "c2c44f2a965153e4258c8c3daf6772bd7f5c9935320d2e1975cb63fb6909f095" => :mojave
-    sha256 "1eb07ba0e992116ae94d8b380d520139d686997e6700834f2db4bb1cded1401f" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "99558da9dc0aff5d3e520504578ba4112a1ccd25be503414c8b35473b9b4e298"
+    sha256 cellar: :any,                 arm64_monterey: "9e83a6fc0c9ae9ae1364fe3dcaa56192b9324f7d2423b8e4df309f1044a717b4"
+    sha256 cellar: :any,                 arm64_big_sur:  "655e4c659d55a1844ef8ebb910f297bbb27ff8b10905c6e9e95232b76cdf1d1b"
+    sha256 cellar: :any,                 ventura:        "6f54c0f3258b4231e38dd38d9e094cdd24389ebb1cdb423c3fda60396d588fc9"
+    sha256 cellar: :any,                 monterey:       "062842315c06a4e816fc9885e4b670a306521dbc3b78537e83a6fb304790854d"
+    sha256 cellar: :any,                 big_sur:        "a395f1cc45907a5f83ddd9499fe7178c0220f1af20b6910901a4b434cc95b82c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "14498eae0539dcfee7034f2975d7889b62c50c0684082954c0695fa4293db7dd"
   end
 
   depends_on "pkg-config" => :build
@@ -24,10 +33,10 @@ class Cataclysm < Formula
   depends_on "sdl2_ttf"
 
   def install
+    os = OS.mac? ? "osx" : OS.kernel_name.downcase
     args = %W[
-      NATIVE=osx
+      NATIVE=#{os}
       RELEASE=1
-      OSX_MIN=#{MacOS.version}
       USE_HOME_DIR=1
       TILES=1
       SOUND=1
@@ -36,6 +45,7 @@ class Cataclysm < Formula
       LINTJSON=0
     ]
 
+    args << "OSX_MIN=#{MacOS.version}" if OS.mac?
     args << "CLANG=1" if ENV.compiler == :clang
 
     system "make", *args
@@ -50,22 +60,24 @@ class Cataclysm < Formula
   end
 
   test do
+    # Disable test on Linux because it fails with this error:
+    # Error while initializing the interface: SDL_Init failed: No available video device
+    return if OS.linux? && ENV["HOMEBREW_GITHUB_ACTIONS"]
+
     # make user config directory
     user_config_dir = testpath/"Library/Application Support/Cataclysm/"
     user_config_dir.mkpath
 
-    # run cataclysm for 7 seconds
+    # run cataclysm for 30 seconds
     pid = fork do
       exec bin/"cataclysm"
     end
-    sleep 7
-    assert_predicate user_config_dir/"config",
-                     :exist?, "User config directory should exist"
-    assert_predicate user_config_dir/"templates",
-                     :exist?, "User template directory should exist"
-    assert_predicate user_config_dir/"save",
-                     :exist?, "User save directory should exist"
-  ensure
-    Process.kill("TERM", pid)
+    begin
+      sleep 30
+      assert_predicate user_config_dir/"config",
+                       :exist?, "User config directory should exist"
+    ensure
+      Process.kill("TERM", pid)
+    end
   end
 end

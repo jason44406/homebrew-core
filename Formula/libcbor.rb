@@ -1,22 +1,25 @@
 class Libcbor < Formula
   desc "CBOR protocol implementation for C and others"
-  homepage "http://libcbor.org/"
-  url "https://github.com/PJK/libcbor/archive/v0.7.0.tar.gz"
-  sha256 "fb731afe0a9980581d85e4b8d4ef128b175f782d92e0cd898935f3d26dd3dde7"
+  homepage "https://github.com/PJK/libcbor"
+  url "https://github.com/PJK/libcbor/archive/v0.10.2.tar.gz"
+  sha256 "e75f712215d7b7e5c89ef322a09b701f7159f028b8b48978865725f00f79875b"
   license "MIT"
 
   bottle do
-    cellar :any
-    sha256 "592a8fe5ad2efd8111f016631ab251162e821e2a1560e42cd6285d60525b3813" => :catalina
-    sha256 "104f1676b69dbcbbedb00c9059d1b08cf05f9003379fee323b9fba7728bb51fa" => :mojave
-    sha256 "7f6b69a84c6c7ec111e7c0a8c2d086e5933a44268d1af20c5dd28eb5af60eccc" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "ee1e77e1e6cef7ba754d1757f7aa038e34b139466f789231b672e389a194a5fc"
+    sha256 cellar: :any,                 arm64_monterey: "57f42308a7a0da1e7c5e7093669c0b860d83832903ec1233fad60ecd8ac92aeb"
+    sha256 cellar: :any,                 arm64_big_sur:  "3f8fcacd05f809c68d133967f3485997d3864afd76c7ea8df4b00a6638cd71dd"
+    sha256 cellar: :any,                 ventura:        "3c52d6c4828af57070d970dab0cfe3e174572c0eb6adf496c1cbdb54988cd97a"
+    sha256 cellar: :any,                 monterey:       "5b1cc91f67025cfe899980d227fb0d14592635746e966b19307c9fc298f514e0"
+    sha256 cellar: :any,                 big_sur:        "b748fb213e434fe650e0964d72f84275a5aac3620b336778dbdf578b5263df0c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "0c532bdfe6b9efb37ff7cd43d1fcf2def27aefbffbea09093cecf16f95adc198"
   end
 
   depends_on "cmake" => :build
 
   def install
     mkdir "build" do
-      system "cmake", "..", "-DWITH_EXAMPLES=OFF", *std_cmake_args
+      system "cmake", "..", "-DWITH_EXAMPLES=OFF", "-DBUILD_SHARED_LIBS=ON", *std_cmake_args
       system "make"
       system "make", "install"
     end
@@ -28,10 +31,9 @@ class Libcbor < Formula
     #include <stdio.h>
     int main(int argc, char * argv[])
     {
-    printf("Hello from libcbor %s\\n", CBOR_VERSION);
-    printf("Custom allocation support: %s\\n", CBOR_CUSTOM_ALLOC ? "yes" : "no");
-    printf("Pretty-printer support: %s\\n", CBOR_PRETTY_PRINTER ? "yes" : "no");
-    printf("Buffer growth factor: %f\\n", (float) CBOR_BUFFER_GROWTH);
+      printf("Hello from libcbor %s\\n", CBOR_VERSION);
+      printf("Pretty-printer support: %s\\n", CBOR_PRETTY_PRINTER ? "yes" : "no");
+      printf("Buffer growth factor: %f\\n", (float) CBOR_BUFFER_GROWTH);
     }
     EOS
 

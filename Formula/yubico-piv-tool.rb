@@ -1,14 +1,23 @@
 class YubicoPivTool < Formula
   desc "Command-line tool for the YubiKey PIV application"
   homepage "https://developers.yubico.com/yubico-piv-tool/"
-  url "https://developers.yubico.com/yubico-piv-tool/Releases/yubico-piv-tool-2.1.1.tar.gz"
-  sha256 "733aee13c22bb86a2d31f59c2f4c1f446f0bca2791f866de46bf71ddd7ebc1b3"
+  url "https://developers.yubico.com/yubico-piv-tool/Releases/yubico-piv-tool-2.3.1.tar.gz"
+  sha256 "da89dafd8b6185aa635346753f9ddb29af29bc4abd92dd81f37d9d6560b5d64e"
   license "BSD-2-Clause"
 
+  livecheck do
+    url "https://developers.yubico.com/yubico-piv-tool/Releases/"
+    regex(/href=.*?yubico-piv-tool[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
+
   bottle do
-    sha256 "13da151129e6ae4bf5dbdc013890d5d8ce5b1328461716b454cc904cb21bb78b" => :catalina
-    sha256 "ace3c2ecf7edae27f22f836edab9f1d6dd3527c2442284e9acb85eca88294a42" => :mojave
-    sha256 "86e59608b3832aa49d4a7d36d14e0fd491ac00c0c9be81c3a17185d552212393" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "f4bcaee48a934e59a22a29021a5dcaa857417651fcd9cd274c2476b5c6cbcc1f"
+    sha256 cellar: :any,                 arm64_monterey: "883cf669ce25204e04a81c1df515ea02f848a7d907bd82fdbc394543d1375097"
+    sha256 cellar: :any,                 arm64_big_sur:  "4b6849717fab3c4f870d3a619f202bf9fc1a90ad86c87a63c119aa88e79d8d8f"
+    sha256 cellar: :any,                 ventura:        "7e27d4943fa7280709765beb41ff01272cf208e53a0c5405074df14dafd6170d"
+    sha256 cellar: :any,                 monterey:       "55fd2c1dfdbc687e30ffe5d527030a4c8100e85d447b5094b2621e125668285b"
+    sha256 cellar: :any,                 big_sur:        "97a1f11168ba2107003b5f9346289cf639cb5922c11d6995272e1ec45610d434"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "16aad2f1a7e9e78c05fc1b3c87435033cb854f3683e6be062096d2e27a9532bf"
   end
 
   depends_on "check" => :build
@@ -18,7 +27,7 @@ class YubicoPivTool < Formula
   depends_on "libtool" => :build
   depends_on "pkg-config" => :build
   depends_on "check"
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
   depends_on "pcsc-lite"
 
   def install

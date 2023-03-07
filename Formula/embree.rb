@@ -1,16 +1,20 @@
 class Embree < Formula
   desc "High-performance ray tracing kernels"
   homepage "https://embree.github.io/"
-  url "https://github.com/embree/embree/archive/v3.11.0.tar.gz"
-  sha256 "2ccc365c00af4389aecc928135270aba7488e761c09d7ebbf1bf3e62731b147d"
+  url "https://github.com/embree/embree/archive/v3.13.5.tar.gz"
+  sha256 "b8c22d275d9128741265537c559d0ea73074adbf2f2b66b0a766ca52c52d665b"
   license "Apache-2.0"
-  head "https://github.com/embree/embree.git"
+  head "https://github.com/embree/embree.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "c2314a12cbbdf6719d2273059abadfe6011f9d687846fff186d1e9936f3835fc" => :catalina
-    sha256 "98e880b02ee28bf5f7b30d5f1490e8675c00a868a4fe2f7cf3ccdc663b93a613" => :mojave
-    sha256 "2c9d9b8609732beaf03fd4eece181dbea33d2f11325f7062657be84db8ba8dfd" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "43fe52a4fb0d099033029ab02cba993c43cb78181f82a3cd7214c9b92845d930"
+    sha256 cellar: :any,                 arm64_monterey: "07d0bbc91a36c907bd3e90a51cc7b89624eca1e4f49c4a551eafb892829593dc"
+    sha256 cellar: :any,                 arm64_big_sur:  "cf1adbab65ab590cdff0566a55ea8bb5031a6ca1142def1aa11f9ba4daee5865"
+    sha256 cellar: :any,                 ventura:        "5774c3f27b897ab12df9af5e2081c71a282cd64d811da2fdd902baa90c4920a7"
+    sha256 cellar: :any,                 monterey:       "cd3a8dad89525a5b48c07e3bf9ed2e1bdbeb192ad3a99bbce332cd714338e7e3"
+    sha256 cellar: :any,                 big_sur:        "a845948e82834d987cef6c2b52ca9bcf75ac6a1e60396be8d9bf728fad37a4a3"
+    sha256 cellar: :any,                 catalina:       "715da9c241e420ecf61b6d7c68153623c847d9d8ceace2cb4dfc86e848c67365"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "ae18d81783de71e6cb7f1ca0d058b8ec26a6f9a076364726c18369ea35a6ddd5"
   end
 
   depends_on "cmake" => :build
@@ -18,15 +22,13 @@ class Embree < Formula
   depends_on "tbb"
 
   def install
-    max_isa = MacOS.version.requires_sse42? ? "SSE4.2" : "SSE2"
-
-    args = std_cmake_args + %W[
+    args = std_cmake_args + %w[
       -DBUILD_TESTING=OFF
       -DEMBREE_IGNORE_CMAKE_CXX_FLAGS=OFF
       -DEMBREE_ISPC_SUPPORT=ON
-      -DEMBREE_MAX_ISA=#{max_isa}
       -DEMBREE_TUTORIALS=OFF
     ]
+    args << "-DEMBREE_MAX_ISA=#{MacOS.version.requires_sse42? ? "SSE4.2" : "SSE2"}" if Hardware::CPU.intel?
 
     mkdir "build" do
       system "cmake", *args, ".."

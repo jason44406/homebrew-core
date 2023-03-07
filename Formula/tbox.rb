@@ -1,16 +1,19 @@
 class Tbox < Formula
-  desc "Glib-like multi-platform c library"
+  desc "Glib-like multi-platform C library"
   homepage "https://tboox.org/"
-  url "https://github.com/tboox/tbox/archive/v1.6.5.tar.gz"
-  sha256 "076599f8699a21934f633f1732977d0df9181891ca982fd23ba172047d2cf4ab"
+  url "https://github.com/tboox/tbox/archive/v1.7.3.tar.gz"
+  sha256 "1d8dea39d39d67b729098e1e7b31de2aa54db67afee6087064f049d60146a49e"
   license "Apache-2.0"
-  head "https://github.com/tboox/tbox.git"
+  head "https://github.com/tboox/tbox.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "0be436a7df4a7b942f37e397b2cc0929e64e9475fad74cb9fb8dd70d7d5b42a7" => :catalina
-    sha256 "cf391788c014a7acac0d1e7ff4a4fea01e840dddeb4e901427fb5f40939f9157" => :mojave
-    sha256 "8eaecc2a931b034521a468cc1410b01991139f631e8f888ccce60092d825af0c" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "42233da1f62be7d9c6d3ab4cab1223a84e7aeb413fe184d128beb3ec85569423"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "1c1ae4a3ec702e3246284b593103cc59524571761e5ce96050e83f32d1f3a46e"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "64979f165a647743e0f71ff3308812bf37f51092826ecdd0d84e72108f2ce052"
+    sha256 cellar: :any_skip_relocation, ventura:        "2327bd47a429049fef7985ad17c55d25ceba79baca4554a56a29bd50043503bd"
+    sha256 cellar: :any_skip_relocation, monterey:       "f07cc8681f5f9abd7c7d8172c5343467a96bfdd76a1acbfb38c84e04e41605a1"
+    sha256 cellar: :any_skip_relocation, big_sur:        "ae95c8e023cbea3df56108318903f627fee2a16d20e19eefb87c8936369bddf4"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "2849a669989cdea8313f421951bc75ac0ce189d86beb76ef76d03e6a7654bc11"
   end
 
   depends_on "xmake" => :build
@@ -34,7 +37,7 @@ class Tbox < Formula
         return 0;
       }
     EOS
-    system ENV.cc, "test.c", "-L#{lib}", "-ltbox", "-I#{include}", "-o", "test"
-    system "./test"
+    system ENV.cc, "test.c", "-I#{include}", "-L#{lib}", "-ltbox", "-lm", "-pthread", "-o", "test"
+    assert_equal "hello tbox!\n", shell_output("./test")
   end
 end

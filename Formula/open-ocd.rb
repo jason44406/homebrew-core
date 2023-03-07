@@ -1,20 +1,28 @@
 class OpenOcd < Formula
   desc "On-chip debugging, in-system programming and boundary-scan testing"
-  homepage "http://openocd.org/"
-  url "https://downloads.sourceforge.net/project/openocd/openocd/0.10.0/openocd-0.10.0.tar.bz2"
-  sha256 "7312e7d680752ac088b8b8f2b5ba3ff0d30e0a78139531847be4b75c101316ae"
-  license "GPL-2.0"
+  homepage "https://openocd.org/"
+  url "https://downloads.sourceforge.net/project/openocd/openocd/0.12.0/openocd-0.12.0.tar.bz2"
+  sha256 "af254788be98861f2bd9103fe6e60a774ec96a8c374744eef9197f6043075afa"
+  license "GPL-2.0-or-later"
+
+  livecheck do
+    url :stable
+    regex(%r{url=.*?/openocd[._-]v?(\d+(?:\.\d+)+)\.t}i)
+  end
 
   bottle do
-    rebuild 2
-    sha256 "73738a0c3bfffa98beea25c441d5eddfd743dc5c7c79418685519354975bb840" => :catalina
-    sha256 "491bec9acdc4e446a6515975041f21dec919ba330f88b5a69e8651ddd9c07468" => :mojave
-    sha256 "0258f4d658907060d890c978a4d122ac5501119c4d28bb272e4bf5bc59bd8852" => :high_sierra
-    sha256 "790605e83cc22ab4a455a382f7b6a434d44c19f82e0b8a0ee6a3bf28ac6f9f31" => :sierra
+    rebuild 1
+    sha256 arm64_ventura:  "c611d6b6c9e57cb090035cb957b452df65f7cbc631efad899fb7ab41e1ea32e1"
+    sha256 arm64_monterey: "7b08b217ff97444f3b1543efe5d94f5b48dcdd74ea501426d894490e76f06405"
+    sha256 arm64_big_sur:  "7cdba4d5b4ac53b160be03c26f96f8f8d1d4963ff2abaac7c219bc9fee03b50a"
+    sha256 ventura:        "f55c5f34b7842ba9529b93f83997e1e6abac12ca77cd67bb76df8029894473a5"
+    sha256 monterey:       "5fe0d9ced9ebdac6350e56e4ef5594f4080ce2c81054fb0b5fb55eca99c75f24"
+    sha256 big_sur:        "fb7fef372618e8b59b07016c380b727d61103ee67ad5b68811bcbcc1516b3a6d"
+    sha256 x86_64_linux:   "0b26fad3eda406a9cb72f04943b43015371b8f224fc624347fd9616f2604ad9e"
   end
 
   head do
-    url "https://git.code.sf.net/p/openocd/code.git"
+    url "https://github.com/openocd-org/openocd.git", branch: "master"
 
     depends_on "autoconf" => :build
     depends_on "automake" => :build
@@ -23,10 +31,10 @@ class OpenOcd < Formula
   end
 
   depends_on "pkg-config" => :build
+  depends_on "capstone"
   depends_on "hidapi"
   depends_on "libftdi"
   depends_on "libusb"
-  depends_on "libusb-compat"
 
   def install
     ENV["CCACHE"] = "none"

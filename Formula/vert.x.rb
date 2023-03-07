@@ -1,18 +1,26 @@
 class VertX < Formula
   desc "Toolkit for building reactive applications on the JVM"
   homepage "https://vertx.io/"
-  url "https://bintray.com/vertx/downloads/download_file?file_path=vert.x-3.9.2-full.zip"
-  sha256 "3f257bae643e31804816e5723ac39e5f8fe08fcb73034b74d4cc7ccb4e9e5a84"
+  url "https://search.maven.org/remotecontent?filepath=io/vertx/vertx-stack-manager/4.1.5/vertx-stack-manager-4.1.5-full.tar.gz"
+  sha256 "67b4d6d55ffafae0e499883593b93ac132f6b199fe7c694dc177e81954689cf8"
+  license any_of: ["EPL-2.0", "Apache-2.0"]
+  revision 1
 
-  bottle :unneeded
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "45b95b3679a4ec881e78b5e4a7bc1307273f7897aea04fad0684be910b233d17"
+  end
 
-  depends_on "openjdk"
+  # Upstream cannot write a test that works on formula
+  # Issue ref: https://github.com/vertx-distrib/homebrew-tap/issues/4
+  deprecate! date: "2023-01-07", because: "cannot test"
+
+  # Unrecognized VM option 'UseBiasedLocking' since JDK 19
+  depends_on "openjdk@17"
 
   def install
     rm_f Dir["bin/*.bat"]
     libexec.install %w[bin conf lib]
-    (bin/"vertx").write_env_script "#{libexec}/bin/vertx",
-      JAVA_HOME: "${JAVA_HOME:-#{Formula["openjdk"].opt_prefix}}"
+    (bin/"vertx").write_env_script libexec/"bin/vertx", Language::Java.overridable_java_home_env("17")
   end
 
   test do

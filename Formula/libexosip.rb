@@ -1,31 +1,41 @@
 class Libexosip < Formula
   desc "Toolkit for eXosip2"
   homepage "https://savannah.nongnu.org/projects/exosip"
-  url "https://download.savannah.gnu.org/releases/exosip/libexosip2-5.1.1.tar.gz"
-  mirror "https://download-mirror.savannah.gnu.org/releases/exosip/libexosip2-5.1.1.tar.gz"
-  sha256 "21420c00bf8e0895ff36161766beec12b7e6f1d371030c389dba845e271272e2"
-  license "GPL-2.0"
+  url "https://download.savannah.gnu.org/releases/exosip/libexosip2-5.3.0.tar.gz"
+  mirror "https://download-mirror.savannah.gnu.org/releases/exosip/libexosip2-5.3.0.tar.gz"
+  sha256 "5b7823986431ea5cedc9f095d6964ace966f093b2ae7d0b08404788bfcebc9c2"
+  license "GPL-2.0-or-later"
+
+  livecheck do
+    url "https://download.savannah.gnu.org/releases/exosip/"
+    regex(/href=.*?libexosip2[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "d36a54b2dec4b1c27ff20a78a9fc3660b304741434d5e9201937da2b4e75526c" => :catalina
-    sha256 "55556d9e457e708dab5e72fc36bab281bab85ddc25d190e729d13fae1757efbf" => :mojave
-    sha256 "8e2ec203c859fff616fb073b8f644285b4adfb202331749b0f073928eb03ee2a" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "f16e7871375ba4b6fa1a0449efdbaac6cd0ecd385cb30ca73b81e5303b4fe643"
+    sha256 cellar: :any,                 arm64_monterey: "986de480122d68131d838a6f0d37921978491b83e01fc53ab8631c50ce428cf0"
+    sha256 cellar: :any,                 arm64_big_sur:  "54df18bb3bea9dca975b830312f28ac7510dadb108db9053a3eafdf8481add0b"
+    sha256 cellar: :any,                 ventura:        "836deee9270859281bfb13c2b75d44cad2e6d2f38a2a99490c086b749f45258e"
+    sha256 cellar: :any,                 monterey:       "a3ffa4272cd49779d2ba780252af1a9e9bc56d30dae6e1b757bdd449e7c47221"
+    sha256 cellar: :any,                 big_sur:        "7af6a64fb918f2ddc565947e49f911520f7340f8ddf09cb23a28aad2e4be35cf"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "07fe4531bd26a4c6fabb8833e55dc9b955c3f995c5c024177b9a9e3800785782"
   end
 
   depends_on "pkg-config" => :build
   depends_on "c-ares"
   depends_on "libosip"
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
 
   def install
     # Extra linker flags are needed to build this on macOS. See:
     # https://growingshoot.blogspot.com/2013/02/manually-install-osip-and-exosip-as.html
     # Upstream bug ticket: https://savannah.nongnu.org/bugs/index.php?45079
-    ENV.append "LDFLAGS", "-framework CoreFoundation -framework CoreServices "\
-                          "-framework Security"
-    system "./configure", "--disable-debug", "--disable-dependency-tracking",
-                          "--prefix=#{prefix}"
+    if OS.mac?
+      ENV.append "LDFLAGS", "-framework CoreFoundation -framework CoreServices " \
+                            "-framework Security"
+    end
+    system "./configure", *std_configure_args, "--disable-silent-rules"
     system "make", "install"
   end
 

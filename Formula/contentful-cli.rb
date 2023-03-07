@@ -3,16 +3,20 @@ require "language/node"
 class ContentfulCli < Formula
   desc "Contentful command-line tools"
   homepage "https://github.com/contentful/contentful-cli"
-  url "https://registry.npmjs.org/contentful-cli/-/contentful-cli-1.4.26.tgz"
-  sha256 "ff9948f565785ace310fe8a1edf13abb72584dfb59da4c0ccff354a7be3d90d8"
+  # contentful-cli should only be updated every 5 releases on multiples of 5
+  url "https://registry.npmjs.org/contentful-cli/-/contentful-cli-2.1.5.tgz"
+  sha256 "b78d9ad066495f93ba563ff056a857f736b11224c5bbe752ebf7e8c91532ffb4"
   license "MIT"
-  head "https://github.com/contentful/contentful-cli.git"
+  head "https://github.com/contentful/contentful-cli.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "95a9b15e7c85ca5624ce717bfe9a43f437aaf6e1146fec905f05082d5d2797eb" => :catalina
-    sha256 "75c14c0a8c426b9cf1960602dd5b04f75ec055c0586f5f362e08304df73c0dc6" => :mojave
-    sha256 "ab95fde89b75baf09d05a75a19dcd7836ba19b5c53b9e9e54890c0924a4fef1c" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "259e2b41976fdd49ba1f269858348b6b95706489495c1ff223a5a2a7736d9edc"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "259e2b41976fdd49ba1f269858348b6b95706489495c1ff223a5a2a7736d9edc"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "259e2b41976fdd49ba1f269858348b6b95706489495c1ff223a5a2a7736d9edc"
+    sha256 cellar: :any_skip_relocation, ventura:        "2f7a798b993c50ead747a800c235f23d9d93347aba8ccfec96c96790a255a94b"
+    sha256 cellar: :any_skip_relocation, monterey:       "2f7a798b993c50ead747a800c235f23d9d93347aba8ccfec96c96790a255a94b"
+    sha256 cellar: :any_skip_relocation, big_sur:        "2f7a798b993c50ead747a800c235f23d9d93347aba8ccfec96c96790a255a94b"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "259e2b41976fdd49ba1f269858348b6b95706489495c1ff223a5a2a7736d9edc"
   end
 
   depends_on "node"
@@ -26,6 +30,6 @@ class ContentfulCli < Formula
     output = shell_output("#{bin}/contentful space list 2>&1", 1)
     assert_match "🚨  Error: You have to be logged in to do this.", output
     assert_match "You can log in via contentful login", output
-    assert_match "Or provide a managementToken via --management-Token argument", output
+    assert_match "Or provide a management token via --management-token argument", output
   end
 end

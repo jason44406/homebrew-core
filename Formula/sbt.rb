@@ -1,12 +1,19 @@
 class Sbt < Formula
   desc "Build tool for Scala projects"
   homepage "https://www.scala-sbt.org/"
-  url "https://github.com/sbt/sbt/releases/download/v1.3.13/sbt-1.3.13.tgz"
-  mirror "https://sbt-downloads.cdnedge.bluemix.net/releases/v1.3.13/sbt-1.3.13.tgz"
-  sha256 "854154de27a7d8c13b5a0f9a297cd1f254cc13b44588dae507e5d4fb2741bd22"
+  url "https://github.com/sbt/sbt/releases/download/v1.8.2/sbt-1.8.2.tgz"
+  mirror "https://sbt-downloads.cdnedge.bluemix.net/releases/v1.8.2/sbt-1.8.2.tgz"
+  sha256 "1f65344da074dbd66dfefa93c0eff8d319d772e5cad47fcbeb6ae178bbdf4686"
   license "Apache-2.0"
 
-  bottle :unneeded
+  livecheck do
+    url :stable
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
+  end
+
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "83df3f430a2249b127057b0ee45c11f9b12c0f8f345c596fd90864e6968604ad"
+  end
 
   depends_on "openjdk"
 
@@ -19,15 +26,11 @@ class Sbt < Formula
     libexec.install "bin"
     etc.install "conf/sbtopts"
 
-    (bin/"sbt").write <<~EOS
-      #!/bin/sh
-      if [ -f "$HOME/.sbtconfig" ]; then
-        echo "Use of ~/.sbtconfig is deprecated, please migrate global settings to #{etc}/sbtopts" >&2
-        . "$HOME/.sbtconfig"
-      fi
-      export JAVA_HOME="${JAVA_HOME:-#{Formula["openjdk"].opt_prefix}}"
-      exec "#{libexec}/bin/sbt" "$@"
-    EOS
+    # Removes:
+    # 1. `sbt.bat` (Windows-only)
+    # 2. `sbtn` (pre-compiled native binary)
+    (libexec/"bin").glob("sbt{.bat,n-x86_64*,n-aarch64*}").map(&:unlink)
+    (bin/"sbt").write_env_script libexec/"bin/sbt", Language::Java.overridable_java_home_env
   end
 
   def caveats
@@ -35,12 +38,14 @@ class Sbt < Formula
       You can use $SBT_OPTS to pass additional JVM options to sbt.
       Project specific options should be placed in .sbtopts in the root of your project.
       Global settings should be placed in #{etc}/sbtopts
+
+      The installation does not include `sbtn`.
     EOS
   end
 
   test do
     ENV.append "_JAVA_OPTIONS", "-Dsbt.log.noformat=true"
-    system "#{bin}/sbt", "about"
-    assert_match "[info] #{version}", shell_output("#{bin}/sbt sbtVersion")
+    system bin/"sbt", "--sbt-create", "about"
+    assert_match version.to_s, shell_output("#{bin}/sbt sbtVersion")
   end
 end

@@ -1,18 +1,15 @@
 require "language/node"
 
 class ReactNativeCli < Formula
-  desc "The React Native CLI tools"
+  desc "Tools for creating native apps for Android and iOS"
   homepage "https://facebook.github.io/react-native/"
   url "https://registry.npmjs.org/react-native-cli/-/react-native-cli-2.0.1.tgz"
   sha256 "f1039232c86c29fa0b0c85ad2bfe0ff455c3d3cd9af9d9ddb8e9c560231a8322"
   license "BSD-3-Clause"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "45feb7f98d12b2ee28b6e5f658e070f60a43571d4d8fab679cb513ac957ca7bd" => :catalina
-    sha256 "8e6e253c7801cc276f89f2988245866080c1409602c5903dbb2984b1a645746b" => :mojave
-    sha256 "387e6f8c0e9f20b4ae2007185d394ff73cc3392085a6a05045b669512780c55e" => :high_sierra
-    sha256 "81ef6bdc246a412022d070b5020b567864b177a53fcfeb15c44f7be38e6130ab" => :sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, all: "bd0fcb144d7edefcc27c70aeb12e143c1f5fd5a2d63a8cf22dab475885db0ab6"
   end
 
   depends_on "node"

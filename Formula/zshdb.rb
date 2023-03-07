@@ -5,15 +5,22 @@ class Zshdb < Formula
   sha256 "bf9cb36f60ce6833c5cd880c58d6741873b33f5d546079eebcfce258d609e9af"
   license "GPL-3.0"
 
+  # We check the "zshdb" directory page because the bashdb project contains
+  # various software and zshdb releases may be pushed out of the SourceForge
+  # RSS feed.
+  livecheck do
+    url "https://sourceforge.net/projects/bashdb/files/zshdb/"
+    strategy :page_match
+    regex(%r{href=(?:["']|.*?zshdb/)?v?(\d+(?:[.-]\d+)+)/?["' >]}i)
+  end
+
   bottle do
-    cellar :any_skip_relocation
-    sha256 "2bdc583e95b4d4bd92624d48ce804561e3a337792dbba74f451a2507eb939704" => :catalina
-    sha256 "2bdc583e95b4d4bd92624d48ce804561e3a337792dbba74f451a2507eb939704" => :mojave
-    sha256 "2bdc583e95b4d4bd92624d48ce804561e3a337792dbba74f451a2507eb939704" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, all: "1b158f2b1bf4ea4e7d00c4770a75570e140ad33071ddef878528e3ca3f3095f0"
   end
 
   head do
-    url "https://github.com/rocky/zshdb.git"
+    url "https://github.com/rocky/zshdb.git", branch: "master"
     depends_on "autoconf" => :build
     depends_on "automake" => :build
   end

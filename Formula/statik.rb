@@ -3,21 +3,26 @@ class Statik < Formula
 
   desc "Python-based, generic static web site generator aimed at developers"
   homepage "https://getstatik.com"
-  url "https://github.com/thanethomson/statik/archive/v0.23.0.tar.gz"
-  sha256 "6159066f486811e5773da318d6e8d1b1dd4c99ac140f1a3c660ef1c1f5e7124f"
+  url "https://files.pythonhosted.org/packages/c1/f7/c1dc03a0ed218cb5d3e72f0983dcc18b441cc9d3275b527a5cb0a479dc2a/statik-0.23.0.tar.gz"
+  sha256 "9ce2c5a76284aa7d3eba2dc5b167c39d0249f96da08213a14c89f0b7edcb7746"
   license "MIT"
-  revision 1
-  head "https://github.com/thanethomson/statik.git"
+  revision 4
+  head "https://github.com/thanethomson/statik.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "cab701f93b5c776a91b46f83140f92fd39885e0ce99d50374116c3b437b2fe8e" => :catalina
-    sha256 "9b83cfba38b5dec6a411291ec401908fa7e5017c22ebbfb269c78094edfd41a7" => :mojave
-    sha256 "87917f38bc4ef1f2121d82f8f697b451d5ef46e0e10df7b6538348f5b8a39d97" => :high_sierra
+    sha256 cellar: :any,                 arm64_monterey: "05ec193de764ecd8fe6c64d674362c70ce131cbe0886e9440b3862c48a97a8d8"
+    sha256 cellar: :any,                 arm64_big_sur:  "32ece3f4b25e763bf58b788f84eee819d7239f82cca4ecc28a30a72e01b8444f"
+    sha256 cellar: :any,                 monterey:       "6df37e96a3831dc17186fee8bad6756163601a06f9dc54b76ae96fb8516e5ab7"
+    sha256 cellar: :any,                 big_sur:        "84b192802fd3f44c3601aade2c1d47594c9369d3395534192d71e96ead3e639d"
+    sha256 cellar: :any,                 catalina:       "6595972b52fc9ace266f23ef30cf0b8b1f35738ec6722252b97560801d858a13"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "49cda36e4e735309ce918096589820e44039a1779f34b861646475a31782ab7b"
   end
 
+  # pystache requirement sets use_2to3 which was removed in setuptools 58.
+  deprecate! date: "2022-08-09", because: :does_not_build
+
   depends_on "libpq"
-  depends_on "python@3.8"
+  depends_on "python@3.9"
 
   uses_from_macos "libffi"
 
@@ -43,8 +48,8 @@ class Statik < Formula
   end
 
   resource "cffi" do
-    url "https://files.pythonhosted.org/packages/05/54/3324b0c46340c31b909fcec598696aaec7ddc8c18a63f2db352562d3354c/cffi-1.14.0.tar.gz"
-    sha256 "2d384f4a127a15ba701207f7639d94106693b6cd64173d6c8988e2c25f3ac2b6"
+    url "https://files.pythonhosted.org/packages/66/6a/98e023b3d11537a5521902ac6b50db470c826c682be6a8c661549cb7717a/cffi-1.14.4.tar.gz"
+    sha256 "1a465cbe98a7fd391d47dce4b8f7e5b921e6cd805ef421d04f5f66ba8f06086c"
   end
 
   resource "chardet" do

@@ -1,15 +1,25 @@
 class Libvorbis < Formula
   desc "Vorbis General Audio Compression Codec"
   homepage "https://xiph.org/vorbis/"
-  url "https://downloads.xiph.org/releases/vorbis/libvorbis-1.3.7.tar.xz"
+  url "https://downloads.xiph.org/releases/vorbis/libvorbis-1.3.7.tar.xz", using: :homebrew_curl
+  mirror "https://ftp.osuosl.org/pub/xiph/releases/vorbis/libvorbis-1.3.7.tar.xz"
   sha256 "b33cc4934322bcbf6efcbacf49e3ca01aadbea4114ec9589d1b1e9d20f72954b"
   license "BSD-3-Clause"
 
+  livecheck do
+    url "https://ftp.osuosl.org/pub/xiph/releases/vorbis/?C=M&O=D"
+    regex(/href=.*?libvorbis[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
+
   bottle do
-    cellar :any
-    sha256 "432eb21045d9dfac3ef879648d845d894cc828862f5498448fe98c0141ef5cd0" => :catalina
-    sha256 "59509a351e88352f01512b54cc5cb849c2551623f7d6dcd6679d38b5e96032ed" => :mojave
-    sha256 "3e6609520d0ffd7179f721c23c1291f2735b70384d56d1c1dd10185ae355c4b2" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "941871c7cfee1e15b60191e1c70296554871bc36e4fc8104ffc8919bb767f555"
+    sha256 cellar: :any,                 arm64_monterey: "08fc2566eda5d6fc2204c822bac51383a59c4536bae539b77cfe8c7f247f7517"
+    sha256 cellar: :any,                 arm64_big_sur:  "37bcbe572118f7cc87daa488ef3d67c5cbd38e9e12e2e2b408df286f9b2fdc37"
+    sha256 cellar: :any,                 ventura:        "4e1a3b6ba6e8f790974930a7ceda16a3fb0b50d544021f6e39d1b38392e98512"
+    sha256 cellar: :any,                 monterey:       "bd3125f7734f888f4ae9065f0b41a2baa281064686068f6c4189044d2408d0a8"
+    sha256 cellar: :any,                 big_sur:        "6401378d08490ed76f4894b7e0812ef5cfbade699331dc07b7e88ad5438f7a78"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "41daf79ce53910061acbe1f63ca95f53b4149d3ebb2b97c2bb4d31845820f219"
   end
 
   head do
@@ -25,7 +35,7 @@ class Libvorbis < Formula
 
   resource("oggfile") do
     url "https://upload.wikimedia.org/wikipedia/commons/c/c8/Example.ogg"
-    sha256 "379071af4fa77bc7dacf892ad81d3f92040a628367d34a451a2cdcc997ef27b0"
+    sha256 "f57b56d8aae4c847cf01224fb45293610d801cfdac43d932b5eeab1cd318182a"
   end
 
   def install
@@ -52,7 +62,7 @@ class Libvorbis < Formula
     testpath.install resource("oggfile")
     system ENV.cc, "test.c", "-I#{include}", "-L#{lib}", "-lvorbisfile",
                    "-o", "test"
-    assert_match "2 channel, 44100Hz\nEncoded by: Xiph.Org libVorbis",
+    assert_match "2 channel, 44100Hz\nEncoded by: Lavf59.27.100",
                  shell_output("./test < Example.ogg")
   end
 end

@@ -3,28 +3,33 @@ class VpnSlice < Formula
 
   desc "Vpnc-script replacement for easy and secure split-tunnel VPN setup"
   homepage "https://github.com/dlenski/vpn-slice"
-  url "https://github.com/dlenski/vpn-slice/archive/v0.14.2.tar.gz"
-  sha256 "cae69cfe2994fea487f563edb601f7ef8a59b5059baa104349121764da9d37a2"
-  license "GPL-3.0"
-  head "https://github.com/dlenski/vpn-slice.git"
+  url "https://files.pythonhosted.org/packages/74/fd/6c9472e8ed83695abace098d83ba0df4ea48e29e7b2f6c77ced73b9f7dce/vpn-slice-0.16.1.tar.gz"
+  sha256 "28d02dd1b41210b270470350f28967320b3a34321d57cc9736f53d6121e9ceaa"
+  license "GPL-3.0-or-later"
+  head "https://github.com/dlenski/vpn-slice.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "350f4032091eaf9e5daeae9bc4232e7eb6f873dc0fd2cd838bdb5feed820ec1a" => :catalina
-    sha256 "b8057aa360ec68539ec028a0f30a883440bcf7cb2d72e62159594e5ec4146017" => :mojave
-    sha256 "7f6c4cb4440b65b6579bd3796591ee95a7caeda748f40c82aea386b089d2898b" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "7798a26686d124c506967ff63713b888fc36cadbee332330a5260ea925837b28"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "03c28ff89eec7cc5e56ef7daf5ac634527b5cdc5c7203fa2a55aad4c13eeef05"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "891ccb3aa60a9a987136f616f5037c1cb8b58835042b96f7d71bc66b29ae9c38"
+    sha256 cellar: :any_skip_relocation, ventura:        "ad37647e9afbd689a2dbba1beabe018dc5c4cd26476d2dab30fbbd60554bf9da"
+    sha256 cellar: :any_skip_relocation, monterey:       "0fed89c47a9cd556d276233a55b54d7ef21ac683e7d8054827f51bf3adb699ee"
+    sha256 cellar: :any_skip_relocation, big_sur:        "63f4dec62b148f81d1de93cd938363ef9f51f542974f172b3ada0e317c391875"
+    sha256 cellar: :any_skip_relocation, catalina:       "37659888aa845fa2726e77c5973109b9b2552d4bea491f3b84e3d7c1d6eaa9ae"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "e6e0387688208ea25eb4f1a3ebbe358ebb9b00d530714c1dcd6b01b4152493a8"
   end
 
-  depends_on "python@3.8"
+  depends_on "python@3.11"
 
   resource "dnspython" do
-    url "https://files.pythonhosted.org/packages/ec/c5/14bcd63cb6d06092a004793399ec395405edf97c2301dfdc146dfbd5beed/dnspython-1.16.0.zip"
-    sha256 "36c5e8e38d4369a08b6780b7f27d790a292b2b08eea01607865bf0936c558e01"
+    url "https://files.pythonhosted.org/packages/99/fb/e7cd35bba24295ad41abfdff30f6b4c271fd6ac70d20132fa503c3e768e0/dnspython-2.2.1.tar.gz"
+    sha256 "0f7569a4a6ff151958b64304071d370daa3243d15941a7beedf0c9fe5105603e"
   end
 
   resource "setproctitle" do
-    url "https://files.pythonhosted.org/packages/5a/0d/dc0d2234aacba6cf1a729964383e3452c52096dc695581248b548786f2b3/setproctitle-1.1.10.tar.gz"
-    sha256 "6283b7a58477dd8478fbb9e76defb37968ee4ba47b05ec1c053cb39638bd7398"
+    url "https://files.pythonhosted.org/packages/b5/47/ac709629ddb9779fee29b7d10ae9580f60a4b37e49bce72360ddf9a79cdc/setproctitle-1.3.2.tar.gz"
+    sha256 "b9fb97907c830d260fa0658ed58afd48a86b2b88aac521135c352ff7fd3477fd"
   end
 
   def install
@@ -34,7 +39,7 @@ class VpnSlice < Formula
   test do
     # vpn-slice needs root/sudo credentials
     output = `#{bin}/vpn-slice 192.168.0.0/24 2>&1`
-    assert_match "Cannot read\/write \/etc\/hosts", output
+    assert_match "Cannot read/write /etc/hosts", output
     assert_equal 1, $CHILD_STATUS.exitstatus
   end
 end

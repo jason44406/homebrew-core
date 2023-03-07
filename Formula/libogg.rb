@@ -1,25 +1,19 @@
 class Libogg < Formula
   desc "Ogg Bitstream Library"
   homepage "https://www.xiph.org/ogg/"
+  url "https://ftp.osuosl.org/pub/xiph/releases/ogg/libogg-1.3.5.tar.gz"
+  sha256 "0eb4b4b9420a0f51db142ba3f9c64b333f826532dc0f48c6410ae51f4799b664"
   license "BSD-3-Clause"
 
-  stable do
-    url "https://downloads.xiph.org/releases/ogg/libogg-1.3.4.tar.gz"
-    sha256 "fe5670640bd49e828d64d2879c31cb4dde9758681bb664f9bdbf159a01b0c76e"
-
-    # os_types: fix unsigned typedefs for MacOS. This is already merged upstream; remove on next version
-    patch do
-      url "https://github.com/xiph/ogg/commit/c8fca6b4a02d695b1ceea39b330d4406001c03ed.patch?full_index=1"
-      sha256 "0f4d289aecb3d5f7329d51f1a72ab10c04c336b25481a40d6d841120721be485"
-    end
-  end
-
   bottle do
-    cellar :any
     rebuild 1
-    sha256 "b95bbf935f48878bd96d1c0e6557a017aa18cb17a080bc3ef9308b6415c278ef" => :catalina
-    sha256 "3cc7656859154f6eb98d3ddbe4b74c810b505e2162af1357b3ed6b70cad35125" => :mojave
-    sha256 "95f271ec181f6b999674636272a3414db4242eabd0a0b0572cfa0f1f324f5ef8" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "273ec2cb3abd99d4aee0c8ac2523f5f3140457e6fc658b02168678a557299a43"
+    sha256 cellar: :any,                 arm64_monterey: "ce419864291a500b33b1e0cc7afa0c8a060cecf4adf2ef50d2d213f35f021822"
+    sha256 cellar: :any,                 arm64_big_sur:  "0f44d59f86d7cd828aa3fd70ba363455fdbfa01bcec6364a286c1db1f7168c29"
+    sha256 cellar: :any,                 ventura:        "52e5a973dfdfcb61357e7c80c4e3250742a56dec94650c9546a4a640b749192e"
+    sha256 cellar: :any,                 monterey:       "d4d289f5ab37ed438ceecb653ef3cbe23bbac53dbeb550a54c3ebef39f109681"
+    sha256 cellar: :any,                 big_sur:        "39a4c4d11e1a495a1cd167183c935634c10e9a75c222185d1e99df1710ffd353"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "f32a15a651d53059f085695d189c2cfdbd7ee281ee3056b1b107eb07cead6965"
   end
 
   head do
@@ -32,7 +26,7 @@ class Libogg < Formula
 
   resource("oggfile") do
     url "https://upload.wikimedia.org/wikipedia/commons/c/c8/Example.ogg"
-    sha256 "379071af4fa77bc7dacf892ad81d3f92040a628367d34a451a2cdcc997ef27b0"
+    sha256 "f57b56d8aae4c847cf01224fb45293610d801cfdac43d932b5eeab1cd318182a"
   end
 
   def install

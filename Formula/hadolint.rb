@@ -1,34 +1,30 @@
 class Hadolint < Formula
   desc "Smarter Dockerfile linter to validate best practices"
   homepage "https://github.com/hadolint/hadolint"
-  url "https://github.com/hadolint/hadolint/archive/v1.18.0.tar.gz"
-  sha256 "0ebe67e543226721c3802dd56db0355575accf50f10c09fe188bbb604aa8c193"
-  license "GPL-3.0"
+  # TODO: Try to switch `ghc@9.2` to `ghc` when spdx supports base>=4.17
+  url "https://github.com/hadolint/hadolint/archive/v2.12.0.tar.gz"
+  sha256 "1f972f070fa068a8a18b62016c9cbd00df994006e069647038694fc6cde45545"
+  license "GPL-3.0-only"
 
   bottle do
-    cellar :any_skip_relocation
-    rebuild 2
-    sha256 "502616ec44ca052029c4387ee468fb67d1dea019cce66f3e26131cb3a2889ee7" => :catalina
-    sha256 "c2564cec7c18b2a57ea1bb58b8f5b997bc46bc2d0cc42765243ff02084fe311e" => :mojave
-    sha256 "5846307d054fe63c6c142388753356f7bb12ff378d2684c8d1dcec2128be0a82" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "c721712adf9cbc6c02517b8c912462b9ae9bb89d84654a4f6b2f83e877103d4c"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "56ff572bce4302be865315fb8f3600dea1491f10bb527c808d88d3b6eea0cd24"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "3a5ec25ca1ad776f4336830f309f63665c590521248e5a5d3a61bf6583f65b1b"
+    sha256 cellar: :any_skip_relocation, ventura:        "4de41cd99e149ac7d69ad2c2be30870204072993af1c78789fdc025f58b4e256"
+    sha256 cellar: :any_skip_relocation, monterey:       "1df703a623dc8dbb3423a593a9050ece0e560400a1bf07779968779e055e0fff"
+    sha256 cellar: :any_skip_relocation, big_sur:        "ed03ac5e81ded1c0e18ad0475d03ca708ea159939789b59049d63507bbe1be6f"
+    sha256 cellar: :any_skip_relocation, catalina:       "85d88fda55b31414f8e91de69916c7c1ed8c3d48da54b7abab6fd09cdb8f195a"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "1f4fbe6eb66d7e58700076ef0f4b3f775e441355ccdb7d65451d327536dc75e1"
   end
 
-  depends_on "ghc" => :build
-  depends_on "haskell-stack" => :build
+  depends_on "cabal-install" => :build
+  depends_on "ghc@9.2" => :build # https://github.com/hadolint/hadolint/issues/904
 
   uses_from_macos "xz"
 
-  on_linux do
-    depends_on "gmp"
-  end
-
   def install
-    # Let `stack` handle its own parallelization
-    jobs = ENV.make_jobs
-    ENV.deparallelize
-
-    system "stack", "-j#{jobs}", "build"
-    system "stack", "-j#{jobs}", "--local-bin-path=#{bin}", "install"
+    system "cabal", "v2-update"
+    system "cabal", "v2-install", *std_cabal_v2_args
   end
 
   test do

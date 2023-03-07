@@ -3,30 +3,39 @@ class LibtorrentRakshasa < Formula
   homepage "https://github.com/rakshasa/libtorrent"
   url "https://github.com/rakshasa/libtorrent/archive/v0.13.8.tar.gz"
   sha256 "0f6c2e7ffd3a1723ab47fdac785ec40f85c0a5b5a42c1d002272205b988be722"
-  license "GPL-2.0"
+  license "GPL-2.0-or-later"
+  revision 1
+
+  livecheck do
+    url :stable
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "207e33009028a8721a89c91139fe78fea1cd9fb8a05862286264dfc53548886a" => :catalina
-    sha256 "94afd9fcef673d4e3945c13085df931e12c1bf2422bf6a2ad2c6848634c2fa65" => :mojave
-    sha256 "135df02ce3bb98b05d9f849b8014087e8acaefcc24b1547ff9b1740bbd74492a" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "379e99e3801c7e703f998612e750dd93672fd24805725ebef3b665c3c86f8b81"
+    sha256 cellar: :any,                 arm64_monterey: "549f2adddde6fc9af3aaf1839225a61bbe157c0a93b32d5acf9ac019ad2877e8"
+    sha256 cellar: :any,                 arm64_big_sur:  "c1a7a9b145c6f284bcb967af9af8e3ea3283cc0d00ba1028819170353b7afc44"
+    sha256 cellar: :any,                 ventura:        "e8658b9542a25a3c5c783d7945381f897dabdcb07684e0e4c5fb0b9bac9521d5"
+    sha256 cellar: :any,                 monterey:       "be0c226697f610c2b2593b150608cd333710da4480eea29ebc4d291b8f17955d"
+    sha256 cellar: :any,                 big_sur:        "b3595f86917cf3e9025b063cc24b08bea158da105f49d3bb974456f1fa46c546"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "733fb0be216ee03ae9394ba639fbc1d4d2e2f9299c8d91b93117e0e6074c5906"
   end
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
   depends_on "libtool" => :build
   depends_on "pkg-config" => :build
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
+
+  uses_from_macos "zlib"
 
   conflicts_with "libtorrent-rasterbar",
     because: "they both use the same libname"
 
   def install
-    args = ["--prefix=#{prefix}", "--disable-debug",
-            "--disable-dependency-tracking"]
-
     system "sh", "autogen.sh"
-    system "./configure", *args
+    system "./configure", *std_configure_args, "--disable-silent-rules"
     system "make"
     system "make", "install"
   end

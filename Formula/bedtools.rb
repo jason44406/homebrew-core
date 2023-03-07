@@ -1,25 +1,32 @@
 class Bedtools < Formula
   desc "Tools for genome arithmetic (set theory on the genome)"
   homepage "https://github.com/arq5x/bedtools2"
-  url "https://github.com/arq5x/bedtools2/archive/v2.29.2.tar.gz"
-  sha256 "bc2f36b5d4fc9890c69f607d54da873032628462e88c545dd633d2c787a544a5"
+  url "https://github.com/arq5x/bedtools2/archive/v2.30.0.tar.gz"
+  sha256 "c575861ec746322961cd15d8c0b532bb2a19333f1cf167bbff73230a7d67302f"
   license "MIT"
 
   bottle do
-    cellar :any
-    sha256 "4cdd660e64c7d78876a2ccf60eec8891f484cdd24e2c40ce36800828dffcce1c" => :catalina
-    sha256 "5c40ac3daf8ba6022cd5229aac50458d80b14920ddd513f2e165b233c9e95e72" => :mojave
-    sha256 "2f534f9efbdd387764924f2a9e3a08b435cab0ff0a0edabd6bafe8fa4123af6a" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "2e8a782328689c862e6bda675fc80554974a9e4d31b87c2437ebd138146dc10e"
+    sha256 cellar: :any,                 arm64_monterey: "f49bc2e2da620dc8e11f972de610ba8c181e187f326b0e684c3886fa0b3724f6"
+    sha256 cellar: :any,                 arm64_big_sur:  "142bd16e4896e944960d472b3f0063b7e15785ecc6eea30da9a25d70455868b4"
+    sha256 cellar: :any,                 ventura:        "4e142190372423e97db273ee80646b926b9298a857d4e3bd15316286ee37de5f"
+    sha256 cellar: :any,                 monterey:       "6cb9009902dc477cdd5c22c8a5868f2a7ff60b0c5a5f09461aa9ddd6380385f9"
+    sha256 cellar: :any,                 big_sur:        "cf105e55c3da5874d9c351c13c341b0898fa48731aadf5dc1b08b02f1ef36733"
+    sha256 cellar: :any,                 catalina:       "775e107f0f6de74aaaf1f03a3d2441355a740e2198b7d3f9cc41bb0108338a5f"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "8396c0906988ec6abf7324769e46a673ae7f960761c628dedd74ac9ea3b3aa82"
   end
 
-  depends_on "python@3.8" => :build
   depends_on "xz"
 
+  uses_from_macos "python" => :build
   uses_from_macos "bzip2"
   uses_from_macos "zlib"
 
   def install
-    inreplace "Makefile", "python", "python3"
+    # Remove on the next release which has commit try both python and python3
+    # Ref: https://github.com/arq5x/bedtools2/commit/ffbc4e18d100ccb488e4a9e7e64146ec5d3af849
+    inreplace "Makefile", "python", "python3" if !OS.mac? || MacOS.version >= :catalina
 
     system "make"
     system "make", "install", "prefix=#{prefix}"

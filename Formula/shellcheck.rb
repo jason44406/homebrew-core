@@ -1,28 +1,29 @@
 class Shellcheck < Formula
   desc "Static analysis and lint tool, for (ba)sh scripts"
   homepage "https://www.shellcheck.net/"
-  url "https://github.com/koalaman/shellcheck/archive/v0.7.1.tar.gz"
-  sha256 "50a219bde5c16fc0a40e2e3725b6c192ff589bc8a2569c32b62dcaece0495896"
-  license "GPL-3.0"
-  head "https://github.com/koalaman/shellcheck.git"
+  url "https://github.com/koalaman/shellcheck/archive/v0.9.0.tar.gz"
+  sha256 "3cec1fec786feee79dacdabf9de784a117b7f82388dbcca97ba56a5c9ff7d148"
+  license "GPL-3.0-or-later"
+  head "https://github.com/koalaman/shellcheck.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    rebuild 1
-    sha256 "0cd635d2172d5e6617be8cdfb2723b6aa6feb2aa22e36cb3172d8b6fa012f4a0" => :catalina
-    sha256 "37201a49c0d7a5be49c5d97d4f6f8f5fcfef7d700b4694f74648a1addcd6783d" => :mojave
-    sha256 "1b20aeaba4d5e2e3df5cbe27636d655b6f877ee05a41d25fe1e0b3f9d00afa81" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "bebeffc6b702b0684977937af20bd6dec9241f1f6bb206cf8c002bff76f0ab25"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "f0c8f83c50c5adae71abc074b69932249354869bb7c67161e0a783a11e6004f7"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "9d81c9557cec60f65820ac4727dafbd0871276b66038d1c82f8e04ee03ed3df0"
+    sha256 cellar: :any_skip_relocation, ventura:        "5eb6e89880dcb5cc6baeff63f6c2453342cee15ec35c525351c2099545ad4d62"
+    sha256 cellar: :any_skip_relocation, monterey:       "957348802279e04cba39b7b9d4a3300f1891e73646dcba5ca36a30b15d6e2e6b"
+    sha256 cellar: :any_skip_relocation, big_sur:        "1513cc886e5117e572a642864edee6882409f9800a57315e9c87d17c52156847"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "6e9e847cc3ad50ae9bdbe9215bfaf9f33836378b54b07b716b25bc66f65a0d23"
   end
 
   depends_on "cabal-install" => :build
-  depends_on "ghc@8.8" => :build
+  depends_on "ghc" => :build
   depends_on "pandoc" => :build
 
   def install
     system "cabal", "v2-update"
     system "cabal", "v2-install", *std_cabal_v2_args
-    system "pandoc", "-s", "-f", "markdown-smart", "-t", "man",
-                     "shellcheck.1.md", "-o", "shellcheck.1"
+    system "./manpage"
     man1.install "shellcheck.1"
   end
 

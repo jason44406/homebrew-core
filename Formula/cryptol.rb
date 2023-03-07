@@ -1,21 +1,25 @@
 class Cryptol < Formula
   desc "Domain-specific language for specifying cryptographic algorithms"
   homepage "https://www.cryptol.net/"
-  url "https://hackage.haskell.org/package/cryptol-2.9.0/cryptol-2.9.0.tar.gz"
-  sha256 "2bcbf4ad6c1679a17f47467bf6eab250deea8e5125c53535c44afa4af525bd2f"
+  # TODO: Try to switch `ghc@9.2` to `ghc` when cryptol.cabal allows ghc-bignum>=1.3
+  url "https://hackage.haskell.org/package/cryptol-2.13.0/cryptol-2.13.0.tar.gz"
+  sha256 "5c5b7ad0b290c506836dbbad886ae43ce7d690dd86e2f2a9124564c2f5602b83"
   license "BSD-3-Clause"
-  revision 1
-  head "https://github.com/GaloisInc/cryptol.git"
+  head "https://github.com/GaloisInc/cryptol.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "de12794d8334f69f857bb269a0e9dc4368e7f6a2968284d70854bad8e1247707" => :catalina
-    sha256 "89a27a902bac68fb5e22b542cc9513d5a2035782d9dd060957e5eb85f772666b" => :mojave
-    sha256 "5df9e6a56e9555948e2bdb058ce87b50bf2885a85ff97c1bf5f7879c27ab22ac" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "71ca8417ff9eac48d71355f88675758590a8b4ec91ae168f6eda390ff61bd4e8"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "21bf30e80d822a11359a5edada042837a294a82e9a2375e39e19fb059957e1b8"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "091eca3d557fc8f34f9f08734731c70d4235c701238fec389e8746b0c9875a97"
+    sha256 cellar: :any_skip_relocation, ventura:        "6e5819a8ca3426c7c22c8af2d4f0a63e67209d3c4f7e6b5b4ac182f4f3316986"
+    sha256 cellar: :any_skip_relocation, monterey:       "2c2d695b1976a46096f711490a0fde3d036cee5eea965e0eaa431fe43764a77e"
+    sha256 cellar: :any_skip_relocation, big_sur:        "649566c85d028a8affea145c1c4236f9462f8fd17daf7d649e894d4d54d191ae"
+    sha256 cellar: :any_skip_relocation, catalina:       "45e33fc7108b2f070b587b040fb16e0bb6dbd107871cbff0a1dc92d49c190c94"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "336e42866d31ad32f2e965623aec255851d42cdf926435d00ce06992fa058bb1"
   end
 
   depends_on "cabal-install" => :build
-  depends_on "ghc" => :build
+  depends_on "ghc@9.2" => :build
   depends_on "z3"
 
   uses_from_macos "ncurses"

@@ -1,22 +1,26 @@
 class Archiver < Formula
   desc "Cross-platform, multi-format archive utility"
   homepage "https://github.com/mholt/archiver"
-  url "https://github.com/mholt/archiver/archive/v3.3.0.tar.gz"
-  sha256 "c8e88340e80b428c1a1c9734084395b473c9458fcea8b8b5126a9db96ae45844"
+  url "https://github.com/mholt/archiver/archive/v3.5.1.tar.gz"
+  sha256 "b69a76f837b6cc1c34c72ace16670360577b123ccc17872a95af07178e69fbe7"
   license "MIT"
-  head "https://github.com/mholt/archiver.git"
+  head "https://github.com/mholt/archiver.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "f7e2687f04f044894475e29cfb986f9e40658878b52675ef87e8059676629a6d" => :catalina
-    sha256 "0afa338b4f42fb7314d8b5f557a7310824dad082ff85f3940bfa70b39f3c48a9" => :mojave
-    sha256 "3622a493e750f8aaeebe1f807adb002a8d00297a8f69f5b44ad0ce1c961d1851" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "50eb72205f3ffce1c6b64a7182454213c07cf6396469046875c5687f5f7018a9"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "9194e883ec240998c4c2ec26a4cc8d79d1ad29964b592ac0cc45c9b6c5da7dd8"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "7a4c576219a90d52a24dec089f2ef3cd900f5d9779d57fc6f6d83c8e2ae7241c"
+    sha256 cellar: :any_skip_relocation, ventura:        "27b0c4dd81f24dd779dccb56944733ac3381adf3dcd9c9087f70dc53908359e8"
+    sha256 cellar: :any_skip_relocation, monterey:       "f0c4b8adac0f867744ccde72ed8d83f66bcf098f45e32edf7c1dfd347772ee9f"
+    sha256 cellar: :any_skip_relocation, big_sur:        "74fd6ad65f0b92af3a034874d6317065b7805d98cb945006d05dff0117d179d6"
+    sha256 cellar: :any_skip_relocation, catalina:       "b2a0192ed66099721b7662fe5d772f8a99ecb5c8922270cbc825cdcbb7032378"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "461a212b25cc90af84996b43067bbd096cf343bbe04a39b4aa40d10cb235e238"
   end
 
   depends_on "go" => :build
 
   def install
-    system "go", "build", "-trimpath", "-o", bin/"arc", "cmd/arc/main.go"
+    system "go", "build", *std_go_args(ldflags: "-s -w"), "-o", bin/"arc", "cmd/arc/main.go"
   end
 
   test do
@@ -31,8 +35,8 @@ class Archiver < Formula
            "test1", "test2", "test3"
 
     assert_predicate testpath/"test.zip", :exist?
-    assert_match "application/zip",
-                 shell_output("file -bI #{testpath}/test.zip")
+    assert_match "Zip archive data",
+                 shell_output("file -b #{testpath}/test.zip")
 
     output = shell_output("#{bin}/arc ls test.zip")
     names = output.lines.map do |line|

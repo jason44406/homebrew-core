@@ -3,18 +3,21 @@ class EgExamples < Formula
 
   desc "Useful examples at the command-line"
   homepage "https://github.com/srsudar/eg"
-  url "https://files.pythonhosted.org/packages/59/06/7281154a4cd961f56302d9cac300cc8fc965b16d04ce797ed622a2f53586/eg-1.2.0.tar.gz"
-  sha256 "ac9827824c2c9aee0fd0a54ca57440021a0a87868b503b215c2c273a035bef59"
+  url "https://files.pythonhosted.org/packages/5f/3f/f55eef404adae2d5429728722d6a81ad6ac50a80e9b47be046cfbe97bc44/eg-1.2.2.tar.gz"
+  sha256 "8d3745eceb2a4c91507b1923193747b7ae88888e6257eb8aaccf7deae2a300a7"
   license "MIT"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "66b8e36ffd66967947c4c31ac1c111210030bbb6072fa79a18f86ad75422b5d2" => :catalina
-    sha256 "4384a8ac2ec7ea33981e29466989bfe56aec532635c2d1f1e079ee70b41d2a86" => :mojave
-    sha256 "ea5150fcaec60e13589296f700b39aa7ee1b210f989bea1deee548fdeaf849b5" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "1f330e1f5d275b7b3a99733158c3f1f30d5784d0e3c08fcef84f0db7015b9ba3"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "1f330e1f5d275b7b3a99733158c3f1f30d5784d0e3c08fcef84f0db7015b9ba3"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "1f330e1f5d275b7b3a99733158c3f1f30d5784d0e3c08fcef84f0db7015b9ba3"
+    sha256 cellar: :any_skip_relocation, ventura:        "719513828804556f4ee23b00a34b2043761640d853173a5eb061625b2750c073"
+    sha256 cellar: :any_skip_relocation, monterey:       "719513828804556f4ee23b00a34b2043761640d853173a5eb061625b2750c073"
+    sha256 cellar: :any_skip_relocation, big_sur:        "719513828804556f4ee23b00a34b2043761640d853173a5eb061625b2750c073"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "63d235ccf95c73511899a4de3ec81424dc71d2b264167ffe3e0a7e173e183676"
   end
 
-  depends_on "python@3.8"
+  depends_on "python@3.11"
 
   def install
     virtualenv_install_with_resources

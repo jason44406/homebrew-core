@@ -1,27 +1,30 @@
 class Solr < Formula
   desc "Enterprise search platform from the Apache Lucene project"
-  homepage "https://lucene.apache.org/solr/"
-  url "https://www.apache.org/dyn/closer.lua?path=lucene/solr/8.6.1/solr-8.6.1.tgz"
-  mirror "https://archive.apache.org/dist/lucene/solr/8.6.1/solr-8.6.1.tgz"
-  sha256 "8fe0fb4470a75ee78db8fd3c34878355585f1bf6a69df877acec3e6eb5fc4637"
+  homepage "https://solr.apache.org/"
+  url "https://dlcdn.apache.org/solr/solr/9.1.1/solr-9.1.1.tgz"
+  mirror "https://archive.apache.org/dist/solr/solr/9.1.1/solr-9.1.1.tgz"
+  sha256 "3d66aadb0afa69360da05a9124e7724539c7d5e41adecb7a736921baf6b97575"
   license "Apache-2.0"
 
-  bottle :unneeded
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "f691da4d2ec2602fa7a66fe4b64b751ff706a7359b3dbc1f0cf0c3e329272f8f"
+  end
 
   depends_on "openjdk"
 
   def install
     pkgshare.install "bin/solr.in.sh"
-    (var/"lib/solr").install "server/solr/README.txt", "server/solr/solr.xml", "server/solr/zoo.cfg"
-    prefix.install %w[contrib dist server]
-    libexec.install "bin"
-    bin.install [libexec/"bin/solr", libexec/"bin/post", libexec/"bin/oom_solr.sh"]
-    bin.env_script_all_files libexec,
-      JAVA_HOME:     Formula["openjdk"].opt_prefix,
-      SOLR_HOME:     var/"lib/solr",
-      SOLR_LOGS_DIR: var/"log/solr",
-      SOLR_PID_DIR:  var/"run/solr"
-    (libexec/"bin").rmtree
+    (var/"lib/solr").install "server/solr/README.md", "server/solr/solr.xml", "server/solr/zoo.cfg"
+    prefix.install "licenses", "modules", "server"
+    bin.install "bin/solr", "bin/post", "bin/oom_solr.sh"
+
+    env = Language::Java.overridable_java_home_env
+    env["SOLR_HOME"] = "${SOLR_HOME:-#{var}/lib/solr}"
+    env["SOLR_LOGS_DIR"] = "${SOLR_LOGS_DIR:-#{var}/log/solr}"
+    env["SOLR_PID_DIR"] = "${SOLR_PID_DIR:-#{var}/run/solr}"
+    bin.env_script_all_files libexec, env
+
+    inreplace libexec/"solr", "/usr/local/share/solr", pkgshare
   end
 
   def post_install
@@ -29,36 +32,13 @@ class Solr < Formula
     (var/"log/solr").mkpath
   end
 
-  plist_options manual: "solr start"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-      <dict>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{opt_bin}/solr</string>
-            <string>start</string>
-            <string>-f</string>
-            <string>-s</string>
-            <string>/usr/local/var/lib/solr</string>
-          </array>
-          <key>ServiceDescription</key>
-          <string>#{name}</string>
-          <key>WorkingDirectory</key>
-          <string>#{HOMEBREW_PREFIX}</string>
-          <key>RunAtLoad</key>
-          <true/>
-      </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"solr", "start", "-f", "-s", HOMEBREW_PREFIX/"var/lib/solr"]
+    working_dir HOMEBREW_PREFIX
   end
 
   test do
+    ENV["SOLR_PID_DIR"] = testpath
     port = free_port
 
     # Info detects no Solr node => exit code 3
@@ -70,7 +50,8 @@ class Solr < Formula
     # Impossible to start a second Solr node on the same port => exit code 1
     shell_output(bin/"solr start -p #{port}", 1)
     # Stop a Solr node => exit code 0
-    shell_output(bin/"solr stop -p #{port}")
+    # Exit code is 1 without init process in a docker container
+    shell_output(bin/"solr stop -p #{port}", (OS.linux? && ENV["HOMEBREW_GITHUB_ACTIONS"]) ? 1 : 0)
     # No Solr node left to stop => exit code 1
     shell_output(bin/"solr stop -p #{port}", 1)
   end

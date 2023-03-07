@@ -1,33 +1,46 @@
 class Dwarfutils < Formula
   desc "Dump and produce DWARF debug information in ELF objects"
   homepage "https://www.prevanders.net/dwarf.html"
-  url "https://www.prevanders.net/libdwarf-20200719.tar.gz"
-  sha256 "307d02b8f972de82c4b690a6e9852b66b6df0a23aa8d407430b6ee3d9ecbaccd"
+  url "https://www.prevanders.net/libdwarf-0.6.0.tar.xz"
+  sha256 "8d6f2e67ac6fae59c7019bf41b58fa620187a136cd5977e117f15b820ffc7e75"
+  license all_of: ["BSD-2-Clause", "LGPL-2.1-or-later", "GPL-2.0-or-later"]
+  version_scheme 1
 
-  bottle do
-    cellar :any_skip_relocation
-    sha256 "fc36e7fc39f73723520c29f823c11c62a45c0412db6cd5360291c4f0f8e4018c" => :catalina
-    sha256 "68c897651d6a0c7e1d08459e4361c8d22ff465bd83d0be6bf0e4864ab30e1133" => :mojave
-    sha256 "7d99f3f2173938d512b5268fc0d94f36a0915dc040fdaa9a08ae0448166ab8fc" => :high_sierra
+  livecheck do
+    url :homepage
+    regex(%r{href=(?:["']?|.*?/)libdwarf[._-]v?(\d+(?:\.\d+)+)\.t}i)
   end
 
-  depends_on "libelf" => :build
+  bottle do
+    sha256 arm64_ventura:  "d559e3a464b50bec8e31b3f4459c3f481108c1476cfb04015e2cb1f2270cca7f"
+    sha256 arm64_monterey: "442d4318258f2388763b9a244316d76c2762c53a008e6a7692b6425f509aeec6"
+    sha256 arm64_big_sur:  "15a9dc9bb2e9926d0c379268af31d77eed9b10f23c70269afb771ad8133e2d27"
+    sha256 ventura:        "a358259d75d04b5eb3f27838094aac4517aee7b51ac7d5cd583a6ef0f943b45c"
+    sha256 monterey:       "a50e7c8026586f7677600c87e0de1f81d8d250740fbcbd479e9a0e75a6ad25c1"
+    sha256 big_sur:        "9616bc58e2a3fb15607cc8a732cb46ea52f6d7bdcc3bf7644f6a6e0c546e782c"
+    sha256 x86_64_linux:   "54545056dd397064fa10c8963e95b59fbbc4ac84a309de264bbbfd153b1311ee"
+  end
+
+  head do
+    url "https://github.com/davea42/libdwarf-code.git", branch: "master"
+
+    depends_on "autoconf" => :build
+    depends_on "automake" => :build
+    depends_on "libtool" => :build
+  end
+
+  depends_on "pkg-config" => :build
 
   uses_from_macos "zlib"
 
   def install
-    system "./configure"
-    system "make"
-
-    bin.install "dwarfdump/dwarfdump"
-    man1.install "dwarfdump/dwarfdump.1"
-    lib.install "libdwarf/.libs/libdwarf.a"
-    include.install "libdwarf/dwarf.h"
-    include.install "libdwarf/libdwarf.h"
+    system "sh", "autogen.sh" if build.head?
+    system "./configure", *std_configure_args, "--enable-shared"
+    system "make", "install"
   end
 
   test do
-    system "#{bin}/dwarfdump", "-V"
+    system bin/"dwarfdump", "-V"
 
     (testpath/"test.c").write <<~EOS
       #include <dwarf.h>
@@ -52,7 +65,7 @@ class Dwarfutils < Formula
         return 0;
       }
     EOS
-    system ENV.cc, "-L#{lib}", "-I#{include}", "-ldwarf", "test.c", "-o", "test"
+    system ENV.cc, "-I#{include}/libdwarf-0", "test.c", "-L#{lib}", "-ldwarf", "-o", "test"
     system "./test"
   end
 end

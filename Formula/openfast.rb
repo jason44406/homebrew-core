@@ -1,16 +1,18 @@
 class Openfast < Formula
   desc "NREL-supported OpenFAST whole-turbine simulation code"
   homepage "https://openfast.readthedocs.io"
-  url "https://github.com/openfast/openfast/archive/v2.3.0.tar.gz"
-  sha256 "2b368e8c8211ebed03e87fb3e89ef733b7e4be4848834da4034f8419d618446c"
+  url "https://github.com/openfast/openfast/archive/v3.4.1.tar.gz"
+  sha256 "0717c3aba48aa58fac10de308313328f6ed798cdf9c210172ccc978ec591f170"
   license "Apache-2.0"
-  revision 1
 
   bottle do
-    cellar :any
-    sha256 "a3853476d60b961beb46c9dd2e6d57cfa82b566336630d7d761295f67a1eef39" => :catalina
-    sha256 "083887ac9bc3bff177b483423fbbe7dae850e70b81c481a2e48b5263fef48671" => :mojave
-    sha256 "e02a5cff1f9c007018873388a77a719a6db38da7e935e150a4b49a0f4feeb0ed" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "445ecd409fccf95219db12d6cefb101e2fc997d25c75a473427c3a7ae7939221"
+    sha256 cellar: :any,                 arm64_monterey: "2edd69143709b8289fc848b865ce68b24ea7d09016dd59cff344d98f2fe0c878"
+    sha256 cellar: :any,                 arm64_big_sur:  "92fec98fed83d8d6644742efcd853ad5bfffb89b2b034420c59aba0749828c2b"
+    sha256 cellar: :any,                 ventura:        "f52f053fa965eee38b1d1fa15c5928ebdfa4550d97b26f5cca765f4ebee207de"
+    sha256 cellar: :any,                 monterey:       "5fea5d63eb9e2d12839e3c560aa03190a7b7aa8453dfa2953506fd63f0e6089a"
+    sha256 cellar: :any,                 big_sur:        "730643bb4cdaa7e0904eeda4a1e8321ad72891851f7dd5b63f9d1eea49c24d80"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "34c3acba44c2319eca5765f94a5bea766fe83d0c2887924f8b76450cab2c5dc9"
   end
 
   depends_on "cmake" => :build
@@ -19,7 +21,7 @@ class Openfast < Formula
 
   def install
     args = std_cmake_args + %w[
-      -DCMAKE_BUILD_TYPE=RelWithDebInfo
+      -DDOUBLE_PRECISION=OFF
       -DBLA_VENDOR=OpenBLAS
     ]
 
@@ -35,9 +37,9 @@ class Openfast < Formula
       ------- OpenFAST INPUT FILE ----------------------------------------------------
       Simple test case to validate Homebrew installation
       ---------------------- SIMULATION CONTROL --------------------------------------
-      False         Echo            - Echo input data to <RootName>.ech (flag)
-      "FATAL"       AbortLevel      - Error level when simulation should abort (string) {"WARNING", "SEVERE", "FATAL"}
-            0.01   TMax            - Total run time (s)
+            False   Echo            - Echo input data to <RootName>.ech (flag)
+          "FATAL"   AbortLevel      - Error level when simulation should abort (string) {"WARNING", "SEVERE", "FATAL"}
+            0.01    TMax            - Total run time (s)
             0.005   DT              - Recommended module time step (s)
                 2   InterpOrder     - Interpolation order for input/output time history (-) {1=linear, 2=quadratic}
                 0   NumCrctn        - Number of correction iterations (-) {0=explicit calculation, i.e., no corrections}
@@ -52,6 +54,17 @@ class Openfast < Formula
                 0   CompSub         - Compute sub-structural dynamics (switch) {0=None; 1=SubDyn; 2=External Platform MCKF}
                 0   CompMooring     - Compute mooring system (switch) {0=None; 1=MAP++; 2=FEAMooring; 3=MoorDyn; 4=OrcaFlex}
                 0   CompIce         - Compute ice loads (switch) {0=None; 1=IceFloe; 2=IceDyn}
+                0   MHK             - MHK turbine type (switch) {0: not an MHK turbine, 1: fixed MHK turbine, 2: floating MHK turbine}
+      ---------------------- ENVIRONMENTAL CONDITIONS -------------------------------------------------
+           9.8066   Gravity         - Gravity (m/s^2).
+            1.225   AirDens         - AirDens - Air density (kg/m^3)
+             1025   WtrDens         - Water density (kg/m^3)
+       1.4639E-05   KinVisc         - Kinematic air viscosity, m^2/sec
+              335   SpdSound        - Speed of sound in working fluid (m/s)
+        1.035e+05   Patm            - Atmospheric pressure (Pa) [used only for an MHK turbine cavitation check]
+          1.7e+03   Pvap            - Vapour pressure of working fluid (Pa) [used only for an MHK turbine cavitation check]
+               50   WtrDpth         - Water Depth (m) positive value.
+                0   MSL2SWL         - Offset between still-water level and mean sea level (m) [positive upward]
       ---------------------- INPUT FILES ---------------------------------------------
       "elastodyn.dat"    EDFile          - Name of file containing ElastoDyn input parameters (quoted string)
       "unused"      BDBldFile(1)    - Name of file containing BeamDyn input parameters for blade 1 (quoted string)
@@ -65,27 +78,33 @@ class Openfast < Formula
       "unused"      MooringFile     - Name of file containing mooring system input parameters (quoted string)
       "unused"      IceFile         - Name of file containing ice input parameters (quoted string)
       ---------------------- OUTPUT --------------------------------------------------
-      False         SumPrint        - Print summary data to "<RootName>.sum" (flag)
+            False   SumPrint        - Print summary data to "<RootName>.sum" (flag)
                 5   SttsTime        - Amount of time between screen status messages (s)
             99999   ChkptTime       - Amount of time between creating checkpoint files for potential restart (s)
             0.005   DT_Out          - Time step for tabular output (s) (or "default")
                 0   TStart          - Time to begin tabular output (s)
                 1   OutFileFmt      - Format for tabular (time-marching) output file (switch) {1: text file [<RootName>.out], 2: binary file [<RootName>.outb], 3: both}
-      True          TabDelim        - Use tab delimiters in text tabular output file? (flag) {uses spaces if false}
-      "ES10.3E2"    OutFmt          - Format used for text tabular output, excluding the time channel.  Resulting field should be 10 characters. (quoted string)
+             True   TabDelim        - Use tab delimiters in text tabular output file? (flag) {uses spaces if false}
+       "ES10.3E2"   OutFmt          - Format used for text tabular output, excluding the time channel.  Resulting field should be 10 characters. (quoted string)
       ---------------------- LINEARIZATION -------------------------------------------
-      False         Linearize       - Linearization analysis (flag)
-                2   NLinTimes       - Number of times to linearize (-) [>=1] [unused if Linearize=False]
-              30,         60    LinTimes        - List of times at which to linearize (s) [1 to NLinTimes] [unused if Linearize=False]
-                1   LinInputs       - Inputs included in linearization (switch) {0=none; 1=standard; 2=all module inputs (debug)} [unused if Linearize=False]
-                1   LinOutputs      - Outputs included in linearization (switch) {0=none; 1=from OutList(s); 2=all module outputs (debug)} [unused if Linearize=False]
-      False         LinOutJac       - Include full Jacobians in linearization output (for debug) (flag) [unused if Linearize=False; used only if LinInputs=LinOutputs=2]
-      False         LinOutMod       - Write module-level linearization output files in addition to output for full system? (flag) [unused if Linearize=False]
+           False    Linearize       - Linearization analysis (flag)
+           False    CalcSteady      - Calculate a steady-state periodic operating point before linearization? [unused if Linearize=False] (flag)
+               3    TrimCase        - Controller parameter to be trimmed {1:yaw; 2:torque; 3:pitch} [used only if CalcSteady=True] (-)
+           0.001    TrimTol         - Tolerance for the rotational speed convergence [used only if CalcSteady=True] (-)
+            0.01    TrimGain        - Proportional gain for the rotational speed error (>0) [used only if CalcSteady=True] (rad/(rad/s) for yaw or pitch; Nm/(rad/s) for torque)
+               0    Twr_Kdmp        - Damping factor for the tower [used only if CalcSteady=True] (N/(m/s))
+               0    Bld_Kdmp        - Damping factor for the blades [used only if CalcSteady=True] (N/(m/s))
+               2    NLinTimes       - Number of times to linearize (-) [>=1] [unused if Linearize=False]
+           30,60    LinTimes        - List of times at which to linearize (s) [1 to NLinTimes] [unused if Linearize=False]
+               1    LinInputs       - Inputs included in linearization (switch) {0=none; 1=standard; 2=all module inputs (debug)} [unused if Linearize=False]
+               1    LinOutputs      - Outputs included in linearization (switch) {0=none; 1=from OutList(s); 2=all module outputs (debug)} [unused if Linearize=False]
+           False    LinOutJac       - Include full Jacobians in linearization output (for debug) (flag) [unused if Linearize=False; used only if LinInputs=LinOutputs=2]
+           False    LinOutMod       - Write module-level linearization output files in addition to output for full system? (flag) [unused if Linearize=False]
       ---------------------- VISUALIZATION ------------------------------------------
-                0   WrVTK           - VTK visualization data output: (switch) {0=none; 1=initialization data only; 2=animation}
-                2   VTK_type        - Type of VTK visualization data: (switch) {1=surfaces; 2=basic meshes (lines/points); 3=all meshes (debug)} [unused if WrVTK=0]
-      false         VTK_fields      - Write mesh fields to VTK data files? (flag) {true/false} [unused if WrVTK=0]
-              15   VTK_fps         - Frame rate for VTK output (frames per second){will use closest integer multiple of DT} [used only if WrVTK=2]
+               0    WrVTK           - VTK visualization data output: (switch) {0=none; 1=initialization data only; 2=animation}
+               2    VTK_type        - Type of VTK visualization data: (switch) {1=surfaces; 2=basic meshes (lines/points); 3=all meshes (debug)} [unused if WrVTK=0]
+           false    VTK_fields      - Write mesh fields to VTK data files? (flag) {true/false} [unused if WrVTK=0]
+              15    VTK_fps         - Frame rate for VTK output (frames per second){will use closest integer multiple of DT} [used only if WrVTK=2]
     EOS
 
     (testpath/"blade.dat").write <<~EOS
@@ -196,8 +215,6 @@ class Openfast < Formula
       False         Echo        - Echo input data to "<RootName>.ech" (flag)
                 3   Method      - Integration method: {1: RK4, 2: AB4, or 3: ABM4} (-)
             0.005   DT          - Integration time step (s)
-      ---------------------- ENVIRONMENTAL CONDITION ---------------------------------
-          9.80665   Gravity     - Gravitational acceleration (m/s^2)
       ---------------------- DEGREES OF FREEDOM --------------------------------------
       True          FlapDOF1    - First flapwise blade mode DOF (flag)
       True          FlapDOF2    - Second flapwise blade mode DOF (flag)

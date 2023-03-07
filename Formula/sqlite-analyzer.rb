@@ -1,22 +1,37 @@
 class SqliteAnalyzer < Formula
   desc "Analyze how space is allocated inside an SQLite file"
   homepage "https://www.sqlite.org/"
-  url "https://www.sqlite.org/2020/sqlite-src-3330000.zip"
-  version "3.33.0"
-  sha256 "90bf7604a5aa26deece551af7a665fd4ce3d854ea809899c0e4bb19a69d609b8"
+  url "https://www.sqlite.org/2023/sqlite-src-3410000.zip"
+  version "3.41.0"
+  sha256 "64a7638a35e86b991f0c15ae8e2830063b694b28068b8f7595358e3205a9eb66"
   license "blessing"
 
-  bottle do
-    cellar :any_skip_relocation
-    sha256 "9e59b093b696037bde52e57a1993961dde8233fbb7305157da8be0e54a986804" => :catalina
-    sha256 "c76502517f95848e816532390f2b9a49b0a49b304da4b534bf299161a94d60ce" => :mojave
-    sha256 "b43f737792c6eaaa3cb36af271d37bbb50e8f1232614ae38c314b84411616bc1" => :high_sierra
+  livecheck do
+    formula "sqlite"
   end
 
+  bottle do
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "598304d585af9e3fefcdafafa5baaced9f7c05c6208e0b92430f8e0914f49bd4"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "f2199f10448b3a44556677a8f2d5b5e58f9087a096514e7e01c80684875d4e98"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "6b5252a0809c11444d94476a0d863d1a111c77a4ee7816cb7b12c68f49d0f9fc"
+    sha256 cellar: :any_skip_relocation, ventura:        "909eb10e92a046509085f4f672c22bbda85fad665a5c68b5a90165360365db48"
+    sha256 cellar: :any_skip_relocation, monterey:       "fd991f659556c274972342d29b61ea4e29edb62431f1a7d807155b584cdd4eb5"
+    sha256 cellar: :any_skip_relocation, big_sur:        "2194a28fbdcc55f5821dea789eb31d5b14cc7b88f49c2fac3a8b3455581506a5"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "1d1e68c10136a2b596f138c4c0f8b854ce506e72c8ac17d8e50ba54c0e89f066"
+  end
+
+  uses_from_macos "sqlite" => :test
+  uses_from_macos "tcl-tk"
+
   def install
-    sdkprefix = MacOS.sdk_path_if_needed ? MacOS.sdk_path : ""
+    tcl = if OS.mac?
+      MacOS.sdk_path/"System/Library/Frameworks/Tcl.framework"
+    else
+      Formula["tcl-tk"].opt_lib
+    end
+
     system "./configure", "--disable-debug",
-                          "--with-tcl=#{sdkprefix}/System/Library/Frameworks/Tcl.framework/",
+                          "--with-tcl=#{tcl}",
                           "--prefix=#{prefix}"
     system "make", "sqlite3_analyzer"
     bin.install "sqlite3_analyzer"
@@ -31,7 +46,7 @@ class SqliteAnalyzer < Formula
       insert into students (name, age) values ('Sue', 12);
       insert into students (name, age) values ('Tim', 13);
     EOS
-    system "/usr/bin/sqlite3 #{dbpath} < #{sqlpath}"
+    system "sqlite3 #{dbpath} < #{sqlpath}"
     system bin/"sqlite3_analyzer", dbpath
   end
 end

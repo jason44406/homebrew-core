@@ -1,20 +1,23 @@
 class MathComp < Formula
   desc "Mathematical Components for the Coq proof assistant"
   homepage "https://math-comp.github.io/math-comp/"
-  url "https://github.com/math-comp/math-comp/archive/mathcomp-1.11.0.tar.gz"
-  sha256 "b16108320f77d15dd19ecc5aad90775b576edfa50c971682a1a439f6d364fef6"
+  url "https://github.com/math-comp/math-comp/archive/mathcomp-1.16.0.tar.gz"
+  sha256 "36fe4f5487f4685db9c6e6affa92abb47248440e6d4dfaaa01ab31df5fd4b513"
   license "CECILL-B"
-  revision 1
-  head "https://github.com/math-comp/math-comp.git"
+  head "https://github.com/math-comp/math-comp.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "edb89d858da73c96db674081d8e4ae7928c1e8ba84aa6d1b094d8f3ecdf9e3da" => :catalina
-    sha256 "909e8d31ba453c301dbb60429dbd34c762fc8e2d17429db26dede12baa7c78ed" => :mojave
-    sha256 "60fbe12a151b31cedb075a81e352b63f130ee01e17b3ea47bc04430be006a9b5" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "4272e83270c924aac5a6bcc1a38841f5d5a5cff4c3a0641f5e61d838ca960c22"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "b5659cc97dddf3e8af48867d3d06aa766d8ca193a012bdb72aa4de64e9e91438"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "8d43c52805708d27f4353896f9811d8522381550f7d3f81b18a444556f0591ea"
+    sha256 cellar: :any_skip_relocation, ventura:        "32c73e300d77346abacddc276aaa6302fd34b3fff4d262faa2a88c7bdcbfec64"
+    sha256 cellar: :any_skip_relocation, monterey:       "4719a1471f1c3b7b78104762c5ede7b03ea835cf26596766d184e352cdbffd2f"
+    sha256 cellar: :any_skip_relocation, big_sur:        "9effd0a933673ee1f659b6622c76f583b5b7258bbc1050d7ba03adb43d5a1fd4"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "4ebf0438b7e5d58e69cdc285fe1368e894d2e99bd09e2f30ef270faa77308e6f"
   end
 
   depends_on "ocaml" => :build
+  depends_on "ocaml-findlib" => :build
   depends_on "coq"
 
   def install
@@ -48,6 +51,6 @@ class MathComp < Formula
 
     coqc = Formula["coq"].opt_bin/"coqc"
     cmd = "#{coqc} -R #{lib}/coq/user-contrib/mathcomp mathcomp testing.v"
-    assert_match /\Atest\s+: forall/, shell_output(cmd)
+    assert_match(/\Atest\s+: forall/, shell_output(cmd))
   end
 end

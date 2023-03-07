@@ -4,13 +4,24 @@ class Phplint < Formula
   url "https://www.icosaedro.it/phplint/phplint-4.2.0_20200308.tar.gz"
   version "4.2.0-20200308"
   sha256 "a0d0a726dc2662c1bc6fae95c904430b0c68d0b4e4e19c38777da38c2823a094"
+  license "BSD-3-Clause"
 
-  bottle :unneeded
+  bottle do
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "ecb11516875f096c647e254ef2451687ead874112397779abdb1afeafd8e0563"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "14f43ce602719839c32da02be3464239085fbe253a38617305a51e5619cbb9b4"
+    sha256 cellar: :any_skip_relocation, monterey:       "850a054845b3f52021d9afeaf0f36c0c946db3dba9741c01afb9238036e66fc4"
+    sha256 cellar: :any_skip_relocation, big_sur:        "5191083b9faf95df4815a425a2b0e3a991bc578c5fef05f804663adcb057d1da"
+    sha256 cellar: :any_skip_relocation, catalina:       "5191083b9faf95df4815a425a2b0e3a991bc578c5fef05f804663adcb057d1da"
+    sha256 cellar: :any_skip_relocation, mojave:         "5191083b9faf95df4815a425a2b0e3a991bc578c5fef05f804663adcb057d1da"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "ecb11516875f096c647e254ef2451687ead874112397779abdb1afeafd8e0563"
+  end
 
-  depends_on "php"
+  disable! date: "2022-10-19", because: "only supports deprecated PHP versions"
+
+  depends_on "php@7.4"
 
   def install
-    inreplace "php", "/opt/php/bin/php", Formula["php"].opt_bin/"php"
+    inreplace "php", "/opt/php/bin/php", Formula["php@7.4"].opt_bin/"php"
     libexec.install "modules", "php", "phpl", "stdlib", "utils"
     bin.install_symlink libexec/"phpl"
   end

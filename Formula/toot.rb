@@ -1,63 +1,68 @@
 class Toot < Formula
   include Language::Python::Virtualenv
+
   desc "Mastodon CLI & TUI"
   homepage "https://toot.readthedocs.io/en/latest/index.html"
-  url "https://github.com/ihabunek/toot/releases/download/0.27.0/toot-0.27.0.tar.gz"
-  sha256 "1dfdba9acc8555fa3b4db903cbf806a639bf43c7855d324233041c655fc5cbd5"
-  license "GPL-3.0"
+  url "https://files.pythonhosted.org/packages/7a/80/63fc38a5a9a9e630b5d39f9cd1be39265236066b303e6a839ecee2723fc2/toot-0.35.0.tar.gz"
+  sha256 "b176f4507a0029dd449bb2019646912c79a246906f1785755c21ea38728e701f"
+  license "GPL-3.0-only"
+  head "https://github.com/ihabunek/toot.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "96f4f491b9448368e35619e8910420eba8528a61857c8114c238ed279e6cffae" => :catalina
-    sha256 "72ff4aa79f3b3bd508a7c76a906d5dc0901f1206ae6eb417d50638a97a4bf9b2" => :mojave
-    sha256 "f8e4e2f82a44d0c9f054264d2cb9e0cd01f3f25cea91d7c861689bad7814add0" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "8588cf55c4a877384ed570bdc8136e557396533598f0725c381cf36b1020489d"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "054cb406574160b76f34e1a1d87ddd965cbf5f06ebc64b1c1388ec57d38692af"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "9008d132f5d286e73136d172fa17a7759326818412a5dc3b731634c4e883dda5"
+    sha256 cellar: :any_skip_relocation, ventura:        "e6fcc9705cf8525977310e82ca768ca74d7f625ce94d07eebe51e982ff72e272"
+    sha256 cellar: :any_skip_relocation, monterey:       "52d16d17bc5d118df5dd4f793235ee41bf66ab037f0cc75b1b2730258f661679"
+    sha256 cellar: :any_skip_relocation, big_sur:        "71efd53ad2b6f2b22ea3c41b23bab69a7957cecc4beccf9ecd9beccae86acc68"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "f2a09142aee53ca37412622286d643c199ea88534a0981886ad540d512772d6c"
   end
 
-  depends_on "python@3.8"
+  depends_on "python@3.11"
 
   resource "beautifulsoup4" do
-    url "https://files.pythonhosted.org/packages/c6/62/8a2bef01214eeaa5a4489eca7104e152968729512ee33cb5fbbc37a896b7/beautifulsoup4-4.9.1.tar.gz"
-    sha256 "73cc4d115b96f79c7d77c1c7f7a0a8d4c57860d1041df407dd1aae7f07a77fd7"
+    url "https://files.pythonhosted.org/packages/75/f8/de84282681c5a8307f3fff67b64641627b2652752d49d9222b77400d02b8/beautifulsoup4-4.11.2.tar.gz"
+    sha256 "bc4bdda6717de5a2987436fb8d72f45dc90dd856bdfd512a1314ce90349a0106"
   end
 
   resource "certifi" do
-    url "https://files.pythonhosted.org/packages/b4/19/53433f37a31543364c8676f30b291d128cdf4cd5b31b755b7890f8e89ac8/certifi-2020.4.5.2.tar.gz"
-    sha256 "5ad7e9a056d25ffa5082862e36f119f7f7cec6457fa07ee2f8c339814b80c9b1"
+    url "https://files.pythonhosted.org/packages/37/f7/2b1b0ec44fdc30a3d31dfebe52226be9ddc40cd6c0f34ffc8923ba423b69/certifi-2022.12.7.tar.gz"
+    sha256 "35824b4c3a97115964b408844d64aa14db1cc518f6562e8d7261699d1350a9e3"
   end
 
-  resource "chardet" do
-    url "https://files.pythonhosted.org/packages/fc/bb/a5768c230f9ddb03acc9ef3f0d4a3cf93462473795d18e9535498c8f929d/chardet-3.0.4.tar.gz"
-    sha256 "84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae"
+  resource "charset-normalizer" do
+    url "https://files.pythonhosted.org/packages/96/d7/1675d9089a1f4677df5eb29c3f8b064aa1e70c1251a0a8a127803158942d/charset-normalizer-3.0.1.tar.gz"
+    sha256 "ebea339af930f8ca5d7a699b921106c6e29c617fe9606fa7baa043c1cdae326f"
   end
 
   resource "idna" do
-    url "https://files.pythonhosted.org/packages/cb/19/57503b5de719ee45e83472f339f617b0c01ad75cba44aba1e4c97c2b0abd/idna-2.9.tar.gz"
-    sha256 "7588d1c14ae4c77d74036e8c22ff447b26d0fde8f007354fd48a7814db15b7cb"
+    url "https://files.pythonhosted.org/packages/8b/e1/43beb3d38dba6cb420cefa297822eac205a277ab43e5ba5d5c46faf96438/idna-3.4.tar.gz"
+    sha256 "814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4"
   end
 
   resource "requests" do
-    url "https://files.pythonhosted.org/packages/da/67/672b422d9daf07365259958912ba533a0ecab839d4084c487a5fe9a5405f/requests-2.24.0.tar.gz"
-    sha256 "b3559a131db72c33ee969480840fff4bb6dd111de7dd27c8ee1f820f4f00231b"
+    url "https://files.pythonhosted.org/packages/9d/ee/391076f5937f0a8cdf5e53b701ffc91753e87b07d66bae4a09aa671897bf/requests-2.28.2.tar.gz"
+    sha256 "98b1b2782e3c6c4904938b84c0eb932721069dfdb9134313beff7c83c2df24bf"
   end
 
   resource "soupsieve" do
-    url "https://files.pythonhosted.org/packages/3e/db/5ba900920642414333bdc3cb397075381d63eafc7e75c2373bbc560a9fa1/soupsieve-2.0.1.tar.gz"
-    sha256 "a59dc181727e95d25f781f0eb4fd1825ff45590ec8ff49eadfd7f1a537cc0232"
+    url "https://files.pythonhosted.org/packages/1b/cb/34933ebdd6bf6a77daaa0bd04318d61591452eb90ecca4def947e3cb2165/soupsieve-2.4.tar.gz"
+    sha256 "e28dba9ca6c7c00173e34e4ba57448f0688bb681b7c5e8bf4971daafc093d69a"
   end
 
   resource "urllib3" do
-    url "https://files.pythonhosted.org/packages/05/8c/40cd6949373e23081b3ea20d5594ae523e681b6f472e600fbc95ed046a36/urllib3-1.25.9.tar.gz"
-    sha256 "3018294ebefce6572a474f0604c2021e33b3fd8006ecd11d62107a5d2a963527"
+    url "https://files.pythonhosted.org/packages/c5/52/fe421fb7364aa738b3506a2d99e4f3a56e079c0a798e9f4fa5e14c60922f/urllib3-1.26.14.tar.gz"
+    sha256 "076907bf8fd355cde77728471316625a4d2f7e713c125f51953bb5b3eecf4f72"
   end
 
   resource "urwid" do
-    url "https://files.pythonhosted.org/packages/45/dd/d57924f77b0914f8a61c81222647888fbb583f89168a376ffeb5613b02a6/urwid-2.1.0.tar.gz"
-    sha256 "0896f36060beb6bf3801cb554303fef336a79661401797551ba106d23ab4cd86"
+    url "https://files.pythonhosted.org/packages/94/3f/e3010f4a11c08a5690540f7ebd0b0d251cc8a456895b7e49be201f73540c/urwid-2.1.2.tar.gz"
+    sha256 "588bee9c1cb208d0906a9f73c613d2bd32c3ed3702012f51efe318a3f2127eae"
   end
 
   resource "wcwidth" do
-    url "https://files.pythonhosted.org/packages/2e/30/268d9d3ed18439b6983a8e630cd52d81fd7460a152d6e801d1b8394e51a1/wcwidth-0.2.4.tar.gz"
-    sha256 "8c6b5b6ee1360b842645f336d9e5d68c55817c26d3050f46b235ef2bc650e48f"
+    url "https://files.pythonhosted.org/packages/5e/5f/1e4bd82a9cc1f17b2c2361a2d876d4c38973a997003ba5eb400e8a932b6c/wcwidth-0.2.6.tar.gz"
+    sha256 "a5220780a404dbe3353789870978e472cfe477761f06ee55077256e509b156d0"
   end
 
   def install

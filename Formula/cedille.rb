@@ -1,40 +1,30 @@
-require "language/haskell"
-
 class Cedille < Formula
-  include Language::Haskell::Cabal
-
   desc "Language based on the Calculus of Dependent Lambda Eliminations"
   homepage "https://cedille.github.io/"
+  url "https://github.com/cedille/cedille.git",
+      tag:      "v1.1.2",
+      revision: "4d8a343a8d3f0b318e3c1b3209d216912dbc06ee"
   license "MIT"
-  revision 3
-
-  stable do
-    url "https://github.com/cedille/cedille/archive/v1.1.2.tar.gz"
-    sha256 "cf6578256105c7042b99a70a897c1ed60f856b28628b79205eb95730863b71cb"
-
-    resource "ial" do
-      url "https://github.com/cedille/ial/archive/v1.5.0.tar.gz"
-      sha256 "f003a785aba6743f4d76dcaafe3bc08bf879b2e1a7a198a4f192ced12b558f46"
-    end
-  end
+  revision 5
+  head "https://github.com/cedille/cedille.git", branch: "master"
 
   bottle do
-    sha256 "f35c0eb5cfe557eea19c757244345a8761354ab34b59cba492f40b997b246ffa" => :catalina
-    sha256 "31cbfd570e8ec6a98991f5fe66b2b3b5865f1fbfcffa7cf6ba7d8509fc904eee" => :mojave
-    sha256 "fdffd4669a910e9435e09c7dbef6c85694cbd107e07c945c808ff2bdef3eee3b" => :high_sierra
+    sha256 cellar: :any,                 arm64_monterey: "2318e5ad7d619a967f30b26760b65b1dfd7048068b5e503c0188ed5dab39611b"
+    sha256 cellar: :any,                 arm64_big_sur:  "41f57c5915cba1a95fc1b3cbeee9cef65fb2e904c38ff4a177fb1d79afe3ae77"
+    sha256 cellar: :any,                 ventura:        "0bc436c470c761ff9c17178736140e6f635ac3513a6bf3d5a1d6112ab7a1ff1e"
+    sha256 cellar: :any,                 monterey:       "cc7b9b167a8b0cdbd89e252d5d9f3c512f0118ebc9f55d2f62dab1c853fe96d9"
+    sha256 cellar: :any,                 big_sur:        "013c15005c3d4af904552a1dc93476e227950604440855d7f5bc7ada73f5846d"
+    sha256 cellar: :any,                 catalina:       "0a38e0707fa92d31747e2e53bc9e2b4ad6b771c66ba698386e2f96d024ec9469"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "19ddb3fc4a207d0db02e7c3c661568379821a38c998d784e99344a094f0e1fa2"
   end
 
-  head do
-    url "https://github.com/cedille/cedille.git"
+  # We have various patches, inreplaces, and workarounds to get current release to build.
+  # Stable uses stackage resolver lts-12.26 (ghc-8.4.4) while HEAD uses lts-13.25 (ghc-8.6.5).
+  # Last release on 2019-12-13
+  deprecate! date: "2023-02-13", because: :unmaintained
 
-    resource "ial" do
-      url "https://github.com/cedille/ial.git"
-    end
-  end
-
-  depends_on "agda" => :build
-  depends_on "cabal-install" => :build
-  depends_on "ghc@8.8"
+  depends_on "haskell-stack" => :build
+  depends_on "ghc@8.10"
 
   # needed to build with agda 2.6.1
   # taken from https://github.com/cedille/cedille/pull/144/files
@@ -44,25 +34,37 @@ class Cedille < Formula
   patch :DATA
 
   def install
-    resource("ial").stage buildpath/"ial"
+    inreplace "stack.yaml", "resolver: lts-12.26", <<~EOS
+      resolver: lts-16.12
+      compiler: ghc-#{Formula["ghc@8.10"].version}
+      compiler-check: newer-minor
+      allow-newer: true
+      system-ghc: true
+      install-ghc: false
+    EOS
 
-    cabal_sandbox do
-      # build tools
-      cabal_install_tools "alex", "happy", "cpphs"
+    # Build fails with agda >= 2.6.2, so locally install agda 2.6.1.
+    # Issue ref: https://github.com/cedille/cedille/issues/162
+    # TODO: on next release, switch to `depends_on "agda"` if supported,
+    # or reduce list to `Agda alex happy` once stack.yaml includes extra-deps.
+    deps = %w[
+      Agda-2.6.1.3
+      alex
+      happy
+      data-hash-0.2.0.1
+      equivalence-0.3.5
+      geniplate-mirror-0.7.8
+      STMonadTrans-0.4.6
+    ]
+    system "stack", "build", "--copy-bins", "--local-bin-path=#{buildpath}/bin", *deps
+    ENV.append_path "PATH", buildpath/"bin"
 
-      # build dependencies
-      cabal_install "ieee754"
+    system "stack", "build", "--copy-bins", "--local-bin-path=#{bin}"
 
-      # use the sandbox when building with Agda
-      ENV["GHC_PACKAGE_PATH"] = "#{buildpath/Dir[".cabal-sandbox/*packages.conf.d/"].first}:"
-
-      # build
-      system "make", "core/cedille-core", "cedille-mac"
-    end
+    system "make", "core/cedille-core"
 
     # binaries and elisp
     bin.install "core/cedille-core"
-    bin.install "cedille-mac" => "cedille"
     elisp.install "cedille-mode.el", "cedille-mode", "se-mode"
 
     # standard libraries
@@ -130,6 +132,7 @@ class Cedille < Formula
     system bin/"cedille", cedilletest
   end
 end
+
 __END__
 diff --git a/src/to-string.agda b/src/to-string.agda
 index 2505942..051a2da 100644

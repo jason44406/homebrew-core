@@ -1,17 +1,24 @@
 class Libdiscid < Formula
   desc "C library for creating MusicBrainz and freedb disc IDs"
   homepage "https://musicbrainz.org/doc/libdiscid"
-  url "http://ftp.musicbrainz.org/pub/musicbrainz/libdiscid/libdiscid-0.6.2.tar.gz"
-  sha256 "f9e443ac4c0dd4819c2841fcc82169a46fb9a626352cdb9c7f65dd3624cd31b9"
-  license "LGPL-2.1"
+  url "http://ftp.musicbrainz.org/pub/musicbrainz/libdiscid/libdiscid-0.6.4.tar.gz"
+  mirror "https://ftp.osuosl.org/pub/musicbrainz/libdiscid/libdiscid-0.6.4.tar.gz"
+  sha256 "dd5e8f1c9aead442e23b749a9cc9336372e62e88ad7079a2b62895b0390cb282"
+  license "LGPL-2.1-or-later"
+
+  livecheck do
+    url "https://ftp.osuosl.org/pub/musicbrainz/libdiscid/"
+    regex(/href=.*?libdiscid[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "74dd7ef5362b91818107ef3c8c3edab443faf8a17662294a24573e5f476110c7" => :catalina
-    sha256 "f6a415ae56c151ccef5e10cc239675be8cbd7dcf60a8b9c88c87a756bda5bd9a" => :mojave
-    sha256 "3ffb586f09efcd9322a28bafc671292d0caf38edc18326c048a7390ced94979f" => :high_sierra
-    sha256 "6d43fee98239a6a600e59cce0f4f2ceda713bf27cc3d03bc8711d1c773ba84b6" => :sierra
-    sha256 "22e96d837cfe404cf268c41f6ce26c6b47eb8a991578ce1f18bcea862f9f1c91" => :el_capitan
+    sha256 cellar: :any,                 arm64_ventura:  "ab8bab81ac4ed46d45902acfea78260d20e2ce0616d6073ebc8025ff6fa7979b"
+    sha256 cellar: :any,                 arm64_monterey: "896b72d31f4c99fa8e1064807501c1588002c2d1d651cf3179ee5052504dea7f"
+    sha256 cellar: :any,                 arm64_big_sur:  "65809091e9b8c9e8fdbc3e68995a7d93e4d367d798e19bd48a6f8a87c87fce0b"
+    sha256 cellar: :any,                 ventura:        "88e97449648d49fafdff023e74d9841090c8194f7d1a311eb1c16920dfa7221c"
+    sha256 cellar: :any,                 monterey:       "b2d8bb666d78a7c0a3b3d32fbdc86524cee0d0f080f138de868d31979aca627b"
+    sha256 cellar: :any,                 big_sur:        "c4d364091f700f65e2fd53f70b23f243cab80cf991d0e7febbd78b0dfb029e9d"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "0408adf6b787c2260b62aa1235ec0b42d8ee8a8892a035fd56e1392cebe41303"
   end
 
   def install

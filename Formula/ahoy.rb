@@ -1,27 +1,25 @@
 class Ahoy < Formula
   desc "Creates self documenting CLI programs from commands in YAML files"
   homepage "https://ahoy-cli.readthedocs.io/"
-  url "https://github.com/ahoy-cli/ahoy/archive/2.0.0.tar.gz"
-  sha256 "cc3e426083bf7b7309e484fa69ed53b33c9b00adf9be879cbe74c19bdaef027c"
+  url "https://github.com/ahoy-cli/ahoy/archive/refs/tags/2.0.2.tar.gz"
+  sha256 "74125750452c751ec62966d0bea8646b2f8d883095892d3dad641ff65df6bf9b"
   license "MIT"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "fb8e03826f9109edc8bb5b1e0c7c9d8054d76e364bca13e0afdf7a23b022a817" => :catalina
-    sha256 "eabaf2c0faa64d878f3fd552823b9d5103e0755ba5f3120628e605964fc93257" => :mojave
-    sha256 "93db889b646270f7a92d32f649c9e256e4e90cfa006a04c614334f28557ce7ca" => :high_sierra
-    sha256 "5743854a4e6553adb3318a2facfd941bcf4d95a7ab3c2399400c7818c6e19c6f" => :sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "53baeb4480be481ee214d7999ec81103af8e4bf17c35538da47f5a044000294c"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "8a783f4261bfd14a620550e7676dfa45ef7ea840175591948d1fa6ade1fb0d2a"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "8a783f4261bfd14a620550e7676dfa45ef7ea840175591948d1fa6ade1fb0d2a"
+    sha256 cellar: :any_skip_relocation, ventura:        "509b219ef6d167a4d74fb8f3cc1d5f204a659831d46840c2138ac5c601a418e4"
+    sha256 cellar: :any_skip_relocation, monterey:       "c1260aa580c7499faec17a305e2e1667843a3c71fa5e93601b579c2c13eb789f"
+    sha256 cellar: :any_skip_relocation, big_sur:        "c1260aa580c7499faec17a305e2e1667843a3c71fa5e93601b579c2c13eb789f"
+    sha256 cellar: :any_skip_relocation, catalina:       "c1260aa580c7499faec17a305e2e1667843a3c71fa5e93601b579c2c13eb789f"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "eb55ed63e1324d556cb9cfffebd3001460b23e455fa9c4c3f5d591ff3306b856"
   end
 
   depends_on "go" => :build
 
   def install
-    ENV["GOPATH"] = buildpath
-    bin_path = buildpath/"src/github.com/ahoy-cli/ahoy"
-    bin_path.install Dir["*"]
-    cd bin_path do
-      system "go", "build", "-o", bin/"ahoy", "-ldflags", "-X main.version=#{version}", "."
-    end
+    system "go", "build", *std_go_args(ldflags: "-s -w -X main.version=#{version}-homebrew")
   end
 
   def caveats
@@ -47,5 +45,7 @@ class Ahoy < Formula
           cmd: echo "Hello Homebrew!"
     EOS
     assert_equal "Hello Homebrew!\n", `#{bin}/ahoy hello`
+
+    assert_equal "#{version}-homebrew", shell_output("#{bin}/ahoy --version").strip
   end
 end

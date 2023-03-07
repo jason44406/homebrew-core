@@ -1,25 +1,35 @@
 class Dar < Formula
   desc "Backup directory tree and files"
   homepage "http://dar.linux.free.fr/doc/index.html"
-  url "https://downloads.sourceforge.net/project/dar/dar/2.6.10/dar-2.6.10.tar.gz"
-  sha256 "16a0b755c648c4ce6598e258ccf375f55d4f2f943448341ed41085ac7a27d2e7"
-  license "GPL-2.0"
+  url "https://downloads.sourceforge.net/project/dar/dar/2.7.8/dar-2.7.8.tar.gz"
+  sha256 "74eadc5e657315b4f6aee018c95b625f04bdbbee39e5ec9ec4663533ee950fe9"
+  license "GPL-2.0-or-later"
 
-  bottle do
-    cellar :any
-    sha256 "715d4c42deee8466b4c4ca1eb5c1eb0e353531f008162a1caa0ac3cebed80eea" => :catalina
-    sha256 "da4e6447538509a0cf9b67cd126096ff8b4967ea9503681d8a985b557128cd1a" => :mojave
-    sha256 "589731424a6eb153ea8ad9f60e05f18e077194c7ca5d95784bd102bb7781652b" => :high_sierra
+  livecheck do
+    url :stable
+    regex(%r{url=.*?/dar[._-]v?(\d+(?:\.\d+)+)\.t}i)
   end
 
-  depends_on "upx" => :build
+  bottle do
+    sha256               arm64_ventura:  "7cbef1d93078441e341963f6d45f98b7548066e3c27c9ec864d8860a81f94a05"
+    sha256               arm64_monterey: "0c3f050775bdb3802d0ca63e819f1d31794d6353e2daa3152a26eb4c26d33b53"
+    sha256               arm64_big_sur:  "3acc199f9fdb2533766a853cc2397a60a79fd8781908748e1a81745fd995c4d1"
+    sha256 cellar: :any, monterey:       "607115ea92bf853dcc42bb82ff5740ae2f921afec71a29f82382a4f34cb4eca2"
+    sha256 cellar: :any, big_sur:        "cf7783da36b47a0bd54dfd8954c01f79b7b1f30eea8eee95f02a79edbba15d89"
+    sha256 cellar: :any, catalina:       "2704638c041551e2f887ed52d5ddae588a5953e8c22ba3184750b51736ae2164"
+    sha256               x86_64_linux:   "d662471b6c1d22bbb4388e8256e26d528eb34c4d8496ceb7e7ac1cc9e7078f99"
+  end
+
   depends_on "libgcrypt"
   depends_on "lzo"
-  depends_on macos: :el_capitan # needs thread-local storage
+
+  uses_from_macos "zlib"
+
+  on_intel do
+    depends_on "upx" => :build
+  end
 
   def install
-    ENV.cxx11
-
     system "./configure", "--prefix=#{prefix}",
                           "--disable-build-html",
                           "--disable-dar-static",

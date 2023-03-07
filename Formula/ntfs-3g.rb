@@ -1,29 +1,21 @@
 class Ntfs3g < Formula
   desc "Read-write NTFS driver for FUSE"
   homepage "https://www.tuxera.com/community/open-source-ntfs-3g/"
-  revision 3
-  stable do
-    url "https://tuxera.com/opensource/ntfs-3g_ntfsprogs-2017.3.23.tgz"
-    sha256 "3e5a021d7b761261836dcb305370af299793eedbded731df3d6943802e1262d5"
+  url "https://tuxera.com/opensource/ntfs-3g_ntfsprogs-2022.10.3.tgz"
+  sha256 "f20e36ee68074b845e3629e6bced4706ad053804cbaf062fbae60738f854170c"
+  license all_of: ["GPL-2.0-or-later", "LGPL-2.0-or-later"]
 
-    # Fails to build on Xcode 9+. Fixed upstream in a0bc659c7ff0205cfa2b2fc3429ee4d944e1bcc3
-    patch do
-      url "https://raw.githubusercontent.com/Homebrew/formula-patches/3933b61bbae505fa95a24f8d7681a9c5fa26dbc2/ntfs-3g/lowntfs-3g.c.patch"
-      sha256 "749653cfdfe128b9499f02625e893c710e2167eb93e7b117e33cfa468659f697"
-    end
+  livecheck do
+    url :head
+    strategy :github_latest
   end
 
   bottle do
-    cellar :any
-    rebuild 1
-    sha256 "512daef6a2d9d74416ebb67c08d1c750cae0ba717b6338bd188b3434ad5725db" => :catalina
-    sha256 "58304b5065b3ec2e32f2e455c9cc2bcd7f60b6f177c57c60dd0a3eb607d6d4a1" => :mojave
-    sha256 "0c52a06810814dafc2837fa631a08e607a49da99e3be000ee61cd763f24ca7fc" => :high_sierra
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "9f01b6417761a27488f21014880e88995297233709e3b71965502dc56222197f"
   end
 
   head do
-    url "https://git.code.sf.net/p/ntfs-3g/ntfs-3g.git",
-        branch: "edge"
+    url "https://github.com/tuxera/ntfs-3g.git", branch: "edge"
 
     depends_on "autoconf" => :build
     depends_on "automake" => :build
@@ -34,24 +26,21 @@ class Ntfs3g < Formula
   depends_on "pkg-config" => :build
   depends_on "coreutils" => :test
   depends_on "gettext"
-  depends_on :osxfuse
+  depends_on "libfuse@2"
+  depends_on :linux # on macOS, requires closed-source macFUSE
 
   def install
-    ENV.append "LDFLAGS", "-lintl"
-
-    args = %W[
-      --disable-debug
-      --disable-dependency-tracking
-      --prefix=#{prefix}
+    args = std_configure_args + %W[
       --exec-prefix=#{prefix}
       --mandir=#{man}
       --with-fuse=external
       --enable-extras
+      --disable-ldconfig
     ]
 
     system "./autogen.sh" if build.head?
-    # Workaround for hardcoded /sbin in ntfsprogs
-    inreplace "ntfsprogs/Makefile.in", "/sbin", sbin
+    # Workaround for hardcoded /sbin
+    inreplace Dir["{ntfsprogs,src}/Makefile.in"], "$(DESTDIR)/sbin/", "$(DESTDIR)#{sbin}/"
     system "./configure", *args
     system "make"
     system "make", "install"
@@ -75,6 +64,7 @@ class Ntfs3g < Formula
           -o volname="${VOLUME_NAME}" \\
           -o local \\
           -o negative_vncache \\
+          -o auto_xattr \\
           -o auto_cache \\
           -o noatime \\
           -o windows_names \\

@@ -1,24 +1,40 @@
 class Remake < Formula
   desc "GNU Make with improved error handling, tracing, and a debugger"
   homepage "https://bashdb.sourceforge.io/remake"
-  url "https://downloads.sourceforge.net/project/bashdb/remake/4.3%2Bdbg-1.5/remake-4.3%2Bdbg-1.5.tar.gz"
-  version "4.3-1.5"
-  sha256 "2e6eb709f3e6b85893f14f15e34b4c9b754aceaef0b92bb6ca3a025f10119d76"
-  license "GPL-3.0"
+  url "https://downloads.sourceforge.net/project/bashdb/remake/4.3%2Bdbg-1.6/remake-4.3%2Bdbg-1.6.tar.gz"
+  version "4.3-1.6"
+  sha256 "f6a0c6179cd92524ad5dd04787477c0cd45afb5822d977be93d083b810647b87"
+  license "GPL-3.0-only"
+
+  # We check the "remake" directory page because the bashdb project contains
+  # various software and remake releases may be pushed out of the SourceForge
+  # RSS feed.
+  livecheck do
+    url "https://sourceforge.net/projects/bashdb/files/remake/"
+    regex(%r{href=.*?remake/v?(\d+(?:\.\d+)+(?:(?:%2Bdbg)?[._-]\d+(?:\.\d+)+)?)/?["' >]}i)
+    strategy :page_match do |page, regex|
+      page.scan(regex).map { |match| match&.first&.sub(/%2Bdbg/i, "") }
+    end
+  end
 
   bottle do
-    sha256 "ad7371427c7aa33cc28ac17f8f91fd6dd6a4e15b031a8aedabdc38a8da5ae7f7" => :catalina
-    sha256 "308ec13eaf2295d55be5d8dd92e9932a8fa9d25dd06001f43436fcd304b638e3" => :mojave
-    sha256 "835577312df4dc23a7ea0701b15b80db4cd233cfaf4efcfbd6bfea8f0f5b27d5" => :high_sierra
+    rebuild 1
+    sha256 arm64_ventura:  "5a7316d4730a456b7a84576294cf3ecc43bb0d66198a56c006b8b6fcd7ee34a8"
+    sha256 arm64_monterey: "fe58f73701268996a6f273fd59cc85694152ed4a2e1f2268b22c532c5797a91d"
+    sha256 arm64_big_sur:  "95b6ece00e5597ef7277055fbd63584d87255bc1f23168b496cc81bbed99c7ef"
+    sha256 ventura:        "cb1b7c4b4f65b0ee7bdc44243f69d45ef825c876f3349d8ed33c892998a2540f"
+    sha256 monterey:       "692455854a3099491ec14ab4f1c45cbf9c92002a1ecc4c472e0418b73604901c"
+    sha256 big_sur:        "523411a133faf8c381ca3d6ab6b057d42b4a14eaf21b249dc5a0213f5cfe974e"
+    sha256 x86_64_linux:   "caad81ec9c391c8a52c027ee7a7580d324c5743ad8fa1223c9ad11e41772d5b0"
   end
 
   depends_on "readline"
 
   def install
-    system "./configure", "--disable-debug",
-                          "--disable-dependency-tracking",
-                          "--prefix=#{prefix}"
+    system "./configure", *std_configure_args, "--disable-silent-rules"
     system "make", "install"
+    # Remove texinfo files for make to avoid conflict
+    info.glob("make.info*").map(&:unlink)
   end
 
   test do

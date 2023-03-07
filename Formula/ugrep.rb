@@ -1,24 +1,24 @@
 class Ugrep < Formula
   desc "Ultra fast grep with query UI, fuzzy search, archive search, and more"
   homepage "https://github.com/Genivia/ugrep"
-  url "https://github.com/Genivia/ugrep/archive/v2.5.3.tar.gz"
-  sha256 "83f2017ba05f7ce7ded74097832df071d2be89d41b357f45c4dce801c2a0cae6"
+  url "https://github.com/Genivia/ugrep/archive/v3.10.0.tar.gz"
+  sha256 "9bde11c055b922b6c3cecf9e8eb0cb02db9832c46deaa76424df4c4b8a57a718"
   license "BSD-3-Clause"
 
   bottle do
-    sha256 "ef04ef69c80977b3dd2edd4a678187ea744ece6e59a9e84385d5ca51fe35b255" => :catalina
-    sha256 "09b09381fce5c7cd4f1c758831f7991bd6cf1998e2017da27a6ee15a46f6dc75" => :mojave
-    sha256 "2708c0837b93a398dbf9b6f177a784c768729b213a8ca55261990007f3aaa618" => :high_sierra
+    sha256                               arm64_ventura:  "5e218019d5299114b5e5f14874093dcf9bb86c973451d64c616888b516306dc3"
+    sha256                               arm64_monterey: "59a13a9f2dcb4db865a9e8b5b06482660856422eb175ce49bfd6a9d86c6d91e4"
+    sha256                               arm64_big_sur:  "49a7a653be03729b20942e28d31d2692e8d3dc9e69eeeb09caa333dc185ddee8"
+    sha256                               ventura:        "cddbc95a2935fea8a2d2bbf0f2effe5ec7e492f1cc5d9b13e71313e2c1be3d56"
+    sha256                               monterey:       "4dc83083466868c6fd9bcde218fffebf5ca368d42733774ab81ed1380341a8fd"
+    sha256                               big_sur:        "ac3c8089347829698c30681f611afcc25711d10acacb769efc03d8cfaf4565f9"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "070e5c48f7d150db53ac04d33f395d3ac73b4234b32a3219be84c4ce14d2e745"
   end
 
   depends_on "pcre2"
   depends_on "xz"
 
   def install
-    ENV.O2
-    ENV.deparallelize
-    ENV.delete("CFLAGS")
-    ENV.delete("CXXFLAGS")
     system "./configure", "--enable-color",
                           "--disable-debug",
                           "--disable-dependency-tracking",
@@ -30,7 +30,7 @@ class Ugrep < Formula
 
   test do
     (testpath/"Hello.txt").write("Hello World!")
-    assert_match /Hello World!/, shell_output("#{bin}/ug 'Hello' '#{testpath}'").strip
-    assert_match /Hello World!/, shell_output("#{bin}/ugrep 'World' '#{testpath}'").strip
+    assert_match "Hello World!", shell_output("#{bin}/ug 'Hello' '#{testpath}'").strip
+    assert_match "Hello World!", shell_output("#{bin}/ugrep 'World' '#{testpath}'").strip
   end
 end

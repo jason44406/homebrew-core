@@ -3,30 +3,47 @@ class Bzt < Formula
 
   desc "BlazeMeter Taurus"
   homepage "https://gettaurus.org/"
-  url "https://files.pythonhosted.org/packages/3a/e5/04383f5a7b060b753a6ce741b9e3bf4150c83b0ff9b7a07cc3c6c18ebfb8/bzt-1.14.2.tar.gz"
-  sha256 "b79298e80516e42997c68951d15bce772d366eed2d23d1d42ac7f24b06345837"
+  url "https://files.pythonhosted.org/packages/f6/51/92bfc0a067dbe944dd41d215fee27ab9730d053e943b41f85028b5c4b41f/bzt-1.16.19.tar.gz"
+  sha256 "823dbf91cdc204b3bd0c3441a924b03e5c0c4ef8203e5b327ab45301f54af7b2"
   license "Apache-2.0"
-  revision 2
-  head "https://github.com/Blazemeter/taurus.git"
+  head "https://github.com/Blazemeter/taurus.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "0e7eb79ad2178176c18c2709c5d190c47d680d7cee79e115009149892094c193" => :catalina
-    sha256 "0839ad7a111ed998f1406c324883fa59f49f638891d046cfbb28c70c5de7b275" => :mojave
-    sha256 "0aa1b5f1b88e1a6f7178f3524038200c5d05623992c48eab18e8fc3d0bbe4bb4" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "039df2ca8c4791604c6ed8ac1ce38709c5349a1f09f47e46c2fc2861e0aced86"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "e4511543e64eba712d72b9d0eb79bf4fb108771482181fc35e99c272449f6e38"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "82b93285d033ea5edbe209e15551e5fb07b8c509e3ea48e620bdfb469e9a8c9d"
+    sha256 cellar: :any_skip_relocation, ventura:        "870e20688afb43239d63066a74ba0b7572e95471b430eddf3dc6764fa9fef2de"
+    sha256 cellar: :any_skip_relocation, monterey:       "4d2bafe5457b1d12bbb347a7f14f8cb12ba0adf6c468c1daf3233f962a4d6029"
+    sha256 cellar: :any_skip_relocation, big_sur:        "2fdb1e7195893e0a8ffae84ea0d322fe1a75ac188a84525e791eb0469b598ae5"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "c8b7da648d0e3bf1b4dd233541eb3ebf38c789138623f44fff07875fc0fe9722"
   end
 
-  # can only run with python 3.7 due to this issue, https://github.com/simonpercivall/astunparse/issues/43
-  depends_on "python@3.7"
+  depends_on "cmake" => :build
+  depends_on "ninja" => :build
+  depends_on "rust" => :build
+  depends_on "libcython"
+  depends_on "numpy"
+  depends_on "python@3.11"
+  depends_on "pyyaml"
+  depends_on "six"
 
-  resource "apiritif" do
-    url "https://files.pythonhosted.org/packages/96/23/78c03e12b2d1b12b3e4451b7bcf432befc81568eed90e7629aa5620a1bc3/apiritif-0.9.2.tar.gz"
-    sha256 "27d9cf195dec00988d7bde7832fa0b8485bd0d0138afe99eef08f4a323b4aead"
+  uses_from_macos "libxml2"
+  uses_from_macos "libxslt"
+
+  resource "aiodogstatsd" do
+    url "https://files.pythonhosted.org/packages/8d/ea/d2d79661f213f09df0e9f56d25dbae41501880822e5c85a0a6d6857baa55/aiodogstatsd-0.16.0.post0.tar.gz"
+    sha256 "f783c7d6d74edd160b34141ff5f069c9a935bb32636823e39e36f0d1dbe14931"
   end
 
-  resource "Appium-Python-Client" do
-    url "https://files.pythonhosted.org/packages/f2/02/930b04d430cd404856e6eaaf80b01b4c3066375fcb21ac811f1f30f6666d/Appium-Python-Client-0.51.tar.gz"
-    sha256 "ee5689ca5d1971dd81c4d056d634058d1205b4702e546795b595edb3fd0f6a7f"
+  resource "aiohttp" do
+    url "https://files.pythonhosted.org/packages/ff/4f/62d9859b7d4e6dc32feda67815c5f5ab4421e6909e48cbc970b6a40d60b7/aiohttp-3.8.3.tar.gz"
+    sha256 "3828fb41b7203176b82fe5d699e0d845435f2374750a44b480ea6b930f6be269"
+  end
+
+  resource "aiosignal" do
+    url "https://files.pythonhosted.org/packages/ae/67/0952ed97a9793b4958e5736f6d2b346b414a2cd63e82d05940032f45b32f/aiosignal-1.3.1.tar.gz"
+    sha256 "54cd96e15e1649b75d6c87526a6ff0b6c1b0dd3459f43d9ca11d48c339b68cfc"
   end
 
   resource "astunparse" do
@@ -34,44 +51,49 @@ class Bzt < Formula
     sha256 "5ad93a8456f0d084c3456d059fd9a92cce667963232cbf763eac3bc5b7940872"
   end
 
+  resource "async-timeout" do
+    url "https://files.pythonhosted.org/packages/54/6e/9678f7b2993537452710ffb1750c62d2c26df438aa621ad5fa9d1507a43a/async-timeout-4.0.2.tar.gz"
+    sha256 "2163e1640ddb52b7a8c80d0a67a08587e5d245cc9c553a74a847056bc2976b15"
+  end
+
   resource "attrs" do
-    url "https://files.pythonhosted.org/packages/98/c3/2c227e66b5e896e15ccdae2e00bbc69aa46e9a8ce8869cc5fa96310bf612/attrs-19.3.0.tar.gz"
-    sha256 "f7b7ce16570fe9965acd6d30101a28f62fb4a7f9e926b3bbc9b61f8b04247e72"
+    url "https://files.pythonhosted.org/packages/1a/cb/c4ffeb41e7137b23755a45e1bfec9cbb76ecf51874c6f1d113984ecaa32c/attrs-22.1.0.tar.gz"
+    sha256 "29adc2665447e5191d0e7c568fde78b21f9672d344281d0c6e1ab085429b22b6"
   end
 
   resource "certifi" do
-    url "https://files.pythonhosted.org/packages/b8/e2/a3a86a67c3fc8249ed305fc7b7d290ebe5e4d46ad45573884761ef4dea7b/certifi-2020.4.5.1.tar.gz"
-    sha256 "51fcb31174be6e6664c5f69e3e1691a2d72a1a12e90f872cbdb1567eb47b6519"
+    url "https://files.pythonhosted.org/packages/37/f7/2b1b0ec44fdc30a3d31dfebe52226be9ddc40cd6c0f34ffc8923ba423b69/certifi-2022.12.7.tar.gz"
+    sha256 "35824b4c3a97115964b408844d64aa14db1cc518f6562e8d7261699d1350a9e3"
   end
 
-  resource "chardet" do
-    url "https://files.pythonhosted.org/packages/fc/bb/a5768c230f9ddb03acc9ef3f0d4a3cf93462473795d18e9535498c8f929d/chardet-3.0.4.tar.gz"
-    sha256 "84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae"
+  resource "charset-normalizer" do
+    url "https://files.pythonhosted.org/packages/a1/34/44964211e5410b051e4b8d2869c470ae8a68ae274953b1c7de6d98bbcf94/charset-normalizer-2.1.1.tar.gz"
+    sha256 "5a3d016c7c547f69d6f81fb0db9449ce888b418b5b9952cc5e6e66843e9dd845"
   end
 
   resource "colorlog" do
-    url "https://files.pythonhosted.org/packages/a5/51/c6e1f2c7e6d7524b580d5a8d7691fd4530f894ae8a23ba66a065291ceba2/colorlog-4.1.0.tar.gz"
-    sha256 "30aaef5ab2a1873dec5da38fd6ba568fa761c9fa10b40241027fa3edea47f3d2"
+    url "https://files.pythonhosted.org/packages/78/6b/4e5481ddcdb9c255b2715f54c863629f1543e97bc8c309d1c5c131ad14f2/colorlog-6.7.0.tar.gz"
+    sha256 "bd94bd21c1e13fac7bd3153f4bc3a7dc0eb0974b8bc2fdf1a989e474f6e582e5"
   end
 
   resource "cssselect" do
-    url "https://files.pythonhosted.org/packages/70/54/37630f6eb2c214cdee2ae56b7287394c8aa2f3bafb8b4eb8c3791aae7a14/cssselect-1.1.0.tar.gz"
-    sha256 "f95f8dedd925fd8f54edb3d2dfb44c190d9d18512377d3c1e2388d16126879bc"
+    url "https://files.pythonhosted.org/packages/d1/91/d51202cc41fbfca7fa332f43a5adac4b253962588c7cc5a54824b019081c/cssselect-1.2.0.tar.gz"
+    sha256 "666b19839cfaddb9ce9d36bfe4c969132c647b92fc9088c4e23f786b30f1b3dc"
   end
 
-  resource "decorator" do
-    url "https://files.pythonhosted.org/packages/da/93/84fa12f2dc341f8cf5f022ee09e109961055749df2d0c75c5f98746cfe6c/decorator-4.4.2.tar.gz"
-    sha256 "e3a62f0520172440ca0dcc823749319382e377f37f140a0b99ef45fecb84bfe7"
+  resource "dill" do
+    url "https://files.pythonhosted.org/packages/7c/e7/364a09134e1062d4d5ff69b853a56cf61c223e0afcc6906b6832bcd51ea8/dill-0.3.6.tar.gz"
+    sha256 "e5db55f3687856d8fbdab002ed78544e1c4559a130302693d839dfe8f93f2373"
   end
 
-  resource "EasyProcess" do
-    url "https://files.pythonhosted.org/packages/0b/1b/87836fe6bfc157fac6d0356c5d7752dabb5097980e40c0123464acd9324b/EasyProcess-0.2.10.tar.gz"
-    sha256 "636b5e30222cde1e881fafc0112b35d516bce41ddee83ecbac656dec9befea1b"
+  resource "frozenlist" do
+    url "https://files.pythonhosted.org/packages/e9/10/d629476346112b85c912527b9080944fd2c39a816c2225413dbc0bb6fcc0/frozenlist-1.3.3.tar.gz"
+    sha256 "58bcc55721e8a90b88332d6cd441261ebb22342e238296bb330968952fbb3a6a"
   end
 
-  resource "fuzzyset" do
-    url "https://files.pythonhosted.org/packages/2e/78/7509f3efbb6acbcf842d7bdbd9a919ca8c0ed248123bdd8c57f08497e0dd/fuzzyset-0.0.19.tar.gz"
-    sha256 "2bf5a3de20f107124a4842d875e5005ee523719f97ab731caf4121e86ec8ccbc"
+  resource "fuzzyset2" do
+    url "https://files.pythonhosted.org/packages/52/af/5dfecc9dbfc92b5ff4be2ab210bebe33bdf8b5c8f134da43d306afacee1a/fuzzyset2-0.2.1.tar.gz"
+    sha256 "0f768632ef8813f3ef89739aa10439ab16861699c92a3804374c655f818afa84"
   end
 
   resource "hdrpy" do
@@ -79,54 +101,34 @@ class Bzt < Formula
     sha256 "8461ed2c0d577468e5499f8b685d9bf9660b72b8640bff02c78ba1f1b9bf5185"
   end
 
+  resource "humanize" do
+    url "https://files.pythonhosted.org/packages/51/19/3e1adf0e7a8c8361496b085edcab2ddcd85410735a2b6fdd044247fc5b75/humanize-4.4.0.tar.gz"
+    sha256 "efb2584565cc86b7ea87a977a15066de34cdedaf341b11c851cfcfd2b964779c"
+  end
+
   resource "idna" do
-    url "https://files.pythonhosted.org/packages/cb/19/57503b5de719ee45e83472f339f617b0c01ad75cba44aba1e4c97c2b0abd/idna-2.9.tar.gz"
-    sha256 "7588d1c14ae4c77d74036e8c22ff447b26d0fde8f007354fd48a7814db15b7cb"
-  end
-
-  resource "importlib-metadata" do
-    url "https://files.pythonhosted.org/packages/b4/1b/baab42e3cd64c9d5caac25a9d6c054f8324cdc38975a44d600569f1f7158/importlib_metadata-1.6.0.tar.gz"
-    sha256 "34513a8a0c4962bc66d35b359558fd8a5e10cd472d37aec5f66858addef32c1e"
-  end
-
-  resource "jsonpath-rw" do
-    url "https://files.pythonhosted.org/packages/71/7c/45001b1f19af8c4478489fbae4fc657b21c4c669d7a5a036a86882581d85/jsonpath-rw-1.4.0.tar.gz"
-    sha256 "05c471281c45ae113f6103d1268ec7a4831a2e96aa80de45edc89b11fac4fbec"
+    url "https://files.pythonhosted.org/packages/8b/e1/43beb3d38dba6cb420cefa297822eac205a277ab43e5ba5d5c46faf96438/idna-3.4.tar.gz"
+    sha256 "814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4"
   end
 
   resource "lxml" do
-    url "https://files.pythonhosted.org/packages/39/2b/0a66d5436f237aff76b91e68b4d8c041d145ad0a2cdeefe2c42f76ba2857/lxml-4.5.0.tar.gz"
-    sha256 "8620ce80f50d023d414183bf90cc2576c2837b88e00bea3f33ad2630133bbb60"
+    url "https://files.pythonhosted.org/packages/06/5a/e11cad7b79f2cf3dd2ff8f81fa8ca667e7591d3d8451768589996b65dec1/lxml-4.9.2.tar.gz"
+    sha256 "2455cfaeb7ac70338b3257f41e21f0724f4b5b0c0e7702da67ee6c3640835b67"
   end
 
-  resource "more-itertools" do
-    url "https://files.pythonhosted.org/packages/a0/47/6ff6d07d84c67e3462c50fa33bf649cda859a8773b53dc73842e84455c05/more-itertools-8.2.0.tar.gz"
-    sha256 "b1ddb932186d8a6ac451e1d95844b382f55e12686d51ca0c68b6f61f2ab7a507"
+  resource "molotov" do
+    url "https://files.pythonhosted.org/packages/54/22/5820c7cad221514a04d9cdada884476e35c5972d7b84f88755094beab4fc/molotov-2.6.tar.gz"
+    sha256 "0f52d260b4566709882a12710eff9b5863604f88c9bc03749cab4f9de462771a"
   end
 
-  resource "nose" do
-    url "https://files.pythonhosted.org/packages/58/a5/0dc93c3ec33f4e281849523a5a913fa1eea9a3068acfa754d44d88107a44/nose-1.3.7.tar.gz"
-    sha256 "f1bffef9cbc82628f6e7d7b40d7e255aefaa1adb6a1b1d26c69a8b79e6208a98"
+  resource "multidict" do
+    url "https://files.pythonhosted.org/packages/b5/5b/1dd3b9cf73c474ea1d0f0b1f8b7b712b0f13817493fd93101256ec856b59/multidict-6.0.3.tar.gz"
+    sha256 "2523a29006c034687eccd3ee70093a697129a3ffe8732535d3b2df6a4ecc279d"
   end
 
-  resource "numpy" do
-    url "https://files.pythonhosted.org/packages/84/1e/ff467ac56bfeaea51d4a2e72d315c1fe440b20192fea7e460f0f248acac8/numpy-1.18.2.zip"
-    sha256 "e7894793e6e8540dbeac77c87b489e331947813511108ae097f1715c018b8f3d"
-  end
-
-  resource "packaging" do
-    url "https://files.pythonhosted.org/packages/65/37/83e3f492eb52d771e2820e88105f605335553fe10422cba9d256faeb1702/packaging-20.3.tar.gz"
-    sha256 "3c292b474fda1671ec57d46d739d072bfd495a4f51ad01a055121d81e952b7a3"
-  end
-
-  resource "pluggy" do
-    url "https://files.pythonhosted.org/packages/f8/04/7a8542bed4b16a65c2714bf76cf5a0b026157da7f75e87cc88774aa10b14/pluggy-0.13.1.tar.gz"
-    sha256 "15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0"
-  end
-
-  resource "ply" do
-    url "https://files.pythonhosted.org/packages/e5/69/882ee5c9d017149285cab114ebeab373308ef0f874fcdac9beb90e0ac4da/ply-3.11.tar.gz"
-    sha256 "00c7c1aaa88358b9c765b6d3000c6eec0ba42abca5351b095321aef446081da3"
+  resource "multiprocess" do
+    url "https://files.pythonhosted.org/packages/e3/ab/9aafc121c6a3d2470ccdf28f99897e88d324c948893b30e46cb359f595e3/multiprocess-0.70.14.tar.gz"
+    sha256 "3eddafc12f2260d27ae03fe6069b12570ab4764ab59a75e81624fac453fbf46a"
   end
 
   resource "progressbar33" do
@@ -134,107 +136,71 @@ class Bzt < Formula
     sha256 "51fe0d9b3b4023db2f983eeccdfc8c9846b84db8443b9bee002c7f58f4376eff"
   end
 
+  resource "prompt-toolkit" do
+    url "https://files.pythonhosted.org/packages/fb/93/180be2342f89f16543ec4eb3f25083b5b84eba5378f68efff05409fb39a9/prompt_toolkit-3.0.36.tar.gz"
+    sha256 "3e163f254bef5a03b146397d7c1963bd3e2812f0964bb9a24e6ec761fd28db63"
+  end
+
   resource "psutil" do
-    url "https://files.pythonhosted.org/packages/c4/b8/3512f0e93e0db23a71d82485ba256071ebef99b227351f0f5540f744af41/psutil-5.7.0.tar.gz"
-    sha256 "685ec16ca14d079455892f25bd124df26ff9137664af445563c1bd36629b5e0e"
-  end
-
-  resource "py" do
-    url "https://files.pythonhosted.org/packages/bd/8f/169d08dcac7d6e311333c96b63cbe92e7947778475e1a619b674989ba1ed/py-1.8.1.tar.gz"
-    sha256 "5e27081401262157467ad6e7f851b7aa402c5852dbcb3dae06768434de5752aa"
-  end
-
-  resource "pyparsing" do
-    url "https://files.pythonhosted.org/packages/c1/47/dfc9c342c9842bbe0036c7f763d2d6686bcf5eb1808ba3e170afdb282210/pyparsing-2.4.7.tar.gz"
-    sha256 "c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1"
-  end
-
-  resource "pytest" do
-    url "https://files.pythonhosted.org/packages/6d/4e/572aed20422dee7fa2bd27995b2a53a32de90c1826e5531c9df6d3ea77ed/pytest-5.4.1.tar.gz"
-    sha256 "84dde37075b8805f3d1f392cc47e38a0e59518fb46a431cfdaf7cf1ce805f970"
-  end
-
-  resource "python-Levenshtein" do
-    url "https://files.pythonhosted.org/packages/42/a9/d1785c85ebf9b7dfacd08938dd028209c34a0ea3b1bcdb895208bd40a67d/python-Levenshtein-0.12.0.tar.gz"
-    sha256 "033a11de5e3d19ea25c9302d11224e1a1898fe5abd23c61c7c360c25195e3eb1"
+    url "https://files.pythonhosted.org/packages/3d/7d/d05864a69e452f003c0d77e728e155a89a2a26b09e64860ddd70ad64fb26/psutil-5.9.4.tar.gz"
+    sha256 "3d7f9739eb435d4b1338944abe23f49584bde5395f27487d2ee25ad9a8774a62"
   end
 
   resource "PyVirtualDisplay" do
-    url "https://files.pythonhosted.org/packages/1e/7c/28b48481c8992727ac90526bb4395b76081b6df8265835a6d6a478c7e2c9/PyVirtualDisplay-0.2.5.tar.gz"
-    sha256 "5b267c8ffc98fcbd084ba852ab4caef3f22e9362bc5d117e1697e767553eaf41"
+    url "https://files.pythonhosted.org/packages/86/9f/23e5a82987c26d225139948a224a93318d7a7c8b166d4dbe4de7426dc4e4/PyVirtualDisplay-3.0.tar.gz"
+    sha256 "09755bc3ceb6eb725fb07eca5425f43f2358d3bf08e00d2a9b792a1aedd16159"
   end
 
-  resource "PyYAML" do
-    url "https://files.pythonhosted.org/packages/64/c2/b80047c7ac2478f9501676c988a5411ed5572f35d1beff9cae07d321512c/PyYAML-5.3.1.tar.gz"
-    sha256 "b8eac752c5e14d3eca0e6dd9199cd627518cb5ec06add0de9d32baeee6fe645d"
+  resource "rapidfuzz" do
+    url "https://files.pythonhosted.org/packages/cc/42/f3bde4d6e5711b5ba266dc66c66bc0659e7c2f2016f46d1927c76d40ad57/rapidfuzz-2.13.6.tar.gz"
+    sha256 "948445a054d9fb30a93597c325d8836232bd68e61443a88779a57702aa35a007"
   end
 
   resource "requests" do
-    url "https://files.pythonhosted.org/packages/f5/4f/280162d4bd4d8aad241a21aecff7a6e46891b905a4341e7ab549ebaf7915/requests-2.23.0.tar.gz"
-    sha256 "b3f43d496c6daba4493e7c431722aeb7dbc6288f52a6e04e7b6023b0247817e6"
-  end
-
-  resource "selenium" do
-    url "https://files.pythonhosted.org/packages/ed/9c/9030520bf6ff0b4c98988448a93c04fcbd5b13cd9520074d8ed53569ccfe/selenium-3.141.0.tar.gz"
-    sha256 "deaf32b60ad91a4611b98d8002757f29e6f2c2d5fcaf202e1c9ad06d6772300d"
-  end
-
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/21/9f/b251f7f8a76dec1d6651be194dfba8fb8d7781d10ab3987190de8391d08e/six-1.14.0.tar.gz"
-    sha256 "236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a"
+    url "https://files.pythonhosted.org/packages/a5/61/a867851fd5ab77277495a8709ddda0861b28163c4613b011bc00228cc724/requests-2.28.1.tar.gz"
+    sha256 "7c5599b102feddaa661c826c56ab4fee28bfd17f5abca1ebbe3e7f19d7c97983"
   end
 
   resource "terminaltables" do
-    url "https://files.pythonhosted.org/packages/9b/c4/4a21174f32f8a7e1104798c445dacdc1d4df86f2f26722767034e4de4bff/terminaltables-3.1.0.tar.gz"
-    sha256 "f3eb0eb92e3833972ac36796293ca0906e998dc3be91fbe1f8615b331b853b81"
-  end
-
-  resource "texttable" do
-    url "https://files.pythonhosted.org/packages/82/a8/60df592e3a100a1f83928795aca210414d72cebdc6e4e0c95a6d8ac632fe/texttable-1.6.2.tar.gz"
-    sha256 "eff3703781fbc7750125f50e10f001195174f13825a92a45e9403037d539b4f4"
-  end
-
-  resource "unicodecsv" do
-    url "https://files.pythonhosted.org/packages/6f/a4/691ab63b17505a26096608cc309960b5a6bdf39e4ba1a793d5f9b1a53270/unicodecsv-0.14.1.tar.gz"
-    sha256 "018c08037d48649a0412063ff4eda26eaa81eff1546dbffa51fa5293276ff7fc"
+    url "https://files.pythonhosted.org/packages/f5/fc/0b73d782f5ab7feba8d007573a3773c58255f223c5940a7b7085f02153c3/terminaltables-3.1.10.tar.gz"
+    sha256 "ba6eca5cb5ba02bba4c9f4f985af80c54ec3dccf94cfcd190154386255e47543"
   end
 
   resource "urllib3" do
-    url "https://files.pythonhosted.org/packages/09/06/3bc5b100fe7e878d3dee8f807a4febff1a40c213d2783e3246edde1f3419/urllib3-1.25.8.tar.gz"
-    sha256 "87716c2d2a7121198ebcb7ce7cccf6ce5e9ba539041cfbaeecfb641dc0bf6acc"
+    url "https://files.pythonhosted.org/packages/c2/51/32da03cf19d17d46cce5c731967bf58de9bd71db3a379932f53b094deda4/urllib3-1.26.13.tar.gz"
+    sha256 "c083dd0dce68dbfbe1129d5271cb90f9447dea7d52097c6e0126120c521ddea8"
   end
 
-  # pinned at 2.0.1 version
   resource "urwid" do
-    url "https://files.pythonhosted.org/packages/c7/90/415728875c230fafd13d118512bde3184d810d7bf798a631abc05fac09d0/urwid-2.0.1.tar.gz"
-    sha256 "644d3e3900867161a2fc9287a9762753d66bd194754679adb26aede559bcccbc"
+    url "https://files.pythonhosted.org/packages/94/3f/e3010f4a11c08a5690540f7ebd0b0d251cc8a456895b7e49be201f73540c/urwid-2.1.2.tar.gz"
+    sha256 "588bee9c1cb208d0906a9f73c613d2bd32c3ed3702012f51efe318a3f2127eae"
   end
 
   resource "wcwidth" do
-    url "https://files.pythonhosted.org/packages/25/9d/0acbed6e4a4be4fc99148f275488580968f44ddb5e69b8ceb53fc9df55a0/wcwidth-0.1.9.tar.gz"
-    sha256 "ee73862862a156bf77ff92b09034fc4825dd3af9cf81bc5b360668d425f3c5f1"
+    url "https://files.pythonhosted.org/packages/89/38/459b727c381504f361832b9e5ace19966de1a235d73cdbdea91c771a1155/wcwidth-0.2.5.tar.gz"
+    sha256 "c4d647b99872929fdb7bdcaa4fbe7f01413ed3d98077df798530e5b04f116c83"
   end
 
   resource "wheel" do
-    url "https://files.pythonhosted.org/packages/75/28/521c6dc7fef23a68368efefdcd682f5b3d1d58c2b90b06dc1d0b805b51ae/wheel-0.34.2.tar.gz"
-    sha256 "8788e9155fe14f54164c1b9eb0a319d98ef02c160725587ad60f14ddc57b6f96"
+    url "https://files.pythonhosted.org/packages/a2/b8/6a06ff0f13a00fc3c3e7d222a995526cbca26c1ad107691b6b1badbbabf1/wheel-0.38.4.tar.gz"
+    sha256 "965f5259b566725405b05e7cf774052044b1ed30119b5d586b2703aafe8719ac"
   end
 
-  # pinned at 2.2.0 version
-  resource "zipp" do
-    url "https://files.pythonhosted.org/packages/60/85/668bca4a9ef474ca634c993e768f12bd99af1f06bb90bb2655bc538a967e/zipp-2.2.0.tar.gz"
-    sha256 "5c56e330306215cd3553342cfafc73dda2c60792384117893f3a83f8a1209f50"
+  resource "yarl" do
+    url "https://files.pythonhosted.org/packages/c4/1e/1b204050c601d5cd82b45d5c8f439cb6f744a2ce0c0a6f83be0ddf0dc7b2/yarl-1.8.2.tar.gz"
+    sha256 "49d43402c6e3013ad0978602bf6bf5328535c48d192304b91b97a3c6790b1562"
   end
 
   def install
-    # Fix "ld: file not found: /usr/lib/system/libsystem_darwin.dylib" for lxml
-    ENV["SDKROOT"] = MacOS.sdk_path if MacOS.version == :sierra
+    # Enable finding cython, which is keg-only
+    site_packages = Language::Python.site_packages("python3.11")
+    (libexec/site_packages/"homebrew-libcython.pth").write Formula["libcython"].opt_libexec/site_packages
 
     virtualenv_install_with_resources
   end
 
   test do
-    cmd = "#{bin}/bzt -v -o execution.executor=apiritif -o execution.iterations=1 -o execution.scenario.requests.0=https://gettaurus.org/"
+    cmd = "#{bin}/bzt -v -o execution.executor=locust -o execution.iterations=1 -o execution.scenario.requests.0=https://gettaurus.org/"
     # assert_match /INFO: Samples count: 1, .*% failures/, shell_output(cmd)
     system(cmd)
   end

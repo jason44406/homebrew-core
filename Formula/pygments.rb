@@ -3,24 +3,43 @@ class Pygments < Formula
 
   desc "Generic syntax highlighter"
   homepage "https://pygments.org/"
-  url "https://files.pythonhosted.org/packages/6e/4d/4d2fe93a35dfba417311a4ff627489a947b01dc0cc377a3673c00cf7e4b2/Pygments-2.6.1.tar.gz"
-  sha256 "647344a061c249a3b74e230c739f434d7ea4d8b1d5f3721bc0f3558049b38f44"
+  url "https://files.pythonhosted.org/packages/da/6a/c427c06913204e24de28de5300d3f0e809933f376e0b7df95194b2bb3f71/Pygments-2.14.0.tar.gz"
+  sha256 "b3ed06a9e8ac9a9aae5a6f5dbe78a8a58655d17b43b93c078f094ddc476ae297"
   license "BSD-2-Clause"
-
-  head "https://github.com/pygments/pygments.git"
+  head "https://github.com/pygments/pygments.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "509010be01f39644658904cd9396824b6cee202083b4659d8dd7e03e7f8afd17" => :catalina
-    sha256 "6c413d6695fc730fcc6e547e1de3bf55ed245f66059eebfa2e99a683b240dbe5" => :mojave
-    sha256 "42cc8f55ba8f2ca0766f7d99b1921671ad6d6aa884f23f1fbe88192e92ec89cb" => :high_sierra
+    sha256 cellar: :any_skip_relocation, all: "d4b2214521e36150b21673e1e3b3e627a22919a98274bebeaa1fb8daa0ec086d"
   end
 
-  depends_on "python@3.8"
+  depends_on "python@3.10" => [:build, :test]
+  depends_on "python@3.11" => [:build, :test]
+
+  def pythons
+    deps.select { |dep| dep.name.start_with?("python") }
+        .map(&:to_formula)
+        .sort_by(&:version)
+  end
 
   def install
     bash_completion.install "external/pygments.bashcomp" => "pygmentize"
-    virtualenv_install_with_resources
+
+    pythons.each do |python|
+      python_exe = python.opt_libexec/"bin/python"
+      system python_exe, *Language::Python.setup_install_args(libexec, python_exe)
+
+      site_packages = Language::Python.site_packages(python_exe)
+      pth_contents = "import site; site.addsitedir('#{libexec/site_packages}')\n"
+      (prefix/site_packages/"homebrew-pygments.pth").write pth_contents
+
+      pyversion = Language::Python.major_minor_version(python_exe)
+      bin.install libexec/"bin/pygmentize" => "pygmentize-#{pyversion}"
+
+      next unless python == pythons.max_by(&:version)
+
+      # The newest one is used as the default
+      bin.install_symlink "pygmentize-#{pyversion}" => "pygmentize"
+    end
   end
 
   test do
@@ -29,7 +48,19 @@ class Pygments < Formula
       print(os.getcwd())
     EOS
 
-    system bin/"pygmentize", "-f", "html", "-o", "test.html", testpath/"test.py"
-    assert_predicate testpath/"test.html", :exist?
+    pythons.each do |python|
+      python_exe = python.opt_libexec/"bin/python"
+      pyversion = Language::Python.major_minor_version(python_exe)
+
+      system bin/"pygmentize-#{pyversion}", "-f", "html", "-o", "test.html", testpath/"test.py"
+      assert_predicate testpath/"test.html", :exist?
+
+      (testpath/"test.html").unlink
+
+      next unless python == pythons.max_by(&:version)
+
+      system bin/"pygmentize", "-f", "html", "-o", "test.html", testpath/"test.py"
+      assert_predicate testpath/"test.html", :exist?
+    end
   end
 end

@@ -3,21 +3,27 @@ class Sqlparse < Formula
 
   desc "Non-validating SQL parser"
   homepage "https://github.com/andialbrecht/sqlparse"
-  url "https://files.pythonhosted.org/packages/67/4b/253b6902c1526885af6d361ca8c6b1400292e649f0e9c95ee0d2e8ec8681/sqlparse-0.3.1.tar.gz"
-  sha256 "e162203737712307dfe78860cc56c8da8a852ab2ee33750e33aeadf38d12c548"
+  url "https://files.pythonhosted.org/packages/ba/fa/5b7662b04b69f3a34b8867877e4dbf2a37b7f2a5c0bbb5a9eed64efd1ad1/sqlparse-0.4.3.tar.gz"
+  sha256 "69ca804846bb114d2ec380e4360a8a340db83f0ccf3afceeb1404df028f57268"
   license "BSD-3-Clause"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "a886da74810f4112ac16b08840eac4ebd3ccd3daf5b7219ba1ad84d2981b8478" => :catalina
-    sha256 "cbd26ba6872f20f79ccb9545f2329697e3f2611c124040502cd751fa4efd5432" => :mojave
-    sha256 "c3e7934f912db3b38d16bd6adb86a496568040bcbd66f646822679b233d3d193" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "d9aa28042ec77d514fd799d5935f3d2f0ba5bb5298778c04b9268d5b3695fa58"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "d9aa28042ec77d514fd799d5935f3d2f0ba5bb5298778c04b9268d5b3695fa58"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "d9aa28042ec77d514fd799d5935f3d2f0ba5bb5298778c04b9268d5b3695fa58"
+    sha256 cellar: :any_skip_relocation, ventura:        "5302c45462c979acba7f30f72c6226d9c34f95d040fe056836cc027a81b2838b"
+    sha256 cellar: :any_skip_relocation, monterey:       "5302c45462c979acba7f30f72c6226d9c34f95d040fe056836cc027a81b2838b"
+    sha256 cellar: :any_skip_relocation, big_sur:        "5302c45462c979acba7f30f72c6226d9c34f95d040fe056836cc027a81b2838b"
+    sha256 cellar: :any_skip_relocation, catalina:       "5302c45462c979acba7f30f72c6226d9c34f95d040fe056836cc027a81b2838b"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "8c9bd813ff5e72590d662a3bdc8fcb56cc28de22454b0c5511fc4d49cd7fb9b2"
   end
 
-  depends_on "python@3.8"
+  depends_on "python@3.11"
 
   def install
     virtualenv_install_with_resources
+    man1.install "docs/sqlformat.1"
   end
 
   test do

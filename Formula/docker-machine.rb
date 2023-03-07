@@ -1,25 +1,34 @@
 class DockerMachine < Formula
   desc "Create Docker hosts locally and on cloud providers"
   homepage "https://docs.docker.com/machine"
-  url "https://github.com/docker/machine.git",
-      tag:      "v0.16.2",
-      revision: "bd45ab13d88c32a3dd701485983354514abc41fa"
+  url "https://gitlab.com/gitlab-org/ci-cd/docker-machine.git",
+      tag:      "v0.16.2-gitlab.19",
+      revision: "12b41948c79158efb388b482d6f41ab6d60f6b53"
+  version "0.16.2-gitlab.19"
   license "Apache-2.0"
-  head "https://github.com/docker/machine.git"
+  head "https://gitlab.com/gitlab-org/ci-cd/docker-machine.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "99b50d9809a0aa881e01686e3356fbd17fa61e5a5e8cb937a2a9e9ff103be097" => :catalina
-    sha256 "cc56a9c37702ecaeea1a5034326d87fa145fbc4cb613d151756571b78ca8f1ab" => :mojave
-    sha256 "320ef0f8b7fba8e679c784f854155314c7bdcbc4e7d43fd11dbce6e0e3e0f85b" => :high_sierra
-    sha256 "23a2165e741ea1a9321476d3037a5d76bc24bd494ae0bd8b16f35e3248c0aa77" => :sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "55fa7fd29ccff1a8e3d77b16833d31b9fa900093d6b0ebd4256f1e7d850dc933"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "61e172fad07a28f9c8a5fad7e0c003de0577280f5058179c79282658f7a25dbd"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "625733210b19c9f89a2f340e27c67b4ae6fd09cb37fc66f5dc374b7c091ff9d0"
+    sha256 cellar: :any_skip_relocation, ventura:        "e678125c0430ea97801ce5e7eadb41f69eaca4504c0ccc99109f5825fe12b2f6"
+    sha256 cellar: :any_skip_relocation, monterey:       "693c21bde6179df20ed08b99adb496ab9d2e7a0569ac93f6dd9d77ca2f9efd6a"
+    sha256 cellar: :any_skip_relocation, big_sur:        "b5361973b9dca060be463bf43ca5a484d3a560a610b97903df71cc43d40ac99f"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "3666a0cd976b5a8c696fcd837eb54d940cfbc1311fa23996b1224c7351658756"
   end
+
+  # Commented out while this formula still has dependents.
+  # deprecate! date: "2021-09-30", because: :repo_archived
 
   depends_on "automake" => :build
   depends_on "go" => :build
 
+  conflicts_with "docker-machine-completion", because: "docker-machine already includes completion scripts"
+
   def install
     ENV["GOPATH"] = buildpath
+    ENV["GO111MODULE"] = "auto"
     (buildpath/"src/github.com/docker/machine").install buildpath.children
     cd "src/github.com/docker/machine" do
       system "make", "build"
@@ -30,34 +39,11 @@ class DockerMachine < Formula
     end
   end
 
-  plist_options manual: "docker-machine start"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>EnvironmentVariables</key>
-          <dict>
-              <key>PATH</key>
-              <string>/usr/bin:/bin:/usr/sbin:/sbin:#{HOMEBREW_PREFIX}/bin</string>
-          </dict>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>ProgramArguments</key>
-          <array>
-              <string>#{opt_bin}/docker-machine</string>
-              <string>start</string>
-              <string>default</string>
-          </array>
-          <key>RunAtLoad</key>
-          <true/>
-          <key>WorkingDirectory</key>
-          <string>#{HOMEBREW_PREFIX}</string>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"docker-machine", "start", "default"]
+    environment_variables PATH: std_service_path_env
+    run_type :immediate
+    working_dir HOMEBREW_PREFIX
   end
 
   test do

@@ -3,37 +3,44 @@ class Athenacli < Formula
 
   desc "CLI tool for AWS Athena service"
   homepage "https://athenacli.readthedocs.io/en/latest/"
-  url "https://files.pythonhosted.org/packages/17/fb/645836b65d26808fc936b7dec83e763078f8ababd27bfcdebd0a6ce19844/athenacli-1.5.0.tar.gz"
-  sha256 "696a4141e88ea16d7ca4f6bfad0da25f61f974bb0cc32bdee1f3915dfacdfcdd"
+  url "https://files.pythonhosted.org/packages/38/1a/d9cd6c68a4a1cd2ce779b163f8cec390ae82c684caa920d0360094886b1f/athenacli-1.6.8.tar.gz"
+  sha256 "c7733433f2795d250e3c23b134136fea571ea9868c15f424875cd194eaeb7246"
   license "BSD-3-Clause"
+  revision 2
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "81fb89e0aa0c8e5c75052d37b478b18d4359c82ba2b6843c831b4fcb7b4f1fda" => :catalina
-    sha256 "ff4d178524842927198499cabe654b3da1b18d8fdf2c01601a1401133da33c9e" => :mojave
-    sha256 "e469a3601277e28533e381f497fc82d3485683836f171a4dbcc468579c1dcfab" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "011b2f1a3463023af803dd686dd35ae0aa0c537cda03bef54522951328398117"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "e26046e87fd1148e9b68935fa0274d255fbf9dac16c83006a10ba3f95f10c442"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "691f8544373e6c9962fda81bf8424e32f7f9da03b86a3084865a30d0fad71282"
+    sha256 cellar: :any_skip_relocation, ventura:        "943d445f2f8c198cdedb492a7ab737635731e8d37fdd697842c6322e076dfe09"
+    sha256 cellar: :any_skip_relocation, monterey:       "3a5596f0f66496af85ca31591019976fb6976d49f869bf5355df651abf012ea1"
+    sha256 cellar: :any_skip_relocation, big_sur:        "d0ce6a6951a47640cdf7f57610055e5c5d6624b6dd36c016865b6235e256929d"
+    sha256 cellar: :any_skip_relocation, catalina:       "d22032c1e63e733b0529c535a680cd91e6e9177ca380e70ae44c272fd4fe16b4"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "593ae253f2c0cd28895dfea6862b6809cfe344110da0ac760bf7d1b26257039d"
   end
 
-  depends_on "python@3.8"
+  depends_on "python-tabulate"
+  depends_on "python@3.11"
+  depends_on "six"
 
   resource "boto3" do
-    url "https://files.pythonhosted.org/packages/4c/71/410d956522a03b331e339813dbd0871bb941f1118a49227617e1c97943d9/boto3-1.14.39.tar.gz"
-    sha256 "b81e5f672ba66e85a0037baae8c73fcc8fca90b94a0bd591cc9e6dc25a1364fe"
+    url "https://files.pythonhosted.org/packages/b8/0e/3a271954247f48ee2bc586aaa0d25467da722dff7059426311a3f9e81e93/boto3-1.26.3.tar.gz"
+    sha256 "b81e4aa16891eac7532ce6cc9eb690a8d2e0ceea3bcf44b5c5a1309c2500d35f"
   end
 
   resource "botocore" do
-    url "https://files.pythonhosted.org/packages/f8/c1/840d1cc498e0708267752a497383c048bbb63d6f4d8fdc49e9d607177009/botocore-1.17.39.tar.gz"
-    sha256 "fd1c42436a4271fbcc8bc53357171ff01d9a1bea8efc4c8a00e58a531efdcb31"
+    url "https://files.pythonhosted.org/packages/61/d0/864d19810c779c8f2cc4e64030414c2056178863c6a61d2f831ab031cc35/botocore-1.29.3.tar.gz"
+    sha256 "ac7986fefe1b9c6323d381c4fdee3845c67fa53eb6c9cf586a8e8a07270dbcfe"
   end
 
   resource "cli-helpers" do
-    url "https://files.pythonhosted.org/packages/3f/3f/6ecd0ddf2394b698dd82ff3ddbcda235f8d6dadf124af6222eff49b32e87/cli_helpers-2.1.0.tar.gz"
-    sha256 "dd6f164310f7d86fa3da1f82043a9c784e44a02ad49be932a80624261e56979b"
+    url "https://files.pythonhosted.org/packages/27/01/6aaa4fc415274ac77372b4d259c234b9f5bfc8d78144c3fda1f3019d4690/cli_helpers-2.3.0.tar.gz"
+    sha256 "e7174d003a2b58fd3e31a73fbbc45d5aa513de62cbd42d437f78b9658bd5f967"
   end
 
   resource "click" do
-    url "https://files.pythonhosted.org/packages/27/6f/be940c8b1f1d69daceeb0032fee6c34d7bd70e3e649ccac0951500b4720e/click-7.1.2.tar.gz"
-    sha256 "d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a"
+    url "https://files.pythonhosted.org/packages/59/87/84326af34517fca8c58418d148f2403df25303e02736832403587318e9e8/click-8.1.3.tar.gz"
+    sha256 "7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e"
   end
 
   resource "configobj" do
@@ -41,74 +48,49 @@ class Athenacli < Formula
     sha256 "a2f5650770e1c87fb335af19a9b7eb73fc05ccf22144eb68db7d00cd2bcb0902"
   end
 
-  resource "docutils" do
-    url "https://files.pythonhosted.org/packages/93/22/953e071b589b0b1fee420ab06a0d15e5aa0c7470eb9966d60393ce58ad61/docutils-0.15.2.tar.gz"
-    sha256 "a2aeea129088da402665e92e0b25b04b073c04b2dce4ab65caaa38b7ce2e1a99"
-  end
-
-  resource "future" do
-    url "https://files.pythonhosted.org/packages/45/0b/38b06fd9b92dc2b68d58b75f900e97884c45bedd2ff83203d933cf5851c9/future-0.18.2.tar.gz"
-    sha256 "b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d"
-  end
-
   resource "jmespath" do
-    url "https://files.pythonhosted.org/packages/3c/56/3f325b1eef9791759784aa5046a8f6a1aff8f7c898a2e34506771d3b99d8/jmespath-0.10.0.tar.gz"
-    sha256 "b85d0567b8666149a93172712e68920734333c0ce7e89b78b3e987f71e5ed4f9"
+    url "https://files.pythonhosted.org/packages/00/2a/e867e8531cf3e36b41201936b7fa7ba7b5702dbef42922193f05c8976cd6/jmespath-1.0.1.tar.gz"
+    sha256 "90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe"
   end
 
   resource "prompt-toolkit" do
-    url "https://files.pythonhosted.org/packages/0c/37/7ad3bf3c6dbe96facf9927ddf066fdafa0f86766237cff32c3c7355d3b7c/prompt_toolkit-2.0.10.tar.gz"
-    sha256 "f15af68f66e664eaa559d4ac8a928111eebd5feda0c11738b5998045224829db"
+    url "https://files.pythonhosted.org/packages/e2/d9/1009dbb3811fee624af34df9f460f92b51edac528af316eb5770f9fbd2e1/prompt_toolkit-3.0.32.tar.gz"
+    sha256 "e7f2129cba4ff3b3656bbdda0e74ee00d2f874a8bcdb9dd16f5fec7b3e173cae"
   end
 
-  resource "PyAthena" do
-    url "https://files.pythonhosted.org/packages/7e/a9/b8dee28fe6464bcc85224bd4fe53a77549406cce10adcd448010799b8cf8/PyAthena-1.11.0.tar.gz"
-    sha256 "0837270d347c15330bd480a66f0ecedaea5469adcd6b46c7705402e8e19ef013"
+  resource "pyathena" do
+    url "https://files.pythonhosted.org/packages/69/7e/12e57f71b041a369f182ae3e4f0a02aa31de256b658898dace5a69d19a3e/PyAthena-2.14.0.tar.gz"
+    sha256 "d437aabe51e53adefcd6739b9cf760668dc9aa3c1c2bc9524445ea50da0a8615"
   end
 
   resource "Pygments" do
-    url "https://files.pythonhosted.org/packages/6e/4d/4d2fe93a35dfba417311a4ff627489a947b01dc0cc377a3673c00cf7e4b2/Pygments-2.6.1.tar.gz"
-    sha256 "647344a061c249a3b74e230c739f434d7ea4d8b1d5f3721bc0f3558049b38f44"
+    url "https://files.pythonhosted.org/packages/15/53/5345177cafa79a49e02c27102019a01ef1682ab170d2138deca47a4c8924/Pygments-2.11.1.tar.gz"
+    sha256 "59b895e326f0fb0d733fd28c6839bd18ad0687ba20efc26d4277fd1d30b971f4"
   end
 
   resource "python-dateutil" do
-    url "https://files.pythonhosted.org/packages/be/ed/5bbc91f03fa4c839c4c7360375da77f9659af5f7086b7a7bdda65771c8e0/python-dateutil-2.8.1.tar.gz"
-    sha256 "73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"
+    url "https://files.pythonhosted.org/packages/4c/c4/13b4776ea2d76c115c1d1b84579f3764ee6d57204f6be27119f13a61d0a9/python-dateutil-2.8.2.tar.gz"
+    sha256 "0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"
   end
 
   resource "s3transfer" do
-    url "https://files.pythonhosted.org/packages/50/de/2b688c062107942486c81a739383b1432a72717d9a85a6a1a692f003c70c/s3transfer-0.3.3.tar.gz"
-    sha256 "921a37e2aefc64145e7b73d50c71bb4f26f46e4c9f414dc648c6245ff92cf7db"
-  end
-
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/6b/34/415834bfdafca3c5f451532e8a8d9ba89a21c9743a0c59fbd0205c7f9426/six-1.15.0.tar.gz"
-    sha256 "30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"
+    url "https://files.pythonhosted.org/packages/e1/eb/e57c93d5cd5edf8c1d124c831ef916601540db70acd96fa21fe60cef1365/s3transfer-0.6.0.tar.gz"
+    sha256 "2ed07d3866f523cc561bf4a00fc5535827981b117dd7876f036b0c1aca42c947"
   end
 
   resource "sqlparse" do
-    url "https://files.pythonhosted.org/packages/67/4b/253b6902c1526885af6d361ca8c6b1400292e649f0e9c95ee0d2e8ec8681/sqlparse-0.3.1.tar.gz"
-    sha256 "e162203737712307dfe78860cc56c8da8a852ab2ee33750e33aeadf38d12c548"
-  end
-
-  resource "tabulate" do
-    url "https://files.pythonhosted.org/packages/57/6f/213d075ad03c84991d44e63b6516dd7d185091df5e1d02a660874f8f7e1e/tabulate-0.8.7.tar.gz"
-    sha256 "db2723a20d04bcda8522165c73eea7c300eda74e0ce852d9022e0159d7895007"
+    url "https://files.pythonhosted.org/packages/ba/fa/5b7662b04b69f3a34b8867877e4dbf2a37b7f2a5c0bbb5a9eed64efd1ad1/sqlparse-0.4.3.tar.gz"
+    sha256 "69ca804846bb114d2ec380e4360a8a340db83f0ccf3afceeb1404df028f57268"
   end
 
   resource "tenacity" do
-    url "https://files.pythonhosted.org/packages/a9/26/dfe61bbfbe7d723fe76ff41960c96161fd32ff303be88bbbdfb428250cd4/tenacity-6.2.0.tar.gz"
-    sha256 "29ae90e7faf488a8628432154bb34ace1cca58244c6ea399fd33f066ac71339a"
-  end
-
-  resource "terminaltables" do
-    url "https://files.pythonhosted.org/packages/9b/c4/4a21174f32f8a7e1104798c445dacdc1d4df86f2f26722767034e4de4bff/terminaltables-3.1.0.tar.gz"
-    sha256 "f3eb0eb92e3833972ac36796293ca0906e998dc3be91fbe1f8615b331b853b81"
+    url "https://files.pythonhosted.org/packages/ae/9c/ce67f96abe7c7530173e746b4f16a0bc5b4fa962ea1080d80cc5757dd210/tenacity-8.1.0.tar.gz"
+    sha256 "e48c437fdf9340f5666b92cd7990e96bc5fc955e1298baf4a907e3972067a445"
   end
 
   resource "urllib3" do
-    url "https://files.pythonhosted.org/packages/81/f4/87467aeb3afc4a6056e1fe86626d259ab97e1213b1dfec14c7cb5f538bf0/urllib3-1.25.10.tar.gz"
-    sha256 "91056c15fa70756691db97756772bb1eb9678fa585d9184f24534b100dc60f4a"
+    url "https://files.pythonhosted.org/packages/b2/56/d87d6d3c4121c0bcec116919350ca05dc3afd2eeb7dc88d07e8083f8ea94/urllib3-1.26.12.tar.gz"
+    sha256 "3fa96cf423e6987997fc326ae8df396db2a8b7c667747d47ddd8ecba91f4a74e"
   end
 
   resource "wcwidth" do

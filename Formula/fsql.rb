@@ -1,25 +1,25 @@
 class Fsql < Formula
   desc "Search through your filesystem with SQL-esque queries"
   homepage "https://github.com/kashav/fsql"
-  url "https://github.com/kashav/fsql/archive/v0.3.1.tar.gz"
-  sha256 "b88110426a60aa2c48f7b4e52e117a899d43d1bba2614346b729234cd4bd9184"
+  url "https://github.com/kashav/fsql/archive/v0.5.1.tar.gz"
+  sha256 "743ab740e368f80fa7cb076679b8d72a5aa13c2a10e5c820608558ed1d7634bc"
   license "MIT"
 
   bottle do
-    cellar :any_skip_relocation
-    rebuild 1
-    sha256 "de9764e9754827795839738de7d4377786b3532b7a2157806ecf3e145f626146" => :catalina
-    sha256 "7cb63d8939e7af0391938aea8a138daccbaddce50b42802d32e510772e004b9a" => :mojave
-    sha256 "7b4353a346425e4db5d14419c4dbacf6038606778a7ce2b98ddd0fdb7c2ca233" => :high_sierra
-    sha256 "f651c7c2dad44ee6b6f32aa699df223bd427421990f2c2c170d0928b1a31ef87" => :sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "417e28b2d563993b3271eb618a36d63613ec33dcdf641825a857201f32290b16"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "9503bad9beef53afe723b7f108358387dbd27e6e95840b4bf1f05b417e26c554"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "3152db0f493ffed00da1697927faf6d6abd5dd2507fc16522aa0880e989f938d"
+    sha256 cellar: :any_skip_relocation, ventura:        "e9df3db0def1f9b2b7728947ab2b311dbfc5962e4f34e272ef5bc897712e296c"
+    sha256 cellar: :any_skip_relocation, monterey:       "119db791efbfa4c293dbfefbcf3d06cc1e6513c77d4243fde6954aaa350aeb00"
+    sha256 cellar: :any_skip_relocation, big_sur:        "51427ac84aead8115df46e52cb129d88007f6432b8b91c246a8775ae753e440e"
+    sha256 cellar: :any_skip_relocation, catalina:       "727db2370d0a5de1ff0c03b0508c26a2cefa86c3f76d1fcf4d7cb3de3c76e36d"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "e7ba18e8d272abf01631cc01913d8bad0c5795a367cd055f03154b0da41b6083"
   end
 
   depends_on "go" => :build
 
   def install
-    ENV["GOPATH"] = buildpath
-    (buildpath/"src/github.com/kshvmdn/fsql").install buildpath.children
-    system "go", "build", "-o", bin/"fsql", "github.com/kshvmdn/fsql/cmd/fsql"
+    system "go", "build", *std_go_args(ldflags: "-s -w"), "./cmd/fsql"
   end
 
   test do
@@ -29,7 +29,7 @@ class Fsql < Formula
     assert_match %r{^foo\s+foo/baz.txt$}, shell_output(cmd)
     cmd = "#{bin}/fsql SELECT name FROM . WHERE name = bar.txt"
     assert_equal "bar.txt", shell_output(cmd).chomp
-    cmd = "#{bin}/fsql SELECT name FROM . WHERE FORMAT\\(size\, GB\\) \\> 500"
+    cmd = "#{bin}/fsql SELECT name FROM . WHERE FORMAT\\(size, GB\\) \\> 500"
     assert_equal "", shell_output(cmd)
   end
 end

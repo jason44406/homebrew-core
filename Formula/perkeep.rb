@@ -2,35 +2,37 @@ class Perkeep < Formula
   desc "Lets you permanently keep your stuff, for life"
   homepage "https://perkeep.org/"
   license "Apache-2.0"
+  revision 1
+  head "https://github.com/perkeep/perkeep.git", branch: "master"
 
   stable do
     url "https://github.com/perkeep/perkeep.git",
-        tag:      "0.10",
-        revision: "0cbe4d5e05a40a17efe7441d75ce0ffdf9d6b9f5"
+        tag:      "0.11",
+        revision: "76755286451a1b08e2356f549574be3eea0185e5"
 
-    # gopherjs doesn't tag releases, so just pick the most recent revision for now
+    # Newer gopherjs to support a newer Go version.
     resource "gopherjs" do
-      url "https://github.com/gopherjs/gopherjs/archive/fce0ec30dd00773d3fa974351d04ce2737b5c4d9.tar.gz"
-      sha256 "e5e6ede5f710fde77e48aa1f6a9b75f5afeb1163223949f76c1300ae44263b84"
+      url "https://github.com/gopherjs/gopherjs/archive/refs/tags/v1.18.0-beta2+go1.18.5.tar.gz"
+      sha256 "8dc2e85245343862e47ce9293e7c4b364cbd7aada734b823366ba10e72cfb93e"
     end
-
-    depends_on "go@1.12" => :build
   end
 
   bottle do
-    cellar :any_skip_relocation
     rebuild 1
-    sha256 "36f18ad54a3e656ac5da55fc438636aac922e107ad1082e0dad7353626f0db84" => :catalina
-    sha256 "51f41c16b3c4ea80d6a77c5badf28dca0ec323bd5aa2f1f90e855ce568b1c8ca" => :mojave
-    sha256 "b188c23945a51d253dc6c4435afaa509a2ddaf151124ef1f08a1186611041c92" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "c3f22417345af02864c07b3dc562ba8761cbc0ad45cd1504d7142b0ef18065f5"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "9dc4933072ef2f422c7f27eebe7a687bcee27ec38229afa5b80284b33a6ce023"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "4624396d2d8f4a57c59cb8a44d7523835562839d4b588cf313d261cdd5ae1cb9"
+    sha256 cellar: :any_skip_relocation, ventura:        "fa7553919ace49169e83acc7356542aa62dcdcbc857a84a62e7c28ad3dd205fd"
+    sha256 cellar: :any_skip_relocation, monterey:       "21c3e3e744c284d7ed0d27837599c887a69c5c3ae0ce7035f9a9f2cbffde1180"
+    sha256 cellar: :any_skip_relocation, big_sur:        "c4bbe8600fee0e1cbf39a389ba6ceefd57d787d329256aa0bd0c2edf9f8fef9c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "46418f4f07c4f2934642ef6c99795aa69a0d4b394f73ffe11a6625ae864c4286"
   end
 
-  head do
-    url "https://github.com/perkeep/perkeep.git"
+  # HEAD may support Go 1.19 but last release was on 2020-11-11.
+  deprecate! date: "2023-02-21", because: "has `gopherjs` resource that doesn't support Go 1.19 or later"
 
-    depends_on "go" => :build
-  end
-
+  # This should match what gopherjs supports.
+  depends_on "go@1.18" => :build
   depends_on "pkg-config" => :build
 
   conflicts_with "hello", because: "both install `hello` binaries"
@@ -38,12 +40,12 @@ class Perkeep < Formula
   def install
     if build.stable?
       ENV["GOPATH"] = buildpath
-      ENV["CAMLI_GOPHERJS_GOROOT"] = Formula["go@1.12"].opt_libexec
+      ENV["CAMLI_GOPHERJS_GOROOT"] = Formula["go@1.18"].opt_libexec
 
       (buildpath/"src/perkeep.org").install buildpath.children
 
       # Vendored version of gopherjs requires go 1.10, so use the newest available gopherjs, which
-      # supports up to go 1.12
+      # supports newer Go versions.
       rm_rf buildpath/"src/perkeep.org/vendor/github.com/gopherjs/gopherjs"
       resource("gopherjs").stage buildpath/"src/perkeep.org/vendor/github.com/gopherjs/gopherjs"
 
@@ -58,28 +60,9 @@ class Perkeep < Formula
     end
   end
 
-  plist_options manual: "perkeepd"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-      <dict>
-        <key>KeepAlive</key>
-        <true/>
-        <key>Label</key>
-        <string>#{plist_name}</string>
-        <key>ProgramArguments</key>
-        <array>
-          <string>#{opt_bin}/perkeepd</string>
-          <string>-openbrowser=false</string>
-        </array>
-        <key>RunAtLoad</key>
-        <true/>
-      </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"perkeepd", "-openbrowser=false"]
+    keep_alive true
   end
 
   test do

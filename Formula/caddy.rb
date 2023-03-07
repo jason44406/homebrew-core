@@ -1,65 +1,43 @@
 class Caddy < Formula
   desc "Powerful, enterprise-ready, open source web server with automatic HTTPS"
   homepage "https://caddyserver.com/"
-  url "https://github.com/caddyserver/caddy/archive/v2.1.1.tar.gz"
-  sha256 "77beb13b39b670bfe9e0cc1c71b720d5b037cca60e1426a9a485bbfae34ba8d2"
+  url "https://github.com/caddyserver/caddy/archive/v2.6.4.tar.gz"
+  sha256 "41f26a7e494eb0e33cd1f167b3f00a4d9030b2f9d29f673a1837dde7bb5e82b0"
   license "Apache-2.0"
-  revision 1
-  head "https://github.com/caddyserver/caddy.git"
+  head "https://github.com/caddyserver/caddy.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    rebuild 1
-    sha256 "847028dd3f176fb48afa9006530d98df57f355ff6bdb5a985d274b7ff45882f5" => :catalina
-    sha256 "002970585ed938b177d25c97828246f85ca2a591381c13d0f4c41a7f0fdb6bad" => :mojave
-    sha256 "db60499319ccada5f3a2a0c16b8ea86c00369b876a7491ba62c7b011db54e526" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "1d7d39c42ab031511e899469a442c31eb525388b6d11583ea20bd25494fb2b67"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "1d7d39c42ab031511e899469a442c31eb525388b6d11583ea20bd25494fb2b67"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "1d7d39c42ab031511e899469a442c31eb525388b6d11583ea20bd25494fb2b67"
+    sha256 cellar: :any_skip_relocation, ventura:        "495147632d0fa351302489a9e84765dcba5169119a25529dbf475c97ab54bfc0"
+    sha256 cellar: :any_skip_relocation, monterey:       "495147632d0fa351302489a9e84765dcba5169119a25529dbf475c97ab54bfc0"
+    sha256 cellar: :any_skip_relocation, big_sur:        "495147632d0fa351302489a9e84765dcba5169119a25529dbf475c97ab54bfc0"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "bb6f17b4da836218574f3e6d4f6e9be3686831d50daccf68503069e4e14cc7c8"
   end
 
-  depends_on "go@1.14" => :build
+  depends_on "go" => :build
 
   resource "xcaddy" do
-    url "https://github.com/caddyserver/xcaddy/archive/v0.1.3.tar.gz"
-    sha256 "160244a67fca5a9ba448b98f4a94c6023e9ac64e3456a76ceea444d7a1f00767"
+    url "https://github.com/caddyserver/xcaddy/archive/refs/tags/v0.3.2.tar.gz"
+    sha256 "7b846312d1cd692087c9f044d88ba77be2e5a48aca6df9925757b60841c39c69"
   end
 
   def install
     revision = build.head? ? version.commit : "v#{version}"
 
     resource("xcaddy").stage do
-      system "go", "run", "cmd/xcaddy/main.go", "build", revision,
-                                                "--with", "github.com/caddyserver/caddy/v2=#{buildpath}",
-                                                "--output", bin/"caddy"
+      system "go", "run", "cmd/xcaddy/main.go", "build", revision, "--output", bin/"caddy"
     end
+
+    generate_completions_from_executable("go", "run", "cmd/caddy/main.go", "completion")
   end
 
-  plist_options manual: "caddy run --config #{HOMEBREW_PREFIX}/etc/Caddyfile"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>KeepAlive</key>
-          <true/>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{opt_bin}/caddy</string>
-            <string>run</string>
-            <string>--config</string>
-            <string>#{etc}/Caddyfile</string>
-          </array>
-          <key>RunAtLoad</key>
-          <true/>
-          <key>StandardOutPath</key>
-          <string>#{var}/log/caddy.log</string>
-          <key>StandardErrorPath</key>
-          <string>#{var}/log/caddy.log</string>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_bin/"caddy", "run", "--config", etc/"Caddyfile"]
+    keep_alive true
+    error_log_path var/"log/caddy.log"
+    log_path var/"log/caddy.log"
   end
 
   test do
@@ -84,5 +62,7 @@ class Caddy < Formula
     assert_match "\":#{port2}\"",
       shell_output("curl -s http://127.0.0.1:#{port1}/config/apps/http/servers/srv0/listen/0")
     assert_match "Hello, Caddy!", shell_output("curl -s http://127.0.0.1:#{port2}")
+
+    assert_match version.to_s, shell_output("#{bin}/caddy version")
   end
 end

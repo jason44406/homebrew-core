@@ -4,15 +4,17 @@ class Mpg321 < Formula
   url "https://downloads.sourceforge.net/project/mpg321/mpg321/0.3.2/mpg321_0.3.2.orig.tar.gz"
   sha256 "056fcc03e3f5c5021ec74bb5053d32c4a3b89b4086478dcf81adae650eac284e"
   license "GPL-2.0"
+  revision 2
 
   bottle do
-    sha256 "fdea1076a22b6af12c33b02e9eb040fceb11d39ed2eaa7307574bf5331d8f8dc" => :catalina
-    sha256 "d587b58200397ad4e8f7fa8c861e01c2c5e344d89a235e78d22fb7bd5ddf04f2" => :mojave
-    sha256 "6a8f8f58c8bf02f99e8206a231fce4e9f2bd7333b888581dd1838246983d139f" => :high_sierra
-    sha256 "a69f242f57e4211f96fa56f10573777204d5ed7d61cd7b35a04e0bbd33b9064e" => :sierra
-    sha256 "6c8921b0703d2952b6038ce7097957c3c2bfe9b59c2d41b5caddc268e96b245d" => :el_capitan
-    sha256 "48b9ac480d966fc344c4867f3dcef7cd59be1440b11fe7d8280d51134a881f78" => :yosemite
-    sha256 "bf86f590672fdb27f6fc92c706db1bfcb2ca0a1e35129c5435821640a11a422f" => :mavericks
+    sha256 arm64_ventura:  "5121567767b2da54cd4eca9c38f941dcd99000c53e46c9e3e6029a82e54e5712"
+    sha256 arm64_monterey: "aae6a0f70e06529f68c1f32ae77ab30d733993989aebd4680e49f84b3c26afe2"
+    sha256 arm64_big_sur:  "f3ba496b39e008dfe0e2b92c4d5fcc55f3040eef0cf45bfb29eec86f618929de"
+    sha256 ventura:        "dc2cc77c92a01c5fe94ad0fbc467302e47f38743e8a3ac4d66d25b3e38c19a6e"
+    sha256 monterey:       "5c160696795a2cf4262e4183ca91e934c70828b6af8de77479972b3e640247e9"
+    sha256 big_sur:        "8e0c58eb4f9a91375d28cf616563733a91baa1d06dd66317826d096c48a277a6"
+    sha256 catalina:       "5ed70395deaaf283b53c951e3805df5300b19f0921e3844eb28f6176012bcd5c"
+    sha256 x86_64_linux:   "a9e308f8bda99a7df745630013f69edf11302c6cea66428b3fb71cc99d12844c"
   end
 
   depends_on "libao"

@@ -1,24 +1,21 @@
 class Logrotate < Formula
   desc "Rotates, compresses, and mails system logs"
   homepage "https://github.com/logrotate/logrotate"
-  url "https://github.com/logrotate/logrotate/releases/download/3.17.0/logrotate-3.17.0.tar.xz"
-  sha256 "58cc2178ff57faa3c0490181cce041345aeca6cff18dba1c5cd1398bf1c19294"
+  url "https://github.com/logrotate/logrotate/releases/download/3.21.0/logrotate-3.21.0.tar.xz"
+  sha256 "8fa12015e3b8415c121fc9c0ca53aa872f7b0702f543afda7e32b6c4900f6516"
   license "GPL-2.0"
 
   bottle do
-    cellar :any
-    sha256 "cb0e376e957310bf7a5c3edcd4cdbc41b0f8d2aa12996a3b25f63174090b9358" => :catalina
-    sha256 "94ab5540c338fa37c83de5ee0f1150b170c5bbb5dd50dcab592c9de74893febc" => :mojave
-    sha256 "c40599d984c6c5da3818e7f86c95626bd3006e61ee0bd0e588bed07729bb1242" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "8e7e4ceaea1356aae5339c4b73e30357f2b5b7f2cd7885d088512e4424d587e6"
+    sha256 cellar: :any,                 arm64_monterey: "69e5e0b7e048425a9f65032bed75319417cffd44e5139240de34a0186e217adf"
+    sha256 cellar: :any,                 arm64_big_sur:  "412184f46ae0eb6a4c15c81349cccdfd1da979faa083aa21d72a9662198be08f"
+    sha256 cellar: :any,                 ventura:        "bf4b7d1163c6506ea22cc96da7c830cf1fb7b7a9f5e5c2fe2f0373fae9d2ad99"
+    sha256 cellar: :any,                 monterey:       "6e7b959f377ef96a40b1e25f8bf15a8aa0f05cde1d28e36ef2890d3d8239ef50"
+    sha256 cellar: :any,                 big_sur:        "58a2d05ffa4b5350d1f9985aeda51a1db40040c5d845428820c0c205313547c9"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "3f471902687bec2d0e8ed417300938568118d9c86a5f0535f837bbb6e67b30ca"
   end
 
   depends_on "popt"
-
-  # https://github.com/logrotate/logrotate/pull/344
-  patch do
-    url "https://github.com/logrotate/logrotate/commit/5aee3d4d73bbdca7531bf641a78bcb5ec58d93ea.diff?full_index=1"
-    sha256 "1fd0057b7b97cd5070a5bacacdfd5c2bc4f68c86dcd438b6efd76cdbab86710c"
-  end
 
   def install
     system "./configure", "--disable-dependency-tracking",
@@ -33,33 +30,10 @@ class Logrotate < Formula
     (etc/"logrotate.d").mkpath
   end
 
-  plist_options manual: "logrotate"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{sbin}/logrotate</string>
-            <string>#{etc}/logrotate.conf</string>
-          </array>
-          <key>RunAtLoad</key>
-          <false/>
-          <key>StartCalendarInterval</key>
-          <dict>
-            <key>Hour</key>
-            <integer>6</integer>
-            <key>Minute</key>
-            <integer>25</integer>
-          </dict>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_sbin/"logrotate", etc/"logrotate.conf"]
+    run_type :cron
+    cron "25 6 * * *"
   end
 
   test do

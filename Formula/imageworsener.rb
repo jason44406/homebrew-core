@@ -1,27 +1,37 @@
 class Imageworsener < Formula
   desc "Utility and library for image scaling and processing"
   homepage "https://entropymine.com/imageworsener/"
-  url "https://entropymine.com/imageworsener/imageworsener-1.3.3.tar.gz"
-  sha256 "7c4b6e5f3da333e336f014805c441bc08aded652dd9dde2abd40be33b1aa3e25"
+  url "https://entropymine.com/imageworsener/imageworsener-1.3.5.tar.gz"
+  sha256 "a7fbb65c5ade67d9ebc32e52c58988a4f986bacc008c9021fe36b598466d5c8d"
   license "MIT"
 
+  livecheck do
+    url :homepage
+    regex(/href=.*?imageworsener[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
+
   bottle do
-    cellar :any
-    sha256 "fd72a318b2e8b398544d23b384cc4070f181537816647a16129dbbb3628dcc4e" => :catalina
-    sha256 "b5e6ce352f0e698cf10452d273ae0e61f50554565f77010de4e62a6fdddd911f" => :mojave
-    sha256 "2332dd0ecedf78344ee5fbd3d00abb0eccc7b28b7e8609c9a18e8e6ab81669de" => :high_sierra
-    sha256 "847f3211aba4095e280d589a87698234b7cd6e3ec77a6a50cf578a3fa6d0236e" => :sierra
+    sha256 cellar: :any,                 arm64_ventura:  "14a343a159b3410196cc3ed40b0e674b4bed5f8ee7b2760b49b1317e1a09811a"
+    sha256 cellar: :any,                 arm64_monterey: "0d8c2dab98fa032f871df63f93ae33d4d1a989fe7c97f185d976d976f243134a"
+    sha256 cellar: :any,                 arm64_big_sur:  "50063cbefef7614047703983639adaee5836d68c02f673aed62c38fea1c4418d"
+    sha256 cellar: :any,                 ventura:        "d360400241b1bf7a2199e04034e96da619f19c0473c17bf7637555fdaab73421"
+    sha256 cellar: :any,                 monterey:       "443be530e6d93e197026cf8ec457817446c38c94d84b39a3ca76e7a2282225ae"
+    sha256 cellar: :any,                 big_sur:        "7ce254b5dfb0dcd52e39b682cfd21ea665601cd14e9a2a5ab0c923e185ad5261"
+    sha256 cellar: :any,                 catalina:       "7301d5557860b7402e3d624c77a208c1e3eb1ed69479d6d3d3f1158a3e3ea079"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "ffeb2d98cb08aca5974ca2ece5a40a42b5bd6e0c2422f0a3013455d00793883d"
   end
 
   head do
-    url "https://github.com/jsummers/imageworsener.git"
+    url "https://github.com/jsummers/imageworsener.git", branch: "master"
     depends_on "autoconf" => :build
     depends_on "automake" => :build
     depends_on "libtool" => :build
   end
 
-  depends_on "jpeg"
+  depends_on "jpeg-turbo"
   depends_on "libpng"
+
+  uses_from_macos "zlib"
 
   def install
     if build.head?
@@ -29,8 +39,7 @@ class Imageworsener < Formula
       system "./scripts/autogen.sh"
     end
 
-    system "./configure", "--disable-dependency-tracking",
-                          "--prefix=#{prefix}", "--without-webp"
+    system "./configure", *std_configure_args, "--without-webp"
     system "make", "install"
     pkgshare.install "tests"
   end

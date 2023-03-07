@@ -1,11 +1,18 @@
 class Wtf < Formula
   desc "Translate common Internet acronyms"
   homepage "https://sourceforge.net/projects/bsdwtf/"
-  url "https://downloads.sourceforge.net/project/bsdwtf/wtf-20200822.tar.gz"
-  sha256 "0d8fb35e44ec28382e97019164c27af7db12fe1823a108ec9bd21944f4260ce0"
+  url "https://downloads.sourceforge.net/project/bsdwtf/wtf-20230307.tar.gz"
+  sha256 "51ded3a0bd09795558957b528d8bbbecbe5a862e832d49c6f6924e620511add1"
   license :public_domain
 
-  bottle :unneeded
+  livecheck do
+    url :stable
+    regex(%r{url=.*?/wtf[._-]v?(\d{6,8})\.t}i)
+  end
+
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "51eb0da7092d780fb1a93afa732555ae665bd29efe3f5b8641033ddbf7f89895"
+  end
 
   def install
     inreplace %w[wtf wtf.6], "/usr/share", share
@@ -16,6 +23,6 @@ class Wtf < Formula
   end
 
   test do
-    system bin/"wtf", "needle"
+    assert_match "where's the food", shell_output("#{bin}/wtf wtf")
   end
 end

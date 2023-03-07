@@ -1,4 +1,4 @@
-# Note: Mutt has a large number of non-upstream patches available for
+# NOTE: Mutt has a large number of non-upstream patches available for
 # it, some of which conflict with each other. These patches are also
 # not kept up-to-date when new versions of mutt (occasionally) come
 # out.
@@ -10,18 +10,23 @@
 class Mutt < Formula
   desc "Mongrel of mail user agents (part elm, pine, mush, mh, etc.)"
   homepage "http://www.mutt.org/"
-  url "https://bitbucket.org/mutt/mutt/downloads/mutt-1.14.6.tar.gz"
-  sha256 "47972a0152b81b9f67ff322a0a6682b914c15545bfdeac6bcc2f2c0bf9361844"
-  license "GPL-2.0"
+  url "https://bitbucket.org/mutt/mutt/downloads/mutt-2.2.9.tar.gz"
+  sha256 "fa531b231d58fe1f30ceda0ed626683ea9ebdfb76ce47ef8bb27c2f77422cffb"
+  license "GPL-2.0-or-later"
 
   bottle do
-    sha256 "082daa6e0a39f0571b6d4ed96319783ea3bd0c466dec391161bd77bac602ff25" => :catalina
-    sha256 "308286b170d87edf5e453641c3c749d7aefa0ec2c6d602ae883949ba09b6c2fe" => :mojave
-    sha256 "f6189decba76d0f635165027bdf71cd76d388ef4244bacb69d53f6da38570f93" => :high_sierra
+    rebuild 1
+    sha256 arm64_ventura:  "75402fa2874ea11b9161df5a1570d5d37a17a5b139ff963f050c724311e472f8"
+    sha256 arm64_monterey: "f278aee880d1f861f8b4bffa4a505ad37c007edc809ea4b31641a7978c2f2b85"
+    sha256 arm64_big_sur:  "b6add7e90b217df2a3bbb346182e6fb1b409bbff4619c741a3c0f08aa903d725"
+    sha256 ventura:        "7bb9f3303700a0c0d89c76a85defe9290ac60cfd63e89cbf38070e7531c1d3be"
+    sha256 monterey:       "d15f5bea037b83f62f4d7cf858cefd33345b97e9e8450fbe79f0d4849cae9ca2"
+    sha256 big_sur:        "54e8a82b62d333bb241fc4d3f212f09cff0d3ede07dca280a38e77e788b67afc"
+    sha256 x86_64_linux:   "4aa24d8649a336ef29f04e08ae3b5aad77edd63668004985c8a5aa728aedb7de"
   end
 
   head do
-    url "https://gitlab.com/muttmua/mutt.git"
+    url "https://gitlab.com/muttmua/mutt.git", branch: "master"
 
     resource "html" do
       url "https://muttmua.gitlab.io/mutt/manual-dev.html"
@@ -31,15 +36,17 @@ class Mutt < Formula
   depends_on "autoconf" => :build
   depends_on "automake" => :build
   depends_on "gpgme"
+  depends_on "libidn2"
   depends_on "openssl@1.1"
   depends_on "tokyo-cabinet"
 
   uses_from_macos "bzip2"
+  uses_from_macos "cyrus-sasl"
+  uses_from_macos "krb5"
   uses_from_macos "ncurses"
   uses_from_macos "zlib"
 
-  conflicts_with "tin",
-    because: "both install mmdf.5 and mbox.5 man pages"
+  conflicts_with "tin", because: "both install mmdf.5 and mbox.5 man pages"
 
   def install
     user_in_mail_group = Etc.getgrnam("mail").mem.include?(ENV["USER"])
@@ -50,16 +57,17 @@ class Mutt < Formula
       --disable-warnings
       --prefix=#{prefix}
       --enable-debug
+      --enable-gpgme
       --enable-hcache
       --enable-imap
       --enable-pop
       --enable-sidebar
       --enable-smtp
       --with-gss
+      --with-idn2
       --with-sasl
       --with-ssl=#{Formula["openssl@1.1"].opt_prefix}
       --with-tokyocabinet
-      --enable-gpgme
     ]
 
     system "./prepare", *args
@@ -76,7 +84,7 @@ class Mutt < Formula
 
   def caveats
     <<~EOS
-      mutt_dotlock(1) has been installed, but does not have the permissions lock
+      mutt_dotlock(1) has been installed, but does not have the permissions to lock
       spool files in /var/mail. To grant the necessary permissions, run
 
         sudo chgrp mail #{bin}/mutt_dotlock

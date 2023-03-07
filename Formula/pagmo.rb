@@ -1,15 +1,18 @@
 class Pagmo < Formula
   desc "Scientific library for massively parallel optimization"
   homepage "https://esa.github.io/pagmo2/"
-  url "https://github.com/esa/pagmo2/archive/v2.15.0.tar.gz"
-  sha256 "07977be690b512ea11fc40d5b8bfa0a7a8507ce9053a615c2bc4725d355ef9a8"
-  license "GPL-3.0"
+  url "https://github.com/esa/pagmo2/archive/v2.19.0.tar.gz"
+  sha256 "701ada528de7d454201e92a5d88903dd1c22ea64f43861d9694195ddfef82a70"
+  license any_of: ["LGPL-3.0-or-later", "GPL-3.0-or-later"]
 
   bottle do
-    cellar :any
-    sha256 "0f50a88dc4df4c8cabafceb3a96a9fb93d913db185257ca91830345dc7f5e13f" => :catalina
-    sha256 "acd5be5bb4b9fa2b93512c7a480dae7c1a84025330f866157bf0db9640f8948e" => :mojave
-    sha256 "4146ac95f0a01a6901c696cd54808b5834942e39bb10689b8ea6094be45d1582" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "310df884da16bdb83fc9d1d890f4badfeafbfcc5d26e3182b516b8816ddb50f7"
+    sha256 cellar: :any,                 arm64_monterey: "765c33daf58fb08fcb240bd60c3bd6c72d7a16ce83da175c9693f766107e5592"
+    sha256 cellar: :any,                 arm64_big_sur:  "6298767893209c1e81b3c6ded53f84581c30a1b288b5c9d2ca27d1cd3a97c9d5"
+    sha256 cellar: :any,                 ventura:        "dd5652d55e5c58c22e93fbf8b895b6cb8563c109f1a0f58c9293a97e899bfc9d"
+    sha256 cellar: :any,                 monterey:       "eab152f7b7620d1afb8db53642f7da540a656cd13e742a241ca658c9928deecd"
+    sha256 cellar: :any,                 big_sur:        "afe5a7c7f449f3bcbae91a9d23d9548828ea3ebaaf992c4a6e9152283c58406e"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "a4b1be604b7367a9719ce437d12f6bd72f8c821bdb5e639ed6f7cc921d4bb7fe"
   end
 
   depends_on "cmake" => :build
@@ -18,10 +21,12 @@ class Pagmo < Formula
   depends_on "nlopt"
   depends_on "tbb"
 
+  fails_with gcc: "5"
+
   def install
-    ENV.cxx11
     system "cmake", ".", "-DPAGMO_WITH_EIGEN3=ON", "-DPAGMO_WITH_NLOPT=ON",
-                         *std_cmake_args
+                         *std_cmake_args,
+                         "-DCMAKE_CXX_STANDARD=17"
     system "make", "install"
   end
 
@@ -40,22 +45,24 @@ class Pagmo < Formula
       int main()
       {
           // 1 - Instantiate a pagmo problem constructing it from a UDP
-          // (user defined problem).
+          // (i.e., a user-defined problem, in this case the 30-dimensional
+          // generalised Schwefel test function).
           problem prob{schwefel(30)};
 
-          // 2 - Instantiate a pagmo algorithm
+          // 2 - Instantiate a pagmo algorithm (self-adaptive differential
+          // evolution, 100 generations).
           algorithm algo{sade(100)};
 
-          // 3 - Instantiate an archipelago with 16 islands having each 20 individuals
-          archipelago archi{16, algo, prob, 20};
+          // 3 - Instantiate an archipelago with 16 islands having each 20 individuals.
+          archipelago archi{16u, algo, prob, 20u};
 
           // 4 - Run the evolution in parallel on the 16 separate islands 10 times.
           archi.evolve(10);
 
-          // 5 - Wait for the evolutions to be finished
+          // 5 - Wait for the evolutions to finish.
           archi.wait_check();
 
-          // 6 - Print the fitness of the best solution in each island
+          // 6 - Print the fitness of the best solution in each island.
           for (const auto &isl : archi) {
               std::cout << isl.get_population().champion_f()[0] << std::endl;
           }
@@ -63,8 +70,9 @@ class Pagmo < Formula
           return 0;
       }
     EOS
+
     system ENV.cxx, "test.cpp", "-I#{include}", "-L#{lib}", "-lpagmo",
-                    "-std=c++11", "-o", "test"
+                    "-std=c++17", "-o", "test"
     system "./test"
   end
 end

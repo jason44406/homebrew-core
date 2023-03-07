@@ -1,33 +1,37 @@
 class JsonGlib < Formula
   desc "Library for JSON, based on GLib"
   homepage "https://wiki.gnome.org/Projects/JsonGlib"
-  url "https://download.gnome.org/sources/json-glib/1.4/json-glib-1.4.4.tar.xz"
-  sha256 "720c5f4379513dc11fd97dc75336eb0c0d3338c53128044d9fabec4374f4bc47"
-  revision 1
+  url "https://download.gnome.org/sources/json-glib/1.6/json-glib-1.6.6.tar.xz"
+  sha256 "96ec98be7a91f6dde33636720e3da2ff6ecbb90e76ccaa49497f31a6855a490e"
+  license "LGPL-2.1-or-later"
 
   bottle do
-    sha256 "643ce68e84c094e77597f2f1b83678d3675b74b1a2e11c43804290d30fa456e6" => :catalina
-    sha256 "223b5472cc71a1eea8efc818d66fa8e6ff05a4aff45d60d4deccba54f82d39dd" => :mojave
-    sha256 "ad30f6f204dd27504d70e9ac22dcfdd482975a5e97879c0b4095527bde68d985" => :high_sierra
-    sha256 "08dbbf2bcef7fdeccfbcd7a0391c4eafa67f914ba0f021c8a41298a6359f7c24" => :sierra
+    rebuild 1
+    sha256 arm64_ventura:  "753f1b417f67019352dd2241a506056d3a61d517143983963bbf100d0bf39305"
+    sha256 arm64_monterey: "2905d1e62cc0d99fd5bb240b0899401d2dc667f317d07d19378a0cccea01bf48"
+    sha256 arm64_big_sur:  "e74f3f36f6388489d5940ee05c290ad6f7164d65a141d31384ba4c7454bc9064"
+    sha256 ventura:        "bc74ee2868329c5484a5d98ce1e612f9f135f209a62e3f5ed7b80b2f446899d5"
+    sha256 monterey:       "c9e3f1128cf4ac8db8ca28ca88ab72a3fb6c50a3ce0c9df5fc394ed5c95b38b3"
+    sha256 big_sur:        "223b8bc85f42b9a68bbca1ccfce4e6daff89c0e51275ec26cb9a0a012b7bceeb"
+    sha256 x86_64_linux:   "3fae78dea79874ebb00176ac6e7d1af0972d47da744ad30b4d189d765098653f"
   end
 
+  depends_on "docbook-xsl" => :build
+  depends_on "gettext" => :build
   depends_on "gobject-introspection" => :build
-  depends_on "meson-internal" => :build
+  depends_on "meson" => :build
   depends_on "ninja" => :build
   depends_on "pkg-config" => :build
   depends_on "glib"
 
-  patch :DATA
+  uses_from_macos "libxslt" => :build # for xsltproc
 
   def install
-    ENV.refurbish_args
+    ENV["XML_CATALOG_FILES"] = etc/"xml/catalog"
 
-    mkdir "build" do
-      system "meson", *std_meson_args, ".."
-      system "ninja"
-      system "ninja", "install"
-    end
+    system "meson", "setup", "build", "-Dintrospection=enabled", "-Dman=true", *std_meson_args
+    system "meson", "compile", "-C", "build", "--verbose"
+    system "meson", "install", "-C", "build"
   end
 
   test do
@@ -53,31 +57,10 @@ class JsonGlib < Formula
       -lgio-2.0
       -lglib-2.0
       -lgobject-2.0
-      -lintl
       -ljson-glib-1.0
     ]
+    flags << "-lintl" if OS.mac?
     system ENV.cc, "test.c", "-o", "test", *flags
     system "./test"
   end
 end
-
-__END__
-diff --git a/meson.build b/meson.build
-index cee6389..50808cf 100644
---- a/meson.build
-+++ b/meson.build
-@@ -145,14 +145,6 @@ if host_system == 'linux'
-   endforeach
- endif
-
--# Maintain compatibility with autotools
--if host_system == 'darwin'
--  common_ldflags += [
--    '-compatibility_version 1',
--    '-current_version @0@.@1@'.format(json_binary_age - json_interface_age, json_interface_age),
--  ]
--endif
--
- root_dir = include_directories('.')
-
- gnome = import('gnome')

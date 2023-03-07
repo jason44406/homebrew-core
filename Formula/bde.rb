@@ -1,48 +1,75 @@
 class Bde < Formula
   desc "Basic Development Environment: foundational C++ libraries used at Bloomberg"
   homepage "https://github.com/bloomberg/bde"
-  url "https://github.com/bloomberg/bde/archive/3.61.0.0.tar.gz"
-  sha256 "46dcdcf06f3cf582170848721dd6d8ca9c993f9cfa34445103d3cee34a5d6dda"
+  url "https://github.com/bloomberg/bde/archive/3.112.0.0.tar.gz"
+  sha256 "e6dfade0a1d9a1b9554b8a94e359169dab492162ffa956cb889817033daf5405"
   license "Apache-2.0"
 
+  livecheck do
+    url :stable
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
+  end
+
   bottle do
-    cellar :any_skip_relocation
-    sha256 "b11a948d232e02bf0ceaee439451f94ce48cc024b7737400b5ca21fbfe0aafb5" => :catalina
-    sha256 "5915ea6038ff06703afa39cd989f62aa69cb3d0a0021acffb759a5a306312c78" => :mojave
-    sha256 "7690286795f26cc1fe240355e75a6cea19c8dddbb441e3a3e905c3a276f44191" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "95a5affd84fe492b0cffcd4eacae5135384bd43c22734a548a8d09efb9c9f3bc"
+    sha256 cellar: :any,                 arm64_monterey: "eeaaf4793e96719f25a4886fd6e7af6b9cbe425771f2d8de8e6a6409bf70df84"
+    sha256 cellar: :any,                 arm64_big_sur:  "2ea70b99f5f12f7923908a955437c81b490956e094417dda7110acbbe9f4bbda"
+    sha256 cellar: :any,                 ventura:        "ee465031a946e91f985f71e40d9083b7926ee97fb59d07f91d9e7a20e06907b8"
+    sha256 cellar: :any,                 monterey:       "5a97b17eb3ae97f812e6f150d50198e495d8c3a29a56fba4fea38b694a07900c"
+    sha256 cellar: :any,                 big_sur:        "516457fc0ee244818d00973fc1862b9a261d1c7a80f8ca81b35b08e582939d25"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "d8964001110baab7e5f9333e8fb5c99f60e84d97a9517363e95fd75bfaeca273"
   end
 
   depends_on "cmake" => :build
-  depends_on "ninja" => :build
+  depends_on "pkg-config" => :build
+  depends_on "python@3.11" => :build
+  depends_on "pcre2"
 
   resource "bde-tools" do
-    url "https://github.com/bloomberg/bde-tools/archive/v1.1.tar.gz"
-    sha256 "c5d77d5e811e79f824816ee06dbf92a2a7e3eb0b6d9f27088bcac8c06d930fd5"
+    url "https://github.com/bloomberg/bde-tools/archive/3.112.0.0.tar.gz"
+    sha256 "4588c478f995f65fbd805cbe102f4440b602504d2cbd4937b79b3e49b06da0f4"
   end
 
   def install
-    buildpath.install resource("bde-tools")
+    (buildpath/"bde-tools").install resource("bde-tools")
 
-    ENV.cxx11
+    # Use brewed pcre2 instead of bundled sources
+    inreplace "project.cmake", "${listDir}/thirdparty/pcre2\n", ""
+    inreplace "groups/bdl/group/bdl.dep", "pcre2", "libpcre2-posix"
+    inreplace "groups/bdl/bdlpcre/bdlpcre_regex.h", "#include <pcre2/pcre2.h>", "#include <pcre2.h>"
 
-    system "python", "./bin/waf", "configure", "--prefix=#{prefix}"
-    system "python", "./bin/waf", "build"
-    system "python", "./bin/waf", "install"
+    toolchain_file = "bde-tools/cmake/toolchains/#{OS.kernel_name.downcase}/default.cmake"
+    args = std_cmake_args + %W[
+      -DBUILD_BITNESS=64
+      -DUFID=opt_exc_mt_64_shr
+      -DCMAKE_MODULE_PATH=./bde-tools/cmake
+      -DCMAKE_INSTALL_RPATH=#{rpath}
+      -DCMAKE_TOOLCHAIN_FILE=#{toolchain_file}
+      -DPYTHON_EXECUTABLE=#{which("python3.11")}
+    ]
+
+    system "cmake", "-S", ".", "-B", "build", *args
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
+
+    # CMake install step does not conform to FHS
+    lib.install Dir[bin/"so/64/*"]
+    lib.install lib/"opt_exc_mt_shr/cmake"
   end
 
   test do
     # bde tests are incredibly performance intensive
     # test below does a simple sanity check for linking against bsl.
     (testpath/"test.cpp").write <<~EOS
-      #include <bsl/bsl_string.h>
-      #include <bsl/bslma_default.h>
+      #include <bsl_string.h>
+      #include <bslma_default.h>
       int main() {
         using namespace BloombergLP;
         bsl::string string(bslma::Default::globalAllocator());
         return 0;
       }
     EOS
-    system ENV.cxx, "-I#{include}/bsl", "test.cpp", "-L#{lib}", "-lbsl", "-o", "test"
+    system ENV.cxx, "-I#{include}", "test.cpp", "-L#{lib}", "-lbsl", "-o", "test"
     system "./test"
   end
 end

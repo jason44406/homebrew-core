@@ -1,24 +1,32 @@
 class Comby < Formula
   desc "Tool for changing code across many languages"
   homepage "https://comby.dev"
-  url "https://github.com/comby-tools/comby/archive/0.18.1.tar.gz"
-  sha256 "124adfae7119315cb896d5421c966267af218a003ad7b4501d9da5c39da2cbf0"
+  url "https://github.com/comby-tools/comby/archive/1.8.1.tar.gz"
+  sha256 "04d51cf742bbbf5e5fda064a710be44537fac49bff598d0e9762a3a799d666e2"
   license "Apache-2.0"
 
   bottle do
-    cellar :any
-    sha256 "407f4fff6a6cd2396a62b199b4ec5e98d6f34a60c7508305f2be8bc9455872b1" => :catalina
-    sha256 "fe878152382167d4eba2a431cd11696f0810a4b26eb72bedb57171f33fe72950" => :mojave
-    sha256 "819dc02dfa4b1bf397d599684bda5a3c68441f663286956111660d5cba7ef93b" => :high_sierra
+    sha256 cellar: :any, arm64_ventura:  "ead924a94b73aede202b3afc9146124efb1ac7b8416e0b0119a59cf2ab6d3310"
+    sha256 cellar: :any, arm64_monterey: "c75ee2deab2abc20778e51a40cbb7ca305948dc0e10c6e13e9d23004d26f8dfb"
+    sha256 cellar: :any, arm64_big_sur:  "886f0b5d1a6ac7075a18f3d0075578e81ae2462656a578cf61c344622629a5a4"
+    sha256 cellar: :any, ventura:        "535c3320832e70d126405a7535298c615dfdaa66e0ee0ddceaae680d3f189113"
+    sha256 cellar: :any, monterey:       "8e84488e24e0df5a5bbee5a2df201eb1027c90d177ebcd8bf030c91dec47d636"
+    sha256 cellar: :any, big_sur:        "72ce5e95f8772bc54d8d8706ed06e08ab99b9a6eb2682d8fea480ed1be202704"
+    sha256 cellar: :any, catalina:       "7519ef48876a5d5b3636556b0b6987c1c9ec7b568d299c49b849036aafcb61bb"
+    sha256               x86_64_linux:   "275be90d9ac8149c51abc9c5fc972e7aff125326cdadfd1ed0f55a8d6d84dc15"
   end
 
+  depends_on "autoconf" => :build
   depends_on "gmp" => :build
   depends_on "ocaml" => :build
   depends_on "opam" => :build
+  depends_on "pkg-config" => :build
+  depends_on "gmp"
+  depends_on "libev"
   depends_on "pcre"
-  depends_on "pkg-config"
 
   uses_from_macos "m4"
+  uses_from_macos "sqlite"
   uses_from_macos "unzip"
   uses_from_macos "zlib"
 
@@ -29,10 +37,10 @@ class Comby < Formula
     ENV["OPAMYES"] = "1"
 
     system "opam", "init", "--no-setup", "--disable-sandboxing"
-    system "opam", "config", "exec", "--", "opam", "install", ".", "--deps-only", "-y"
+    system "opam", "exec", "--", "opam", "install", ".", "--deps-only", "-y", "--no-depexts"
 
     ENV.prepend_path "LIBRARY_PATH", opamroot/"default/lib/hack_parallel" # for -lhp
-    system "opam", "config", "exec", "--", "make", "release"
+    system "opam", "exec", "--", "make", "release"
 
     bin.install "_build/default/src/main.exe" => "comby"
   end

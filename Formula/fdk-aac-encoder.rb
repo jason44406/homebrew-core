@@ -1,17 +1,18 @@
 class FdkAacEncoder < Formula
   desc "Command-line encoder frontend for libfdk-aac"
   homepage "https://github.com/nu774/fdkaac"
-  url "https://github.com/nu774/fdkaac/archive/1.0.0.tar.gz"
-  sha256 "1cb1a245d3b230d9c772e69aea091e6195073cbd8cc7d63e684af7d69b495365"
+  url "https://github.com/nu774/fdkaac/archive/v1.0.5.tar.gz"
+  sha256 "87b2d2cc913a1f90bd19315061ede81c1c3364e160802c70117a7ea81e80bd33"
   license "Zlib"
-  revision 1
 
   bottle do
-    cellar :any
-    sha256 "b4cc314a77c5d76c744e88041ec055552fb6a991a28ac6014a77bf9762770d10" => :catalina
-    sha256 "62a592acbd1e83e55f2b3c98a6272abff8c55033f916170f540fec8b3b115ccc" => :mojave
-    sha256 "46e9211c5a31c852cef7183dc57bc1ca3f9136faf37db908fe8f1e4e1edaa6c6" => :high_sierra
-    sha256 "0fc99599503b40879fe422b95ccd25dc892e306da831cfaccf9f7fbdf1d73912" => :sierra
+    sha256 cellar: :any,                 arm64_ventura:  "53ead014ba7ed33292482be014d74bc631fc64a9027f7ae6a5858b66e51cef24"
+    sha256 cellar: :any,                 arm64_monterey: "df8bf96255c43057c312a4062aa386d1dc136c0dd86094c7d9cd067120b57ee4"
+    sha256 cellar: :any,                 arm64_big_sur:  "66c2be632e6ba93f7fd30d43ff968edfed911d104e14d8a43b86b52cf8d78719"
+    sha256 cellar: :any,                 ventura:        "cfaf04fdeffda1f429b28ee0dd84914768f4339007a14999415aae8eea232051"
+    sha256 cellar: :any,                 monterey:       "02f940f3b2a982e8f727cb9a449623777e33de70d41ad43423462aafe6db0ad0"
+    sha256 cellar: :any,                 big_sur:        "aab1624f88d3b7b0b0c3ae2e772ee86efd4b6707468a78d43459a598920eb053"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "8fd87f32244ba80edb9825fa589570d8591f6ce337aa994025ad04f221f545f7"
   end
 
   depends_on "autoconf" => :build
@@ -33,7 +34,7 @@ class FdkAacEncoder < Formula
   test do
     # generate test tone pcm file
     sample_rate = 44100
-    two_pi = 2 * Math::PI
+    two_pi = Math::PI * 2
 
     num_samples = sample_rate
     frequency = 440.0

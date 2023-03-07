@@ -6,25 +6,23 @@ class Gitfs < Formula
   url "https://github.com/presslabs/gitfs/archive/0.5.2.tar.gz"
   sha256 "921e24311e3b8ea3a5448d698a11a747618ee8dd62d5d43a85801de0b111cbf3"
   license "Apache-2.0"
-  revision 3
-  head "https://github.com/presslabs/gitfs.git"
+  revision 10
+  head "https://github.com/presslabs/gitfs.git", branch: "master"
 
   bottle do
-    cellar :any
-    sha256 "a2bafe9a8ff3d0b0600c8b1cfc580646f0bf058db47655e0f708efd3c3b36583" => :catalina
-    sha256 "a1817085b653a485019f22acc6457b6ea858fba6209558991ef6efa72ce34f8d" => :mojave
-    sha256 "c35d61dcf4f5145067b88526b47c12363f794c30f414db0a56f3ff4251a5708e" => :high_sierra
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "1ac6487bbdd1000763469c43e998a72f9bc64c7e0704b99067aad84d003d32d1"
   end
 
+  # Last release on 2019-10-20 and upstream has locked pygit2==0.28.2, which we
+  # have been ignoring and manually updating to support recent `libgit2` versions.
+  deprecate! date: "2023-01-03", because: :unmaintained
+
+  depends_on "pkg-config" => :build
+  depends_on "libffi"
+  depends_on "libfuse"
   depends_on "libgit2"
-  depends_on :osxfuse
-  depends_on "python@3.8"
-
-  uses_from_macos "libffi"
-
-  on_linux do
-    depends_on "pkg-config" => :build
-  end
+  depends_on :linux # on macOS, requires closed-source macFUSE
+  depends_on "python@3.9" # Python 3.10+ PR: https://github.com/presslabs/gitfs/pull/382
 
   resource "atomiclong" do
     url "https://files.pythonhosted.org/packages/86/8c/70aea8215c6ab990f2d91e7ec171787a41b7fbc83df32a067ba5d7f3324f/atomiclong-0.1.1.tar.gz"
@@ -47,8 +45,8 @@ class Gitfs < Formula
   end
 
   resource "pygit2" do
-    url "https://files.pythonhosted.org/packages/1d/c4/e0ba65178512a724a86b39565d7f9286c16d7f8e45e2f665973065c4a495/pygit2-1.1.1.tar.gz"
-    sha256 "9255d507d5d87bf22dfd57997a78908010331fc21f9a83eca121a53f657beb3c"
+    url "https://files.pythonhosted.org/packages/e7/8a/e52a1c8b9878e9d9743089393f8289bb9c8a81eaab722df22df46a38b9e9/pygit2-1.10.0.tar.gz"
+    sha256 "7c751eee88c731b922e4e487ee287e2e40906b2bd32d0bfd2105947f63e867de"
   end
 
   resource "six" do
@@ -70,19 +68,9 @@ class Gitfs < Formula
     virtualenv_install_with_resources
   end
 
-  def caveats
-    <<~EOS
-      gitfs clones repos in /var/lib/gitfs. You can either create it with
-      sudo mkdir -m 1777 /var/lib/gitfs or use another folder with the
-      repo_path argument.
-
-      Also make sure OSXFUSE is properly installed by running brew info osxfuse.
-    EOS
-  end
-
   test do
-    xy = Language::Python.major_minor_version Formula["python@3.8"].opt_bin/"python3"
-    ENV.prepend_create_path "PYTHONPATH", libexec/"lib/python#{xy}/site-packages"
+    python = "python3.9"
+    ENV.prepend_create_path "PYTHONPATH", libexec/Language::Python.site_packages(python)
 
     (testpath/"test.py").write <<~EOS
       import gitfs
@@ -90,7 +78,7 @@ class Gitfs < Formula
       pygit2.init_repository('testing/.git', True)
     EOS
 
-    system Formula["python@3.8"].opt_bin/"python3", "test.py"
+    system python, "test.py"
     assert_predicate testpath/"testing/.git/config", :exist?
     cd "testing" do
       system "git", "remote", "add", "homebrew", "https://github.com/Homebrew/homebrew-core.git"

@@ -2,19 +2,28 @@ class Php < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
   # Should only be updated if the new version is announced on the homepage, https://www.php.net/
-  url "https://www.php.net/distributions/php-7.4.9.tar.xz"
-  mirror "https://fossies.org/linux/www/php-7.4.9.tar.xz"
-  sha256 "23733f4a608ad1bebdcecf0138ebc5fd57cf20d6e0915f98a9444c3f747dc57b"
+  url "https://www.php.net/distributions/php-8.2.3.tar.xz"
+  mirror "https://fossies.org/linux/www/php-8.2.3.tar.xz"
+  sha256 "b9b566686e351125d67568a33291650eb8dfa26614d205d70d82e6e92613d457"
   license "PHP-3.01"
 
+  livecheck do
+    url "https://www.php.net/downloads"
+    regex(/href=.*?php[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
+
   bottle do
-    sha256 "d9fab3b015bed719b2a9ece221a6c813cfcc50b0e5f133e4dbb1a19da25a7d6d" => :catalina
-    sha256 "9e7433b038f67fae0a1508ea01b14747f1b6d69d16b484f11a90dc94938d3e67" => :mojave
-    sha256 "bfa9026aab3df2add7087b803a700eb106096387af0f12128abd5a09a3b4e03f" => :high_sierra
+    sha256 arm64_ventura:  "6b6e08ce673598dff946cfe49d5c9020c84cdfb731a66016d11d01b459f2d3de"
+    sha256 arm64_monterey: "5b0e2af510e09f75225342116ace301689edc13578b242f045e862e4df012aa4"
+    sha256 arm64_big_sur:  "ac70300d7e6c5916d6c0aff5adcd92d2610cb43f51dbdeff91a8ead6998053fb"
+    sha256 ventura:        "150b42f609f8cea7e474f99af64897a1f400c74edf0725d6aa03607a3e691186"
+    sha256 monterey:       "d687c9db80341af5876cf74d3066a2eaf6201c2b4639cff4de9c678148ec5119"
+    sha256 big_sur:        "f04bcff9af793b3ff237bc140f1b10e79540cf1181b8fc4c251efd764d6aac0a"
+    sha256 x86_64_linux:   "b154f5712d282e68684581b52bbe0c3df6b02bca711a2439d37c5c254cc8c223"
   end
 
   head do
-    url "https://github.com/php/php-src.git"
+    url "https://github.com/php/php-src.git", branch: "master"
 
     depends_on "bison" => :build # bison >= 3.0.0 required to generate parsers
     depends_on "re2c" => :build # required to generate PHP lexers
@@ -27,15 +36,13 @@ class Php < Formula
   depends_on "argon2"
   depends_on "aspell"
   depends_on "autoconf"
-  depends_on "curl-openssl"
+  depends_on "curl"
   depends_on "freetds"
   depends_on "gd"
   depends_on "gettext"
-  depends_on "glib"
   depends_on "gmp"
   depends_on "icu4c"
   depends_on "krb5"
-  depends_on "libffi"
   depends_on "libpq"
   depends_on "libsodium"
   depends_on "libzip"
@@ -50,18 +57,18 @@ class Php < Formula
   uses_from_macos "xz" => :build
   uses_from_macos "bzip2"
   uses_from_macos "libedit"
+  uses_from_macos "libffi", since: :catalina
   uses_from_macos "libxml2"
   uses_from_macos "libxslt"
   uses_from_macos "zlib"
 
-  # PHP build system incorrectly links system libraries
-  # see https://github.com/php/php-src/pull/3472
-  patch :DATA
+  on_macos do
+    # PHP build system incorrectly links system libraries
+    # see https://github.com/php/php-src/pull/3472
+    patch :DATA
+  end
 
   def install
-    # Ensure that libxml2 will be detected correctly in older MacOS
-    ENV["SDKROOT"] = MacOS.sdk_path if MacOS.version == :el_capitan || MacOS.version == :sierra
-
     # buildconf required due to system library linking bug patch
     system "./buildconf", "--force"
 
@@ -81,8 +88,8 @@ class Php < Formula
     # possible to recompile as suggested in the original message
     inreplace "sapi/apache2handler/sapi_apache2.c",
               "You need to recompile PHP.",
-              "Homebrew PHP does not support a thread-safe php binary. "\
-              "To use the PHP apache sapi please change "\
+              "Homebrew PHP does not support a thread-safe php binary. " \
+              "To use the PHP apache sapi please change " \
               "your httpd config to use the prefork MPM"
 
     inreplace "sapi/fpm/php-fpm.conf.in", ";daemonize = yes", "daemonize = no"
@@ -91,16 +98,27 @@ class Php < Formula
     # Prevent system pear config from inhibiting pear install
     (config_path/"pear.conf").delete if (config_path/"pear.conf").exist?
 
-    # Prevent homebrew from harcoding path to sed shim in phpize script
+    # Prevent homebrew from hardcoding path to sed shim in phpize script
     ENV["lt_cv_path_SED"] = "sed"
 
     # system pkg-config missing
-    ENV["SASL_CFLAGS"] = "-I#{MacOS.sdk_path_if_needed}/usr/include/sasl"
-    ENV["SASL_LIBS"] = "-lsasl2"
+    ENV["KERBEROS_CFLAGS"] = " "
+    if OS.mac?
+      ENV["SASL_CFLAGS"] = "-I#{MacOS.sdk_path_if_needed}/usr/include/sasl"
+      ENV["SASL_LIBS"] = "-lsasl2"
+    else
+      ENV["SQLITE_CFLAGS"] = "-I#{Formula["sqlite"].opt_include}"
+      ENV["SQLITE_LIBS"] = "-lsqlite3"
+      ENV["BZIP_DIR"] = Formula["bzip2"].opt_prefix
+    end
 
     # Each extension that is built on Mojave needs a direct reference to the
     # sdk path or it won't find the headers
-    headers_path = "=#{MacOS.sdk_path_if_needed}/usr"
+    headers_path = "=#{MacOS.sdk_path_if_needed}/usr" if OS.mac?
+
+    # `_www` only exists on macOS.
+    fpm_user = OS.mac? ? "_www" : "www-data"
+    fpm_group = OS.mac? ? "_www" : "www-data"
 
     args = %W[
       --prefix=#{prefix}
@@ -109,11 +127,9 @@ class Php < Formula
       --with-config-file-path=#{config_path}
       --with-config-file-scan-dir=#{config_path}/conf.d
       --with-pear=#{pkgshare}/pear
-      --with-os-sdkpath=#{MacOS.sdk_path_if_needed}
       --enable-bcmath
       --enable-calendar
       --enable-dba
-      --enable-dtrace
       --enable-exif
       --enable-ftp
       --enable-fpm
@@ -125,7 +141,6 @@ class Php < Formula
       --enable-pcntl
       --enable-phpdbg
       --enable-phpdbg-readline
-      --enable-phpdbg-webhelper
       --enable-shmop
       --enable-soap
       --enable-sockets
@@ -138,15 +153,14 @@ class Php < Formula
       --with-external-gd
       --with-external-pcre
       --with-ffi
-      --with-fpm-user=_www
-      --with-fpm-group=_www
+      --with-fpm-user=#{fpm_user}
+      --with-fpm-group=#{fpm_group}
       --with-gettext=#{Formula["gettext"].opt_prefix}
       --with-gmp=#{Formula["gmp"].opt_prefix}
       --with-iconv#{headers_path}
       --with-kerberos
       --with-layout=GNU
       --with-ldap=#{Formula["openldap"].opt_prefix}
-      --with-ldap-sasl
       --with-libxml
       --with-libedit
       --with-mhash#{headers_path}
@@ -167,11 +181,21 @@ class Php < Formula
       --with-sqlite3
       --with-tidy=#{Formula["tidy-html5"].opt_prefix}
       --with-unixODBC
-      --with-xmlrpc
       --with-xsl
       --with-zip
       --with-zlib
     ]
+
+    if OS.mac?
+      args << "--enable-dtrace"
+      args << "--with-ldap-sasl"
+      args << "--with-os-sdkpath=#{MacOS.sdk_path_if_needed}"
+    else
+      args << "--disable-dtrace"
+      args << "--without-ldap-sasl"
+      args << "--without-ndbm"
+      args << "--without-gdbm"
+    end
 
     system "./configure", *args
     system "make"
@@ -181,18 +205,23 @@ class Php < Formula
     extension_dir = Utils.safe_popen_read("#{bin}/php-config", "--extension-dir").chomp
     orig_ext_dir = File.basename(extension_dir)
     inreplace bin/"php-config", lib/"php", prefix/"pecl"
-    inreplace "php.ini-development", %r{; ?extension_dir = "\./"},
-      "extension_dir = \"#{HOMEBREW_PREFIX}/lib/php/pecl/#{orig_ext_dir}\""
+    %w[development production].each do |mode|
+      inreplace "php.ini-#{mode}", %r{; ?extension_dir = "\./"},
+        "extension_dir = \"#{HOMEBREW_PREFIX}/lib/php/pecl/#{orig_ext_dir}\""
+    end
 
     # Use OpenSSL cert bundle
     openssl = Formula["openssl@1.1"]
-    inreplace "php.ini-development", /; ?openssl\.cafile=/,
-      "openssl.cafile = \"#{openssl.pkgetc}/cert.pem\""
-    inreplace "php.ini-development", /; ?openssl\.capath=/,
-      "openssl.capath = \"#{openssl.pkgetc}/certs\""
+    %w[development production].each do |mode|
+      inreplace "php.ini-#{mode}", /; ?openssl\.cafile=/,
+        "openssl.cafile = \"#{openssl.pkgetc}/cert.pem\""
+      inreplace "php.ini-#{mode}", /; ?openssl\.capath=/,
+        "openssl.capath = \"#{openssl.pkgetc}/certs\""
+    end
 
     config_files = {
       "php.ini-development"   => "php.ini",
+      "php.ini-production"    => "php.ini-production",
       "sapi/fpm/php-fpm.conf" => "php-fpm.conf",
       "sapi/fpm/www.conf"     => "php-fpm.d/www.conf",
     }
@@ -229,6 +258,7 @@ class Php < Formula
 
     # Custom location for extensions installed via pecl
     pecl_path = HOMEBREW_PREFIX/"lib/php/pecl"
+    pecl_path.mkpath
     ln_s pecl_path, prefix/"pecl" unless (prefix/"pecl").exist?
     extension_dir = Utils.safe_popen_read("#{bin}/php-config", "--extension-dir").chomp
     php_basename = File.basename(extension_dir)
@@ -276,7 +306,7 @@ class Php < Formula
   def caveats
     <<~EOS
       To enable PHP in Apache add the following to httpd.conf and restart Apache:
-          LoadModule php7_module #{opt_lib}/httpd/modules/libphp7.so
+          LoadModule php_module #{opt_lib}/httpd/modules/libphp.so
 
           <FilesMatch \\.php$>
               SetHandler application/x-httpd-php
@@ -290,47 +320,30 @@ class Php < Formula
     EOS
   end
 
-  plist_options manual: "php-fpm"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>KeepAlive</key>
-          <true/>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{opt_sbin}/php-fpm</string>
-            <string>--nodaemonize</string>
-          </array>
-          <key>RunAtLoad</key>
-          <true/>
-          <key>WorkingDirectory</key>
-          <string>#{var}</string>
-          <key>StandardErrorPath</key>
-          <string>#{var}/log/php-fpm.log</string>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_sbin/"php-fpm", "--nodaemonize"]
+    run_type :immediate
+    keep_alive true
+    error_log_path var/"log/php-fpm.log"
+    working_dir var
   end
 
   test do
-    assert_match /^Zend OPcache$/, shell_output("#{bin}/php -i"),
-      "Zend OPCache extension not loaded"
+    assert_match(/^Zend OPcache$/, shell_output("#{bin}/php -i"),
+      "Zend OPCache extension not loaded")
     # Test related to libxml2 and
     # https://github.com/Homebrew/homebrew-core/issues/28398
-    assert_includes MachO::Tools.dylibs("#{bin}/php"),
-      "#{Formula["libpq"].opt_lib}/libpq.5.dylib"
+    if OS.mac?
+      assert_includes MachO::Tools.dylibs("#{bin}/php"),
+              "#{Formula["libpq"].opt_lib}/libpq.5.dylib"
+    end
+
     system "#{sbin}/php-fpm", "-t"
     system "#{bin}/phpdbg", "-V"
     system "#{bin}/php-cgi", "-m"
     # Prevent SNMP extension to be added
-    assert_no_match /^snmp$/, shell_output("#{bin}/php -m"),
-      "SNMP extension doesn't work reliably with Homebrew on High Sierra"
+    refute_match(/^snmp$/, shell_output("#{bin}/php -m"),
+      "SNMP extension doesn't work reliably with Homebrew on High Sierra")
     begin
       port = free_port
       port_fpm = free_port
@@ -354,16 +367,10 @@ class Php < Formula
         DirectoryIndex index.php
       EOS
 
-      php_module = if head?
-        "LoadModule php_module #{lib}/httpd/modules/libphp.so"
-      else
-        "LoadModule php7_module #{lib}/httpd/modules/libphp7.so"
-      end
-
       (testpath/"httpd.conf").write <<~EOS
         #{main_config}
         LoadModule mpm_prefork_module lib/httpd/modules/mod_mpm_prefork.so
-        #{php_module}
+        LoadModule php_module #{lib}/httpd/modules/libphp.so
         <FilesMatch \\.(php|phar)$>
           SetHandler application/x-httpd-php
         </FilesMatch>

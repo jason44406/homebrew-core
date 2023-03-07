@@ -1,62 +1,66 @@
 class GitInteractiveRebaseTool < Formula
   desc "Native sequence editor for Git interactive rebase"
   homepage "https://gitrebasetool.mitmaro.ca/"
-  url "https://github.com/MitMaro/git-interactive-rebase-tool/archive/1.2.1.tar.gz"
-  sha256 "8df32f209d481580c3365a065882e40343ecc42d9e4ed593838092bb6746a197"
-  license "GPL-3.0"
+  url "https://github.com/MitMaro/git-interactive-rebase-tool/archive/2.2.1.tar.gz"
+  sha256 "86f262e6607ac0bf5cee22ca1b333cf9f827e09d3257658d525a518aa785ca7c"
+  license "GPL-3.0-or-later"
 
-  bottle do
-    cellar :any_skip_relocation
-    sha256 "ab2feae40a1c22695f88383fc0d25bd1ce90499cf74004719fbaf7540a673f09" => :catalina
-    sha256 "50a7e6d5e3b6e0cdb75f9dd83fde8c9d473a632c8f22f575591fe4b5469a19bf" => :mojave
-    sha256 "530ae677663e9773d05a17878a1e28e91e8751d9b9ac8cffdb0acaad7a7d1e8b" => :high_sierra
+  livecheck do
+    url :stable
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
   end
 
-  depends_on "rust" => :build
+  bottle do
+    rebuild 1
+    sha256 cellar: :any,                 arm64_ventura:  "1ac575cd58d30c97816c09ba486d3fa1d2057dbafb79d55d9971215260d39480"
+    sha256 cellar: :any,                 arm64_monterey: "451279b234f20f109fecc9be99dfbcb15a8986406976d321c27a400880bc87cc"
+    sha256 cellar: :any,                 arm64_big_sur:  "80d377b60f769fa652d925fcd479e7be55bf6010474ba2c25da7e76fb4d56625"
+    sha256 cellar: :any,                 ventura:        "e89b99d8937eec1932f5416d573c5ae708d6b0a4b43d2063b4dda2a75ee60001"
+    sha256 cellar: :any,                 monterey:       "28bd974a0057f0e47e65a6d890e30eecba9f4a8cdb52ff3c2b4c2b5463bc6bc8"
+    sha256 cellar: :any,                 big_sur:        "4f41d96eed608acf08a0c35fb541317567b2b2ccd756f12fd284fcc6780abe53"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "f2af72c4cc5358d03fa418bcec51f14c468c9864dd7bb3769585d98fc6e793fb"
+  end
 
-  uses_from_macos "ncurses"
-  uses_from_macos "zlib"
+  depends_on "pkg-config" => :build
+  depends_on "rust" => :build
+  depends_on "libgit2"
 
   def install
     system "cargo", "install", *std_cargo_args
   end
 
   test do
-    require "pty" # required for interactivity
+    require "pty"
+    require "io/console"
+
     mkdir testpath/"repo" do
       system "git", "init"
-      touch "FILE1"
-      system "git", "add", "FILE1"
-      system "git", "commit", "--date='2005-04-07T22:13:13-3:30'",
-                              "--author='Test <test@example.com>'",
-                              "--message='File 1'"
-      touch "FILE2"
-      system "git", "add", "FILE2"
-      system "git", "commit", "--date='2005-04-07T22:13:13-3:30'",
-                              "--author='Test <test@example.com>'",
-                              "--message='File 2'"
     end
 
     (testpath/"repo/.git/rebase-merge/git-rebase-todo").write <<~EOS
-      pick be5eaa0 File 1
-      pick 32bd1bb File 2
+      noop
     EOS
 
     expected_git_rebase_todo = <<~EOS
-      drop be5eaa0 File 1
-      pick 32bd1bb File 2
+      noop
     EOS
 
     env = { "GIT_DIR" => testpath/"repo/.git/" }
     executable = bin/"interactive-rebase-tool"
-    file = testpath/"repo/.git/rebase-merge/git-rebase-todo"
-    PTY.spawn(env, executable, file) do |stdout, stdin, _pid|
-      # simulate user input
-      stdin.putc "d"
-      stdin.putc "W"
-      stdout.read
+    todo_file = testpath/"repo/.git/rebase-merge/git-rebase-todo"
+
+    _, _, pid = PTY.spawn(env, executable, todo_file)
+    Process.wait(pid)
+
+    assert_equal 0, $CHILD_STATUS.exitstatus
+    assert_equal expected_git_rebase_todo, todo_file.read
+
+    linkage_with_libgit2 = executable.dynamically_linked_libraries.any? do |dll|
+      next false unless dll.start_with?(HOMEBREW_PREFIX.to_s)
+
+      File.realpath(dll) == (Formula["libgit2"].opt_lib/shared_library("libgit2")).realpath.to_s
     end
 
-    assert_equal expected_git_rebase_todo, (testpath/"repo/.git/rebase-merge/git-rebase-todo").read
+    assert linkage_with_libgit2, "No linkage with libgit2! Cargo is likely using a vendored version."
   end
 end

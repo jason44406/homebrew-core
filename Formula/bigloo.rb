@@ -1,52 +1,75 @@
 class Bigloo < Formula
   desc "Scheme implementation with object system, C, and Java interfaces"
   homepage "https://www-sop.inria.fr/indes/fp/Bigloo/"
-  url "ftp://ftp-sop.inria.fr/indes/fp/Bigloo/bigloo4.3e.tar.gz"
-  version "4.3e"
-  sha256 "43363cb968c57925f402117ff8ec4b47189e2747b02350805a34fa617d9f618a"
-  revision 1
+  url "ftp://ftp-sop.inria.fr/indes/fp/Bigloo/bigloo-4.5a-1.tar.gz"
+  version "4.5a-1"
+  sha256 "d8f04e889936187dc519719b749ad03fe574165a0b6d318e561f1b3bce0d5808"
+  license "GPL-2.0-or-later"
+
+  livecheck do
+    url "https://www-sop.inria.fr/indes/fp/Bigloo/download.html"
+    regex(/bigloo-latest\.t.+?\(([^)]+?)\)/i)
+  end
 
   bottle do
-    sha256 "06c2d3728e778db36954a6fca8ecc8cb663d90122a884cfb0fc96ce1de36663a" => :catalina
-    sha256 "5de69de8a1afee85a7b6af5d024c80ff3ceb7acc8e391c20fd24398122cfad9a" => :mojave
-    sha256 "26a5f98ee71f7794ced067f64a695f040ef271413ac58b0e0cbfa883ab44ee73" => :high_sierra
-    sha256 "2844e66dfeecc9cfe4ad85558f2d2be450b5aea3acad7461402e9fcb7fb5bbdd" => :sierra
+    sha256 ventura:      "4a37a9c1c8e8d48da7dc4b324095c43bafbf26b3c527f671b46aa963ba41a3ea"
+    sha256 monterey:     "d968668009008963975b81dec100761ec7e1887f54dd5e59be89f04506087aed"
+    sha256 big_sur:      "b3ee45051141a15c0e9fd5a2f41d18391e20bba99ec4dd91a44f043dd1c45fee"
+    sha256 x86_64_linux: "aed501d228c62e5e4deb3e88be668d7143cf5fa7ea682ef72ef1c58d869415fb"
   end
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
   depends_on "libtool" => :build
+  depends_on "pkg-config" => :build
 
+  depends_on arch: :x86_64
+  depends_on "bdw-gc"
   depends_on "gmp"
+  depends_on "libunistring"
+  depends_on "libuv"
+  depends_on "openjdk"
   depends_on "openssl@1.1"
+  depends_on "pcre2"
+
+  on_linux do
+    depends_on "alsa-lib"
+  end
 
   def install
+    # Force bigloo not to use vendored libraries
+    inreplace "configure", /(^\s+custom\w+)=yes$/, "\\1=no"
+
     args = %W[
       --disable-debug
       --disable-dependency-tracking
       --prefix=#{prefix}
       --mandir=#{man1}
       --infodir=#{info}
-      --customgc=yes
-      --os-macosx
+      --customgc=no
+      --customgmp=no
+      --customlibuv=no
+      --customunistring=no
       --native=yes
-      --disable-alsa
       --disable-mpg123
       --disable-flac
-      --disable-srfi27
       --jvm=yes
     ]
 
-    system "./configure", *args
+    if OS.mac?
+      args += %w[
+        --os-macosx
+        --disable-alsa
+      ]
+    end
 
-    # bigloo seems to either miss installing these dependencies, or maybe
-    # do it out of order with where they're used.
-    cd "libunistring" do
-      system "make", "install"
+    if OS.linux?
+      args += %w[
+        --disable-libbacktrace
+      ]
     end
-    cd "pcre" do
-      system "make", "install"
-    end
+
+    system "./configure", *args
 
     system "make"
     system "make", "install"

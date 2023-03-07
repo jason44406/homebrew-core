@@ -4,17 +4,24 @@ class RipgrepAll < Formula
   url "https://github.com/phiresky/ripgrep-all/archive/v0.9.6.tar.gz"
   sha256 "8cd7c5d13bd90ef0582168cd2bef73ca13ca6e0b1ecf24b9a5cd7cb886259023"
   license "AGPL-3.0"
-  head "https://github.com/phiresky/ripgrep-all.git"
+  head "https://github.com/phiresky/ripgrep-all.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "bc8ee7c7869c23b82cb1997e4f7f5024193b74cc282c20c6bf50af43b55ddbb4" => :catalina
-    sha256 "b1b26781f754760e790ff28c7a26079eb9df86b983c786cd745eabac0232c861" => :mojave
-    sha256 "59001d904ce02e54e23842a7d04f9729d41f1e6fd8b81a71676812be5c6a20f5" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "e84c224329f6ec5448e37681f45769a9ab72c6935288db2ea36bcf284b134057"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "20bdd6f136760c89ba299a97dab08ae2393bb7ae585cf1fff2369fadb6b85bd2"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "ee9f510ddf55cddfa9c7e7299c1793a0076ba0a9a1a1141a012e31f52a78e2e0"
+    sha256 cellar: :any_skip_relocation, ventura:        "efd9dc53dee198f51ca84e1c0ebc1202a49f1c78989cd13729cdb33a23b38c66"
+    sha256 cellar: :any_skip_relocation, monterey:       "37a8535f3c8c7018cf61513d94066004f4245d6df4fca2cfd8137ff3a4472614"
+    sha256 cellar: :any_skip_relocation, big_sur:        "416071978569fb7aab9af008025b98def9ed0187de27d2c69106ec92021755b8"
+    sha256 cellar: :any_skip_relocation, catalina:       "151485dced116e5a0d6bcb7d02795518b31726919ae9e93a891339a123fcf19e"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "217efb369c00a588b6081bf888a6647a388a46b04618bcb118de7d28f3202973"
   end
 
   depends_on "rust" => :build
   depends_on "ripgrep"
+
+  uses_from_macos "zip" => :test
 
   def install
     system "cargo", "install", *std_cargo_args

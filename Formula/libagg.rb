@@ -5,24 +5,33 @@ class Libagg < Formula
   url "https://ftp.osuosl.org/pub/blfs/8.0/a/agg-2.5.tar.gz"
   sha256 "ab1edc54cc32ba51a62ff120d501eecd55fceeedf869b9354e7e13812289911f"
   license "GPL-2.0"
+  revision 1
+
+  # The homepage for this formula is a copy of the original and was created
+  # after the original was discontinued. There will be no further releases of
+  # the copy of this software used in the formula, as the developer is deceased.
+  # New development of libagg occurs in a fork of v2.4 and can be found at:
+  # https://sourceforge.net/projects/agg/
+  livecheck do
+    skip "No longer developed/maintained"
+  end
 
   bottle do
-    cellar :any
-    rebuild 1
-    sha256 "1ef56d71cf0fc0f5780395069105c7151f02a2264f2469ca3ae824c6366f45a6" => :catalina
-    sha256 "97e0bd763cda63b61cefba2e46048275dda4d03cdaed251be5ebd0b7369b8e38" => :mojave
-    sha256 "de1daeb1b324b1797f46ff6e6799498019de9256b4e09a128cf686e2572f6f60" => :high_sierra
-    sha256 "872f49f0fd96ee65dca4bedba3e82c4fcf0e0b0c45de15afc82a9e70e0f0623c" => :sierra
-    sha256 "5b9ab7a9ef2f4075bd55561f0fda99c7203a70020288747ebf90cfc1b2ee626b" => :el_capitan
-    sha256 "9d3da78ab9824db755cbfeb9e6596527db1ace71525cb079465b1a9fb1c00417" => :yosemite
-    sha256 "9704ec5652775cbab7af51e48eb42b19cb55f7cdb5894e6e1abac3e478581e2a" => :mavericks
+    sha256 cellar: :any,                 arm64_ventura:  "65786b5cc83db391b6f39b5032498024cd710832705934d34030f780bd239914"
+    sha256 cellar: :any,                 arm64_monterey: "397cc6cc076ad6e8105a1888112e7e0c5cc310d4f192ad2f3b479eb13a41c4b3"
+    sha256 cellar: :any,                 arm64_big_sur:  "fe56ee8021062f9fc853290fa07ffbcc9adab30eeffd566cbdbb041fca7d5044"
+    sha256 cellar: :any,                 ventura:        "4c449bc35ecb76cc867700f885087c22abeccc8840a00adfeda0c36b1cf32a0b"
+    sha256 cellar: :any,                 monterey:       "af427a27e940353797d88a3b3224a43ad15ad51681494902dad975d5c5270d27"
+    sha256 cellar: :any,                 big_sur:        "12d797bfc9b2a1414787aa3028c1704a5b6f1f000b80ed5e4cd200029f10f160"
+    sha256 cellar: :any,                 catalina:       "d6770fea6a2589b7641fbeda183ff58835ae463cbbab3178096654b36a99b232"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "cee5823d550698b94dc7e494af8b5f8a83acebec701264a4c20dec2d828c2240"
   end
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
   depends_on "libtool" => :build
   depends_on "pkg-config" => :build
-  depends_on "sdl"
+  depends_on "sdl12-compat"
 
   # Fix build with clang; last release was in 2006
   patch :DATA

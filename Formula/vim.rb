@@ -2,24 +2,36 @@ class Vim < Formula
   desc "Vi 'workalike' with many additional features"
   homepage "https://www.vim.org/"
   # vim should only be updated every 50 releases on multiples of 50
-  url "https://github.com/vim/vim/archive/v8.2.1500.tar.gz"
-  sha256 "6df74bbccf6d60d4ee323475ed62ba56e42f28a52b28ac8862b43ec4fbcaa1dd"
+  url "https://github.com/vim/vim/archive/v9.0.1350.tar.gz"
+  sha256 "89ad9ab3365efc55749f3e08fb88cbb5fb3abc83dfe5f2f6b53cb0a27e38bc65"
   license "Vim"
-  head "https://github.com/vim/vim.git"
+  head "https://github.com/vim/vim.git", branch: "master"
+
+  # The Vim repository contains thousands of tags and the `Git` strategy isn't
+  # ideal in this context. This is an exceptional situation, so this checks the
+  # first page of tags on GitHub (to minimize data transfer).
+  livecheck do
+    url "https://github.com/vim/vim/tags"
+    regex(%r{href=["']?[^"' >]*?/tag/v?(\d+(?:\.\d+)+)["' >]}i)
+    strategy :page_match
+  end
 
   bottle do
-    sha256 "1f1f13ec4a41c2a99e1511e96daf4e5aa113231b95ef1f703f5c021ff11c3b2a" => :catalina
-    sha256 "ba16d3edf006b7a0f34bd474e8822d09c1cbc618cecf09d788a1a483d6f592b0" => :mojave
-    sha256 "a14a1bb6284d7c9d27a1792c178c1ee03aa8a0a69db19278e7a73aac84075d83" => :high_sierra
+    sha256 arm64_ventura:  "23feb16d37dd0251519de18b24216a5a4028d63e71c1d9e1e2d1ddac93290ff2"
+    sha256 arm64_monterey: "945c08ad204caa9c97a627d15157eabb1ebb3cd8cd849206a6d232a3ede7f619"
+    sha256 arm64_big_sur:  "1a363171a246ba931bf4cd4c851c8244aedce6bdf18fd9522c339f1dc5df21f8"
+    sha256 ventura:        "e44b83f59e32105af44cc9a23bd968ca0ba8410bffe3dedea55d13c46473d267"
+    sha256 monterey:       "806e19bd2099a57b745a70a8a58ac3de01b0bb1eabb1555b4eeb7fe45168bba6"
+    sha256 big_sur:        "3d636472c7604829b48b8a6b08f6a77b8a220040365b49b65cda20a7bb753bfd"
+    sha256 x86_64_linux:   "d7c360552cba1afb0d1a53ab123ef672e02bb8a96a3524eaf89705f353039130"
   end
 
   depends_on "gettext"
   depends_on "lua"
+  depends_on "ncurses"
   depends_on "perl"
-  depends_on "python@3.8"
+  depends_on "python@3.11"
   depends_on "ruby"
-
-  uses_from_macos "ncurses"
 
   conflicts_with "ex-vi",
     because: "vim and ex-vi both install bin/ex and bin/view"
@@ -28,7 +40,7 @@ class Vim < Formula
     because: "vim and macvim both install vi* binaries"
 
   def install
-    ENV.prepend_path "PATH", Formula["python@3.8"].opt_libexec/"bin"
+    ENV.prepend_path "PATH", Formula["python@3.11"].opt_libexec/"bin"
 
     # https://github.com/Homebrew/homebrew-core/pull/1046
     ENV.delete("SDKROOT")
@@ -46,13 +58,13 @@ class Vim < Formula
                           "--mandir=#{man}",
                           "--enable-multibyte",
                           "--with-tlib=ncurses",
+                          "--with-compiledby=Homebrew",
                           "--enable-cscope",
                           "--enable-terminal",
-                          "--with-compiledby=Homebrew",
                           "--enable-perlinterp",
                           "--enable-rubyinterp",
                           "--enable-python3interp",
-                          "--enable-gui=no",
+                          "--disable-gui",
                           "--without-x",
                           "--enable-luainterp",
                           "--with-lua-prefix=#{Formula["lua"].opt_prefix}"

@@ -1,36 +1,41 @@
 class Graphviz < Formula
   desc "Graph visualization software from AT&T and Bell Labs"
-  homepage "https://www.graphviz.org/"
-  url "https://www2.graphviz.org/Packages/stable/portable_source/graphviz-2.44.1.tar.gz"
-  sha256 "8e1b34763254935243ccdb83c6ce108f531876d7a5dfd443f255e6418b8ea313"
+  homepage "https://graphviz.org/"
+  url "https://gitlab.com/graphviz/graphviz.git",
+      tag:      "7.1.0",
+      revision: "e650d3ba65f6d672a1fe09505bb576d4fed320bc"
   license "EPL-1.0"
   version_scheme 1
-  head "https://gitlab.com/graphviz/graphviz.git"
+  head "https://gitlab.com/graphviz/graphviz.git", branch: "main"
 
   bottle do
-    sha256 "e1cc69e09c92ac1507e461e374de9a0b2d7b01d15e29bf43808f8f458303c67f" => :catalina
-    sha256 "facbce9f3c97e2ad4b0ebf7344da4937722d6ae03c2091853c0bdd4f0e313e08" => :mojave
-    sha256 "86d0bb5111d0f97f4de3b1542280815f0b11cfda64bdbea09ba6ea2764205b8a" => :high_sierra
+    sha256 arm64_ventura:  "8f42f2e0db33e105b865830b59e9e5b4f4a467b03c696ab05ed3a5dd8509f6e8"
+    sha256 arm64_monterey: "8c4dba8b1b5aea545a1ef92dd9bf5280135a0ac0fa368c0a421d6987934f5063"
+    sha256 arm64_big_sur:  "770bb46c1fb618ab107dc7772c006b3ee3040c4d261dd1e1a715424f4fcc1d65"
+    sha256 ventura:        "523f45619747d194acf888e4fa4d7405b4afd51546341b07a1ae5aa661fbcb38"
+    sha256 monterey:       "142317a4a3c9342bbb08d973ae167a5eeb3c6c73a9a8207999602477b9187ec5"
+    sha256 big_sur:        "9497da9a2ba4ef8aa0a6540897945ee87a5df345833b75632bad550d0ffee803"
+    sha256 x86_64_linux:   "40b2a381152cdd1829408f79eeb6be9ac35f683be4c59fd8ec6cdebe197c8859"
   end
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
+  depends_on "bison" => :build
   depends_on "pkg-config" => :build
   depends_on "gd"
   depends_on "gts"
   depends_on "libpng"
+  depends_on "librsvg"
   depends_on "libtool"
   depends_on "pango"
 
   uses_from_macos "flex" => :build
+  uses_from_macos "python" => :build
 
-  # See https://github.com/Homebrew/homebrew-core/pull/57132
-  # Fixes:
-  # groff -Tps -man cdt.3 >cdt.3.ps
-  #   CCLD     libcdt.la
-  #   CCLD     libcdt_C.la
-  # false cdt.3.ps cdt.3.pdf
-  patch :DATA
+  on_linux do
+    depends_on "byacc" => :build
+    depends_on "ghostscript" => :build
+  end
 
   def install
     args = %W[
@@ -39,22 +44,22 @@ class Graphviz < Formula
       --prefix=#{prefix}
       --disable-php
       --disable-swig
+      --disable-tcl
       --with-quartz
       --without-freetype2
       --without-gdk
       --without-gdk-pixbuf
       --without-gtk
-      --without-rsvg
+      --without-poppler
       --without-qt
       --without-x
       --with-gts
     ]
 
-    system "autoreconf", "-fiv"
+    system "./autogen.sh"
     system "./configure", *args
+    system "make"
     system "make", "install"
-
-    (bin/"gvmap.sh").unlink
   end
 
   test do
@@ -67,18 +72,3 @@ class Graphviz < Formula
     system "#{bin}/dot", "-Tpdf", "-o", "sample.pdf", "sample.dot"
   end
 end
-
-__END__
-diff --git a/configure.ac b/configure.ac
-index cf42504..68db027 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -284,8 +284,7 @@ AC_CHECK_PROGS(SORT,gsort sort,false)
-
- AC_CHECK_PROG(EGREP,egrep,egrep,false)
- AC_CHECK_PROG(GROFF,groff,groff,false)
--AC_CHECK_PROG(PS2PDF,ps2pdf,ps2pdf,false)
--AC_CHECK_PROG(PS2PDF,pstopdf,pstopdf,false)
-+AC_CHECK_PROGS(PS2PDF,ps2pdf pstopdf,false)
-
- PKG_PROG_PKG_CONFIG

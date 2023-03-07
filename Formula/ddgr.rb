@@ -3,23 +3,21 @@ class Ddgr < Formula
 
   desc "DuckDuckGo from the terminal"
   homepage "https://github.com/jarun/ddgr"
-  url "https://github.com/jarun/ddgr/archive/v1.9.tar.gz"
-  sha256 "3dfe82fab649f1cec904a1de63f78692be329a3b6928c1615f22c76f6e21c36f"
-  license "GPL-3.0"
+  url "https://github.com/jarun/ddgr/archive/v2.1.tar.gz"
+  sha256 "fb6601ad533f2925d2d6299ab9e6dd48da0b75e99ef9ed9068f37e516380b5e6"
+  license "GPL-3.0-or-later"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "08367098555c6cd274eee9906f0f9092742c9c182c3f54bcc6673fdfd32ac319" => :catalina
-    sha256 "08367098555c6cd274eee9906f0f9092742c9c182c3f54bcc6673fdfd32ac319" => :mojave
-    sha256 "08367098555c6cd274eee9906f0f9092742c9c182c3f54bcc6673fdfd32ac319" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, all: "19ece8c05b5b538dd4f3dff9b379fb29a77afab06f916393dcb273a19583cde8"
   end
 
-  depends_on "python@3.8"
+  depends_on "python@3.11"
 
   def install
     rewrite_shebang detected_python_shebang, "ddgr"
     system "make", "install", "PREFIX=#{prefix}"
-    bash_completion.install "auto-completion/bash/ddgr-completion.bash"
+    bash_completion.install "auto-completion/bash/ddgr-completion.bash" => "ddgr"
     fish_completion.install "auto-completion/fish/ddgr.fish"
     zsh_completion.install "auto-completion/zsh/_ddgr"
   end

@@ -2,90 +2,61 @@ class Wxpython < Formula
   include Language::Python::Virtualenv
 
   desc "Python bindings for wxWidgets"
-  homepage "https://www.wxwidgets.org/"
-  url "https://files.pythonhosted.org/packages/cb/4f/1e21d3c079c973ba862a18f3be73c2bbe2e6bc25c96d94df605b5cbb494d/wxPython-4.1.0.tar.gz"
-  sha256 "2e2475cb755ac8d93d2f9335c39c060b4d17ecb5d4e0e86626d1e2834b64a48b"
+  homepage "https://www.wxpython.org/"
+  url "https://files.pythonhosted.org/packages/d9/33/b616c7ed4742be6e0d111ca375b41379607dc7cc7ac7ff6aead7a5a0bf53/wxPython-4.2.0.tar.gz"
+  sha256 "663cebc4509d7e5d113518865fe274f77f95434c5d57bc386ed58d65ceed86c7"
+  license "LGPL-2.0-or-later" => { with: "WxWindows-exception-3.1" }
 
   bottle do
-    cellar :any
-    sha256 "c00e5a4248024ff9528f3b99f6c3f16f34f66bd84dc8573333bf986e0016b7d0" => :catalina
-    sha256 "16ecec9c2da446443644964dea15098743e22d53965b28eb7f513cbea4bd90d2" => :mojave
-    sha256 "1146036d785708cfb9f5ea97f3a7ea01583278ccea4cffbfd408c5cb22b067de" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any, arm64_ventura:  "9cf04be9fe96667a6243e0b6e0b9c34f1f15e86f83e817bd7d3d7dbec997e9b5"
+    sha256 cellar: :any, arm64_monterey: "1999911bf51dd73f60c0adc99a3278fa573152a1535de68ef9553cc478ee5a66"
+    sha256 cellar: :any, arm64_big_sur:  "fc912d301dc9e189cb9415d0401213e23ce43752dbe1eef499a02cd4154e3334"
+    sha256 cellar: :any, ventura:        "4f8b6ad5e9a3645c207d07b2c8b67fba06cc830932a8503c9cfefc76120ddd28"
+    sha256 cellar: :any, monterey:       "2fa4ada01a2f338678543fbac2f1acd148b257aa84a9735914f27d9a8a4fea7b"
+    sha256 cellar: :any, big_sur:        "981eb95dcd1bc38c7f2a1999858c729b9ceef686f3e066c234bb11312640b115"
+    sha256               x86_64_linux:   "5e3bfb9bd3e427fbd65d5b0e565aa7ee6f31c2eab1e3447a0c4b813b664a3d7a"
   end
 
-  depends_on "freetype"
-  depends_on "jpeg"
-  depends_on "libpng"
-  depends_on "libtiff"
+  depends_on "doxygen" => :build
+  depends_on "sip" => :build
   depends_on "numpy"
-  depends_on "python@3.8"
-
-  uses_from_macos "zlib"
+  depends_on "pillow"
+  depends_on "python@3.11"
+  depends_on "six"
+  depends_on "wxwidgets"
 
   on_linux do
     depends_on "pkg-config" => :build
     depends_on "gtk+3"
   end
 
-  resource "Pillow" do
-    url "https://files.pythonhosted.org/packages/3e/02/b09732ca4b14405ff159c470a612979acfc6e8645dc32f83ea0129709f7a/Pillow-7.2.0.tar.gz"
-    sha256 "97f9e7953a77d5a70f49b9a48da7776dc51e9b738151b22dacf101641594a626"
-  end
-
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/6b/34/415834bfdafca3c5f451532e8a8d9ba89a21c9743a0c59fbd0205c7f9426/six-1.15.0.tar.gz"
-    sha256 "30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"
+  # Fix build scripts depending on attrdict3 even though only used on Windows.
+  # Remove once upstream PR is merged and in release.
+  # PR ref: https://github.com/wxWidgets/Phoenix/pull/2224
+  patch do
+    url "https://github.com/wxWidgets/Phoenix/commit/2e9169effa9abf14f34f8436a791b8829eea7774.patch?full_index=1"
+    sha256 "932b3decf8fe5bd982c857796f0b9d936c6a080616733b98ffbd2d3229692e20"
   end
 
   def install
-    # Fix build of included wxwidgets:
-    # https://github.com/wxWidgets/Phoenix/issues/1247
-    # https://github.com/Homebrew/homebrew-core/pull/58988
-    inreplace "buildtools/build_wxwidgets.py" do |s|
-      s.gsub! "#wxpy_configure_opts.append(\"--enable-monolithic\")",
-              "wxpy_configure_opts.append(\"--disable-precomp-headers\")"
-      s.gsub! "--with-macosx-version-min=10.9",
-              "--with-macosx-version-min=#{MacOS.version}"
-    end
-
-    inreplace "wscript", "MACOSX_DEPLOYMENT_TARGET = \"10.6\"",
-                         "MACOSX_DEPLOYMENT_TARGET = \"#{MacOS.version}\""
-
-    venv = virtualenv_create(libexec, Formula["python@3.8"].opt_bin/"python3")
-
-    resource("Pillow").stage do
-      inreplace "setup.py" do |s|
-        sdkprefix = MacOS.sdk_path_if_needed ? MacOS.sdk_path : ""
-        s.gsub! "openjpeg.h", "probably_not_a_header_called_this_eh.h"
-        s.gsub! "xcb.h", "probably_not_a_header_called_this_eh.h"
-        s.gsub! "ZLIB_ROOT = None",
-          "ZLIB_ROOT = ('#{sdkprefix}/usr/lib', '#{sdkprefix}/usr/include')"
-        s.gsub! "JPEG_ROOT = None",
-          "JPEG_ROOT = ('#{Formula["jpeg"].opt_prefix}/lib', '#{Formula["jpeg"].opt_prefix}/include')"
-        s.gsub! "FREETYPE_ROOT = None",
-          "FREETYPE_ROOT = ('#{Formula["freetype"].opt_prefix}/lib', '#{Formula["freetype"].opt_prefix}/include')"
-      end
-
-      # avoid triggering "helpful" distutils code that doesn't recognize Xcode 7 .tbd stubs
-      unless MacOS::CLT.installed?
-        ENV.append "CFLAGS", "-I#{MacOS.sdk_path}/System/Library/Frameworks/Tk.framework/Versions/8.5/Headers"
-      end
-      venv.pip_install Pathname.pwd
-    end
-
-    res = resources.map(&:name).to_set - ["Pillow"]
-    res.each do |r|
-      venv.pip_install resource(r)
-    end
-
-    venv.pip_install_and_link buildpath
+    ENV["DOXYGEN"] = Formula["doxygen"].opt_bin/"doxygen"
+    python = "python3.11"
+    system python, "-u", "build.py", "dox", "touch", "etg", "sip", "build_py",
+                   "--release",
+                   "--use_syswx",
+                   "--prefix=#{prefix}",
+                   "--jobs=#{ENV.make_jobs}",
+                   "--verbose",
+                   "--nodoc"
+    system python, *Language::Python.setup_install_args(prefix, python),
+                   "--skip-build",
+                   "--install-platlib=#{prefix/Language::Python.site_packages(python)}"
   end
 
   test do
-    xy = Language::Python.major_minor_version Formula["python@3.8"].opt_bin/"python3"
-    ENV.prepend_path "PYTHONPATH", libexec/"lib/python#{xy}/site-packages"
-
-    output = shell_output("#{Formula["python@3.8"].opt_bin}/python3 -c 'import wx ; print(wx.__version__)'")
+    python = Formula["python@3.11"].opt_bin/"python3.11"
+    output = shell_output("#{python} -c 'import wx ; print(wx.__version__)'")
     assert_match version.to_s, output
   end
 end

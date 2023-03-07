@@ -1,15 +1,23 @@
 class Mawk < Formula
   desc "Interpreter for the AWK Programming Language"
   homepage "https://invisible-island.net/mawk/"
-  url "https://invisible-mirror.net/archives/mawk/mawk-1.3.4-20200120.tgz"
-  sha256 "7fd4cd1e1fae9290fe089171181bbc6291dfd9bca939ca804f0ddb851c8b8237"
-  license "GPL-2.0"
+  url "https://invisible-mirror.net/archives/mawk/mawk-1.3.4-20230203.tgz"
+  sha256 "6db7a32ac79c51107ad31a407d4f92c6b842dde2f68a7533b4e7b7b03e8900be"
+  license "GPL-2.0-only"
+
+  livecheck do
+    url "https://invisible-mirror.net/archives/mawk/?C=M&O=D"
+    regex(/href=.*?mawk[._-]v?(\d+(?:\.\d+)+(?:-\d+)?)\.t/i)
+  end
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "03f9aa87a079b35b6f93813e4016e85d102c578d8b65f2f967b0b7c5c5d869ad" => :catalina
-    sha256 "802b3592430ca644c6590acad265f45ac892fe47fb37732e678afac13f8cf1f0" => :mojave
-    sha256 "d113f78e1c20c8bf86fcf5ce083e206aeca58ee857e7d0a3acb0158d2b01fb45" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "b9f4b99fa6aac1ad10d33664a21166b4dbb891b364bf8733564b446064719180"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "35dfd1bf6c13583f52a4eb530e070ee1a6f580173352711fa5240ac7f20d1195"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "19341d6e0bb54ba93eb4e1b9df2fdd248c0c84bc49289668f6675b3f3efb86d5"
+    sha256 cellar: :any_skip_relocation, ventura:        "b294b3a40fe98791a70ad103f08f5324b62890d35510af4cb0e67f311b94032f"
+    sha256 cellar: :any_skip_relocation, monterey:       "48710755a0d4afe0f38871a07e715f5f75a8b6a13ac53216b8b2e47c8b3a5987"
+    sha256 cellar: :any_skip_relocation, big_sur:        "0540238a8c4dc9829d1a83a39e32d374ca7d5499083761d0f582699520ee4a8c"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "c773761adb1755191d2a912ee394c56b644c198c4c43c0a1623bda63690d40c3"
   end
 
   def install
@@ -24,7 +32,7 @@ class Mawk < Formula
 
   test do
     mawk_expr = '/^mawk / {printf("%s-%s", $2, $3)}'
-    ver_out = shell_output("#{bin}/mawk -W version 2>&1 | #{bin}/mawk '#{mawk_expr}'")
+    ver_out = pipe_output("#{bin}/mawk '#{mawk_expr}'", shell_output("#{bin}/mawk -W version 2>&1"))
     assert_equal version.to_s, ver_out
   end
 end

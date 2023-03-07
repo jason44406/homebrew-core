@@ -1,32 +1,38 @@
 class Cbmc < Formula
-  desc "CBMC: The C Bounded Model Checker"
+  desc "C Bounded Model Checker"
   homepage "https://www.cprover.org/cbmc/"
   url "https://github.com/diffblue/cbmc.git",
-      using:    :git,
-      tag:      "cbmc-5.12.6",
-      revision: "af5bc996df79dcfefd824dd3e63573faa120926a"
+      tag:      "cbmc-5.78.0",
+      revision: "a8abbf157233e33347dee68e6e3bfee1e385d208"
   license "BSD-4-Clause"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "2d0c141402bc0f59671dbd1d09eca4b34520f6e0e56762f271592b8aeeab91e2" => :catalina
-    sha256 "ff0c23396e8bb598daf29eeb139cf3ddc1f3db759bb210620006ca963c2a9da1" => :mojave
-    sha256 "84c1e56a1e57e0bd7da14d7d03f70262645e6852478f3798d603c5c1ca67d33f" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "be173d332a7e2e72a2273afb9c3c6216c7c7aa4b0edacf0e3c409c6ab4227986"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "e35093624b33a6ac96e3feb9ee3a3825e948fa503c8c9a39c8748f78bb82f555"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "087ff26ff208888f73db435dc12d84bbf279f3318e70f3b7dd78f6705a3e3067"
+    sha256 cellar: :any_skip_relocation, ventura:        "a19b5ad3ebe762e15ca5edf6d1a57fb597ed0b85b1d47269b3b2b6bcf85b7752"
+    sha256 cellar: :any_skip_relocation, monterey:       "ba00ed3a9068ca7b56433d5aa5c02867f1666296f689daf83b6d1b99ca9914d4"
+    sha256 cellar: :any_skip_relocation, big_sur:        "f4bbffde31ceda4e3411aa109cf1d573af3e61f750d325466b8c1f72f8ddc059"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "80409e3a26b297dc82f386f204460eb22a9db69b8d4c660dc17b94427e71f850"
   end
 
   depends_on "cmake" => :build
   depends_on "maven" => :build
   depends_on "openjdk" => :build
+  depends_on "rust" => :build
+
+  uses_from_macos "bison" => :build
+  uses_from_macos "flex" => :build
+
+  fails_with gcc: "5"
 
   def install
-    system "git", "submodule", "update", "--init"
-
-    # Build CBMC
-    system "cmake", "-S.", "-Bbuild", *std_cmake_args
+    system "cmake", "-S", ".", "-B", "build", "-Dsat_impl=minisat2;cadical", *std_cmake_args
     system "cmake", "--build", "build"
-    cd "build" do
-      system "make", "install"
-    end
+    system "cmake", "--install", "build"
+
+    # lib contains only `jar` files
+    libexec.install lib
   end
 
   test do

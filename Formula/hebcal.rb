@@ -1,23 +1,27 @@
 class Hebcal < Formula
   desc "Perpetual Jewish calendar for the command-line"
   homepage "https://github.com/hebcal/hebcal"
-  url "https://github.com/hebcal/hebcal/archive/v4.21.tar.gz"
-  sha256 "6295bc183d8a9694f2546100909fb0b1943f0acc55c9743937f435f17d47ddbc"
-  license "GPL-2.0"
+  url "https://github.com/hebcal/hebcal/archive/refs/tags/v.5.8.0.tar.gz"
+  sha256 "dd710bead0162ee853078f4c5abfa696fb4076d0c1a41659612d77c554d30349"
+  license "GPL-2.0-or-later"
+  head "https://github.com/hebcal/hebcal.git", branch: "main"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "d9a509892c033c03341ea04daa4c763818653ebb4e0d921cd67784c9d6aeae74" => :catalina
-    sha256 "ff1b1f27fcaeb762bbff51f7dce52d874d439680eb11de2ab867fb3f08682322" => :mojave
-    sha256 "219e4100f05a5c856781d0d85e091327453fffd69140ecaa318ef27eb904ec4a" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "f314943ba063fc38c148435930ae54d713c521bffba09d3b783f448ffdf3a956"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "f314943ba063fc38c148435930ae54d713c521bffba09d3b783f448ffdf3a956"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "f314943ba063fc38c148435930ae54d713c521bffba09d3b783f448ffdf3a956"
+    sha256 cellar: :any_skip_relocation, ventura:        "0ad9e2e90b0982fa477f31b268755d97f0481fb4df06fd83505f81be435eec63"
+    sha256 cellar: :any_skip_relocation, monterey:       "0ad9e2e90b0982fa477f31b268755d97f0481fb4df06fd83505f81be435eec63"
+    sha256 cellar: :any_skip_relocation, big_sur:        "0ad9e2e90b0982fa477f31b268755d97f0481fb4df06fd83505f81be435eec63"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "d8781cd6b1684f34af41fb7b1580ce921b589970c747371bfe91a4bff47f7e2b"
   end
 
-  depends_on "autoconf" => :build
-  depends_on "automake" => :build
+  depends_on "go" => :build
 
   def install
-    system "./configure", "--prefix=#{prefix}", "ACLOCAL=aclocal", "AUTOMAKE=automake"
-    system "make", "install"
+    # populate DEFAULT_CITY variable
+    system "make", "dcity.go"
+    system "go", "build", *std_go_args(ldflags: "-s -w")
   end
 
   test do

@@ -4,19 +4,26 @@ class Libtommath < Formula
   url "https://github.com/libtom/libtommath/releases/download/v1.2.0/ltm-1.2.0.tar.xz"
   sha256 "b7c75eecf680219484055fcedd686064409254ae44bc31a96c5032843c0e18b1"
   license "Unlicense"
-  revision 1
-  head "https://github.com/libtom/libtommath.git"
+  revision 3
+  head "https://github.com/libtom/libtommath.git", branch: "develop"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "700d1c4dfecd1016215158de7436d02452a149c5882ba3fda1201a72d6c3d5ea" => :catalina
-    sha256 "9832ceb97e387a519d6ae9b66bb3a7066c1d112d947667527a5edfcc692e4983" => :mojave
-    sha256 "26e39af069485ef58c3517fb765db3a5e8dba0f253aac3d0d5968ff2a35e595b" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "bfe5f7f1184702feaaabed511572425eb81b6b9f4772e2c38b3bd954f91f240e"
+    sha256 cellar: :any,                 arm64_monterey: "ea435dd09c0b6d91970b9dc536520c5edc7ddec508d91843526afb7ca80c878c"
+    sha256 cellar: :any,                 arm64_big_sur:  "b91f82bc2fd4b0e36615b3ce67833e41a5bfde5fc35d0f29b1b20c49bbc31d89"
+    sha256 cellar: :any,                 ventura:        "dd9b7adb10769bdf3dc1db08d6469957e2477a687d964f1517d27e1196f1bd3f"
+    sha256 cellar: :any,                 monterey:       "8df158fbb61b6ef9a160356038b53f404b129f966d0380c23cfc98c24c06613b"
+    sha256 cellar: :any,                 big_sur:        "0f2e569f0625e7f52974b6cc69cdc51ee83dc8c302af03863fb3926fdc9c768f"
+    sha256 cellar: :any,                 catalina:       "35421851dc5c86313eda9b351b5401196d757e4e8de90fd410029862704a5f8d"
+    sha256 cellar: :any,                 mojave:         "631d118cba4e115604723dea978a4c439fd150480f7526bbcd2feec70300da83"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "4a78383492eb1c176157a3d720d3f6e64c40cdda284acfca3ecd08f7095ea8b8"
   end
+
+  depends_on "libtool" => :build
 
   # Fixes mp_set_double being missing on macOS.
   # This is needed by some dependents in homebrew-core.
-  # Note: this patch has been merged upstream but we take a backport
+  # NOTE: This patch has been merged upstream but we take a backport
   # from a fork due to file name differences between 1.2.0 and master.
   # Remove with the next version.
   patch do
@@ -25,15 +32,10 @@ class Libtommath < Formula
   end
 
   def install
-    ENV["DESTDIR"] = prefix
+    ENV["PREFIX"] = prefix
 
-    # Work around Xcode 11 clang bug
-    ENV.append_to_cflags "-fno-stack-check" if DevelopmentTools.clang_build_version >= 1010
-
-    system "make"
-    system "make", "test_standalone"
-    include.install Dir["tommath*.h"]
-    lib.install "libtommath.a"
+    system "make", "-f", "makefile.shared", "install"
+    system "make", "test"
     pkgshare.install "test"
   end
 

@@ -7,15 +7,24 @@ class Ekg2 < Formula
   license "GPL-2.0"
   revision 4
 
+  livecheck do
+    url :homepage
+    regex(/^ekg2[._-]v?(\d+(?:\.\d+)+)$/i)
+  end
+
   bottle do
-    sha256 "e17ea1385008892e80e0d5e0d44e510f6ac30e5d86423b55c61465eccd348d36" => :catalina
-    sha256 "78778e95338d2a0a61f7d4773716d927534d24e4d5867a04038401427b07c855" => :mojave
-    sha256 "f946e56a032b9526280745e6e57f8bc42a18d12fa9ced783f5515eb600bcdf0b" => :high_sierra
-    sha256 "35f01a57bbceb1a79abfa8b035e3135d0c821bbca22a63b273e32159e517813f" => :sierra
+    rebuild 1
+    sha256 arm64_ventura:  "e11dd5263d14ca6151025f5d9ca8172301df336a1ec3d412617767f0c2ce7a11"
+    sha256 arm64_monterey: "d233462650d03da68cc1acf4df091c2bd724cdfb124b8514161555ca731237a0"
+    sha256 arm64_big_sur:  "513f5f60b4c91957d35a569665d9f55000dded765f4515e9581f291d2abfcb36"
+    sha256 ventura:        "cf60041384bf67e252fbe27d60baceb48ea590d22184854c1990072c3948df71"
+    sha256 monterey:       "6c4d6e4a126cb31c7dda87f6080a11911ca1f153c44d26ee86ce11147f8667b3"
+    sha256 big_sur:        "d5f9ac13e6ef527cf44f51bad2461976f7a0007bdbc5ded0515720793771cb57"
+    sha256 x86_64_linux:   "b4bc5fe81b146a00416646862a5e723eae0d0c218a9373d28e9794a4f3accf16"
   end
 
   depends_on "pkg-config" => :build
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
   depends_on "readline"
 
   # Fix the build on OS X 10.9+
@@ -27,8 +36,8 @@ class Ekg2 < Formula
 
   # Upstream commit, fix build against OpenSSL 1.1
   patch do
-    url "https://github.com/ekg2/ekg2/commit/f05815.diff?full_index=1"
-    sha256 "5a27388497fd4537833807a0ba064af17fa13d7dd55abec6b185f499d148de1a"
+    url "https://github.com/ekg2/ekg2/commit/f05815.patch?full_index=1"
+    sha256 "207639edc5e6576c8a67301c63f0b28814d9885f0d4fca5d9d9fc465f4427cd7"
   end
 
   def install

@@ -1,18 +1,19 @@
 class Bsdmake < Formula
-  desc "BSD make (build tool)"
+  desc "BSD version of the Make build tool"
   homepage "https://opensource.apple.com/"
-  url "https://opensource.apple.com/tarballs/bsdmake/bsdmake-24.tar.gz"
-  sha256 "82a948b80c2abfc61c4aa5c1da775986418a8e8eb3dd896288cfadf2e19c4985"
+  url "https://github.com/apple-oss-distributions/bsdmake/archive/refs/tags/bsdmake-24.tar.gz"
+  sha256 "096f333f94193215931a9fab86b9bca0713fbd22ec465bf55510067b53940e62"
+  license all_of: ["BSD-2-Clause", "BSD-3-Clause", "BSD-4-Clause-UC"]
 
   bottle do
-    rebuild 1
-    sha256 "85bdfdf2ca2e5761195c4781e52232e4fb1258c99bf79f46cf82f66338197df3" => :catalina
-    sha256 "acee008d57c2ebe6ad2ee5932d1521a254e16453c61cdd517da2c675f60c1eb4" => :mojave
-    sha256 "fa009c31c9fa5fc71f774cfe146f1338ca856158a606b796c3a1e7dbd64f3895" => :high_sierra
-    sha256 "3d5b8c21cf86cd6bb9eb28d1e8cbec434b370aa15e19540e366d045ea807c8c8" => :sierra
-    sha256 "b4052277ac6cf79ed579107fb73da96954c350d7bf29a124c55d87a0df8940b0" => :el_capitan
-    sha256 "18d7cb56f14eb2e404cf3abb163a354f57c5e45b72991efdd6566a15fcffe90f" => :yosemite
-    sha256 "5807a64aab8f81720718a4327d303d7955a09739b079aefd72a4f216519f0de7" => :mavericks
+    rebuild 2
+    sha256 arm64_ventura:  "8426abe75969c8adb575f6276d55e8a4737d1f139cf534294f74a843e74a632b"
+    sha256 arm64_monterey: "d01faf8a67751cf8248d36ef46fa23f8f6031c04fd723eb1cbf40ee881d6bc09"
+    sha256 arm64_big_sur:  "cfca87086e9932c2a1beb031d5fd34018a5afbe84a051918b41b33e4e86c82ea"
+    sha256 ventura:        "706f2a70bcadbfd643fdc3e6ca944de50c63fde0a23de03244ea4770f192e49a"
+    sha256 monterey:       "303f1fce21a307e0ecb01214f64ba7c3f26c21aeafb44d803120d26500dd387a"
+    sha256 big_sur:        "6b1aef88ae6c6b11cee8062b64f5fe2e1c337e3029833eaded84b6e740ae0391"
+    sha256 catalina:       "5075d566898ea241d7251734f82f6846c288a49d939f8842fa566ea706e2417f"
   end
 
   # MacPorts patches to make bsdmake play nice with our prefix system
@@ -39,9 +40,6 @@ class Bsdmake < Formula
 
   def install
     # Replace @PREFIX@ inserted by MacPorts patches
-    # Use "prefix" since this is sometimes a keg-only brew
-    # But first replace the X11 path if X11 is installed
-    inreplace "mk/sys.mk", "@PREFIX@", MacOS::X11.prefix || prefix
     inreplace %w[mk/bsd.README
                  mk/bsd.cpu.mk
                  mk/bsd.doc.mk
@@ -49,6 +47,7 @@ class Bsdmake < Formula
                  mk/bsd.own.mk
                  mk/bsd.port.mk
                  mk/bsd.port.subdir.mk
+                 mk/sys.mk
                  pathnames.h],
                  "@PREFIX@", prefix
 

@@ -1,22 +1,26 @@
 class So < Formula
   desc "Terminal interface for StackOverflow"
   homepage "https://github.com/samtay/so"
-  url "https://github.com/samtay/so/archive/v0.4.2.tar.gz"
-  sha256 "402d3a07283375d92892802544481a417f9d017b5e80733183ccbce3a810ef84"
+  url "https://github.com/samtay/so/archive/v0.4.9.tar.gz"
+  sha256 "b6327268acf3e9652acebea49c1dfa5d855cf25db6c7b380f1a0a85737464a4a"
   license "MIT"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "5bf7f63a206b7ab5b64f102d493db409a3fb068a76326aa0eaa68582ea779638" => :catalina
-    sha256 "13beb97e318c3655cf2a6ecb537f776c5973a7a944c14c212455a359b419b872" => :mojave
-    sha256 "cfc2bf938aacca1db66b6a072dca9cc9f346e21a9ae1a7534d3e1124810e0c2b" => :high_sierra
+    rebuild 2
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "06d9d49939df633028f759557787975e717b12e496a3d20da54afd375c3967e6"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "9b94994807aa75017eaec7f76ea78cc80c3fbcf2c0a65dfba043a3ca2d62b663"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "8afac14e917fad150dd5b06f28b96c14d49ca5c7b2894e7488f9dedbfcbfb9e8"
+    sha256 cellar: :any_skip_relocation, ventura:        "f845494b286ee5b6301c5a347ca3df396cb071797cdf9fbfadb47d9309acddf1"
+    sha256 cellar: :any_skip_relocation, monterey:       "0feba955d0c7ffc8ce409df43b27831f263f9b1d85c4496ab4c4d31116e43b55"
+    sha256 cellar: :any_skip_relocation, big_sur:        "982259bab8f867dd1387facce0ee77c60610f478214f0579ccc46db24c87cd62"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "c36a6333d2954cb49b323520e4e337b81d975c440c440aae10eb4f315cb210fd"
   end
 
   depends_on "rust" => :build
 
   on_linux do
     depends_on "pkg-config" => :build
-    depends_on "openssl@1.1"
+    depends_on "openssl@3"
   end
 
   def install
@@ -39,7 +43,7 @@ class So < Formula
     input.close
 
     # make sure it's the correct answer
-    assert_match /:wq/, File.read("output")
+    assert_match ":wq", File.read("output")
   ensure
     Process.kill("TERM", wait_thr.pid)
   end

@@ -7,19 +7,24 @@ class Cxxtest < Formula
   mirror "https://deb.debian.org/debian/pool/main/c/cxxtest/cxxtest_4.4.orig.tar.gz"
   sha256 "1c154fef91c65dbf1cd4519af7ade70a61d85a923b6e0c0b007dc7f4895cf7d8"
   license "LGPL-3.0"
-  revision 1
+  revision 3
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "90b9ca9996eb575a2e8665223f38731979a38630f5462fd3c2babf81ce7ceee4" => :catalina
-    sha256 "d6f91fba5743dc04e2c929036f59a34cd7833e5a75a6ebf6785209f8fabca4f1" => :mojave
-    sha256 "99b1ea9c495bf4ee03b88aadb33a5ae964741bcd387d678c6dcc5a18c925ad12" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "1acc8d9a13d8955aece0bb80dc297469df4fb2f10948a1e9869ff26b8ec37fa4"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "1acc8d9a13d8955aece0bb80dc297469df4fb2f10948a1e9869ff26b8ec37fa4"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "1acc8d9a13d8955aece0bb80dc297469df4fb2f10948a1e9869ff26b8ec37fa4"
+    sha256 cellar: :any_skip_relocation, ventura:        "5c6d1561562d7d6e8d2c18df851d8b961bda69b4c8a42094b174b92a55d52324"
+    sha256 cellar: :any_skip_relocation, monterey:       "5c6d1561562d7d6e8d2c18df851d8b961bda69b4c8a42094b174b92a55d52324"
+    sha256 cellar: :any_skip_relocation, big_sur:        "5c6d1561562d7d6e8d2c18df851d8b961bda69b4c8a42094b174b92a55d52324"
+    sha256 cellar: :any_skip_relocation, catalina:       "5c6d1561562d7d6e8d2c18df851d8b961bda69b4c8a42094b174b92a55d52324"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "9cf39bf39e516f6a2649f9693b6c45e2cd73dd6eaf63ccae2cc6ea34f116e93e"
   end
 
-  depends_on "python@3.8"
+  depends_on "python@3.11"
 
   def install
-    venv = virtualenv_create(libexec, Formula["python@3.8"].opt_bin/"python3")
+    venv = virtualenv_create(libexec, "python3.11")
     venv.pip_install_and_link buildpath/"python"
 
     include.install "cxxtest"

@@ -4,25 +4,32 @@ class Hexgui < Formula
   url "https://github.com/apetresc/hexgui/archive/v0.9.3.tar.gz"
   sha256 "e7bf9daebe39c4efb06d758c5634c6fa25e97031ffa98592c378af89a03e9e8d"
   license "GPL-3.0"
-  head "https://github.com/apetresc/hexgui.git"
+  revision 2
+  head "https://github.com/apetresc/hexgui.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "ab36302c111ad3164f4746d80d937ec736f84967a90ee6cb8f9afc1f22e5f0dd" => :catalina
-    sha256 "643b91090287bcafbd5aefcfd68c177580f22a2d179cb57bad865494cfc41c82" => :mojave
-    sha256 "69dc43fc44aa2fbf83144c672aeb4e73b1471569fef39bdb20ee1653ea6c0c28" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "43ce6a38f7648dea8565662c92ca28a992360b3b6d37fb3183b378f7e8e5b9b5"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "0f149b8a959fc5ebcb74812f2a7a510ed6b2eb81e5dd4e2c38884227230f7d3b"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "fd232f1904e299ac277879e1336ed8c3bb79b74cdd52a54a45a3f8f28b319a1b"
+    sha256 cellar: :any_skip_relocation, ventura:        "9fd7cce8968fcc39cd73aad8c222263947c8902f26355f40da3e7fc071cb088f"
+    sha256 cellar: :any_skip_relocation, monterey:       "0bf896b0edea271ffc39eb6e88ce67f7a11af82fa4fc34300e0f683d62740cd7"
+    sha256 cellar: :any_skip_relocation, big_sur:        "c97d11e9eb40d0d036fc47e824535fbd182a9929518413983d097ae069324161"
+    sha256 cellar: :any_skip_relocation, catalina:       "208f0a509c18272214b091e415c3b79b936a7d225d003ffaf9d238247bf85b27"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "2cbd351ccc8565756b93c85d46d24d50387ec805911c52737bb8f7e804c0357f"
   end
 
   depends_on "ant" => :build
-  depends_on java: "1.8"
+  depends_on "openjdk"
 
   def install
     system "ant"
     libexec.install Dir["*"]
-    (bin/"hexgui").write_env_script libexec/"bin/hexgui", Language::Java.java_home_env("1.8")
+    env = Language::Java.overridable_java_home_env
+    env["PATH"] = "$JAVA_HOME/bin:$PATH"
+    (bin/"hexgui").write_env_script libexec/"bin/hexgui", env
   end
 
   test do
-    assert_match /^HexGui #{version} .*/, shell_output("#{bin}/hexgui -version").chomp
+    assert_match(/^HexGui #{version} .*/, shell_output("#{bin}/hexgui -version").chomp)
   end
 end

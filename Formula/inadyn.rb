@@ -1,14 +1,19 @@
 class Inadyn < Formula
   desc "Dynamic DNS client with IPv4, IPv6, and SSL/TLS support"
   homepage "https://troglobit.com/projects/inadyn/"
-  url "https://github.com/troglobit/inadyn/releases/download/v2.7/inadyn-2.7.tar.xz"
-  sha256 "eb03bc9d9c09dfbbc651b43a2eb5a967d0454a8293576df23784710dac50c6a4"
-  license "GPL-2.0"
+  url "https://github.com/troglobit/inadyn/releases/download/v2.10.0/inadyn-2.10.0.tar.xz"
+  sha256 "58ca61afdc0554b63b3eba1265caa1049c783d0ccfdbabc98273266466d8f142"
+  license all_of: ["GPL-2.0-or-later", "ISC", "MIT"]
 
   bottle do
-    sha256 "15adb75ac20d48ad952fce27a06f8b8ce8728d5084b9e1b3632215aa7ed2fc64" => :catalina
-    sha256 "0100708fe3e5bd57607af7168ba0a02e30d01a79e8af60f86be20717377b5153" => :mojave
-    sha256 "892f0bb649feb54f000aa9b5c22a812aeff22b1530f5e54a8783896b88d9ced3" => :high_sierra
+    sha256 arm64_ventura:  "6b8253cd3c5d08cb1fae5aa4aa7bbc615ed9783cc48782b979fb951eb4b8b751"
+    sha256 arm64_monterey: "086a2de0488d7686306eca87b9d12343cba8be9ccf98368cb1c027444bab06ee"
+    sha256 arm64_big_sur:  "d6e580a78016e72d57f7c8ae6da22b32f95c06147d5242d05c976f6783f5da45"
+    sha256 ventura:        "16719ab1899b624cf9e9707d64e3e1a0e3ad67b30ed762649abf33efedd07f14"
+    sha256 monterey:       "be2051f96804540b7bfa6c4d8c83922331ec2348d290e817d1fe7ac268d534d5"
+    sha256 big_sur:        "1b37f802a5b200470c67b63f0634cffdec331216cf294bebfb77714f353c8c0b"
+    sha256 catalina:       "98bb14ca5540b81c0f6a9a7565ac1bbb974b3d26f2ed9d9b5abb366c9e4177ec"
+    sha256 x86_64_linux:   "273fe788b95edd871e53da319f67221b49dc2b88dffef9be9b5ce62b7f84ad83"
   end
 
   depends_on "autoconf" => :build

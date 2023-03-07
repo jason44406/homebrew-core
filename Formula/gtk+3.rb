@@ -1,22 +1,32 @@
 class Gtkx3 < Formula
   desc "Toolkit for creating graphical user interfaces"
   homepage "https://gtk.org/"
-  url "https://download.gnome.org/sources/gtk+/3.24/gtk+-3.24.22.tar.xz"
-  sha256 "bf18a4a5dff28a7b02aaef1b949c2d09c96c18387eddab152bb4cd55a5b67dda"
+  url "https://download.gnome.org/sources/gtk+/3.24/gtk+-3.24.37.tar.xz"
+  sha256 "6745f0b4c053794151fd0f0e2474b077cccff5f83e9dd1bf3d39fe9fe5fb7f57"
   license "LGPL-2.0-or-later"
 
+  livecheck do
+    url :stable
+    regex(/gtk\+[._-](3\.([0-8]\d*?)?[02468](?:\.\d+)*?)\.t/i)
+  end
+
   bottle do
-    sha256 "8be1bc471681688387c1bae5b48522e02c924e4b65badc89dda6ac8a32613dc2" => :catalina
-    sha256 "a6e75a26e12b929abcde2055d38f6a75be9fdc602da31dfaa3a01f8618e99aad" => :mojave
-    sha256 "32b35af03f9f90fa05c667afbdc6c15c71d1f1ef3753bd46737c441f7deb0b7c" => :high_sierra
+    sha256 arm64_ventura:  "e3d32e51f311c3b986198861fa0b2bda3426fba44c2f6d09c001af90fba24281"
+    sha256 arm64_monterey: "eaf4262525c6e79780c9558bf00717a6634abb3ab30b9156542d866b299df6d5"
+    sha256 arm64_big_sur:  "19a984eda5eafec3de927dcca21ce5d0b19896480b2d1dfdc8bd557a6dd4bef4"
+    sha256 ventura:        "8fa632e21375dd8f162ab10b0189180fb757eb47321c667c94bb52bd9443763b"
+    sha256 monterey:       "8f22c56c71572a2480da7773537219076c422fdc989fd6331ed165bf9547e8c0"
+    sha256 big_sur:        "6b7efa168de9389adaed3a748c2f24e326962af1492a3541233a12c6a15f31f1"
+    sha256 x86_64_linux:   "d73b18f997af5efe9001fd729500eb445c47d145a724a901acd351d6fff3bdf2"
   end
 
   depends_on "docbook" => :build
   depends_on "docbook-xsl" => :build
+  depends_on "gettext" => :build
   depends_on "gobject-introspection" => :build
   depends_on "meson" => :build
   depends_on "ninja" => :build
-  depends_on "pkg-config" => :build
+  depends_on "pkg-config" => [:build, :test]
   depends_on "atk"
   depends_on "gdk-pixbuf"
   depends_on "glib"
@@ -27,14 +37,27 @@ class Gtkx3 < Formula
 
   uses_from_macos "libxslt" => :build # for xsltproc
 
+  on_linux do
+    depends_on "cmake" => :build
+    depends_on "at-spi2-atk"
+    depends_on "cairo"
+    depends_on "iso-codes"
+    depends_on "libxkbcommon"
+    depends_on "wayland-protocols"
+    depends_on "xorgproto"
+  end
+
   def install
-    args = std_meson_args + %w[
-      -Dx11_backend=false
-      -Dquartz_backend=true
+    args = %w[
       -Dgtk_doc=false
       -Dman=true
       -Dintrospection=true
     ]
+
+    if OS.mac?
+      args << "-Dquartz_backend=true"
+      args << "-Dx11_backend=false"
+    end
 
     # ensure that we don't run the meson post install script
     ENV["DESTDIR"] = "/"
@@ -42,14 +65,12 @@ class Gtkx3 < Formula
     # Find our docbook catalog
     ENV["XML_CATALOG_FILES"] = "#{etc}/xml/catalog"
 
-    mkdir "build" do
-      system "meson", *args, ".."
-      system "ninja", "-v"
-      system "ninja", "install", "-v"
-    end
+    system "meson", "setup", "build", *args, *std_meson_args
+    system "meson", "compile", "-C", "build", "--verbose"
+    system "meson", "install", "-C", "build"
 
-    # Prevent a conflict between this and Gtk+2
-    mv bin/"gtk-update-icon-cache", bin/"gtk3-update-icon-cache"
+    bin.install_symlink bin/"gtk-update-icon-cache" => "gtk3-update-icon-cache"
+    man1.install_symlink man1/"gtk-update-icon-cache.1" => "gtk3-update-icon-cache.1"
   end
 
   def post_install
@@ -67,56 +88,7 @@ class Gtkx3 < Formula
         return 0;
       }
     EOS
-    atk = Formula["atk"]
-    cairo = Formula["cairo"]
-    fontconfig = Formula["fontconfig"]
-    freetype = Formula["freetype"]
-    gdk_pixbuf = Formula["gdk-pixbuf"]
-    gettext = Formula["gettext"]
-    glib = Formula["glib"]
-    harfbuzz = Formula["harfbuzz"]
-    libepoxy = Formula["libepoxy"]
-    libpng = Formula["libpng"]
-    pango = Formula["pango"]
-    pixman = Formula["pixman"]
-    flags = %W[
-      -I#{atk.opt_include}/atk-1.0
-      -I#{cairo.opt_include}/cairo
-      -I#{fontconfig.opt_include}
-      -I#{freetype.opt_include}/freetype2
-      -I#{gdk_pixbuf.opt_include}/gdk-pixbuf-2.0
-      -I#{gettext.opt_include}
-      -I#{glib.opt_include}/gio-unix-2.0/
-      -I#{glib.opt_include}/glib-2.0
-      -I#{glib.opt_lib}/glib-2.0/include
-      -I#{harfbuzz.opt_include}/harfbuzz
-      -I#{include}
-      -I#{include}/gtk-3.0
-      -I#{libepoxy.opt_include}
-      -I#{libpng.opt_include}/libpng16
-      -I#{pango.opt_include}/pango-1.0
-      -I#{pixman.opt_include}/pixman-1
-      -D_REENTRANT
-      -L#{atk.opt_lib}
-      -L#{cairo.opt_lib}
-      -L#{gdk_pixbuf.opt_lib}
-      -L#{gettext.opt_lib}
-      -L#{glib.opt_lib}
-      -L#{lib}
-      -L#{pango.opt_lib}
-      -latk-1.0
-      -lcairo
-      -lcairo-gobject
-      -lgdk-3
-      -lgdk_pixbuf-2.0
-      -lgio-2.0
-      -lglib-2.0
-      -lgobject-2.0
-      -lgtk-3
-      -lintl
-      -lpango-1.0
-      -lpangocairo-1.0
-    ]
+    flags = shell_output("pkg-config --cflags --libs gtk+-3.0").chomp.split
     system ENV.cc, "test.c", "-o", "test", *flags
     system "./test"
     # include a version check for the pkg-config files

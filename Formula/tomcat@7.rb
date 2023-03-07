@@ -1,14 +1,20 @@
 class TomcatAT7 < Formula
   desc "Implementation of Java Servlet and JavaServer Pages"
   homepage "https://tomcat.apache.org/"
-  url "https://www.apache.org/dyn/closer.lua?path=tomcat/tomcat-7/v7.0.105/bin/apache-tomcat-7.0.105.tar.gz"
-  mirror "https://archive.apache.org/dist/tomcat/tomcat-7/v7.0.105/bin/apache-tomcat-7.0.105.tar.gz"
-  sha256 "1a36882b5e25fff4f5d8c10e4029f29e43b1db96e0df03bdbed1fa913038392f"
+  url "https://www.apache.org/dyn/closer.lua?path=tomcat/tomcat-7/v7.0.109/bin/apache-tomcat-7.0.109.tar.gz"
+  mirror "https://archive.apache.org/dist/tomcat/tomcat-7/v7.0.109/bin/apache-tomcat-7.0.109.tar.gz"
+  sha256 "ebfeb051e6da24bce583a4105439bfdafefdc7c5bdd642db2ab07e056211cb31"
   license "Apache-2.0"
+  revision 1
 
-  bottle :unneeded
+  bottle do
+    sha256 cellar: :any_skip_relocation, all: "ff26a7e915f64090817e9a62811f3b02142723553f2f5e2e8f7b1b2b594d8477"
+  end
 
   keg_only :versioned_formula
+
+  # End of life was 2021-03-31: https://tomcat.apache.org/tomcat-70-eol.html
+  deprecate! date: "2022-08-15", because: :deprecated_upstream
 
   depends_on "openjdk"
 
@@ -21,32 +27,24 @@ class TomcatAT7 < Formula
 
     # Install files
     prefix.install %w[NOTICE LICENSE RELEASE-NOTES RUNNING.txt]
+
+    pkgetc.install Dir["conf/*"]
+    (buildpath/"conf").rmdir
+    libexec.install_symlink pkgetc => "conf"
+
     libexec.install Dir["*"]
     (bin/"catalina").write_env_script "#{libexec}/bin/catalina.sh", JAVA_HOME: Formula["openjdk"].opt_prefix
   end
 
-  plist_options manual: "catalina run"
-
-  def plist
+  def caveats
     <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>Disabled</key>
-          <false/>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{opt_bin}/catalina</string>
-            <string>run</string>
-          </array>
-          <key>KeepAlive</key>
-          <true/>
-        </dict>
-      </plist>
+      Configuration files: #{pkgetc}
     EOS
+  end
+
+  service do
+    run [opt_bin/"catalina", "run"]
+    keep_alive true
   end
 
   test do

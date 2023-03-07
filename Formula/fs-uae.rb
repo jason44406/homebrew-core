@@ -1,19 +1,28 @@
 class FsUae < Formula
   desc "Amiga emulator"
   homepage "https://fs-uae.net/"
-  url "https://fs-uae.net/stable/3.0.5/fs-uae-3.0.5.tar.gz"
-  sha256 "f26ec42e03cf1a7b53b6ce0d9845aa45bbf472089b5ec046b3eb784ec6859fe3"
-  license "GPL-2.0"
+  url "https://fs-uae.net/files/FS-UAE/Stable/3.1.66/fs-uae-3.1.66.tar.xz"
+  sha256 "606e1868b500413d69bd33bb469f8fd08d6c08988801f17b7dd022f3fbe23832"
+  license "GPL-2.0-or-later"
+
+  livecheck do
+    url "https://fs-uae.net/download"
+    regex(/href=.*?fs-uae[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   bottle do
-    cellar :any
-    sha256 "124950f0053e117fa271e182e705b2c9bee21f2572e371c1ff18f106ad777c5a" => :catalina
-    sha256 "446a54d257e764ec9df2b825b7dfe9dbb266e5ad586f439d75223c986ce21aa8" => :mojave
-    sha256 "b540e43634bfbbe75fe6f143a9bec8aeae85e29028f44e3d54bb979c4630cc51" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "796be0965c3ac6791c1dc8b2a55ced73b935ce5d74ed1406a2561ae1269bc59b"
+    sha256 cellar: :any,                 arm64_monterey: "b9f361e0cc2b048aedb761409cd9a79c34c98ebaa22a35c426b4a42e93884933"
+    sha256 cellar: :any,                 arm64_big_sur:  "0caec2b541d80f8645decd87cabdb34e327844afaf5c06b526572eb52d3526ec"
+    sha256 cellar: :any,                 ventura:        "8ffb22e83dade981cbd3b4ccb58dc032db6f38dc0401620491d96e93342a12a0"
+    sha256 cellar: :any,                 monterey:       "e73f955c331c42ddcbada8c15dcaaba7aa3c4c1f2471b6303ca920d90977b6c8"
+    sha256 cellar: :any,                 big_sur:        "7d0fa0057f0d4e76d802554b9a29666b556f0bae8520430e73244abfbfcbbd72"
+    sha256 cellar: :any,                 catalina:       "7a373d3e50a22619466b27bfad1576df98e2bae34433f5bf2d8ae370e2858e87"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "3e7f4005c34030d2c8902fee844ff96ac8acd45d368c7cf28ba7c682fcc97ac5"
   end
 
   head do
-    url "https://github.com/FrodeSolheim/fs-uae.git"
+    url "https://github.com/FrodeSolheim/fs-uae.git", branch: "master"
     depends_on "autoconf" => :build
     depends_on "automake" => :build
     depends_on "libtool" => :build
@@ -28,6 +37,12 @@ class FsUae < Formula
   depends_on "libpng"
   depends_on "sdl2"
 
+  uses_from_macos "zip"
+
+  on_linux do
+    depends_on "openal-soft"
+  end
+
   def install
     system "./bootstrap" if build.head?
     system "./configure", "--disable-debug",
@@ -38,7 +53,7 @@ class FsUae < Formula
     system "make"
     system "make", "install"
 
-    # Remove unncessary files
+    # Remove unnecessary files
     (share/"applications").rmtree
     (share/"icons").rmtree
     (share/"mime").rmtree

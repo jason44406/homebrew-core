@@ -3,71 +3,56 @@ class Binwalk < Formula
 
   desc "Searches a binary image for embedded files and executable code"
   homepage "https://github.com/ReFirmLabs/binwalk"
-  url "https://github.com/ReFirmLabs/binwalk/archive/v2.2.0.tar.gz"
-  sha256 "f5495f0e4c5575023d593f7c087c367675df6aeb7f4d9a2966e49763924daa27"
+  url "https://github.com/ReFirmLabs/binwalk/archive/v2.3.4.tar.gz"
+  sha256 "60416bfec2390cec76742ce942737df3e6585c933c2467932f59c21e002ba7a9"
   license "MIT"
-  revision 2
-  head "https://github.com/ReFirmLabs/binwalk.git"
+  head "https://github.com/ReFirmLabs/binwalk.git", branch: "master"
+
+  livecheck do
+    url :stable
+    strategy :github_latest
+  end
 
   bottle do
-    cellar :any
-    sha256 "d412322a98c5207c19bdf2d0b7d6abcb6133f875fc48d6227c4c69213e761852" => :catalina
-    sha256 "0edd480cef965ccd9d112aa0f2699e53420aab5a9c9d7397856d6dc0c476cae8" => :mojave
-    sha256 "8ce1ff5841406677da86e5b0976dd7230ae814616a3b368eb8020c467b2e4235" => :high_sierra
+    sha256 cellar: :any,                 arm64_ventura:  "4f7bf49bcdc180a94d923859aaae9bb975531e3f66c0946fa0e8560d76e9705d"
+    sha256 cellar: :any,                 arm64_monterey: "50bc5ac7368e8f0423f374afe062b6e9f36a20a6a288991b129340185a67e6c9"
+    sha256 cellar: :any,                 arm64_big_sur:  "d5e7979beefcf75ed418a517ec05ddabccc02712790eac38f3b82c118abd3aac"
+    sha256 cellar: :any,                 ventura:        "097c35817c67fb96ab78e91be7f316f931e356ab8b06d27d340e567d25769dc7"
+    sha256 cellar: :any,                 monterey:       "3835d5d50f13e1bbf7e960b5bd6c354ece0ba0cda79599c956b9d860e668896c"
+    sha256 cellar: :any,                 big_sur:        "db580e80796365ee95126a20ba213c360f5bd170c6cdf68d7598860979229566"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "8b2728143c492690a2d7193a20bbfa8dc57c1b16f0709995a29aefc9b1270379"
   end
 
   depends_on "pkg-config" => :build
   depends_on "swig" => :build
   depends_on "freetype"
   depends_on "libpng"
+  depends_on "numpy"
   depends_on "p7zip"
-  depends_on "python@3.8"
+  depends_on "pillow"
+  depends_on "python@3.11"
+  depends_on "six"
   depends_on "ssdeep"
   depends_on "xz"
 
   resource "capstone" do
-    url "https://files.pythonhosted.org/packages/2a/a2/026cc921a6ac7e4fcd0c2ba740edce4c37c56af63a79e570bebaf3bd7c50/capstone-4.0.1.tar.gz"
-    sha256 "5857accc0de1e769b0ec0a0ca985715bfa96e5a66a2ebb3aaed43a8e3655377f"
+    url "https://files.pythonhosted.org/packages/f2/ae/21dbb3ccc30d5cc9e8cdd8febfbf5d16d93b8c10e595280d2aa4631a0d1f/capstone-4.0.2.tar.gz"
+    sha256 "2842913092c9b69fd903744bc1b87488e1451625460baac173056e1808ec1c66"
   end
 
-  resource "Cycler" do
-    url "https://files.pythonhosted.org/packages/c2/4b/137dea450d6e1e3d474e1d873cd1d4f7d3beed7e0dc973b06e8e10d32488/cycler-0.10.0.tar.gz"
-    sha256 "cd7b2d1018258d7247a71425e9f26463dfb444d411c39569972f4ce586b0c9d8"
-  end
-
-  resource "kiwisolver" do
-    url "https://files.pythonhosted.org/packages/62/b8/db619d97819afb52a3ff5ff6ad3f7de408cc83a8ec2dfb31a1731c0a97c2/kiwisolver-1.2.0.tar.gz"
-    sha256 "247800260cd38160c362d211dcaf4ed0f7816afb5efe56544748b21d6ad6d17f"
+  resource "gnupg" do
+    url "https://files.pythonhosted.org/packages/96/6c/21f99b450d2f0821ff35343b9a7843b71e98de35192454606435c72991a8/gnupg-2.3.1.tar.gz"
+    sha256 "8db5a05c369dbc231dab4c98515ce828f2dffdc14f1534441a6c59b71c6d2031"
   end
 
   resource "matplotlib" do
-    url "https://files.pythonhosted.org/packages/4a/30/eb8e7dd8e3609f05c6920fa82f189302c832e5a0f6667aa96f952056bc0c/matplotlib-3.2.1.tar.gz"
-    sha256 "ffe2f9cdcea1086fc414e82f42271ecf1976700b8edd16ca9d376189c6d93aee"
+    url "https://files.pythonhosted.org/packages/23/6d/2917ed23b17a8c4d1d59974a574cae0a365c392ba8820c8824b03a02f376/matplotlib-3.6.3.tar.gz"
+    sha256 "1f4d69707b1677560cd952544ee4962f68ff07952fb9069ff8c12b56353cb8c9"
   end
 
-  resource "numpy" do
-    url "https://files.pythonhosted.org/packages/84/1e/ff467ac56bfeaea51d4a2e72d315c1fe440b20192fea7e460f0f248acac8/numpy-1.18.2.zip"
-    sha256 "e7894793e6e8540dbeac77c87b489e331947813511108ae097f1715c018b8f3d"
-  end
-
-  resource "pycrypto" do
-    url "https://files.pythonhosted.org/packages/60/db/645aa9af249f059cc3a368b118de33889219e0362141e75d4eaf6f80f163/pycrypto-2.6.1.tar.gz"
-    sha256 "f2ce1e989b272cfcb677616763e0a2e7ec659effa67a88aa92b3a65528f60a3c"
-  end
-
-  resource "pyparsing" do
-    url "https://files.pythonhosted.org/packages/c1/47/dfc9c342c9842bbe0036c7f763d2d6686bcf5eb1808ba3e170afdb282210/pyparsing-2.4.7.tar.gz"
-    sha256 "c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1"
-  end
-
-  resource "python-dateutil" do
-    url "https://files.pythonhosted.org/packages/be/ed/5bbc91f03fa4c839c4c7360375da77f9659af5f7086b7a7bdda65771c8e0/python-dateutil-2.8.1.tar.gz"
-    sha256 "73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"
-  end
-
-  resource "six" do
-    url "https://files.pythonhosted.org/packages/21/9f/b251f7f8a76dec1d6651be194dfba8fb8d7781d10ab3987190de8391d08e/six-1.14.0.tar.gz"
-    sha256 "236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a"
+  resource "pycryptodome" do
+    url "https://files.pythonhosted.org/packages/b8/2e/cf9cfd1ae6429381d3d9c14c8df79d91ae163929972f245a76058ea9d37d/pycryptodome-3.17.tar.gz"
+    sha256 "bce2e2d8e82fcf972005652371a3e8731956a0c1fbb719cc897943b3695ad91b"
   end
 
   def install

@@ -1,15 +1,18 @@
 class Tippecanoe < Formula
   desc "Build vector tilesets from collections of GeoJSON features"
-  homepage "https://github.com/mapbox/tippecanoe"
-  url "https://github.com/mapbox/tippecanoe/archive/1.35.0.tar.gz"
-  sha256 "4a31ef5ba1288eb17f9d52a7d84fef9432f13756af9d2c243d46309d6ff09488"
+  homepage "https://github.com/felt/tippecanoe"
+  url "https://github.com/felt/tippecanoe/archive/refs/tags/2.23.0.tar.gz"
+  sha256 "7e04d04ccce013c32b3f9c1a89a1830ee41ab7be6ad5cecc69462a9c7f882815"
   license "BSD-2-Clause"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "7e8caa72c197b02617da5b5867ba3c67c208e59d92aba074914958274eee57e5" => :catalina
-    sha256 "1432b2d4ad11132cdb97dde0b77ccb3c95de1556a2852d9911e7978222fa9555" => :mojave
-    sha256 "a1c78f268f0e54f6856f9e6be6dd9225d2f79ef0fc6905b60d69ef53fd542828" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "7f39180ae4293058359a58c9558c89a29488593eefc08984f2d57bb40dfc3ef6"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "ac73127528ecfbf2526c723ece63693a546ffc5de3c617bb6dee4d06166c3e25"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "4f54c77088c737017a1f7ad8b927e2e0702c655c9cf287b5a4c810cc2bad8e90"
+    sha256 cellar: :any_skip_relocation, ventura:        "c6191aa2fa5f3fc4da97f5b083ba743bfe52545b99ea3eef01e9195c323bc382"
+    sha256 cellar: :any_skip_relocation, monterey:       "c3bffa6fbfbe4d313e6ad67dab716bca4bd37b03fc23df74b76e7eca7da682ef"
+    sha256 cellar: :any_skip_relocation, big_sur:        "6eaa742323f101123d319d8662248f8fb5cbee835053495bca1d1248c2e1218d"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "c4682625f3117172615f1647f0146cedb8252f6203000e4d8db42c1e516e8636"
   end
 
   uses_from_macos "sqlite"

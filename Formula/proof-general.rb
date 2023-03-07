@@ -1,18 +1,20 @@
 class ProofGeneral < Formula
   desc "Emacs-based generic interface for theorem provers"
   homepage "https://proofgeneral.github.io"
-  url "https://github.com/ProofGeneral/PG/archive/v4.4.tar.gz"
-  sha256 "1ba236d81768a87afa0287f49d4b2223097bc61d180468cbd997d46ab6132e7e"
-  license "GPL-2.0"
-  revision 2
-  head "https://github.com/ProofGeneral/PG.git"
+  url "https://github.com/ProofGeneral/PG/archive/v4.5.tar.gz"
+  sha256 "b408ab943cfbfe4fcb0d3322f079f41e2a2d29b50cf0cc704fbb4d5e6c26e3a2"
+  license "GPL-3.0-or-later"
+  head "https://github.com/ProofGeneral/PG.git", branch: "master"
 
   bottle do
-    cellar :any_skip_relocation
-    rebuild 3
-    sha256 "ccc115760830d046c9e53277a571f451eb251c9b10c09589c627f146f4a9a4dd" => :catalina
-    sha256 "ccc115760830d046c9e53277a571f451eb251c9b10c09589c627f146f4a9a4dd" => :mojave
-    sha256 "ccc115760830d046c9e53277a571f451eb251c9b10c09589c627f146f4a9a4dd" => :high_sierra
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "b87a94e0c06c19d5d57aedd9a628b69a22d559cfd331f563dcb93c02b5f0a402"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "b87a94e0c06c19d5d57aedd9a628b69a22d559cfd331f563dcb93c02b5f0a402"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "b87a94e0c06c19d5d57aedd9a628b69a22d559cfd331f563dcb93c02b5f0a402"
+    sha256 cellar: :any_skip_relocation, ventura:        "e0f721f16c2c5e2ffa6b7ef00595ab6bdbdeda815f00a04ca30d2df2cc474e8b"
+    sha256 cellar: :any_skip_relocation, monterey:       "e0f721f16c2c5e2ffa6b7ef00595ab6bdbdeda815f00a04ca30d2df2cc474e8b"
+    sha256 cellar: :any_skip_relocation, big_sur:        "e0f721f16c2c5e2ffa6b7ef00595ab6bdbdeda815f00a04ca30d2df2cc474e8b"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "b87a94e0c06c19d5d57aedd9a628b69a22d559cfd331f563dcb93c02b5f0a402"
   end
 
   depends_on "texi2html" => :build
@@ -37,7 +39,7 @@ class ProofGeneral < Formula
     end
     man1.install "doc/proofgeneral.1"
     info.install "doc/ProofGeneral.info", "doc/PG-adapting.info"
-    doc.install "doc/ProofGeneral", "doc/PG-adapting"
+    doc.install "doc/ProofGeneral_html", "doc/PG-adapting_html"
   end
 
   def caveats
@@ -47,6 +49,6 @@ class ProofGeneral < Formula
   end
 
   test do
-    system bin/"proofgeneral", "--help"
+    system bin/"coqtags", "--help"
   end
 end

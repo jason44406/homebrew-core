@@ -1,34 +1,27 @@
 class Terrahelp < Formula
   desc "Tool providing extra functionality for Terraform"
   homepage "https://github.com/opencredo/terrahelp"
-  url "https://github.com/opencredo/terrahelp/archive/v0.7.4.tar.gz"
-  sha256 "2d70b6471bfb4b9c8ff3bb12050ecedca8d39830fa221bf8c319a1b6144ee6e5"
+  url "https://github.com/opencredo/terrahelp/archive/v0.7.5.tar.gz"
+  sha256 "bfcffdf06e1db075872a6283d1f1cc6858b8139bf10dd480969b419aa6fc01f7"
   license "Apache-2.0"
-  head "https://github.com/opencredo/terrahelp.git"
+  head "https://github.com/opencredo/terrahelp.git", branch: "main"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "515040f845a9eb85328f110610d2bc31837771c79828c6979eeddb5c885aac8b" => :catalina
-    sha256 "f195506118d3fca9b4b0555e9aef67c4e831053a943fade0580793aa5e89139a" => :mojave
-    sha256 "df53d2e287ce9b9b31facff22d50b4181704045e9611ebfb363461025cf1eb8f" => :high_sierra
+    sha256 cellar: :any_skip_relocation, arm64_ventura:  "0637ab5db3f9423836bd621b67c01fcfbcf44fd86ac6033ff2b4ffab979a64b4"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "1de2d581302493095a12fc646062b1ea074aa792a36e81d37827438e832599a3"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur:  "a416eab4b11b794fd807c6a6ce9d1fd87ebf8a4bfedeaa6ac45eeb9f6c092d52"
+    sha256 cellar: :any_skip_relocation, ventura:        "87ba308df8d9e75be30aa87e63ed4682fe818f5dffc5d9528325fe6782876971"
+    sha256 cellar: :any_skip_relocation, monterey:       "e04b7ade448da1809858ef7cefea05f34b5670d4b159b3f67d8700c0572201d7"
+    sha256 cellar: :any_skip_relocation, big_sur:        "da129e3fa2f21f00fe0b054d5510509d39d6d26cbd58efa7d06297363254fcc7"
+    sha256 cellar: :any_skip_relocation, catalina:       "8db95e8da4909b68eaa18a9fab2e38769fcfa79426b3c1a53a4ac9d5315092fd"
+    sha256 cellar: :any_skip_relocation, mojave:         "10cfea117c1dd3d1e1f5c7b609b3c299c4544b46c87d996836971d1185e77004"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "6fdaed3d9218418ada94b13cbdfc0bd156ac0b5b44294a95674df07a3e66147a"
   end
 
   depends_on "go" => :build
 
   def install
-    ENV["GOPATH"] = buildpath
-    ENV.prepend_create_path "PATH", buildpath/"bin"
-
-    dir = buildpath/"src/github.com/opencredo/terrahelp"
-    dir.install buildpath.children
-
-    cd dir do
-      ENV["GOOS"] = "darwin"
-      ENV["GOARCH"] = "amd64"
-
-      system "go", "build", "-mod=vendor", "-o", "dist/darwin/amd64/terrahelp"
-      bin.install "dist/darwin/amd64/terrahelp"
-    end
+    system "go", "build", *std_go_args, "-mod=vendor"
   end
 
   test do
@@ -54,9 +47,9 @@ class Terrahelp < Formula
       Plan: 0 to add, 0 to change, 0 to destroy.
     EOS
 
-    output = shell_output("cat #{tf_output} \| #{bin}/terrahelp mask --tfvars #{tf_vars}").strip
+    output = pipe_output("#{bin}/terrahelp mask --tfvars #{tf_vars}", tf_output.read).strip
 
     assert_match("vars.msg1: \"******\"", output, "expecting sensitive value to be masked")
-    assert_not_match(/sensitive-value-1-AK#%DJGHS\*G/, output, "not expecting sensitive value to be presentt")
+    refute_match(/sensitive-value-1-AK#%DJGHS\*G/, output, "not expecting sensitive value to be presentt")
   end
 end

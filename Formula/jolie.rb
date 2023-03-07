@@ -1,15 +1,12 @@
 class Jolie < Formula
-  desc "The Jolie Language Interpreter"
+  desc "Service-oriented programming language"
   homepage "https://www.jolie-lang.org/"
-  url "https://github.com/jolie/jolie/releases/download/v1.9.1/jolie-1.9.1.jar"
-  sha256 "e4b43f2b247102f49c05fb48d64ca294141b3488de38bd089c99653ca83c644d"
-  license "LGPL-2.1"
+  url "https://github.com/jolie/jolie/releases/download/v1.10.13/jolie-1.10.13.jar"
+  sha256 "475c32552eaacb0de1f50e109f52e713610a99538b71abfc9167755e41c022a1"
+  license "LGPL-2.1-only"
 
   bottle do
-    cellar :any_skip_relocation
-    sha256 "f8aecb9822259d55665704df3939d474d4c86de04979d4f8cf244a4cf2ba3150" => :catalina
-    sha256 "f8aecb9822259d55665704df3939d474d4c86de04979d4f8cf244a4cf2ba3150" => :mojave
-    sha256 "f8aecb9822259d55665704df3939d474d4c86de04979d4f8cf244a4cf2ba3150" => :high_sierra
+    sha256 cellar: :any_skip_relocation, all: "3f2b2870d5769acb0d8a1ab6a3b7f24e4c3a654d55567627a708e641256e8206"
   end
 
   depends_on "openjdk"
@@ -28,29 +25,34 @@ class Jolie < Formula
   test do
     file = testpath/"test.ol"
     file.write <<~EOS
-      include "console.iol"
+      from console import Console, ConsoleIface
 
-      interface EchoInterface {
-        OneWay: echo( int )
-      }
+      interface PowTwoInterface { OneWay: powTwo( int ) }
 
-      inputPort In {
-        location: "local://testPort"
-        interfaces: EchoInterface
-      }
+      service main(){
 
-      outputPort Self {
-        location: "local://testPort"
-        interfaces: EchoInterface
-      }
+        outputPort Console { interfaces: ConsoleIface }
+        embed Console in Console
 
-      init{
-        echo@Self( 4 )
-      }
+        inputPort In {
+          location: "local://testPort"
+          interfaces: PowTwoInterface
+        }
 
-      main {
-        echo( x )
-        println@Console( x * x )()
+        outputPort Self {
+          location: "local://testPort"
+          interfaces: PowTwoInterface
+        }
+
+        init {
+          powTwo@Self( 4 )
+        }
+
+        main {
+          powTwo( x )
+          println@Console( x * x )()
+        }
+
       }
     EOS
 

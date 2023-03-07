@@ -1,20 +1,22 @@
 class Mktorrent < Formula
   desc "Create BitTorrent metainfo files"
-  homepage "https://github.com/Rudde/mktorrent/wiki"
-  url "https://github.com/Rudde/mktorrent/archive/v1.1.tar.gz"
+  homepage "https://github.com/pobrn/mktorrent/wiki"
+  url "https://github.com/pobrn/mktorrent/archive/v1.1.tar.gz"
   sha256 "d0f47500192605d01b5a2569c605e51ed319f557d24cfcbcb23a26d51d6138c9"
-  license "GPL-2.0"
-  revision 1
+  license "GPL-2.0-or-later"
+  revision 2
 
   bottle do
-    cellar :any
-    sha256 "3c9a180d450b8e49d1c4a6fc967df8599f602f955b7b27f8589b2052e0d77a91" => :catalina
-    sha256 "22bc8649ce5fea25549610eec4110d45f3fa1d05335cfc982df82806ff34d71b" => :mojave
-    sha256 "60be732dfea657c6faffa7e9d644f6ade7f974e7fea6ec46fa2941baac5eee80" => :high_sierra
-    sha256 "3e7f91587dbea47713351b40a99b50728a878a9eb720eca14bd125541e62606f" => :sierra
+    sha256 cellar: :any,                 arm64_ventura:  "5ecd805a7cab873d9a32dbecca561cb49cdc1e200dc1eb5e009e0e02a7202b78"
+    sha256 cellar: :any,                 arm64_monterey: "bea6dc20b4e3276571b8dd0e42ab6d3bf6351d8746da085e65b4c3685f1d0fee"
+    sha256 cellar: :any,                 arm64_big_sur:  "09d65c9299c56ddc90c69192019452719a7492f7b3ac9cd14af32554d8c2ba35"
+    sha256 cellar: :any,                 ventura:        "4fd92b8b522faa30fc1433bb6dca8550e81c7936344c09cd490a714b11654cc7"
+    sha256 cellar: :any,                 monterey:       "b582261a10aebf9b44820f6e30a38bf8941833a9ffc3eba2a5869853c5514ef8"
+    sha256 cellar: :any,                 big_sur:        "64810768318138d7d88d4915a619644fec95fb789d028508bde97b82e0e31ad0"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "2d977a90d91e84d0064b6d2134a85454c500d2093afece3e1b1e6d393c091cac"
   end
 
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
 
   def install
     system "make", "USE_PTHREADS=1", "USE_OPENSSL=1", "USE_LONG_OPTIONS=1"
